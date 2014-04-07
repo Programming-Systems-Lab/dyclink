@@ -6,7 +6,9 @@ public class BytecodeTest {
             // character++;
             System.out.println("Hello " + character);
         } else {
+        	// FIXME: LAN - this part is not working : should show a write for below
             character = 'a';
+            // FIXME: LAN - this part is not working : should show a read for below
             System.out.println(character + " is null");
         }
     }
