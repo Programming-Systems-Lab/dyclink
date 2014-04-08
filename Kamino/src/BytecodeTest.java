@@ -4,12 +4,12 @@ public class BytecodeTest {
         if (args[0].equals("hello")) {
             // FIXME - LAN try incrementing
             // character++;
+        	
+            // FIXME: LAN - this part is not working : should show a read for below
             System.out.println("Hello " + character);
         } else {
-        	// FIXME: LAN - this part is not working : should show a write for below
             character = 'a';
-            // FIXME: LAN - this part is not working : should show a read for below
-            System.out.println(character + " is null");
+//            System.out.println(character + " is null");
         }
     }
 }

@@ -76,23 +76,37 @@ public class BasicBlockIdentifier extends MethodNode {
 
 				// DATA FLOW
 				case AbstractInsnNode.VAR_INSN:
+					int variableID = ((VarInsnNode) insn).var;
+					Vector<DirectionalPair> frameIDs;
 					switch (insn.getOpcode()) {
-					// If local variable STORE then record basic block location
+					// case Opcodes.ALOAD: // load object from local variable
+						case Opcodes.ILOAD: // integer
+						case Opcodes.DLOAD: // double
+						case Opcodes.FLOAD: // float
+						case Opcodes.LLOAD: // long
+							frameIDs = variableID_frames_map.get(variableID);
+							DirectionalPair dp = frameIDs.lastElement();
+							frameIDs.add(new DirectionalPair(dp.getEndFrameID(), currentFrameID, dp.getWriteID()));
+							variableID_frames_map.put(variableID, frameIDs);
+
+							this.instructions.insertBefore(insn, new LdcInsnNode("BB variableID_frameIDs_map " + variableID_frames_map));
+							this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
+							break;
+
+						// If local variable STORE then record basic block location
 						case Opcodes.ASTORE: // store object in local variable
 						case Opcodes.ISTORE: // integer
 						case Opcodes.DSTORE: // double
 						case Opcodes.FSTORE: // float
 						case Opcodes.LSTORE: // long
-							int variableID = ((VarInsnNode) insn).var;
 							// FIXME: LAN - need to record in a way that you can easily grab the currentFrameID + variable information (for dynamic execution)							
 							if (!variableID_frames_map.containsKey(variableID)) {
-								Vector<DirectionalPair> frameIDs = new Vector<DirectionalPair>();
-								// add new local variable - start and end is the same frame
-								frameIDs.add(new DirectionalPair(currentFrameID, currentFrameID));
+								frameIDs = new Vector<DirectionalPair>();
+								frameIDs.add(new DirectionalPair(currentFrameID, currentFrameID, currentFrameID));
 								variableID_frames_map.put(variableID, frameIDs);
 							} else {
-								Vector<DirectionalPair> frameIDs = variableID_frames_map.get(variableID);
-								frameIDs.add(new DirectionalPair(frameIDs.lastElement().getEndFrameID(), currentFrameID));
+								frameIDs = variableID_frames_map.get(variableID);
+								frameIDs.add(new DirectionalPair(frameIDs.lastElement().getEndFrameID(), currentFrameID, currentFrameID));
 								variableID_frames_map.put(variableID, frameIDs);
 							}
 							this.instructions.insertBefore(insn, new LdcInsnNode("BB variableID_frameIDs_map " + variableID_frames_map));
@@ -103,6 +117,7 @@ public class BasicBlockIdentifier extends MethodNode {
 			}
 			insn = insn.getNext();
 		}
+		System.out.println(variableID_frames_map);
 
 		// Iterate over instructions (2): Log basic blocks
 		currentFrameID = 0;
@@ -182,9 +197,8 @@ public class BasicBlockIdentifier extends MethodNode {
 						this.instructions.insertBefore(jumpInsn, new IntInsnNode(Opcodes.SIPUSH, currentFrameID + 1)); // not taken
 						this.instructions.insertBefore(jumpInsn, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
 						        "logEdgeControl", "(ZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;III)V", false));
-
-						currentFrameID++;
 					}
+					currentFrameID++;
 					break;
 
 				// DATA FLOW
@@ -199,18 +213,20 @@ public class BasicBlockIdentifier extends MethodNode {
 						case Opcodes.LLOAD: // long
 							// If current frame contains a read of local variable
 							for (DirectionalPair framePair : variableID_frames_map.get(vin.var)) {
+								System.out.println("test1: " + framePair + " in frame " + (currentFrameID));
 								if (framePair.getEndFrameID() == currentFrameID) {
+									System.out.println("test2:  " + framePair);
+
 									// Push logging information onto the stack
 									this.instructions.insertBefore(vin, new LdcInsnNode(this.className));
 									this.instructions.insertBefore(vin, new LdcInsnNode(this.name));
 									this.instructions.insertBefore(vin, new LdcInsnNode(this.desc));
-									// FIXME: LAN - Not sure this is correct
 									this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, framePair.getStartFrameID())); // from
 									this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, framePair.getEndFrameID())); // to
 									this.instructions.insertBefore(vin,
 									        new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class), "logEdgeReadData",
 									                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
-									
+
 									this.instructions.insertBefore(insn, new LdcInsnNode("BB  FramePair: " + framePair));
 									this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
 								}
@@ -241,13 +257,12 @@ public class BasicBlockIdentifier extends MethodNode {
 									this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
 								}
 							}
-							
 							break;
 					}
 			}
+
 			insn = insn.getNext();
 		}
-
 		System.out.println("done");
 		this.accept(nextMV);
 

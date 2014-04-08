@@ -2,12 +2,20 @@ package edu.columbia.cs.psl.kamino;
 
 public class DirectionalPair {
 
+	private int writeID;
 	private int startFrameID;
 	private int endFrameID;
 
 	public DirectionalPair(int startFrameID, int endFrameID) {
 		this.startFrameID = startFrameID;
 		this.endFrameID = endFrameID;
+		this.writeID = -1;
+	}
+	
+	public DirectionalPair(int startFrameID, int endFrameID, int writeID) {
+		this.startFrameID = startFrameID;
+		this.endFrameID = endFrameID;
+		this.writeID = writeID;
 	}
 
 	public int getStartFrameID() {
@@ -17,11 +25,11 @@ public class DirectionalPair {
 	public int getEndFrameID() {
 		return this.endFrameID;
 	}
-	
-	public boolean contains(int frameID) {
-		return (frameID == this.startFrameID) || (frameID == this.endFrameID);
+
+	public int getWriteID() {
+		return this.writeID;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {
@@ -31,10 +39,12 @@ public class DirectionalPair {
 			return false;
 		}
 		DirectionalPair pair = (DirectionalPair) obj;
-		return (this.startFrameID == pair.getStartFrameID()) && (this.endFrameID == pair.getEndFrameID());
+		return (this.startFrameID == pair.getStartFrameID()) && (this.endFrameID == pair.getEndFrameID())
+		        && (this.writeID == pair.getWriteID());
 	}
 
 	public String toString() {
-		return "from " + this.startFrameID + " to " + this.endFrameID;
+		String written = (this.writeID == this.endFrameID) ? "write " : "read (written in " + this.writeID + ") ";
+		return written + "from " + this.startFrameID + " to " + this.endFrameID;
 	}
 }
