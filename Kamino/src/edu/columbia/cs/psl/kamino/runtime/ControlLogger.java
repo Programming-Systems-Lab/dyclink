@@ -25,9 +25,5 @@ public class ControlLogger {
 	public static void logEdgeWriteData(String className, String methodName, String methodDescriptor, int bbFrom, int bbTo) {
 		// FIXME: LAN - switch to logging instead of printing
 		System.out.println("LogEdgeWriteData: " + className + "." + methodName + methodDescriptor + "  From:" + bbFrom + " To:" + bbTo);
-	}
-
-	// FIXME: LAN - data flow simple case
-	// print if any local variable that is primitive is read or written in more than one 
-	// basic block then print it out    
+	}  
 }

@@ -45,79 +45,33 @@ public class BasicBlockIdentifier extends MethodNode {
 			switch (insn.getType()) {
 			// CONTROL FLOW
 				case AbstractInsnNode.FRAME:
-				case AbstractInsnNode.JUMP_INSN:
 					currentFrameID++;
-					break;
-				/*
-				 * Old way --- not working
-				 * case AbstractInsnNode.FRAME:
-				 * currentFrameID++;
-				 * this.instructions.insertBefore(insn, new LdcInsnNode("BB: FRAME "));
-				 * this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
-				 * break;
-				 * case AbstractInsnNode.JUMP_INSN:
-				 * if (insn.getOpcode() != Opcodes.GOTO) {
-				 * currentFrameID++;
-				 * this.instructions.insertBefore(insn, new LdcInsnNode("BB: JUMP "));
-				 * this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
-				 * } else {
-				 * currentFrameID++;
-				 * this.instructions.insertBefore(insn, new LdcInsnNode("BB: GOTO "));
-				 * this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
-				 * }
-				 * break;
-				 */
-				case AbstractInsnNode.LABEL:
-					label_frameID_map.put((((LabelNode) insn).getLabel()), currentFrameID);
-					this.instructions.insertBefore(insn, new LdcInsnNode("BB: label_frameID_map " + (((LabelNode) insn).getLabel()) + " ==> "
-					        + currentFrameID));
+					this.instructions.insertBefore(insn, new LdcInsnNode("BB: FRAME "));
 					this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
 					break;
-
-				// DATA FLOW
-				case AbstractInsnNode.VAR_INSN:
-					int variableID = ((VarInsnNode) insn).var;
-					Vector<DirectionalPair> frameIDs;
-					switch (insn.getOpcode()) {
-					// case Opcodes.ALOAD: // load object from local variable
-						case Opcodes.ILOAD: // integer
-						case Opcodes.DLOAD: // double
-						case Opcodes.FLOAD: // float
-						case Opcodes.LLOAD: // long
-							frameIDs = variableID_frames_map.get(variableID);
-							DirectionalPair dp = frameIDs.lastElement();
-							frameIDs.add(new DirectionalPair(dp.getEndFrameID(), currentFrameID, dp.getWriteID()));
-							variableID_frames_map.put(variableID, frameIDs);
-
-							this.instructions.insertBefore(insn, new LdcInsnNode("BB variableID_frameIDs_map " + variableID_frames_map));
-							this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
-							break;
-
-						// If local variable STORE then record basic block location
-						case Opcodes.ASTORE: // store object in local variable
-						case Opcodes.ISTORE: // integer
-						case Opcodes.DSTORE: // double
-						case Opcodes.FSTORE: // float
-						case Opcodes.LSTORE: // long
-							// FIXME: LAN - need to record in a way that you can easily grab the currentFrameID + variable information (for dynamic execution)							
-							if (!variableID_frames_map.containsKey(variableID)) {
-								frameIDs = new Vector<DirectionalPair>();
-								frameIDs.add(new DirectionalPair(currentFrameID, currentFrameID, currentFrameID));
-								variableID_frames_map.put(variableID, frameIDs);
-							} else {
-								frameIDs = variableID_frames_map.get(variableID);
-								frameIDs.add(new DirectionalPair(frameIDs.lastElement().getEndFrameID(), currentFrameID, currentFrameID));
-								variableID_frames_map.put(variableID, frameIDs);
-							}
-							this.instructions.insertBefore(insn, new LdcInsnNode("BB variableID_frameIDs_map " + variableID_frames_map));
-							this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
-							break;
+				case AbstractInsnNode.JUMP_INSN:
+					if (insn.getOpcode() != Opcodes.GOTO) {
+						currentFrameID++;
+						this.instructions.insertBefore(insn, new LdcInsnNode("BB: JUMP "));
+						this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
+					} else {
+						currentFrameID++;
+						this.instructions.insertBefore(insn, new LdcInsnNode("BB: GOTO "));
+						this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
 					}
+					break;
+
+				case AbstractInsnNode.LABEL:
+					label_frameID_map.put((((LabelNode) insn).getLabel()), currentFrameID);
+
+					// Debug Output
+					this.instructions.insertBefore(insn, new LdcInsnNode("BB    LABEL to FRAME " + (((LabelNode) insn).getLabel()) + " ==> "
+					        + currentFrameID));
+					this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
 					break;
 			}
 			insn = insn.getNext();
 		}
-		System.out.println(variableID_frames_map);
 
 		// Iterate over instructions (2): Log basic blocks
 		currentFrameID = 0;
@@ -137,16 +91,22 @@ public class BasicBlockIdentifier extends MethodNode {
 					if (labelBefore.getPrevious().getOpcode() == Opcodes.GOTO) {
 						break;
 					}
-					currentFrameID++;
 
 					// Push logging information onto the stack
 					this.instructions.insertBefore(labelBefore, new LdcInsnNode(this.className));
 					this.instructions.insertBefore(labelBefore, new LdcInsnNode(this.name));
 					this.instructions.insertBefore(labelBefore, new LdcInsnNode(this.desc));
-					this.instructions.insertBefore(labelBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // to
-					this.instructions.insertBefore(labelBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID + 1)); // from
+					this.instructions.insertBefore(labelBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // from
+					this.instructions.insertBefore(labelBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID + 1)); // to
 					this.instructions.insertBefore(labelBefore, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
 					        "logEdgeControl", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
+
+					
+					currentFrameID++;
+					// Debug info
+					this.instructions.insertBefore(insn, new LdcInsnNode("BB   AbstractInsnNode.FRAME currentFrameID=" + currentFrameID));
+					this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
+
 					break;
 
 				case AbstractInsnNode.JUMP_INSN:
@@ -156,8 +116,8 @@ public class BasicBlockIdentifier extends MethodNode {
 						this.instructions.insertBefore(jumpInsn, new LdcInsnNode(this.className));
 						this.instructions.insertBefore(jumpInsn, new LdcInsnNode(this.name));
 						this.instructions.insertBefore(jumpInsn, new LdcInsnNode(this.desc));
-						this.instructions.insertBefore(jumpInsn, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // to
-						this.instructions.insertBefore(jumpInsn, new IntInsnNode(Opcodes.SIPUSH, label_frameID_map.get(jumpInsn.label.getLabel()))); // from
+						this.instructions.insertBefore(jumpInsn, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // from
+						this.instructions.insertBefore(jumpInsn, new IntInsnNode(Opcodes.SIPUSH, label_frameID_map.get(jumpInsn.label.getLabel()))); // to
 						this.instructions.insertBefore(jumpInsn, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
 						        "logEdgeControl", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
 					} else {
@@ -179,12 +139,12 @@ public class BasicBlockIdentifier extends MethodNode {
 						}
 
 						// Taken/Not-Taken Check
-						LabelNode branchTaken = new LabelNode(new Label());
+						LabelNode branchChoice = new LabelNode(new Label());
 						LabelNode isDone = new LabelNode(new Label());
-						this.instructions.insertBefore(insn, new JumpInsnNode(insn.getOpcode(), branchTaken));
+						this.instructions.insertBefore(insn, new JumpInsnNode(insn.getOpcode(), branchChoice));
 						this.instructions.insertBefore(insn, new InsnNode(Opcodes.ICONST_0));
 						this.instructions.insertBefore(insn, new JumpInsnNode(Opcodes.GOTO, isDone));
-						this.instructions.insertBefore(insn, branchTaken);
+						this.instructions.insertBefore(insn, branchChoice);
 						this.instructions.insertBefore(insn, new InsnNode(Opcodes.ICONST_1));
 						this.instructions.insertBefore(insn, isDone);
 
@@ -199,70 +159,75 @@ public class BasicBlockIdentifier extends MethodNode {
 						        "logEdgeControl", "(ZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;III)V", false));
 					}
 					currentFrameID++;
+					// Debug info
+					this.instructions.insertBefore(insn, new LdcInsnNode("BB   AbstractInsnNode.FRAME currentFrameID=" + currentFrameID));
+					this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
+
 					break;
 
 				// DATA FLOW
 				case AbstractInsnNode.VAR_INSN:
 					VarInsnNode vin = (VarInsnNode) insn;
 					switch (insn.getOpcode()) {
-					// READ: If local variable load, record current location
-					// case Opcodes.ALOAD: // load object from local variable
-						case Opcodes.ILOAD: // integer
-						case Opcodes.DLOAD: // double
-						case Opcodes.FLOAD: // float
-						case Opcodes.LLOAD: // long
-							// If current frame contains a read of local variable
-							for (DirectionalPair framePair : variableID_frames_map.get(vin.var)) {
-								System.out.println("test1: " + framePair + " in frame " + (currentFrameID));
-								if (framePair.getEndFrameID() == currentFrameID) {
-									System.out.println("test2:  " + framePair);
-
-									// Push logging information onto the stack
-									this.instructions.insertBefore(vin, new LdcInsnNode(this.className));
-									this.instructions.insertBefore(vin, new LdcInsnNode(this.name));
-									this.instructions.insertBefore(vin, new LdcInsnNode(this.desc));
-									this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, framePair.getStartFrameID())); // from
-									this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, framePair.getEndFrameID())); // to
-									this.instructions.insertBefore(vin,
-									        new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class), "logEdgeReadData",
-									                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
-
-									this.instructions.insertBefore(insn, new LdcInsnNode("BB  FramePair: " + framePair));
-									this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
-								}
-							}
-							break;
-
-						// WRITE: If local variable STORE, record current location by updating the first position in the array of frames for the variable
-						// case Opcodes.ASTORE: // store object in local variable
+					// WRITE: If local variable STORE, log location and add another directional pair entry in map (from one frame to another)
+					// case Opcodes.ASTORE: // store object in local variable
 						case Opcodes.ISTORE: // integer
 						case Opcodes.DSTORE: // double
 						case Opcodes.FSTORE: // float
 						case Opcodes.LSTORE: // long
 						case Opcodes.IINC: // increment local variable
-							// If current frame contains a write of a local variable
-							for (DirectionalPair framePair : variableID_frames_map.get(vin.var)) {
-								if (framePair.getEndFrameID() == currentFrameID) {
-									// Push logging information onto the stack
-									this.instructions.insertBefore(vin, new LdcInsnNode(this.className));
-									this.instructions.insertBefore(vin, new LdcInsnNode(this.name));
-									this.instructions.insertBefore(vin, new LdcInsnNode(this.desc));
-									// FIXME: LAN - Not sure this is correct
-									this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, framePair.getStartFrameID())); // from
-									this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, framePair.getEndFrameID())); // to
-									this.instructions.insertBefore(vin,
-									        new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class), "logEdgeWriteData",
-									                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
-									this.instructions.insertBefore(insn, new LdcInsnNode("BB  FramePair: " + framePair));
-									this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
-								}
+							Vector<DirectionalPair> frameIDs = new Vector<DirectionalPair>();
+							if (!variableID_frames_map.containsKey(vin.var)) {
+								// If initialization of local variable then no direction, i.e. start = end = currentFrameID
+								frameIDs.add(new DirectionalPair(currentFrameID, currentFrameID));
+								variableID_frames_map.put(vin.var, frameIDs);
+							} else {
+								// Only keep track of writes (so reads will know where their info is coming from most recently)
+								frameIDs = variableID_frames_map.get(vin.var);
+								frameIDs.add(new DirectionalPair(frameIDs.lastElement().getEndFrameID(), currentFrameID));
+								variableID_frames_map.put(vin.var, frameIDs);
 							}
+							// Push logging information onto the stack
+							this.instructions.insertBefore(vin, new LdcInsnNode(this.className));
+							this.instructions.insertBefore(vin, new LdcInsnNode(this.name));
+							this.instructions.insertBefore(vin, new LdcInsnNode(this.desc));
+							this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, frameIDs.lastElement().getStartFrameID())); // from
+							this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, frameIDs.lastElement().getEndFrameID())); // to
+							this.instructions.insertBefore(vin, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
+							        "logEdgeWriteData", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
+
+							// Debug output
+							this.instructions.insertBefore(insn, new LdcInsnNode("BB    WRITE from " + frameIDs.lastElement().getStartFrameID()
+							        + " to " + frameIDs.lastElement().getEndFrameID()));
+							this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
+							break;
+
+						// READ: If local variable load, log location
+						// case Opcodes.ALOAD: // load object from local variable
+						case Opcodes.ILOAD: // integer
+						case Opcodes.DLOAD: // double
+						case Opcodes.FLOAD: // float
+						case Opcodes.LLOAD: // long
+							// Push logging information onto the stack
+							this.instructions.insertBefore(vin, new LdcInsnNode(this.className));
+							this.instructions.insertBefore(vin, new LdcInsnNode(this.name));
+							this.instructions.insertBefore(vin, new LdcInsnNode(this.desc));
+							this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, variableID_frames_map.get(vin.var).lastElement()
+							        .getEndFrameID())); // from
+							this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // to
+							this.instructions.insertBefore(vin, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
+							        "logEdgeReadData", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
+
+							// Debug output
+							this.instructions.insertBefore(insn, new LdcInsnNode("BB    READ from "
+							        + variableID_frames_map.get(vin.var).lastElement().getEndFrameID() + " to " + currentFrameID));
+							this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
 							break;
 					}
 			}
-
 			insn = insn.getNext();
 		}
+		System.out.println(variableID_frames_map);
 		System.out.println("done");
 		this.accept(nextMV);
 
