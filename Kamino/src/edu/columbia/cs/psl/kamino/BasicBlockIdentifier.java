@@ -42,50 +42,95 @@ public class BasicBlockIdentifier extends MethodNode {
 
         // Iterate over instructions (1): Locate and record label for each basic block
         AbstractInsnNode insn = this.instructions.getFirst();
-        Label lab = null;
+        int nLabel = 0;
+        Label lastLabel = null;
         while (insn != null) {
             switch (insn.getType()) {
                 case AbstractInsnNode.FRAME:
-                    //					currentFrameID++;
-                    break;
-                case AbstractInsnNode.JUMP_INSN:
-                    if (insn.getOpcode() != Opcodes.GOTO) {
-                        lab = ((JumpInsnNode) insn).label.getLabel(); // label where the jump actually goes				
-                        currentFrameID++;  // this is just incrementing not figuring out where the jump is going if its taken
+                    //check to make sure we are not first frame after a goto
+                    AbstractInsnNode prev = insn.getPrevious();
+                    while (prev.getType() == AbstractInsnNode.LINE || prev.getType() == AbstractInsnNode.LABEL) {
+                        prev = prev.getPrevious();
                     }
+                    if (prev.getOpcode() != Opcodes.GOTO) {
+                        currentFrameID++;
+                    }
+                    if (lastLabel != null) {
+                        label_frameID_map.put(lastLabel, currentFrameID);
+                    }
+                    break;
+
+                case AbstractInsnNode.JUMP_INSN:
                     currentFrameID++;
                     break;
+
                 case AbstractInsnNode.LABEL:
-                    // FIXME - LAN This isn't working for jump instructions (taken v not taken)
+                    System.out.println("L" + nLabel + " = " + currentFrameID);
+                    nLabel++;
                     label_frameID_map.put((((LabelNode) insn).getLabel()), currentFrameID);
+                    lastLabel = (((LabelNode) insn).getLabel());
                     break;
             }
             insn = insn.getNext();
         }
+
         // Iterate over instructions (2): Log basic blocks
-        currentFrameID = 0;
+        currentFrameID = 0; //NOTE - this will not be correct at the label before a new frame starts, which probably should count as part of the newly starting frame (but won't here)
         insn = this.instructions.getFirst();
         while (insn != null) {
             switch (insn.getType()) {
             // CONTROL FLOW
             // Inserted before instructions following unconditional branch, target of jump, or starts exception handler block
                 case AbstractInsnNode.FRAME:
-                    // Push logging information onto the stack
-                    this.instructions.insertBefore(insn, new LdcInsnNode(this.className));
-                    this.instructions.insertBefore(insn, new LdcInsnNode(this.name));
-                    this.instructions.insertBefore(insn, new LdcInsnNode(this.desc));
-                    this.instructions.insertBefore(insn, new LdcInsnNode("FRAME "));
-                    this.instructions.insertBefore(insn, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // from
-                    this.instructions.insertBefore(insn, new IntInsnNode(Opcodes.SIPUSH, currentFrameID + 1)); // to
-                    this.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
-                            "logEdgeControl", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
 
-                    currentFrameID++;
-                    // Debug info
-                    this.instructions.insertBefore(insn, new LdcInsnNode("BB   AbstractInsnNode.FRAME currentFrameID=" + currentFrameID));
-                    this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
+                    AbstractInsnNode prev = insn.getPrevious();
+                    while (prev.getType() == AbstractInsnNode.LINE || prev.getType() == AbstractInsnNode.LABEL) {
+                        prev = prev.getPrevious();
+                    }
+                    // Frame after GOTO will be found because it is definitely reached through a JUMP
+                    // Frame not after a GOTO could be a JUMP target or could be reached from a fall through so needs to be logged before the LABEL
+                    if (prev.getOpcode() != Opcodes.GOTO) {
+                        AbstractInsnNode insertBefore = prev.getNext();
+                        // Push logging information onto the stack
+                        this.instructions.insertBefore(insertBefore, new LdcInsnNode(this.className));
+                        this.instructions.insertBefore(insertBefore, new LdcInsnNode(this.name));
+                        this.instructions.insertBefore(insertBefore, new LdcInsnNode(this.desc));
+                        this.instructions.insertBefore(insertBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // from
+                        this.instructions.insertBefore(insertBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID + 1)); // to
+                        this.instructions.insertBefore(insertBefore, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
+                                "logEdgeControl", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
 
+                        // Debug info
+                        this.instructions.insertBefore(insertBefore, new LdcInsnNode("BB   AbstractInsnNode.FRAME currentFrameID=" + currentFrameID));
+                        this.instructions.insertBefore(insertBefore, new InsnNode(Opcodes.POP));
+
+                        currentFrameID++;
+                    }
                     break;
+                // OLD WAY
+                //                    AbstractInsnNode insertBefore = insn.getNext();
+                //                    // Push logging information onto the stack
+                //                    this.instructions.insertBefore(insertBefore, new LdcInsnNode(this.className));
+                //                    this.instructions.insertBefore(insertBefore, new LdcInsnNode(this.name));
+                //                    this.instructions.insertBefore(insertBefore, new LdcInsnNode(this.desc));
+                //                    this.instructions.insertBefore(insertBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // from
+                //                    this.instructions.insertBefore(insertBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID + 1)); // to
+                //                    this.instructions.insertBefore(insertBefore, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
+                //                            "logEdgeControl", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
+                //
+                //                    AbstractInsnNode prev = insn.getPrevious();
+                //                    while (prev.getType() == AbstractInsnNode.LINE || prev.getType() == AbstractInsnNode.LABEL) {
+                //                        prev = prev.getPrevious();
+                //                    }
+                //                    if (prev.getOpcode() != Opcodes.GOTO) {
+                //                        currentFrameID++;
+                //                    }
+                //
+                //                    // Debug info
+                //                    this.instructions.insertBefore(insertBefore, new LdcInsnNode("BB   AbstractInsnNode.FRAME currentFrameID=" + currentFrameID));
+                //                    this.instructions.insertBefore(insertBefore, new InsnNode(Opcodes.POP));
+                //
+                //                    break;
 
                 case AbstractInsnNode.JUMP_INSN:
                     JumpInsnNode jumpInsn = (JumpInsnNode) insn;
@@ -94,11 +139,10 @@ public class BasicBlockIdentifier extends MethodNode {
                         this.instructions.insertBefore(jumpInsn, new LdcInsnNode(this.className));
                         this.instructions.insertBefore(jumpInsn, new LdcInsnNode(this.name));
                         this.instructions.insertBefore(jumpInsn, new LdcInsnNode(this.desc));
-                        this.instructions.insertBefore(insn, new LdcInsnNode("GOTO "));
                         this.instructions.insertBefore(jumpInsn, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // from
                         this.instructions.insertBefore(jumpInsn, new IntInsnNode(Opcodes.SIPUSH, label_frameID_map.get(jumpInsn.label.getLabel()))); // to
                         this.instructions.insertBefore(jumpInsn, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
-                                "logEdgeControl", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
+                                "logEdgeControl", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
 
                         // Debug Output
                         this.instructions.insertBefore(insn, new LdcInsnNode("BB   AbstractInsnNode.GOTO currentFrameID=" + currentFrameID));
@@ -144,9 +188,8 @@ public class BasicBlockIdentifier extends MethodNode {
                         // Debug Output
                         this.instructions.insertBefore(insn, new LdcInsnNode("BB   AbstractInsnNode.JUMP currentFrameID=" + currentFrameID));
                         this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
-
-                        currentFrameID++;
                     }
+                    currentFrameID++;
                     break;
 
                 // DATA FLOW
