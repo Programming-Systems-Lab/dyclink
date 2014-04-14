@@ -53,6 +53,7 @@ public class BasicBlockIdentifier extends MethodNode {
                     break;
 
                 case AbstractInsnNode.LABEL:
+                    // FIXME - LAN This isn't working for jump instructions (taken v not taken)
                     label_frameID_map.put((((LabelNode) insn).getLabel()), currentFrameID);
                     break;
             }

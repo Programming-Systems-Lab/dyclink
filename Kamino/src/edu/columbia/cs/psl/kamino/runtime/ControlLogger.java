@@ -7,14 +7,14 @@ public class ControlLogger {
 
 	public static void logEdgeControl(String className, String methodName, String methodDescriptor, int bbFrom, int bbTo) {
 		// FIXME: LAN - switch to logging instead of printing
-		System.out.println("LogEdgeControl: " + className + "." + methodName + methodDescriptor + "  From:" + bbFrom + " To:" + bbTo);
+//		System.out.println("LogEdgeControl: " + className + "." + methodName + methodDescriptor + "  From:" + bbFrom + " To:" + bbTo);
 	}
 
 	public static void logEdgeControl(boolean branchTaken, String className, String methodName, String methodDescriptor, int bbFrom, int bbTaken,
 	        int bbNotTaken) {
 		// FIXME: LAN - switch to logging instead of printing
-		System.out.println("LogEdgeControl: " + className + "." + methodName + methodDescriptor + "  From:" + bbFrom + " bbTaken:" + bbTaken
-		        + " bbNotTaken:" + bbNotTaken + " Taken:" + branchTaken);
+//		System.out.println("LogEdgeControl: " + className + "." + methodName + methodDescriptor + "  From:" + bbFrom + " bbTaken:" + bbTaken
+//		        + " bbNotTaken:" + bbNotTaken + " Taken:" + branchTaken);
 	}
 
 	public static void logEdgeReadData(String className, String methodName, String methodDescriptor, int bbFrom, int bbTo) {
