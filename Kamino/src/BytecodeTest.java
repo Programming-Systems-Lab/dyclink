@@ -3,7 +3,8 @@ public class BytecodeTest {
 		char character = 'A';
 		if (args[0].equals("hello")) {
 			System.out.println("Hello " + character);
-			character++;
+//			character++; FIXME LAN
+			character = 'b';
 			System.out.println("Hello " + character);
 		} else {
 			character = 'a';
@@ -11,3 +12,80 @@ public class BytecodeTest {
 		}
 	}
 }
+/*
+// access flags 0x9
+public static main([Ljava/lang/String;)V
+ L0
+  LINENUMBER 3 L0
+  BIPUSH 65
+  ISTORE 1
+ L1
+  LINENUMBER 4 L1
+  ALOAD 0
+  ICONST_0
+  AALOAD
+  LDC "hello"
+  INVOKEVIRTUAL java/lang/String.equals (Ljava/lang/Object;)Z
+  IFEQ L2
+ 
+ 
+ L3
+  LINENUMBER 5 L3
+  GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+  NEW java/lang/StringBuilder
+  DUP
+  LDC "Hello "
+  INVOKESPECIAL java/lang/StringBuilder.<init> (Ljava/lang/String;)V
+  ILOAD 1
+  INVOKEVIRTUAL java/lang/StringBuilder.append (C)Ljava/lang/StringBuilder;
+  INVOKEVIRTUAL java/lang/StringBuilder.toString ()Ljava/lang/String;
+  INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+ L4
+  LINENUMBER 7 L4
+  BIPUSH 98
+  ISTORE 1
+ L5
+  LINENUMBER 8 L5
+  GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+  NEW java/lang/StringBuilder
+  DUP
+  LDC "Hello "
+  INVOKESPECIAL java/lang/StringBuilder.<init> (Ljava/lang/String;)V
+  ILOAD 1
+  INVOKEVIRTUAL java/lang/StringBuilder.append (C)Ljava/lang/StringBuilder;
+  INVOKEVIRTUAL java/lang/StringBuilder.toString ()Ljava/lang/String;
+  INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+ L6
+  LINENUMBER 9 L6
+  GOTO L7
+ 
+ 
+ L2
+  LINENUMBER 10 L2
+ FRAME APPEND [I]
+  BIPUSH 97
+  ISTORE 1
+ L8
+  LINENUMBER 11 L8
+  GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
+  NEW java/lang/StringBuilder
+  DUP
+  ILOAD 1
+  INVOKESTATIC java/lang/String.valueOf (C)Ljava/lang/String;
+  INVOKESPECIAL java/lang/StringBuilder.<init> (Ljava/lang/String;)V
+  LDC " is null"
+  INVOKEVIRTUAL java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;
+  INVOKEVIRTUAL java/lang/StringBuilder.toString ()Ljava/lang/String;
+  INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+ 
+ 
+ L7
+  LINENUMBER 13 L7
+ FRAME SAME
+  RETURN
+ L9
+  LOCALVARIABLE args [Ljava/lang/String; L0 L9 0
+  LOCALVARIABLE character C L1 L9 1
+  MAXSTACK = 4
+  MAXLOCALS = 2
+*/
