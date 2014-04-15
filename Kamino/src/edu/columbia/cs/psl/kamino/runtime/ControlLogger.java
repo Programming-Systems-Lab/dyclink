@@ -1,6 +1,9 @@
 package edu.columbia.cs.psl.kamino.runtime;
 
 public class ControlLogger {
+
+	public static boolean branchIsTaken;
+
 	public static void doTest(String whoDidtest) {
 		System.out.println("You called doTest: " + whoDidtest);
 	}
@@ -13,6 +16,7 @@ public class ControlLogger {
 	public static void logEdgeControl(boolean branchTaken, String className, String methodName, String methodDescriptor, int bbFrom, int bbTaken,
 	        int bbNotTaken) {
 		// FIXME: LAN - switch to logging instead of printing
+		branchIsTaken = branchTaken;
 		System.out.println("LogEdgeControl: " + className + "." + methodName + methodDescriptor + "  From:" + bbFrom + " bbTaken:" + bbTaken
 		        + " bbNotTaken:" + bbNotTaken + " Taken:" + branchTaken);
 	}

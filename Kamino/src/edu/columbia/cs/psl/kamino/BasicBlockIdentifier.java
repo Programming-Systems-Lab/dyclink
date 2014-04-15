@@ -1,7 +1,6 @@
 package edu.columbia.cs.psl.kamino;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -24,9 +23,7 @@ public class BasicBlockIdentifier extends MethodNode {
 
 	private MethodVisitor nextMV;
 	public Map<Label, Integer> label_frameID_map = new HashMap<Label, Integer>();
-//    public Map<Integer, Vector<DirectionalPair>> variableID_frames_map = new HashMap<Integer, Vector<DirectionalPair>>();
-	public Map<Integer, Integer> variable_lastWrite = new HashMap<Integer, Integer>();
-	public List<Integer> framesReachedList = new Vector<Integer>();
+	public Map<Integer, Vector<Integer>> variable_writeFrames = new HashMap<Integer, Vector<Integer>>();
 
 	private int currentFrameID = 0;
 	private String className;
@@ -78,7 +75,7 @@ public class BasicBlockIdentifier extends MethodNode {
 
 		// Iterate over instructions (2): Log basic blocks
 		currentFrameID = 0; //NOTE - this will be incorrect at the label before a new frame starts, which probably should count as part of the newly starting frame (but won't here)
-		int lastVariableID = -1; 
+		int lastVariableID = -1;
 		insn = this.instructions.getFirst();
 		while (insn != null) {
 			switch (insn.getType()) {
@@ -108,9 +105,9 @@ public class BasicBlockIdentifier extends MethodNode {
 						this.instructions.insertBefore(insertBefore, new InsnNode(Opcodes.POP));
 
 						currentFrameID++;
-						variable_lastWrite.put(lastVariableID, currentFrameID);
-//						System.out.println("variable_lastWrite " + variable_lastWrite);
-
+						Vector<Integer> frameIDs = variable_writeFrames.get(lastVariableID);
+						frameIDs.add(currentFrameID);
+						variable_writeFrames.put(lastVariableID, frameIDs);
 					}
 					break;
 
@@ -126,8 +123,9 @@ public class BasicBlockIdentifier extends MethodNode {
 						this.instructions.insertBefore(jumpInsn, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
 						        "logEdgeControl", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
 
-						variable_lastWrite.put(lastVariableID, label_frameID_map.get(jumpInsn.label.getLabel()));
-//						System.out.println("variable_lastWrite " + variable_lastWrite);
+						Vector<Integer> frameIDs = variable_writeFrames.get(lastVariableID);
+						frameIDs.add(label_frameID_map.get(jumpInsn.label.getLabel()));
+						variable_writeFrames.put(lastVariableID, frameIDs);
 
 						// Debug Output
 						this.instructions.insertBefore(insn, new LdcInsnNode("BB   AbstractInsnNode.GOTO currentFrameID=" + currentFrameID));
@@ -170,16 +168,14 @@ public class BasicBlockIdentifier extends MethodNode {
 						this.instructions.insertBefore(jumpInsn, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
 						        "logEdgeControl", "(ZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;III)V", false));
 
-						//FIXME LAN - figure out which branch is taken
-						boolean taken = true;
-						if (taken) {
-							variable_lastWrite.put(lastVariableID, label_frameID_map.get(jumpInsn.label.getLabel()));
-							System.out.println("variable_lastWrite " + variable_lastWrite);
-						} else {
-							// not taken
-							variable_lastWrite.put(lastVariableID, currentFrameID+1);
-							System.out.println("variable_lastWrite " + variable_lastWrite);
+						//FIXME LAN - figure out which branch is taken - this is hacky
+						Vector<Integer> frameIDs = variable_writeFrames.get(lastVariableID);
+						if (ControlLogger.branchIsTaken) {
+							frameIDs.add(label_frameID_map.get(jumpInsn.label.getLabel()));
+						} else {  // not taken
+							frameIDs.add(currentFrameID+1);
 						}
+						variable_writeFrames.put(lastVariableID, frameIDs);
 
 						// Debug Output
 						this.instructions.insertBefore(insn, new LdcInsnNode("BB   AbstractInsnNode.JUMP currentFrameID=" + currentFrameID));
@@ -199,21 +195,30 @@ public class BasicBlockIdentifier extends MethodNode {
 						case Opcodes.FSTORE: // float
 						case Opcodes.LSTORE: // long
 						case Opcodes.IINC: // increment local variable
-							// First time we see the variable
-							if (!variable_lastWrite.containsKey(vin.var)) {
-								variable_lastWrite.put(vin.var, currentFrameID);
-								System.out.println("variable_lastWrite " + variable_lastWrite);
+							
+							if (!variable_writeFrames.containsKey(vin.var)) {
+								Vector<Integer> firstFrameIDs = new Vector<Integer>();
+								firstFrameIDs.add(currentFrameID);
+								variable_writeFrames.put(vin.var, firstFrameIDs);
 							}
+							Vector<Integer> frameIDs = variable_writeFrames.get(vin.var);
+							
+							// FIXME LAN - figure out when to remove and when to not remove
+							int frame = frameIDs.get(0);
+							if (frameIDs.size() > 1) {
+								frameIDs.remove(0);
+								variable_writeFrames.put(vin.var, frameIDs);
+							} 
 
 							// Push logging information onto the stack
 							this.instructions.insertBefore(vin, new LdcInsnNode(this.className));
 							this.instructions.insertBefore(vin, new LdcInsnNode(this.name));
 							this.instructions.insertBefore(vin, new LdcInsnNode(this.desc));
-							this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, variable_lastWrite.get(vin.var))); // from
+							this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, frame)); // from
 							this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // to
 							this.instructions.insertBefore(vin, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
 							        "logEdgeWriteData", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
-							
+
 							lastVariableID = vin.var;
 							break;
 
@@ -223,11 +228,12 @@ public class BasicBlockIdentifier extends MethodNode {
 						case Opcodes.DLOAD: // double
 						case Opcodes.FLOAD: // float
 						case Opcodes.LLOAD: // long
+
 							// Push logging information onto the stack
 							this.instructions.insertBefore(vin, new LdcInsnNode(this.className));
 							this.instructions.insertBefore(vin, new LdcInsnNode(this.name));
 							this.instructions.insertBefore(vin, new LdcInsnNode(this.desc));
-							this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, variable_lastWrite.get(vin.var))); // from
+							this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, variable_writeFrames.get(vin.var).get(0))); // from
 							this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // to
 							this.instructions.insertBefore(vin, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
 							        "logEdgeReadData", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
