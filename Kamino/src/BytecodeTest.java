@@ -3,8 +3,7 @@ public class BytecodeTest {
 		char character = 'A';
 		if (args[0].equals("hello")) {
 			System.out.println("Hello " + character);
-//			character++; FIXME LAN
-			character = 'b';
+			character++;
 			System.out.println("Hello " + character);
 		} else {
 			character = 'a';

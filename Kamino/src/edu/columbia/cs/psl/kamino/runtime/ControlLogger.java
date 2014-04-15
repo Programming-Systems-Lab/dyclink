@@ -2,32 +2,32 @@ package edu.columbia.cs.psl.kamino.runtime;
 
 public class ControlLogger {
 
-	public static boolean branchIsTaken;
+    public static boolean branchIsTaken;
 
-	public static void doTest(String whoDidtest) {
-		System.out.println("You called doTest: " + whoDidtest);
-	}
+    public static void doTest(String whoDidtest) {
+        System.out.println("You called doTest:" + whoDidtest);
+    }
 
-	public static void logEdgeControl(String className, String methodName, String methodDescriptor, int bbFrom, int bbTo) {
-		// FIXME: LAN - switch to logging instead of printing
-		System.out.println("LogEdgeControl: " + className + "." + methodName + methodDescriptor + "  From:" + bbFrom + " To:" + bbTo);
-	}
+    public static void logEdgeControl(String className, String methodName, String methodDescriptor, int bbFrom, int bbTo) {
+        // FIXME:LAN - switch to logging instead of printing
+        System.out.println("LogEdgeControl:" + className + "." + methodName + methodDescriptor + "  From:" + bbFrom + " To:" + bbTo);
+    }
 
-	public static void logEdgeControl(boolean branchTaken, String className, String methodName, String methodDescriptor, int bbFrom, int bbTaken,
-	        int bbNotTaken) {
-		// FIXME: LAN - switch to logging instead of printing
-		branchIsTaken = branchTaken;
-		System.out.println("LogEdgeControl: " + className + "." + methodName + methodDescriptor + "  From:" + bbFrom + " bbTaken:" + bbTaken
-		        + " bbNotTaken:" + bbNotTaken + " Taken:" + branchTaken);
-	}
+    public static void logEdgeControl(boolean branchTaken, String className, String methodName, String methodDescriptor, int bbFrom, int bbTaken,
+            int bbNotTaken) {
+        // FIXME:LAN - switch to logging instead of printing
+        branchIsTaken = branchTaken;
+        System.out.println("LogEdgeControl:" + className + "." + methodName + methodDescriptor + "  From:" + bbFrom + " bbTaken:" + bbTaken
+                + " bbNotTaken:" + bbNotTaken + " Taken:" + branchTaken);
+    }
 
-	public static void logEdgeReadData(String className, String methodName, String methodDescriptor, int bbFrom, int bbTo) {
-		// FIXME: LAN - switch to logging instead of printing
-		System.out.println("LogEdgeReadData: " + className + "." + methodName + methodDescriptor + "  From:" + bbFrom + " To:" + bbTo);
-	}
+    public static void logEdgeReadData(String className, String methodName, String methodDescriptor, int variableID, int frameID) {
+        // FIXME:LAN - switch to logging instead of printing
+        System.out.println("LogEdgeReadData:" + className + "." + methodName + methodDescriptor + "  variable_id:" + variableID + " Frame:" + frameID);
+    }
 
-	public static void logEdgeWriteData(String className, String methodName, String methodDescriptor, int bbFrom, int bbTo) {
-		// FIXME: LAN - switch to logging instead of printing
-		System.out.println("LogEdgeWriteData: " + className + "." + methodName + methodDescriptor + "  From:" + bbFrom + " To:" + bbTo);
-	}
+    public static void logEdgeWriteData(String className, String methodName, String methodDescriptor, int variableID, int frameID) {
+        // FIXME:LAN - switch to logging instead of printing
+        System.out.println("LogEdgeWriteData:" + className + "." + methodName + methodDescriptor + "  variable_id:" + variableID + " Frame:" + frameID);
+    }
 }
