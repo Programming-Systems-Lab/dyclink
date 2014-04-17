@@ -1,0 +1,7 @@
+DataWrite, BytecodeTest.main([Ljava/lang/String;)V  variable_id:1 Frame:0
+DataWrite, BytecodeTest.main([Ljava/lang/String;)V  variable_id:2 Frame:0
+DataRead, BytecodeTest.main([Ljava/lang/String;)V  variable_id:0 Frame:0
+Control, BytecodeTest.main([Ljava/lang/String;)V  From:0 To:2
+DataWrite, BytecodeTest.main([Ljava/lang/String;)V  variable_id:1 Frame:2
+DataWrite, BytecodeTest.main([Ljava/lang/String;)V  variable_id:2 Frame:2
+DataRead, BytecodeTest.main([Ljava/lang/String;)V  variable_id:2 Frame:2

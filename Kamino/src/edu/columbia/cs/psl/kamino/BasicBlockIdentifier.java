@@ -1,8 +1,10 @@
 package edu.columbia.cs.psl.kamino;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.columbia.cs.psl.kamino.org.objectweb.asm.Handle;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.Label;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.MethodVisitor;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.Opcodes;
@@ -10,6 +12,7 @@ import edu.columbia.cs.psl.kamino.org.objectweb.asm.Type;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.AbstractInsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.InsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.IntInsnNode;
+import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.JumpInsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.LabelNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.LdcInsnNode;
@@ -17,8 +20,12 @@ import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.MethodInsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.MethodNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.VarInsnNode;
 import edu.columbia.cs.psl.kamino.runtime.ControlLogger;
+import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 
 public class BasicBlockIdentifier extends MethodNode {
+
+    //FIXME LAN - work on building this
+    //    DirectedSparseMultigraph<Integer, Integer> graph = new DirectedSparseMultigraph<Integer, Integer>();
 
     private MethodVisitor nextMV;
     public Map<Label, Integer> label_frameID_map = new HashMap<Label, Integer>();
@@ -38,7 +45,7 @@ public class BasicBlockIdentifier extends MethodNode {
 
         // Iterate over instructions (1): Locate and record label for each basic block
         AbstractInsnNode insn = this.instructions.getFirst();
-        //        int nLabel = 0;
+        // int nLabel = 0;
         Label lastLabel = null;
         while (insn != null) {
             switch (insn.getType()) {
@@ -61,8 +68,8 @@ public class BasicBlockIdentifier extends MethodNode {
                     break;
 
                 case AbstractInsnNode.LABEL:
-                    //                    System.out.println("L" + nLabel + " = " + currentFrameID);
-                    //                    nLabel++;
+                    // System.out.println("L" + nLabel + " = " + currentFrameID);
+                    // nLabel++;
                     label_frameID_map.put((((LabelNode) insn).getLabel()), currentFrameID);
                     lastLabel = (((LabelNode) insn).getLabel());
                     break;
@@ -92,10 +99,24 @@ public class BasicBlockIdentifier extends MethodNode {
                         this.instructions.insertBefore(insertBefore, new LdcInsnNode(this.desc));
                         this.instructions.insertBefore(insertBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // from
                         this.instructions.insertBefore(insertBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID + 1)); // to
-                        this.instructions.insertBefore(insertBefore, new MethodInsnNode(Opcodes.INVOKESTATIC, Type
-                                .getInternalName(ControlLogger.class), "logEdgeControl",
-                                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
+                        //                        this.instructions.insertBefore(insertBefore, new MethodInsnNode(Opcodes.INVOKESTATIC, Type
+                        //                                .getInternalName(ControlLogger.class), "logEdgeControl",
+                        //                                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
+                        
+                        //FIXME LAN
+//                        this.instructions.insertBefore(
+//                                insertBefore,
+//                                new InvokeDynamicInsnNode("logEdgeControl", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", new Handle(Opcodes.H_INVOKESTATIC, Type
+//                                        .getInternalName(ControlLogger.class),
+//                                        "logEdgeControl", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V"),
+//                                        this.className, this.name, this.desc, currentFrameID, (currentFrameID + 1)));
 
+                        /*
+                         * name =
+                         * owner =
+                         * desc =
+                         * opcode = Opcodes.INVOKESTATIC
+                         */
                         // Debug info
                         this.instructions.insertBefore(insertBefore, new LdcInsnNode("BB   AbstractInsnNode.FRAME currentFrameID=" + currentFrameID));
                         this.instructions.insertBefore(insertBefore, new InsnNode(Opcodes.POP));
@@ -119,7 +140,7 @@ public class BasicBlockIdentifier extends MethodNode {
                         // Debug Output
                         this.instructions.insertBefore(insn, new LdcInsnNode("BB   AbstractInsnNode.GOTO currentFrameID=" + currentFrameID));
                         this.instructions.insertBefore(insn, new InsnNode(Opcodes.POP));
-                        
+
                     } else {
                         // Check if conditional branch takes one or two operands, and duplicate them for Taken/Not-Taken check
                         switch (insn.getOpcode()) {
@@ -170,7 +191,7 @@ public class BasicBlockIdentifier extends MethodNode {
                     VarInsnNode vin = (VarInsnNode) insn;
                     switch (insn.getOpcode()) {
                     // WRITE: If local variable STORE, log location and add another directional pair entry in map (from one frame to another)
-                    // case Opcodes.ASTORE: // store object in local variable
+                        case Opcodes.ASTORE: // store object in local variable
                         case Opcodes.ISTORE: // integer
                         case Opcodes.DSTORE: // double
                         case Opcodes.FSTORE: // float
@@ -192,7 +213,7 @@ public class BasicBlockIdentifier extends MethodNode {
                             break;
 
                         // READ: If local variable load, log location
-                        // case Opcodes.ALOAD: // load object from local variable
+                        case Opcodes.ALOAD: // load object from local variable
                         case Opcodes.ILOAD: // integer
                         case Opcodes.DLOAD: // double
                         case Opcodes.FLOAD: // float
@@ -215,55 +236,7 @@ public class BasicBlockIdentifier extends MethodNode {
             }
             insn = insn.getNext();
         }
-        System.out.println("done");
+        System.out.println("done ");
         this.accept(nextMV);
-
-        /*
-         * // access flags 0x9
-         * public static main([Ljava/lang/String;)V
-         * 
-         * L0
-         * ** Basic block 0 starts - beginning of method
-         * LINENUMBER 4 L0
-         * ALOAD 0
-         * ICONST_0
-         * AALOAD
-         * LDC "hello"
-         * INVOKEVIRTUAL java/lang/String.equals(Ljava/lang/Object;)Z
-         * ** Need to determine if jumping or not, and log if we are or not
-         * IFEQ L1
-         * 
-         * ** Basic block 1 starts - just after jump instruction
-         * L2
-         * LINENUMBER 5 L2
-         * GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
-         * LDC "Hello"
-         * INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
-         * ** Always log that we are jumping
-         * ** Want to call public static logEdge(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V that is,
-         * ** public static void logEdge(String className, String methodName, String methodDescriptor, int bbFrom, int bbTo)
-         * GOTO L3
-         * 
-         * ** Basic block 2 starts - just after jump instruction
-         * ** by our current rule, insert logging here**unreachable
-         * L1
-         * LINENUMBER 7 L1
-         * FRAME SAME
-         * GETSTATIC java/lang/System.out : Ljava/io/PrintStream;
-         * LDC "null"
-         * INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
-         * 
-         * ** Basic block 3 starts - target of jump instruction
-         * ** Log that we are going straight from 2->3
-         * L3
-         * LINENUMBER 8 L3
-         * FRAME SAME
-         * RETURN
-         * 
-         * L4
-         * LOCALVARIABLE args [Ljava/lang/String; L0 L4 0
-         * MAXSTACK = 2
-         * MAXLOCALS = 1
-         */
     }
 }
