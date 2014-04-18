@@ -1,10 +1,8 @@
 package edu.columbia.cs.psl.kamino;
 
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.columbia.cs.psl.kamino.org.objectweb.asm.Handle;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.Label;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.MethodVisitor;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.Opcodes;
@@ -12,7 +10,6 @@ import edu.columbia.cs.psl.kamino.org.objectweb.asm.Type;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.AbstractInsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.InsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.IntInsnNode;
-import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.JumpInsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.LabelNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.LdcInsnNode;
@@ -20,12 +17,8 @@ import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.MethodInsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.MethodNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.VarInsnNode;
 import edu.columbia.cs.psl.kamino.runtime.ControlLogger;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 
 public class BasicBlockIdentifier extends MethodNode {
-
-    //FIXME LAN - work on building this
-    //    DirectedSparseMultigraph<Integer, Integer> graph = new DirectedSparseMultigraph<Integer, Integer>();
 
     private MethodVisitor nextMV;
     public Map<Label, Integer> label_frameID_map = new HashMap<Label, Integer>();
@@ -99,9 +92,9 @@ public class BasicBlockIdentifier extends MethodNode {
                         this.instructions.insertBefore(insertBefore, new LdcInsnNode(this.desc));
                         this.instructions.insertBefore(insertBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // from
                         this.instructions.insertBefore(insertBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID + 1)); // to
-                        //                        this.instructions.insertBefore(insertBefore, new MethodInsnNode(Opcodes.INVOKESTATIC, Type
-                        //                                .getInternalName(ControlLogger.class), "logEdgeControl",
-                        //                                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
+                                                this.instructions.insertBefore(insertBefore, new MethodInsnNode(Opcodes.INVOKESTATIC, Type
+                                                        .getInternalName(ControlLogger.class), "logEdgeControl",
+                                                        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
                         
                         //FIXME LAN
 //                        this.instructions.insertBefore(
