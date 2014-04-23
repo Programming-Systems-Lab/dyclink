@@ -96,20 +96,6 @@ public class BasicBlockIdentifier extends MethodNode {
                                                         .getInternalName(ControlLogger.class), "logEdgeControl",
                                                         "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
                         
-                        //FIXME LAN
-//                        this.instructions.insertBefore(
-//                                insertBefore,
-//                                new InvokeDynamicInsnNode("logEdgeControl", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", new Handle(Opcodes.H_INVOKESTATIC, Type
-//                                        .getInternalName(ControlLogger.class),
-//                                        "logEdgeControl", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V"),
-//                                        this.className, this.name, this.desc, currentFrameID, (currentFrameID + 1)));
-
-                        /*
-                         * name =
-                         * owner =
-                         * desc =
-                         * opcode = Opcodes.INVOKESTATIC
-                         */
                         // Debug info
                         this.instructions.insertBefore(insertBefore, new LdcInsnNode("BB   AbstractInsnNode.FRAME currentFrameID=" + currentFrameID));
                         this.instructions.insertBefore(insertBefore, new InsnNode(Opcodes.POP));

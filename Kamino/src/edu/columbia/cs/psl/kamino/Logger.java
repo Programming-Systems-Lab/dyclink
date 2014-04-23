@@ -9,7 +9,7 @@ import java.io.OutputStreamWriter;
 
 public class Logger {
     private OutputStreamWriter writer;
-    private File outputFile;
+    public File outputFile;
 
     public Logger(File outputFile) {
         this.outputFile = outputFile;
