@@ -66,7 +66,6 @@ public class GraphConverter {
 
     public GraphConverter(String filename) {
         try {
-            // FIXME LAN - File name must match in each place (hacky)
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
             String logEntry;
 
@@ -215,6 +214,12 @@ public class GraphConverter {
     }
 
     public static void main(String[] args) {
+        //        if (args.length != 1) {
+        //            System.err.println("GraphConverter: Incorrect number of arguments. Provide output file to create graph");
+        //        } else {
+        //            GraphConverter graph = new GraphConverter(args[0]);
+        //            System.out.println(graph);
+        //        }
         GraphConverter graph = new GraphConverter("data/BytecodeTest.output");
         System.out.println(graph);
     }
