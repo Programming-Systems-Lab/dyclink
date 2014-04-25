@@ -33,8 +33,6 @@ public class Logger {
 
 	public void closeBuffer() {
 		try {
-			System.out.println();
-			System.out.println("Output file: " + outputFile);
 			this.writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
