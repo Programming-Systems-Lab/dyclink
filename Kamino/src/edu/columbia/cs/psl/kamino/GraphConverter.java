@@ -15,9 +15,6 @@ import edu.uci.ics.jung.graph.util.EdgeType;
 
 public class GraphConverter {
 
-    public final static char DATA_EDGE = 'D';
-    public final static char CONTROL_EDGE = 'C';
-
     Map<String, DirectedSparseMultigraph<Node, Link>> method_graph_map = new HashMap<String, DirectedSparseMultigraph<Node, Link>>();  // each method has a graph for data/control flow
     Map<String, Integer> edgeName_weight_map = new HashMap<String, Integer>();  // each edge has a weight = # data and/or #control flows
     Map<Integer, Integer> variable_lastFrameID_map = new HashMap<Integer, Integer>();  // each variable has a frame/basic block where it was last seen
@@ -51,7 +48,7 @@ public class GraphConverter {
         private int weight;
 
         public Link(char flow_type, int weight) {
-            if (flow_type == DATA_EDGE || flow_type == CONTROL_EDGE) {
+            if (flow_type == Constants.DATA_EDGE || flow_type == Constants.CONTROL_EDGE) {
                 this.flow_type = flow_type;
             } else {
                 System.err.println("GraphConverter: Incorrect graph flow type given as link: " + flow_type);
@@ -120,7 +117,7 @@ public class GraphConverter {
 
                     // If the edge already exists in the graph, remove it and add a new one with weight++
                     for (Object old_link : graph.findEdgeSet(fromNode, toNode).toArray()) {
-                        if (old_link != null && ((Link) old_link).flow_type == CONTROL_EDGE) {
+                        if (old_link != null && ((Link) old_link).flow_type == Constants.CONTROL_EDGE) {
                             graph.removeEdge((Link) old_link);
                         }
                     }
@@ -130,7 +127,7 @@ public class GraphConverter {
                     Integer old_weight = edgeName_weight_map.get(key);
                     int weight = (old_weight != null) ? old_weight + 1 : 1;
                     edgeName_weight_map.put(key, weight);
-                    graph.addEdge(new Link(CONTROL_EDGE, weight), fromNode, toNode, EdgeType.DIRECTED);
+                    graph.addEdge(new Link(Constants.CONTROL_EDGE, weight), fromNode, toNode, EdgeType.DIRECTED);
 
                 } else {
                     int variableID = Integer.valueOf(entryParts[2].substring(12));
@@ -182,7 +179,7 @@ public class GraphConverter {
 
                         // If the edge already exists in the graph, remove it and add a new one with weight++
                         for (Object old_link : graph.findEdgeSet(fromNode, toNode).toArray()) {
-                            if (old_link != null && ((Link) old_link).flow_type == DATA_EDGE) {
+                            if (old_link != null && ((Link) old_link).flow_type == Constants.DATA_EDGE) {
                                 graph.removeEdge((Link) old_link);
                             }
                         }
@@ -192,7 +189,7 @@ public class GraphConverter {
                         Integer old_weight = edgeName_weight_map.get(key);
                         int weight = (old_weight != null) ? old_weight + 1 : 1;
                         edgeName_weight_map.put(key, weight);
-                        graph.addEdge(new Link(DATA_EDGE, weight), fromNode, toNode, EdgeType.DIRECTED);
+                        graph.addEdge(new Link(Constants.DATA_EDGE, weight), fromNode, toNode, EdgeType.DIRECTED);
 
                     }
                     variable_lastFrameID_map.put(variableID, bbTo);
@@ -214,13 +211,8 @@ public class GraphConverter {
     }
 
     public static void main(String[] args) {
-        //        if (args.length != 1) {
-        //            System.err.println("GraphConverter: Incorrect number of arguments. Provide output file to create graph");
-        //        } else {
-        //            GraphConverter graph = new GraphConverter(args[0]);
-        //            System.out.println(graph);
-        //        }
-        GraphConverter graph = new GraphConverter("data/BytecodeTest.output");
+        Constants.logger.closeBuffer();
+        GraphConverter graph = new GraphConverter(Constants.BBFLOW_OUTPUT_FILE);
         System.out.println(graph);
     }
 }
