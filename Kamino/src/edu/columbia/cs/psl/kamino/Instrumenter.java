@@ -43,8 +43,6 @@ public class Instrumenter {
 	public static HashSet<String> interfaces = new HashSet<String>();
 	public static CallGraph callgraph = new CallGraph();
 
-	public final static Logger logger = new Logger(new File("data/graph.output"));
-
 	static int nChanges = 0;
 	static boolean analysisInvalidated = false;
 	static boolean ANALYZE_ONLY;
@@ -102,11 +100,11 @@ public class Instrumenter {
 //		}
 //	}
 
-	public static void finishedAnalysis() {
-		File graphDir = new File("pc-graphs");
-		if (!graphDir.exists()) graphDir.mkdir();
-		System.out.println("Analysis Completed: Beginning Instrumentation Phase");
-	}
+//	public static void finishedAnalysis() {
+//		File graphDir = new File("pc-graphs");
+//		if (!graphDir.exists()) graphDir.mkdir();
+//		System.out.println("Analysis Completed: Beginning Instrumentation Phase");
+//	}
 
 	public static boolean isIgnoredClass(String owner) {
 		if (IS_ANDROID_INST && !ControlFlowLoggingClassVisitor.IS_RUNTIME_INST) {
@@ -151,11 +149,17 @@ public class Instrumenter {
 	}
 
 	public static void main(String[] args) {
+		System.out.println("Arguments:");
+		for (String arg : args) {
+			System.out.println(arg);
+		}
+		System.out.println();
 		ControlFlowLoggingClassVisitor.IS_RUNTIME_INST = false;
 		ANALYZE_ONLY = true;
 //		preAnalysis();
 		_main(args);
-		finishedAnalysis();
+		System.out.println("Analysis Completed: Beginning Instrumentation Phase");
+//		finishedAnalysis();
 		ANALYZE_ONLY = false;
 		_main(args);
 		System.out.println("Instrumentation Completed");

@@ -93,7 +93,7 @@ public class PreMain {
 			cr = new ClassReader(newClass);
 
 			try {
-				cr.accept(new SerialVersionUIDAdder(new ControlFlowLoggingClassVisitor(cw)), ClassReader.EXPAND_FRAMES);
+	            cr.accept(new CheckClassAdapter(new ControlFlowLoggingClassVisitor(cw)), ClassReader.EXPAND_FRAMES);
 			} catch (Throwable ex) {
 				PrintWriter pw = null;
 				try {
@@ -106,7 +106,7 @@ public class PreMain {
 					ex.printStackTrace();
 					System.err.println("running again to trace it");
 					cr = new ClassReader(cw2.toByteArray());
-					cr.accept(new CheckClassAdapter(new SerialVersionUIDAdder(new ControlFlowLoggingClassVisitor(cv))), ClassReader.EXPAND_FRAMES);
+		            cr.accept(new CheckClassAdapter(new ControlFlowLoggingClassVisitor(cv)), ClassReader.EXPAND_FRAMES);
 				} catch (Throwable ex2) {
 					innerException = true;
 					System.err.println("writing out to " + cr.getClassName());
@@ -161,7 +161,7 @@ public class PreMain {
 			} catch (Throwable ex) {
 				cv = new TraceClassVisitor(null, null);
 				try {
-					cr.accept(new SerialVersionUIDAdder(new ControlFlowLoggingClassVisitor(cv)), ClassReader.EXPAND_FRAMES);
+		            cr.accept(new CheckClassAdapter(new ControlFlowLoggingClassVisitor(cv)), ClassReader.EXPAND_FRAMES);
 				} catch (Throwable ex2) {}
 				ex.printStackTrace();
 				System.err.println("method so far:");

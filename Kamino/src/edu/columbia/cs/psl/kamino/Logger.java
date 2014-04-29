@@ -16,7 +16,6 @@ public class Logger {
 		try {
 			this.writer = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(this.outputFile)));
 		} catch (FileNotFoundException e) {
-			closeBuffer();
 			e.printStackTrace();
 		}
 	}
@@ -33,6 +32,7 @@ public class Logger {
 
 	public void closeBuffer() {
 		try {
+			System.out.println("Logger: Buffer closed " + this.outputFile);
 			this.writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
