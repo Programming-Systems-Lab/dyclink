@@ -1,0 +1,37 @@
+=== Run information ===
+
+Scheme:weka.clusterers.SimpleKMeans -N 6 -A "weka.core.EuclideanDistance -R first-last" -I 500 -S 10
+Relation:     tomcat-8.0.5
+Instances:    1376330
+Attributes:   4
+              flow_type
+              from
+              to
+Ignored:
+              method
+Test mode:evaluate on training data
+
+=== Model and evaluation on training set ===
+
+
+kMeans
+======
+
+Number of iterations: 5
+Within cluster sum of squared errors: 139006.71115607332
+Missing values globally replaced with mean/mode
+
+Cluster centroids:
+                         Cluster#
+Attribute    Full Data          0          1          2          3          4          5
+             (1376330)   (251904)   (124730)   (125051)   (386762)   (241102)   (246781)
+========================================================================================
+flow_type         Read    Control    Control       Read       Read       Read       Read
+from            3.4903     5.4324     6.9038     0.9632     1.9809     4.0018      2.929
+to              4.5982     3.4348     8.0817     3.8907     3.2544     4.0012      7.073
+
+
+
+
+Time taken to build model (full training data) : 10.46 seconds
+
