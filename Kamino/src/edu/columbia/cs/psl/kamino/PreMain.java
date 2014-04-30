@@ -17,11 +17,14 @@ import edu.columbia.cs.psl.kamino.org.objectweb.asm.ClassWriter;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.MethodVisitor;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.Opcodes;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.commons.JSRInlinerAdapter;
-import edu.columbia.cs.psl.kamino.org.objectweb.asm.commons.SerialVersionUIDAdder;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.util.CheckClassAdapter;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.util.TraceClassVisitor;
 
 public class PreMain {
+	
+	// FIXME LAN - Change filename for different apache versions
+//	public final static Logger logger = new Logger(new File("/Users/whimsy/Documents/Columbia/research_clones/jvm-clones/Kamino/data/graph.output"));
+
 	private static Instrumentation instrumentation;
 	public static ClassLoader bigLoader = PreMain.class.getClassLoader();
 
@@ -193,7 +196,7 @@ public class PreMain {
 
 	public static void premain(String args, Instrumentation inst) {
 		instrumentation = inst;
-		if (Instrumenter.loader == null) Instrumenter.loader = bigLoader;
+		if (Instrumenter.loader == null) Instrumenter.loader = bigLoader;		
 		ClassFileTransformer transformer = new PCLoggingTransformer();
 		inst.addTransformer(transformer);
 

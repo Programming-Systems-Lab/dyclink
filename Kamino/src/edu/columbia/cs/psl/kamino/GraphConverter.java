@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import edu.columbia.cs.psl.kamino.GraphConverter.Link;
+import edu.columbia.cs.psl.kamino.GraphConverter.Node;
+import edu.uci.ics.jung.algorithms.cluster.VoltageClusterer;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
 public class GraphConverter {
-
-	public final static char DATA_EDGE = 'D';
-	public final static char CONTROL_EDGE = 'C';
 
 	Map<String, DirectedSparseMultigraph<Node, Link>> method_graph_map = new HashMap<String, DirectedSparseMultigraph<Node, Link>>();  // each method has a graph for data/control flow
 	Map<String, Integer> edgeName_weight_map = new HashMap<String, Integer>();  // each edge has a weight = # data and/or #control flows
@@ -48,7 +48,7 @@ public class GraphConverter {
 		private int weight;
 
 		public Link(char flow_type, int weight) {
-			if (flow_type == DATA_EDGE || flow_type == CONTROL_EDGE) {
+			if (flow_type == Constants.DATA_EDGE || flow_type == Constants.CONTROL_EDGE) {
 				this.flow_type = flow_type;
 			} else {
 				System.err.println("GraphConverter: Incorrect graph flow type given as link: " + flow_type);
@@ -117,7 +117,7 @@ public class GraphConverter {
 
 					// If the edge already exists in the graph, remove it and add a new one with weight++
 					for (Object old_link : graph.findEdgeSet(fromNode, toNode).toArray()) {
-						if (old_link != null && ((Link) old_link).flow_type == CONTROL_EDGE) {
+						if (old_link != null && ((Link) old_link).flow_type == Constants.CONTROL_EDGE) {
 							graph.removeEdge((Link) old_link);
 						}
 					}
@@ -127,7 +127,7 @@ public class GraphConverter {
 					Integer old_weight = edgeName_weight_map.get(key);
 					int weight = (old_weight != null) ? old_weight + 1 : 1;
 					edgeName_weight_map.put(key, weight);
-					graph.addEdge(new Link(CONTROL_EDGE, weight), fromNode, toNode, EdgeType.DIRECTED);
+					graph.addEdge(new Link(Constants.CONTROL_EDGE, weight), fromNode, toNode, EdgeType.DIRECTED);
 
 				} else {
 					int variableID = Integer.valueOf(entryParts[2].substring(12));
@@ -148,7 +148,6 @@ public class GraphConverter {
 							graph.addVertex(fromNode);
 						}
 						if (nodeSet.add(bbTo)) {
-							System.out.println(bbTo);
 							graph.addVertex(toNode);
 						}
 						method_nodeSet_map.put(method, nodeSet);
@@ -179,7 +178,7 @@ public class GraphConverter {
 
 						// If the edge already exists in the graph, remove it and add a new one with weight++
 						for (Object old_link : graph.findEdgeSet(fromNode, toNode).toArray()) {
-							if (old_link != null && ((Link) old_link).flow_type == DATA_EDGE) {
+							if (old_link != null && ((Link) old_link).flow_type == Constants.DATA_EDGE) {
 								graph.removeEdge((Link) old_link);
 							}
 						}
@@ -189,7 +188,7 @@ public class GraphConverter {
 						Integer old_weight = edgeName_weight_map.get(key);
 						int weight = (old_weight != null) ? old_weight + 1 : 1;
 						edgeName_weight_map.put(key, weight);
-						graph.addEdge(new Link(DATA_EDGE, weight), fromNode, toNode, EdgeType.DIRECTED);
+						graph.addEdge(new Link(Constants.DATA_EDGE, weight), fromNode, toNode, EdgeType.DIRECTED);
 
 					}
 					variable_lastFrameID_map.put(variableID, bbTo);
@@ -202,6 +201,14 @@ public class GraphConverter {
 		}
 	}
 
+	public void clusterGraphs() {
+		for (Entry<String, DirectedSparseMultigraph<Node, Link>> graphEntry : method_graph_map.entrySet()) {
+			// see http://en.wikipedia.org/wiki/Determining_the_number_of_clusters_in_a_data_set#Rule_of_thumb
+			int k = (int) Math.sqrt(graphEntry.getValue().getVertexCount() / 2); 
+			VoltageClusterer<Node, Link> clusterer = new VoltageClusterer<Node, Link>(graphEntry.getValue(), k);
+		}
+	}
+
 	public String toString() {
 		String toReturn = "";
 		for (Entry<String, DirectedSparseMultigraph<Node, Link>> entry : method_graph_map.entrySet()) {
@@ -211,6 +218,8 @@ public class GraphConverter {
 	}
 
 	public static void main(String[] args) {
+		System.out.println("GraphConverter: File " + args[0]);
+		System.out.println();
 		GraphConverter graph = new GraphConverter(args[0]);
 		System.out.println(graph);
 	}

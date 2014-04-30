@@ -16,7 +16,7 @@ import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.LdcInsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.MethodInsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.MethodNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.VarInsnNode;
-import edu.columbia.cs.psl.kamino.runtime.ControlLogger;
+import edu.columbia.cs.psl.kamino.runtime.FlowToARFF;
 
 public class BasicBlockIdentifier extends MethodNode {
 
@@ -92,8 +92,11 @@ public class BasicBlockIdentifier extends MethodNode {
 						this.instructions.insertBefore(insertBefore, new LdcInsnNode(this.desc));
 						this.instructions.insertBefore(insertBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // from
 						this.instructions.insertBefore(insertBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID + 1)); // to
+//						this.instructions.insertBefore(insertBefore, new MethodInsnNode(Opcodes.INVOKESTATIC, Type
+//						        .getInternalName(ControlLogger.class), "logEdgeControl",
+//						        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
 						this.instructions.insertBefore(insertBefore, new MethodInsnNode(Opcodes.INVOKESTATIC, Type
-						        .getInternalName(ControlLogger.class), "logEdgeControl",
+						        .getInternalName(FlowToARFF.class), "logEdgeControl",
 						        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
 
 						// Debug info
@@ -113,7 +116,9 @@ public class BasicBlockIdentifier extends MethodNode {
 						this.instructions.insertBefore(jumpInsn, new LdcInsnNode(this.desc));
 						this.instructions.insertBefore(jumpInsn, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // from
 						this.instructions.insertBefore(jumpInsn, new IntInsnNode(Opcodes.SIPUSH, label_frameID_map.get(jumpInsn.label.getLabel()))); // to
-						this.instructions.insertBefore(jumpInsn, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
+//						this.instructions.insertBefore(jumpInsn, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
+//						        "logEdgeControl", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
+						this.instructions.insertBefore(jumpInsn, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(FlowToARFF.class),
 						        "logEdgeControl", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
 
 						// Debug Output
@@ -155,7 +160,9 @@ public class BasicBlockIdentifier extends MethodNode {
 						this.instructions.insertBefore(jumpInsn, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // from
 						this.instructions.insertBefore(jumpInsn, new IntInsnNode(Opcodes.SIPUSH, label_frameID_map.get(jumpInsn.label.getLabel()))); // taken
 						this.instructions.insertBefore(jumpInsn, new IntInsnNode(Opcodes.SIPUSH, currentFrameID + 1)); // not taken
-						this.instructions.insertBefore(jumpInsn, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
+//						this.instructions.insertBefore(jumpInsn, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
+//						        "logEdgeControl", "(ZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;III)V", false));
+						this.instructions.insertBefore(jumpInsn, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(FlowToARFF.class),
 						        "logEdgeControl", "(ZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;III)V", false));
 
 						// Debug Output
@@ -183,7 +190,9 @@ public class BasicBlockIdentifier extends MethodNode {
 							this.instructions.insertBefore(vin, new LdcInsnNode(this.desc));
 							this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, vin.var));
 							this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, currentFrameID));
-							this.instructions.insertBefore(vin, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
+//							this.instructions.insertBefore(vin, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
+//							        "logEdgeWriteData", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
+							this.instructions.insertBefore(vin, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(FlowToARFF.class),
 							        "logEdgeWriteData", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
 
 							// Debug Output
@@ -204,7 +213,9 @@ public class BasicBlockIdentifier extends MethodNode {
 							this.instructions.insertBefore(vin, new LdcInsnNode(this.desc));
 							this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, vin.var));
 							this.instructions.insertBefore(vin, new IntInsnNode(Opcodes.SIPUSH, currentFrameID));
-							this.instructions.insertBefore(vin, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
+//							this.instructions.insertBefore(vin, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(ControlLogger.class),
+//							        "logEdgeReadData", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
+							this.instructions.insertBefore(vin, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(FlowToARFF.class),
 							        "logEdgeReadData", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
 
 							// Debug Output
