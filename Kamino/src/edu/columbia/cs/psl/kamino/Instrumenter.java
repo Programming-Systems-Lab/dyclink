@@ -161,6 +161,10 @@ public class Instrumenter {
 //		finishedAnalysis();
 		ANALYZE_ONLY = false;
 		_main(args);
+		boolean deleted = Constants.NO_DATAFLOW_ARFF.delete() || Constants.DATAFLOW_ARFF.delete();
+		if (deleted) {
+		    System.out.println("Removed old ARFF Files");
+		}
 		System.out.println("Instrumentation Completed");
 	}
 
