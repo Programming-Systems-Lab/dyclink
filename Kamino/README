@@ -1,0 +1,75 @@
+******
+README
+******
+
+
+
+Tomcat
+------
+
+http://tomcat.apache.org/
+
+$TOMCAT_HOME refers to the directory of a given version of tomcat’s topmost directory.
+
+We ran experiments using the test suites provided with the source code distributions of tomcat versions 7.0.53 and 8.0.5. We used Java 1.7.0_51 and Ant 1.9.3 for both tomcat versions. The following updates need to be made before running ant (See the BUILDING.txt for more setup instructions): 
+
+	* tomcat-7.0.53
+	
+	  1. Add the following to build.xml: 
+	     <!-- Using Java 7: Do not build dbcp -->
+	     <property name="no.build.dbcp" value="true"/>
+
+	  2. Set the following in build.properties.default
+	     # Location of Java7 JDK
+
+	  3. Set the following in build.properties.default
+	     # ----- Default Base Path for Dependent Packages -----
+
+
+	* tomcat-8.0.5
+	
+	  1. Set the following in build.properties.default
+	     # ----- Default Base Path for Dependent Packages -----
+
+
+Kamino
+------
+
+$KAMINO_HOME refers to the base directory of the Kamino project
+
+1. Update TOMCAT_VERSION in src/edu/columbia/cs/psl/kamino/Constants.java to reflect the version of Tomcat to use (TOMCAT_8 or TOMCAT_7)
+
+2. Compile and run src/edu/columbia/cs/psl/kamino/Instrumenter.java
+
+	* TOMCAT_8
+	  Command line arguments:
+	  args[0] = $TOMCAT_HOME/apache-tomcat-8.0.5-src
+	  args[1] = inst/tomcat-8.0.5
+
+	* TOMCAT_7
+	  Command line arguments:
+	  args[0] = $TOMCAT_HOME/apache-tomcat-7.0.53-src
+	  args[1] = inst/tomcat-7.0.53
+
+3. Export Kamino project to $KAMINO_HOME/kamino.jar
+
+4. From $KAMINO_HOME/inst/TOMCAT_VERSION run:
+   > ant -lib ../../kamino.jar test
+
+
+WEKA
+----
+
+http://www.cs.waikato.ac.nz/ml/weka/
+
+We used the Weka GUI Chooser application from the weka-3-6-11-oracle-jvm download
+
+
+
+
+
+
+
+
+
+

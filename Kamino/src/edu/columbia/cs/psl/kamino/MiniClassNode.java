@@ -2,10 +2,13 @@ package edu.columbia.cs.psl.kamino;
 
 import java.io.Serializable;
 
+/**
+ * @author Jon Bell
+ */
 public class MiniClassNode implements Serializable {
 
-	private static final long serialVersionUID = 8356667336925846294L;
-	public String name;
-	public String superName;
-	public String[] interfaces;
+    private static final long serialVersionUID = 8356667336925846294L;
+    public String name;
+    public String superName;
+    public String[] interfaces;
 }
