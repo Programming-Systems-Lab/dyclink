@@ -1,0 +1,26 @@
+  // access flags 0x1
+  public GCD(II)I
+   L0
+    LINENUMBER 8 L0
+    ILOAD 2
+    IFNE L1
+   L2
+    LINENUMBER 9 L2
+    ILOAD 1
+    IRETURN
+   L1
+    LINENUMBER 10 L1
+   FRAME SAME
+    ALOAD 0
+    ILOAD 2
+    ILOAD 1
+    ILOAD 2
+    IREM
+    INVOKEVIRTUAL GCDRecursive.GCD (II)I
+    IRETURN
+   L3
+    LOCALVARIABLE this LGCDRecursive; L0 L3 0
+    LOCALVARIABLE x I L0 L3 1
+    LOCALVARIABLE y I L0 L3 2
+    MAXSTACK = 4
+    MAXLOCALS = 3

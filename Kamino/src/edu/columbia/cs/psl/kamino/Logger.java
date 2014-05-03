@@ -46,18 +46,23 @@ public class Logger {
 
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                if (!line.contains("@") && (line.contains(String.valueOf(Constants.READ)) || line.contains(String.valueOf(Constants.WRITE)))) {
+                if (!line.contains("@") && line.length() > 0) {
                     String[] splitLineArray = line.split(",");
-                    String method_name = splitLineArray[0];
                     char flow_type = splitLineArray[1].toCharArray()[0];
-                    int variableID = Integer.valueOf(splitLineArray[2]);
-                    int toFrameID = Integer.valueOf(splitLineArray[4]);
-                    int fromFrameID = (variable_lastFrame_map.containsKey(variableID)) ? variable_lastFrame_map.get(variableID) : toFrameID;
+                    
+                    if (flow_type == Constants.READ || flow_type == Constants.WRITE) {
+                        String method_name = splitLineArray[0];
+                        int variableID = Integer.valueOf(splitLineArray[2]);
+                        int toFrameID = Integer.valueOf(splitLineArray[4]);
+                        int fromFrameID = (variable_lastFrame_map.containsKey(variableID)) ? variable_lastFrame_map.get(variableID) : toFrameID;
 
-                    if (flow_type == Constants.WRITE) {
-                        variable_lastFrame_map.put(variableID, toFrameID);
+                        if (flow_type == Constants.WRITE) {
+                            variable_lastFrame_map.put(variableID, toFrameID);
+                        }
+                        writer.write(method_name + "," + flow_type + "," + variableID + "," + fromFrameID + "," + toFrameID + "," + Math.abs(toFrameID - fromFrameID) + "\n");
+                    } else {
+                        writer.write(line + "\n");
                     }
-                    writer.write(method_name + "," + flow_type + "," + variableID + "," + fromFrameID + "," + toFrameID + "," + Math.abs(toFrameID - fromFrameID) + "\n");
                 } else {
                     writer.write(line + "\n");
                 }
