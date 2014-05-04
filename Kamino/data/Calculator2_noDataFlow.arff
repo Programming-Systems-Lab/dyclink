@@ -1,0 +1,80 @@
+@RELATION Calculator1
+
+@ATTRIBUTE method String
+@ATTRIBUTE flowType {C, R, W}
+@ATTRIBUTE variableID Numeric
+@ATTRIBUTE fromFrame Numeric
+@ATTRIBUTE toFrame Numeric
+@ATTRIBUTE frameDistance Numeric
+
+@DATA
+Calculator2-main-__Ljava_lang_String__V,W,1,?,0,?
+Calculator2-main-__Ljava_lang_String__V,W,2,?,0,?
+Calculator2-main-__Ljava_lang_String__V,W,3,?,0,?
+Calculator2-main-__Ljava_lang_String__V,W,4,?,0,?
+Calculator2-main-__Ljava_lang_String__V,W,5,?,0,?
+Calculator2-main-__Ljava_lang_String__V,C,?,0,2,2
+Calculator2-main-__Ljava_lang_String__V,R,5,?,2,?
+Calculator2-main-__Ljava_lang_String__V,C,?,2,1,1
+Calculator2-main-__Ljava_lang_String__V,R,1,?,1,?
+Calculator2-main-__Ljava_lang_String__V,R,5,?,1,?
+Calculator2-main-__Ljava_lang_String__V,R,3,?,1,?
+Calculator2-main-__Ljava_lang_String__V,W,3,?,1,?
+Calculator2-main-__Ljava_lang_String__V,C,?,1,2,1
+Calculator2-main-__Ljava_lang_String__V,R,5,?,2,?
+Calculator2-main-__Ljava_lang_String__V,C,?,2,1,1
+Calculator2-main-__Ljava_lang_String__V,R,1,?,1,?
+Calculator2-main-__Ljava_lang_String__V,R,5,?,1,?
+Calculator2-main-__Ljava_lang_String__V,R,3,?,1,?
+Calculator2-main-__Ljava_lang_String__V,W,3,?,1,?
+Calculator2-main-__Ljava_lang_String__V,C,?,1,2,1
+Calculator2-main-__Ljava_lang_String__V,R,5,?,2,?
+Calculator2-main-__Ljava_lang_String__V,C,?,2,1,1
+Calculator2-main-__Ljava_lang_String__V,R,1,?,1,?
+Calculator2-main-__Ljava_lang_String__V,R,5,?,1,?
+Calculator2-main-__Ljava_lang_String__V,R,3,?,1,?
+Calculator2-main-__Ljava_lang_String__V,W,3,?,1,?
+Calculator2-main-__Ljava_lang_String__V,C,?,1,2,1
+Calculator2-main-__Ljava_lang_String__V,R,5,?,2,?
+Calculator2-main-__Ljava_lang_String__V,C,?,2,1,1
+Calculator2-main-__Ljava_lang_String__V,R,1,?,1,?
+Calculator2-main-__Ljava_lang_String__V,R,5,?,1,?
+Calculator2-main-__Ljava_lang_String__V,R,3,?,1,?
+Calculator2-main-__Ljava_lang_String__V,W,3,?,1,?
+Calculator2-main-__Ljava_lang_String__V,C,?,1,2,1
+Calculator2-main-__Ljava_lang_String__V,R,5,?,2,?
+Calculator2-main-__Ljava_lang_String__V,C,?,2,3,1
+Calculator2-main-__Ljava_lang_String__V,W,5,?,3,?
+Calculator2-main-__Ljava_lang_String__V,C,?,3,5,2
+Calculator2-main-__Ljava_lang_String__V,R,5,?,5,?
+Calculator2-main-__Ljava_lang_String__V,C,?,5,4,1
+Calculator2-main-__Ljava_lang_String__V,R,2,?,4,?
+Calculator2-main-__Ljava_lang_String__V,R,5,?,4,?
+Calculator2-main-__Ljava_lang_String__V,R,4,?,4,?
+Calculator2-main-__Ljava_lang_String__V,W,4,?,4,?
+Calculator2-main-__Ljava_lang_String__V,C,?,4,5,1
+Calculator2-main-__Ljava_lang_String__V,R,5,?,5,?
+Calculator2-main-__Ljava_lang_String__V,C,?,5,4,1
+Calculator2-main-__Ljava_lang_String__V,R,2,?,4,?
+Calculator2-main-__Ljava_lang_String__V,R,5,?,4,?
+Calculator2-main-__Ljava_lang_String__V,R,4,?,4,?
+Calculator2-main-__Ljava_lang_String__V,W,4,?,4,?
+Calculator2-main-__Ljava_lang_String__V,C,?,4,5,1
+Calculator2-main-__Ljava_lang_String__V,R,5,?,5,?
+Calculator2-main-__Ljava_lang_String__V,C,?,5,4,1
+Calculator2-main-__Ljava_lang_String__V,R,2,?,4,?
+Calculator2-main-__Ljava_lang_String__V,R,5,?,4,?
+Calculator2-main-__Ljava_lang_String__V,R,4,?,4,?
+Calculator2-main-__Ljava_lang_String__V,W,4,?,4,?
+Calculator2-main-__Ljava_lang_String__V,C,?,4,5,1
+Calculator2-main-__Ljava_lang_String__V,R,5,?,5,?
+Calculator2-main-__Ljava_lang_String__V,C,?,5,4,1
+Calculator2-main-__Ljava_lang_String__V,R,2,?,4,?
+Calculator2-main-__Ljava_lang_String__V,R,5,?,4,?
+Calculator2-main-__Ljava_lang_String__V,R,4,?,4,?
+Calculator2-main-__Ljava_lang_String__V,W,4,?,4,?
+Calculator2-main-__Ljava_lang_String__V,C,?,4,5,1
+Calculator2-main-__Ljava_lang_String__V,R,5,?,5,?
+Calculator2-main-__Ljava_lang_String__V,C,?,5,6,1
+Calculator2-main-__Ljava_lang_String__V,R,3,?,6,?
+Calculator2-main-__Ljava_lang_String__V,R,4,?,6,?
