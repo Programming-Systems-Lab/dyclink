@@ -2,7 +2,7 @@
 README
 ******
 
-
+This document gives you the necessary tools to run Kamino's Program Dependency Graph on Tomcat's test suites.
 
 Tomcat
 ------
@@ -55,23 +55,5 @@ $KAMINO_HOME refers to the base directory of the Kamino project
 
 4. From $KAMINO_HOME/inst/TOMCAT_VERSION run:
    > ant -lib ../../kamino.jar test
-
-
-WEKA
-----
-
-http://www.cs.waikato.ac.nz/ml/weka/
-
-We used the Weka GUI Chooser application from the weka-3-6-11-oracle-jvm download
-
-Explorer
-
-
-
-
-
-
-
-
 
 
