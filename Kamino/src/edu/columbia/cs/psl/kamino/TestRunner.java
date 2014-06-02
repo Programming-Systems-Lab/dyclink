@@ -19,6 +19,7 @@ public class TestRunner {
             }
             FileOutputStream fos = new FileOutputStream("inst/"+Constants.TOMCAT_VERSION+".class");
             fos.write(cw.toByteArray());
+            System.out.println("inst/"+Constants.TOMCAT_VERSION+".class");
             fos.close();
         } catch (Exception e) {
             e.printStackTrace();

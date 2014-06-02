@@ -14,6 +14,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Logger {
+	
+	public static void recordOutput(String output) {
+		System.out.println(output);
+		
+		try {
+            if (Constants.OUTPUT.exists()) {
+                PrintWriter printWriter = new PrintWriter(new BufferedWriter(new FileWriter(Constants.OUTPUT, true)));
+                printWriter.println(output);
+                printWriter.close();
+            } else {
+                OutputStreamWriter static_writer = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(Constants.OUTPUT)));
+                static_writer.write(output + "\n");
+                static_writer.close();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+	}
 
     public static void recordARFF(String output) {
         try {
