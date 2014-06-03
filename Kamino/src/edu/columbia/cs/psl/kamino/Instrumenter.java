@@ -137,6 +137,10 @@ public class Instrumenter {
     }
 
     public static void main(String[] args) {
+        if (Constants.OUTPUT.exists()) {
+            System.out.println("Remove " + Constants.OUTPUT + ": " + Constants.OUTPUT.delete());
+        }
+
         System.out.println("Arguments:");
         for (String arg : args) {
             System.out.println(arg);
