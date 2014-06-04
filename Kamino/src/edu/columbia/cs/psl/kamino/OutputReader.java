@@ -70,7 +70,7 @@ public class OutputReader {
 
 				String flow = (method_frame_map.containsKey(entry.methodInfo)) ? method_frame_map.get(entry.methodInfo) : "";
 				method_frame_map.put(entry.methodInfo, flow + entry.controlType + entry.frame);
-				
+
 				if (entry.controlType == Constants.CONTROL) {
 					String controlFlow = (method_ctrl_frame_map.containsKey(entry.methodInfo)) ? method_ctrl_frame_map.get(entry.methodInfo) : "";
 					method_ctrl_frame_map.put(entry.methodInfo, controlFlow + entry.controlType + entry.frame);
@@ -85,8 +85,10 @@ public class OutputReader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		System.out.println("method_ctrl_frame_map");
 		System.out.println(method_ctrl_frame_map);
-		findCommonSubstrings(0);
+		System.out.println();
+		findCommonSubstrings(4);
 	}
 
 	public void findCommonSubstrings(int threshold) {
@@ -122,19 +124,20 @@ public class OutputReader {
 //				}
 //			}
 //		}
-		
+
 		for (java.util.Map.Entry<String, String> list1 : method_frame_map.entrySet()) {
 			for (java.util.Map.Entry<String, String> list2 : method_frame_map.entrySet()) {
 				if (!list1.equals(list2)) {
-					System.out.println("1: " + list1.toString());
-					System.out.println("2: " + list2.toString());
-
+					// TODO LAN - getting both versions (aka 1&2 and 2&1)
 					String commonSubstring = longestCommonSubstring(list1.getValue().toString(), list2.getValue().toString());
 					if (commonSubstring.length() >= threshold) {
-						System.out.println(commonSubstring);
+						System.out.println("method_frame_map 1: " + list1.toString());
+						System.out.println("method_frame_map 2: " + list2.toString());
+
+						System.out.println("Common String: " + commonSubstring);
 						substrings.add(commonSubstring);
+						System.out.println();
 					}
-					System.out.println();
 				}
 			}
 		}
