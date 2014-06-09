@@ -11,56 +11,9 @@ import java.util.Map;
 
 public class OutputReader {
 
-    public class Entry {
-        String methodInfo;
-        char controlType = '?';
-        int frame = -1;
-
-        public Entry(String entryStr) {
-            String[] splitArray = entryStr.split(",");
-            this.methodInfo = splitArray[0];
-            this.controlType = splitArray[1].charAt(0);
-            this.frame = Integer.valueOf(splitArray[3]);
-        }
-
-        public String toString() {
-            return this.methodInfo + "," + this.controlType + this.frame;
-        }
-
-        //		String methodInfo;
-        //		char controlType = '?';
-        //		int variableID = -1;
-        //		int fromFrame = -1;
-        //		int toFrame = -1;
-        //
-        //		public Entry(String entryStr) {
-        //			String[] splitArray = entryStr.split(",");
-        //			this.methodInfo = splitArray[0];
-        //			this.controlType = splitArray[1].charAt(0);
-        //			if (controlType == Constants.CONTROL) {
-        //				this.fromFrame = Integer.valueOf(splitArray[2]);
-        //			} else {
-        //				this.variableID = Integer.valueOf(splitArray[2]);
-        //			}
-        //			this.toFrame = Integer.valueOf(splitArray[3]);
-        //		}
-        //
-        //		public String toString() {
-        //			String toReturn = this.methodInfo + "," + this.controlType;
-        //			if (controlType == Constants.CONTROL) {
-        //				toReturn += ",f" + this.fromFrame;
-        //			} else {
-        //				toReturn += ",v" + this.variableID;
-        //			}
-        //			return toReturn + ",f" + this.toFrame;
-        //		}
-    }
-
-    private Map<String, String> method_frame_map = new HashMap<String, String>();
+    private Map<String, ArrayList<FlowEntry>> method_entry_map = new HashMap<String, ArrayList<FlowEntry>>();
+    private Map<String, Integer> variable_lastFrameID_map = new HashMap<String, Integer>();
     private String filename;
-
-    //	private Map<String, String> method_ctrl_frame_map = new HashMap<String, String>();
-    //	private Map<String, String> method_data_frame_map = new HashMap<String, String>();
 
     public OutputReader(String filename) {
         this.filename = filename;
@@ -69,18 +22,26 @@ public class OutputReader {
             String logEntry;
 
             while ((logEntry = reader.readLine()) != null) {
-                Entry entry = new Entry(logEntry);
+                char flowType = FlowEntry.determineFlowType(logEntry);
+                FlowEntry entry = (flowType == Constants.CONTROL) ? new ControlFlowEntry(logEntry) : new DataFlowEntry(logEntry);
 
-                String flow = (method_frame_map.containsKey(entry.methodInfo)) ? method_frame_map.get(entry.methodInfo) : "";
-                method_frame_map.put(entry.methodInfo, flow + entry.controlType + entry.frame);
+                // Set the data fromFrame
+                if (flowType != Constants.CONTROL) {
+                    // Find where this variable was seen last (if it's been seen before)
+                    String key = entry.methodInfo + entry.variableID;
+                    int bbFrom = (variable_lastFrameID_map.containsKey(key)) ? variable_lastFrameID_map.get(key) : entry.toFrame;
+                    entry.setFromFrame(bbFrom);
+                    variable_lastFrameID_map.put(key, entry.toFrame);
+                }
 
-                //				if (entry.controlType == Constants.CONTROL) {
-                //					String controlFlow = (method_ctrl_frame_map.containsKey(entry.methodInfo)) ? method_ctrl_frame_map.get(entry.methodInfo) : "";
-                //					method_ctrl_frame_map.put(entry.methodInfo, controlFlow + entry.controlType + entry.frame);
-                //				} else {
-                //					String dataFlow = (method_data_frame_map.containsKey(entry.methodInfo)) ? method_data_frame_map.get(entry.methodInfo) : "";
-                //					method_data_frame_map.put(entry.methodInfo, dataFlow + entry.controlType + entry.frame);
-                //				}
+                ArrayList<FlowEntry> flowEntryList = new ArrayList<FlowEntry>();
+                if (method_entry_map.containsKey(entry.methodInfo)) {
+                    flowEntryList = method_entry_map.get(entry.methodInfo);
+                    flowEntryList.add(entry);
+                } else {
+                    flowEntryList.add(entry);
+                }
+                method_entry_map.put(entry.methodInfo, flowEntryList);
             }
             reader.close();
         } catch (FileNotFoundException e) {
@@ -88,20 +49,24 @@ public class OutputReader {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(this.filename + ": method_frame_map");
-        System.out.println(method_frame_map);
+        System.out.println(this.filename);
+        System.out.println(method_entry_map);
         System.out.println();
     }
 
-    public void findCommonSubstrings(Map<String, String> map, int threshold) {
+    public void findCommonSubstrings(Map<String, ArrayList<FlowEntry>> map, int threshold) {
+        System.out.println("threshold: " + threshold);
         ArrayList<String> substrings = new ArrayList<String>();
 
-        for (java.util.Map.Entry<String, String> mapList : map.entrySet()) {
-            for (java.util.Map.Entry<String, String> thisList : method_frame_map.entrySet()) {
-                //				if (!mapList.equals(thisList)) {
-                // TODO LAN - getting both versions (aka 1&2 and 2&1)
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        for (java.util.Map.Entry<String, ArrayList<FlowEntry>> mapList : map.entrySet()) {
+            for (java.util.Map.Entry<String, ArrayList<FlowEntry>> thisList : method_entry_map.entrySet()) {
+
+                // FIXME LAN - update this with new setup
                 String commonSubstring = longestCommonSubstring(mapList.getValue().toString(), thisList.getValue().toString());
-                if (commonSubstring.length() >= threshold) {
+                if (commonSubstring.length() > threshold) {
                     System.out.println("mapList: " + mapList.toString());
                     System.out.println(this.filename + ": " + thisList.toString());
 
@@ -109,7 +74,6 @@ public class OutputReader {
                     substrings.add(commonSubstring);
                     System.out.println();
                 }
-                //				}
             }
         }
 
@@ -169,11 +133,10 @@ public class OutputReader {
         return maxLen;
     }
 
-    // FIXME LAN - need to add TO and FROM frames; exceptions; record subroutine calls
     public static void main(String[] args) {
-        OutputReader or1 = new OutputReader("data/tomcat-8.0.5_controlDataFlow-newest.output");
-        OutputReader or2 = new OutputReader("data/tomcat-7.0.53_controlDataFlow-newest.output");
-        or1.findCommonSubstrings(or2.method_frame_map, 4);
+        OutputReader or1 = new OutputReader("data/tomcat-7.0.53_controlDataFlow-newest.output");
+        OutputReader or2 = new OutputReader("data/tomcat-8.0.50_controlDataFlow-newest.output");
+        or1.findCommonSubstrings(or2.method_entry_map, 208);
 
     }
 }
