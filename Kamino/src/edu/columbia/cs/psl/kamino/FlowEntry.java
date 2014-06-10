@@ -28,7 +28,11 @@ public class FlowEntry {
     }
 
     public String toString() {
-        return String.valueOf(this.flowType) + fromFrame + "~" + toFrame + ((variableID >= 0) ? "V" + variableID : "");
-        //        return this.methodInfo + "," + this.flowType + ((variableID == -1) ? "v" + variableID : "") + "f" + fromFrame + "->" + "f" + toFrame;
+        // FIXME LAN - currently only looking at control flow
+        if (this.flowType == Constants.CONTROL) {
+            return String.valueOf(this.flowType) + this.toFrame;
+        }
+        return "";
+        //        return String.valueOf(this.flowType) + this.fromFrame + "~" + this.toFrame + ((this.variableID >= 0) ? "V" + variableID : "");
     }
 }

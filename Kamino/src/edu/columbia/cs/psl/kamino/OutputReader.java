@@ -25,23 +25,27 @@ public class OutputReader {
                 char flowType = FlowEntry.determineFlowType(logEntry);
                 FlowEntry entry = (flowType == Constants.CONTROL) ? new ControlFlowEntry(logEntry) : new DataFlowEntry(logEntry);
 
-                // Set the data fromFrame
-                if (flowType != Constants.CONTROL) {
-                    // Find where this variable was seen last (if it's been seen before)
-                    String key = entry.methodInfo + entry.variableID;
-                    int bbFrom = (variable_lastFrameID_map.containsKey(key)) ? variable_lastFrameID_map.get(key) : entry.toFrame;
-                    entry.setFromFrame(bbFrom);
-                    variable_lastFrameID_map.put(key, entry.toFrame);
-                }
+                // FIXME LAN - if below makes it so that only control flows are kept track of
+                if (entry.toString().length() > 0) {
+                    
+                    // Set the data fromFrame
+                    if (flowType != Constants.CONTROL) {
+                        // Find where this variable was seen last (if it's been seen before)
+                        String key = entry.methodInfo + entry.variableID;
+                        int bbFrom = (variable_lastFrameID_map.containsKey(key)) ? variable_lastFrameID_map.get(key) : entry.toFrame;
+                        entry.setFromFrame(bbFrom);
+                        variable_lastFrameID_map.put(key, entry.toFrame);
+                    }
 
-                ArrayList<FlowEntry> flowEntryList = new ArrayList<FlowEntry>();
-                if (method_entry_map.containsKey(entry.methodInfo)) {
-                    flowEntryList = method_entry_map.get(entry.methodInfo);
-                    flowEntryList.add(entry);
-                } else {
-                    flowEntryList.add(entry);
+                    ArrayList<FlowEntry> flowEntryList = new ArrayList<FlowEntry>();
+                    if (method_entry_map.containsKey(entry.methodInfo)) {
+                        flowEntryList = method_entry_map.get(entry.methodInfo);
+                        flowEntryList.add(entry);
+                    } else {
+                        flowEntryList.add(entry);
+                    }
+                    method_entry_map.put(entry.methodInfo, flowEntryList);
                 }
-                method_entry_map.put(entry.methodInfo, flowEntryList);
             }
             reader.close();
         } catch (FileNotFoundException e) {
@@ -134,9 +138,8 @@ public class OutputReader {
     }
 
     public static void main(String[] args) {
-        OutputReader or1 = new OutputReader("data/tomcat-7.0.53_controlDataFlow-newest.output");
-        OutputReader or2 = new OutputReader("data/tomcat-8.0.50_controlDataFlow-newest.output");
-        or1.findCommonSubstrings(or2.method_entry_map, 208);
-
+        OutputReader or1 = new OutputReader("data/tomcat-7.0.53_controlDataFlow.output");
+        OutputReader or2 = new OutputReader("data/tomcat-8.0.50_controlDataFlow.output");
+        or1.findCommonSubstrings(or2.method_entry_map, 0);
     }
 }

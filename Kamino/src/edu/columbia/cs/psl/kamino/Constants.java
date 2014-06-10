@@ -7,7 +7,7 @@ public class Constants {
 	public static final String TOMCAT_8 = "tomcat-8.0.50";
 	public static final String TOMCAT_7 = "tomcat-7.0.53";
 	
-	public static final String TOMCAT_VERSION = TOMCAT_8;
+	public static final String TOMCAT_VERSION = TOMCAT_7;
 
     public static final File OUTPUT = new File("/Users/lindsay/Documents/research_clones/jvm-clones/Kamino/data/" + Constants.TOMCAT_VERSION + "_controlDataFlow.output");
     public static final File NO_DATAFLOW_ARFF = new File("/Users/lindsay/Documents/research_clones/jvm-clones/Kamino/data/" + Constants.TOMCAT_VERSION + "_noDataFlow.arff");
