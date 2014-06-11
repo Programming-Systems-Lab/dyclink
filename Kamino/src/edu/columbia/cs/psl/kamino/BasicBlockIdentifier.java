@@ -29,6 +29,11 @@ public class BasicBlockIdentifier extends MethodNode {
     private int currentFrameID = 0;
     private String className;
 
+    
+    public Map<Label, Integer> getLabelFrameIDMap(){
+        return label_frameID_map;
+    }
+    
     public BasicBlockIdentifier(MethodVisitor nextMV, int api, int access, String className, String name, String desc, String signature,
             String[] exceptions) {
         super(api, access, name, desc, signature, exceptions);
@@ -53,11 +58,13 @@ public class BasicBlockIdentifier extends MethodNode {
         Label lastLabel = null;
         int location = 0;
         while (insn != null) {
-            if (insn.getOpcode() >= 0)
-                System.out.println(Printer.OPCODES[insn.getOpcode()]);
+//            if (insn.getOpcode() >= 0)
+//                System.out.println(Printer.OPCODES[insn.getOpcode()]);
             switch (insn.getType()) {
                 case AbstractInsnNode.FRAME:
-                    mv.visitList.indexOf("RETURN");
+                    System.out.println("FRAME");
+//                    System.out.println("test: "+mv.visitList.subList(location, mv.visitList.indexOf((((LabelNode) insn).getLabel()))));
+//                    mv.visitList.indexOf("RETURN");
 //                    label_bytecode_map.put(name + "_" + currentFrameID, mv.visitList.subList(location, (Printer.OPCODES[insn.getOpcode()].equals("RETURN") ||   ) ? : ));
 //                    location = ;
 
@@ -75,12 +82,16 @@ public class BasicBlockIdentifier extends MethodNode {
                     break;
 
                 case AbstractInsnNode.JUMP_INSN:
+                    System.out.println("JUMP");
+
 //                    label_bytecode_map.put(name + "_" + currentFrameID, mv.visitList.subList(location, 0));
 //                    location = ;
                     currentFrameID++;
                     break;
 
                 case AbstractInsnNode.LABEL:
+                    System.out.println("LABEL");
+
 //                    label_bytecode_map.put(name + "_" + currentFrameID, mv.visitList.subList(location, 0));
 //                    location = ;
 
