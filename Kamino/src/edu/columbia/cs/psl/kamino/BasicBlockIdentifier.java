@@ -19,21 +19,22 @@ import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.MethodNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.VarInsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.util.Printer;
 import edu.columbia.cs.psl.kamino.runtime.FlowOutput;
-
 //import edu.columbia.cs.psl.kamino.runtime.FlowToARFF;
 
 public class BasicBlockIdentifier extends MethodNode {
 
-    private MethodVisitor nextMV;
     public Map<Label, Integer> label_frameID_map = new HashMap<Label, Integer>();
+    Map<String, List<String>> label_bytecode_map = new HashMap<String, List<String>>();
+
+    private MethodVisitor nextMV;
+    private MethodPrintingMV methodPrintingMV = new MethodPrintingMV(null);
     private int currentFrameID = 0;
     private String className;
 
-    
-    public Map<Label, Integer> getLabelFrameIDMap(){
+    public Map<Label, Integer> getLabelFrameIDMap() {
         return label_frameID_map;
     }
-    
+
     public BasicBlockIdentifier(MethodVisitor nextMV, int api, int access, String className, String name, String desc, String signature,
             String[] exceptions) {
         super(api, access, name, desc, signature, exceptions);
@@ -41,33 +42,24 @@ public class BasicBlockIdentifier extends MethodNode {
         this.nextMV = nextMV;
     }
 
-    Map<String, List<String>> label_bytecode_map = new HashMap<String, List<String>>();
 
     @Override
     public void visitEnd() {
         super.visitEnd();
 
-        // From Jon: Keep track of the byte code to use later for displaying similar control flows in byte code form
-        MethodPrintingMV mv = new MethodPrintingMV(null);
-        this.accept(mv);
-        System.out.println(mv.visitList);
+        // Keep track of the byte code to use later for displaying similar flows in byte code form
+        this.accept(methodPrintingMV);
+        for (String m : methodPrintingMV.visitList) {
+            System.out.println(m);
+        }
 
         // Iterate over instructions (1): Locate and record label for each basic block
         AbstractInsnNode insn = this.instructions.getFirst();
         // int nLabel = 0;
         Label lastLabel = null;
-        int location = 0;
         while (insn != null) {
-//            if (insn.getOpcode() >= 0)
-//                System.out.println(Printer.OPCODES[insn.getOpcode()]);
             switch (insn.getType()) {
                 case AbstractInsnNode.FRAME:
-                    System.out.println("FRAME");
-//                    System.out.println("test: "+mv.visitList.subList(location, mv.visitList.indexOf((((LabelNode) insn).getLabel()))));
-//                    mv.visitList.indexOf("RETURN");
-//                    label_bytecode_map.put(name + "_" + currentFrameID, mv.visitList.subList(location, (Printer.OPCODES[insn.getOpcode()].equals("RETURN") ||   ) ? : ));
-//                    location = ;
-
                     // Check to make sure we are not first frame after a goto
                     AbstractInsnNode prev = insn.getPrevious();
                     while (prev.getPrevious() != null && (prev.getType() == AbstractInsnNode.LINE || prev.getType() == AbstractInsnNode.LABEL)) {
@@ -82,19 +74,10 @@ public class BasicBlockIdentifier extends MethodNode {
                     break;
 
                 case AbstractInsnNode.JUMP_INSN:
-                    System.out.println("JUMP");
-
-//                    label_bytecode_map.put(name + "_" + currentFrameID, mv.visitList.subList(location, 0));
-//                    location = ;
                     currentFrameID++;
                     break;
 
                 case AbstractInsnNode.LABEL:
-                    System.out.println("LABEL");
-
-//                    label_bytecode_map.put(name + "_" + currentFrameID, mv.visitList.subList(location, 0));
-//                    location = ;
-
                     // System.out.println("L" + nLabel + " = " + currentFrameID);
                     // nLabel++;
                     label_frameID_map.put((((LabelNode) insn).getLabel()), currentFrameID);
@@ -106,6 +89,7 @@ public class BasicBlockIdentifier extends MethodNode {
 
         // Iterate over instructions (2): Log basic blocks
         currentFrameID = 0; //NOTE - this will be incorrect at the label before a new frame starts, which probably should count as part of the newly starting frame (but won't here)
+        int location = 0;
         insn = this.instructions.getFirst();
         while (insn != null) {
             switch (insn.getType()) {
@@ -119,16 +103,24 @@ public class BasicBlockIdentifier extends MethodNode {
                     // Frame after GOTO will be found because it is definitely reached through a JUMP
                     // Frame not after a GOTO could be a JUMP target or could be reached from a fall through so needs to be logged before the LABEL
                     if (prev.getOpcode() != Opcodes.GOTO) {
+                        System.out.println("PREV: " + prev.toString());
+
                         AbstractInsnNode insertBefore = prev.getNext();
+
                         // Push logging information onto the stack
                         this.instructions.insertBefore(insertBefore, new LdcInsnNode(this.className));
                         this.instructions.insertBefore(insertBefore, new LdcInsnNode(this.name));
                         this.instructions.insertBefore(insertBefore, new LdcInsnNode(this.desc));
                         this.instructions.insertBefore(insertBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID)); // from
                         this.instructions.insertBefore(insertBefore, new IntInsnNode(Opcodes.SIPUSH, currentFrameID + 1)); // to
-                        //						this.instructions.insertBefore(insertBefore, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(FlowToARFF.class),
+                        // this.instructions.insertBefore(insertBefore, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(FlowToARFF.class),
                         this.instructions.insertBefore(insertBefore, new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(FlowOutput.class),
                                 "logEdgeControl", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", false));
+
+                        //                        System.out.println("test: "+methodPrintingMV.visitList.subList(location, methodPrintingMV.visitList.indexOf((((LabelNode) insn).getLabel()))));
+
+                        //                      label_bytecode_map.put(name + "_" + currentFrameID, mv.visitList.subList(location, (Printer.OPCODES[insn.getOpcode()].equals("RETURN") ||   ) ? : ));
+                        //                      location = ;
 
                         // Debug info
                         this.instructions.insertBefore(insertBefore, new LdcInsnNode("BB   AbstractInsnNode.FRAME currentFrameID=" + currentFrameID));

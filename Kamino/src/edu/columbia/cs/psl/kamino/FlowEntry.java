@@ -7,6 +7,7 @@ public class FlowEntry {
     int variableID = -1;
     int fromFrame;
     int toFrame;
+    boolean controlFlowOnly = true;
 
     public FlowEntry() {
     }
@@ -26,13 +27,29 @@ public class FlowEntry {
     public static char determineFlowType(String entryStr) {
         return entryStr.split(",")[1].charAt(0);
     }
+    
+    /**
+     * 
+     * @param controlFlowOnly 
+     *             The boolean value indicating whether to display control flow information only 
+     */
+    public void setControlFlowOnly(boolean controlFlowOnly) {
+        this.controlFlowOnly = controlFlowOnly;
+    }
 
     public String toString() {
-        // FIXME LAN - currently only looking at control flow
-        if (this.flowType == Constants.CONTROL) {
-            return String.valueOf(this.flowType) + this.toFrame;
+        // FIXME LAN - Only outputting control flow information
+        if (controlFlowOnly) {
+            if (this.flowType == Constants.CONTROL) {
+                return String.valueOf(this.flowType) + this.toFrame;
+            }
+        } else {
+            return String.valueOf(this.flowType) + this.fromFrame + ((this.variableID >= 0) ? "V" + variableID : "");
+
         }
         return "";
-        //        return String.valueOf(this.flowType) + this.fromFrame + "~" + this.toFrame + ((this.variableID >= 0) ? "V" + variableID : "");
+
+        // return String.valueOf(this.flowType) + this.fromFrame + "~" + this.toFrame + ((this.variableID >= 0) ? "V" + variableID : "");
+
     }
 }

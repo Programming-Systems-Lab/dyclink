@@ -2,9 +2,6 @@ package edu.columbia.cs.psl.kamino;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.Handle;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.Label;
@@ -15,7 +12,7 @@ import edu.columbia.cs.psl.kamino.org.objectweb.asm.util.Printer;
 public class MethodPrintingMV extends MethodVisitor {
 
     public ArrayList<String> visitList = new ArrayList<String>();
-    public Map<Label, Integer> label_int_map = new HashMap<Label, Integer>();
+    int bbNumber = 0;
 
     public MethodPrintingMV(MethodVisitor mv) {
         super(Opcodes.ASM5, mv);
@@ -25,14 +22,18 @@ public class MethodPrintingMV extends MethodVisitor {
         visitList.add(str);
     }
 
-    public void print(String str) {
-        System.out.println(str);
-    }
+//    public void print(String str) {
+//        System.out.println(str);
+//    }
 
     @Override
     public void visitInsn(int opcode) {
         super.visitInsn(opcode);
         log(Printer.OPCODES[opcode]);
+        if (Printer.OPCODES[opcode].contains("RETURN")) {
+            log("bb" + bbNumber);
+            bbNumber++;
+        }
     }
 
     @Override
@@ -71,11 +72,14 @@ public class MethodPrintingMV extends MethodVisitor {
     public void visitJumpInsn(final int opcode, final Label label) {
         super.visitJumpInsn(opcode, label);
         log(Printer.OPCODES[opcode] + " " + label);
+        log("bb" + bbNumber);
+        bbNumber++;
     }
 
     @Override
     public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
-        // FIXME LAN - not sure this determining the correct type of frame
+        // TODO LAN - Frame given by type in this method does not match byte code output from plugin 
+        // because outputting expanded frames (see TestRunner.java to change ClassReader.EXPANDED_FRAMES)
         super.visitFrame(type, nLocal, local, nStack, stack);
         String frame_type = "?";
         switch (type) {
@@ -122,6 +126,9 @@ public class MethodPrintingMV extends MethodVisitor {
     @Override
     public void visitLdcInsn(Object cst) {
         super.visitLdcInsn(cst);
+        if (cst instanceof String) {
+            cst = "\"" + cst + "\"";
+        }
         log("LDC " + cst);
     }
 
@@ -134,8 +141,7 @@ public class MethodPrintingMV extends MethodVisitor {
     @Override
     public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
         super.visitLocalVariable(name, desc, signature, start, end, index);
-        log("LOCALVARIABLE " + name + " " + desc + " " + ((signature != null) ? signature + " " : "") + start.info + " L" + end + " " + index);
-        //        LOCALVARIABLE this LBytecodeTest; St L55239066 E L564106814 0,
+        log("LOCALVARIABLE " + name + " " + desc + " " + ((signature != null) ? signature + " " : "") + start + " L" + end + " " + index);
 
     }
 
@@ -148,7 +154,8 @@ public class MethodPrintingMV extends MethodVisitor {
     @Override
     public void visitMaxs(int maxStack, int maxLocals) {
         super.visitMaxs(maxStack, maxLocals);
-        log(maxStack + " " + maxLocals);
+        log("MAXSTACK = " + maxStack);
+        log("MAXLOCAL = " + maxLocals);
     }
 
     @Override
@@ -168,15 +175,5 @@ public class MethodPrintingMV extends MethodVisitor {
         super.visitTryCatchBlock(start, end, handler, type);
         log(start + " " + end + " " + handler + " " + type);
     }
-
-    /*
-     * void visitFieldInsn(int opcode, String owner, String name, String desc)
-     * void visitInsn(int opcode)
-     * void visitIntInsn(int opcode, int operand)
-     * void visitJumpInsn(int opcode, Label label)
-     * void visitMethodInsn(int opcode, String owner, String name, String desc)
-     * void visitTypeInsn(int opcode, String type)
-     * void visitVarInsn(int opcode, int var)
-     */
 
 }

@@ -21,6 +21,7 @@ public class TestRunner {
 //            fos.write(cw.toByteArray());
 //            System.out.println("inst/"+Constants.TOMCAT_VERSION+".class");
 //            fos.close();
+            
             ClassReader cr = new ClassReader("BytecodeTest");
             ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
             cr.accept(new CheckClassAdapter(new ControlFlowLoggingClassVisitor(cw)), ClassReader.EXPAND_FRAMES);

@@ -47,12 +47,11 @@ public class BytecodeTest {
    L2
     LINENUMBER 1 L2
     RETURN
-********
    L3
     LOCALVARIABLE this LBytecodeTest; L0 L3 0
     MAXSTACK = 2
     MAXLOCALS = 1
-*******
+    
   // access flags 0x1
   public helloWorld(Ljava/lang/String;)Ljava/lang/String;
    L0
@@ -71,7 +70,6 @@ public class BytecodeTest {
     INVOKEVIRTUAL java/lang/StringBuilder.toString ()Ljava/lang/String;
     ARETURN
    L2
-*********
     LOCALVARIABLE this LBytecodeTest; L0 L2 0
     LOCALVARIABLE str Ljava/lang/String; L0 L2 1
     MAXSTACK = 3
@@ -103,6 +101,7 @@ public class BytecodeTest {
     LDC "hello"
     INVOKEVIRTUAL java/lang/String.equals (Ljava/lang/Object;)Z
     IFEQ L4
+***********************************
    L5
     LINENUMBER 15 L5
     ILOAD 2
@@ -129,6 +128,7 @@ public class BytecodeTest {
    L8
     LINENUMBER 18 L8
     GOTO L9
+***********************************
    L4
     LINENUMBER 19 L4
     FRAME APPEND [BytecodeTest I java/lang/String]
@@ -150,6 +150,7 @@ public class BytecodeTest {
     INVOKEVIRTUAL java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;
     INVOKEVIRTUAL java/lang/StringBuilder.toString ()Ljava/lang/String;
     INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V
+***********************************
    L9
     LINENUMBER 23 L9
     FRAME SAME
