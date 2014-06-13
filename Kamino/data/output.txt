@@ -1,27 +1,22 @@
-method_ctrl_frame_map
-{org/apache/tomcat/buildutil/Txt2Html.execute()V=C1C2C3C4C5C10C3C11C16C1C2C3C4C5C10C3C4C5C10C3C4C5C10C3C11C16C1C2C3C4C5C10C3C11C16C1C17C1C2C3C4C5C10C3C11C16C1C2C3C4C5C10C3C4C5C10C3C4C5C10C3C11C16C1C17C1C2C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C11C16C1C17C1C2C3C4C5C10C3C11C16C1C17C1C2C3C4C5C10C3C11C16C1C2C3C4C5C10C3C11C16C1C2C3C4C5C10C3C11C16C1C17C1C2C3C4C5C10C3C11C16C1C17C1C2C3C4C5C10C3C4C5C10C3C4C5C10C3C11C16C1C17C1C2C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C4C5C10C3C11C16C1C17}
+data/tomcat-7.0.53_controlDataFlow-newest.output
+{}
 
-method_frame_map 1: org/apache/tomcat/buildutil/Txt2Html.addFileset(Lorg/apache/tools/ant/types/FileSet;)V=R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
-method_frame_map 2: org/apache/tomcat/buildutil/Txt2Html.setTodir(Ljava/io/File;)V=R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
-Common String: R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
+data/tomcat-8.0.50_controlDataFlow-newest.output
+{}
 
-method_frame_map 1: org/apache/tomcat/buildutil/Txt2Html.addFileset(Lorg/apache/tools/ant/types/FileSet;)V=R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
-method_frame_map 2: org/apache/tomcat/buildutil/Txt2Html.<init>()V=R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
-Common String: R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
+java.io.FileNotFoundException: data/tomcat-7.0.53_controlDataFlow-newest.output (No such file or directory)
+	at java.io.FileInputStream.open(Native Method)
+threshold: 208
 
-method_frame_map 1: org/apache/tomcat/buildutil/Txt2Html.setTodir(Ljava/io/File;)V=R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
-method_frame_map 2: org/apache/tomcat/buildutil/Txt2Html.addFileset(Lorg/apache/tools/ant/types/FileSet;)V=R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
-Common String: R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
 
-method_frame_map 1: org/apache/tomcat/buildutil/Txt2Html.setTodir(Ljava/io/File;)V=R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
-method_frame_map 2: org/apache/tomcat/buildutil/Txt2Html.<init>()V=R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
-Common String: R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
 
-method_frame_map 1: org/apache/tomcat/buildutil/Txt2Html.<init>()V=R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
-method_frame_map 2: org/apache/tomcat/buildutil/Txt2Html.addFileset(Lorg/apache/tools/ant/types/FileSet;)V=R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
-Common String: R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
-
-method_frame_map 1: org/apache/tomcat/buildutil/Txt2Html.<init>()V=R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
-method_frame_map 2: org/apache/tomcat/buildutil/Txt2Html.setTodir(Ljava/io/File;)V=R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
-Common String: R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0R0
-
+	at java.io.FileInputStream.<init>(FileInputStream.java:146)
+	at java.io.FileInputStream.<init>(FileInputStream.java:101)
+	at edu.columbia.cs.psl.kamino.OutputReader.<init>(OutputReader.java:21)
+	at edu.columbia.cs.psl.kamino.OutputReader.main(OutputReader.java:137)
+java.io.FileNotFoundException: data/tomcat-8.0.50_controlDataFlow-newest.output (No such file or directory)
+	at java.io.FileInputStream.open(Native Method)
+	at java.io.FileInputStream.<init>(FileInputStream.java:146)
+	at java.io.FileInputStream.<init>(FileInputStream.java:101)
+	at edu.columbia.cs.psl.kamino.OutputReader.<init>(OutputReader.java:21)
+	at edu.columbia.cs.psl.kamino.OutputReader.main(OutputReader.java:138)

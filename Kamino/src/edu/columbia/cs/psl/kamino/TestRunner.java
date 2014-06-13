@@ -29,7 +29,7 @@ public class TestRunner {
             if (!instDir.exists()) {
                 instDir.mkdir();
             }
-            FileOutputStream fos = new FileOutputStream("inst/"+Constants.TOMCAT_VERSION+".class");
+            FileOutputStream fos = new FileOutputStream("inst/BytecodeTest.class");
             fos.write(cw.toByteArray());
             System.out.println("inst/BytecodeTest.class");
             fos.close();

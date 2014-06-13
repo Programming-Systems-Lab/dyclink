@@ -47,10 +47,10 @@ public class BytecodeTest {
    L2
     LINENUMBER 1 L2
     RETURN
-   L3
-    LOCALVARIABLE this LBytecodeTest; L0 L3 0
-    MAXSTACK = 2
-    MAXLOCALS = 1
+//   L3
+//    LOCALVARIABLE this LBytecodeTest; L0 L3 0
+//    MAXSTACK = 2
+//    MAXLOCALS = 1
     
   // access flags 0x1
   public helloWorld(Ljava/lang/String;)Ljava/lang/String;
@@ -69,11 +69,11 @@ public class BytecodeTest {
     INVOKEVIRTUAL java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;
     INVOKEVIRTUAL java/lang/StringBuilder.toString ()Ljava/lang/String;
     ARETURN
-   L2
-    LOCALVARIABLE this LBytecodeTest; L0 L2 0
-    LOCALVARIABLE str Ljava/lang/String; L0 L2 1
-    MAXSTACK = 3
-    MAXLOCALS = 2
+//   L2
+//    LOCALVARIABLE this LBytecodeTest; L0 L2 0
+//    LOCALVARIABLE str Ljava/lang/String; L0 L2 1
+//    MAXSTACK = 3
+//    MAXLOCALS = 2
 
   // access flags 0x9
   public static main([Ljava/lang/String;)V
