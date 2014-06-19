@@ -1,32 +1,13 @@
-label: L1950405040
-label: L1267119472
-label: L2029122252
-[LABEL L1950405040, LINENUMBER 1 L1950405040, ALOAD 0, INVOKESPECIAL java/lang/Object.<init> ()V, LABEL L1267119472, LINENUMBER 3 L1267119472, ALOAD 0, LDC "world", PUTFIELD BytecodeTest.globalString : Ljava/lang/String;, LABEL L2029122252, LINENUMBER 1 L2029122252, RETURN]
-label: L1417375004
-label: L233003832
-label: L1232715943
-[LABEL L233003832, LINENUMBER 6 L233003832, ALOAD 0, ALOAD 1, PUTFIELD BytecodeTest.globalString : Ljava/lang/String;, LABEL L1232715943, LINENUMBER 7 L1232715943, NEW java/lang/StringBuilder, DUP, LDC "Hello ", INVOKESPECIAL java/lang/StringBuilder.<init> (Ljava/lang/String;)V, ALOAD 1, INVOKEVIRTUAL java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;, INVOKEVIRTUAL java/lang/StringBuilder.toString ()Ljava/lang/String;, ARETURN]
-label: L1482111392
-label: L2060575533
-label: L1771691609
-label: L1960106808
-label: L1115977076
-[LABEL L2060575533, LINENUMBER 11 L2060575533, NEW BytecodeTest, DUP, INVOKESPECIAL BytecodeTest.<init> ()V, ASTORE 1, LABEL L1771691609, LINENUMBER 12 L1771691609, BIPUSH 65, ISTORE 2, LABEL L1960106808, LINENUMBER 13 L1960106808, ALOAD 1, LDC "world", INVOKEVIRTUAL BytecodeTest.helloWorld (Ljava/lang/String;)Ljava/lang/String;, ASTORE 3, LABEL L1115977076, LINENUMBER 14 L1115977076, ALOAD 0, ICONST_0, AALOAD, LDC "hello", INVOKEVIRTUAL java/lang/String.equals (Ljava/lang/Object;)Z, IFEQ L104543434]
-label: L419871992
-label: L157305502
-label: L281202657
-label: L1709032799
-gotoList: [L1120474168]
-[LABEL L419871992, LINENUMBER 15 L419871992, ILOAD 2, ICONST_1, IADD, I2C, ISTORE 2, LABEL L157305502, LINENUMBER 16 L157305502, GETSTATIC java/lang/System.out : Ljava/io/PrintStream;, NEW java/lang/StringBuilder, DUP, LDC "Hello ", INVOKESPECIAL java/lang/StringBuilder.<init> (Ljava/lang/String;)V, ILOAD 2, INVOKEVIRTUAL java/lang/StringBuilder.append (C)Ljava/lang/StringBuilder;, INVOKEVIRTUAL java/lang/StringBuilder.toString ()Ljava/lang/String;, INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V, LABEL L281202657, LINENUMBER 17 L281202657, GETSTATIC java/lang/System.out : Ljava/io/PrintStream;, ALOAD 3, INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V, LABEL L1709032799, LINENUMBER 18 L1709032799, GOTO L1120474168]
-label: L104543434
-GOTOLIST: "L1120474168"
-label: L1552312396
-GOTOLIST: "L1120474168"
-label: L2083095816
-GOTOLIST: "L1120474168"
-label: L1120474168
-GOTOLIST: "L1120474168"
-[LABEL L104543434, LINENUMBER 19 L104543434, FRAME NEW [[Ljava/lang/String;, BytecodeTest, 1, java/lang/String], BIPUSH 97, ISTORE 2, LABEL L1552312396, LINENUMBER 20 L1552312396, LDC "WORLD", ASTORE 3, LABEL L2083095816, LINENUMBER 21 L2083095816, GETSTATIC java/lang/System.out : Ljava/io/PrintStream;, NEW java/lang/StringBuilder, DUP, ALOAD 3, INVOKESTATIC java/lang/String.valueOf (Ljava/lang/Object;)Ljava/lang/String;, INVOKESPECIAL java/lang/StringBuilder.<init> (Ljava/lang/String;)V, LDC " is null", INVOKEVIRTUAL java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;, INVOKEVIRTUAL java/lang/StringBuilder.toString ()Ljava/lang/String;, INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V, LABEL L1120474168, LINENUMBER 23 L1120474168, FRAME NEW [[Ljava/lang/String;, BytecodeTest, 1, java/lang/String], RETURN]
-label: L165482471
-GOTOLIST: "L1120474168"
+
+BytecodeTest.<init>()V
+0=[LABEL L564106814, LINENUMBER 1 L564106814, ALOAD 0, INVOKESPECIAL java/lang/Object.<init> ()V, LABEL L1950405040, LINENUMBER 3 L1950405040, ALOAD 0, LDC "world", PUTFIELD BytecodeTest.globalString : Ljava/lang/String;, LABEL L1267119472, LINENUMBER 1 L1267119472, RETURN]
+
+BytecodeTest.helloWorld(Ljava/lang/String;)Ljava/lang/String;
+0=[LABEL L657662363, LINENUMBER 6 L657662363, ALOAD 0, ALOAD 1, PUTFIELD BytecodeTest.globalString : Ljava/lang/String;, LABEL L233003832, LINENUMBER 7 L233003832, NEW java/lang/StringBuilder, DUP, LDC "Hello ", INVOKESPECIAL java/lang/StringBuilder.<init> (Ljava/lang/String;)V, ALOAD 1, INVOKEVIRTUAL java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;, INVOKEVIRTUAL java/lang/StringBuilder.toString ()Ljava/lang/String;, ARETURN]
+
+BytecodeTest.main([Ljava/lang/String;)V
+0=[LABEL L1733237863, LINENUMBER 11 L1733237863, NEW BytecodeTest, DUP, INVOKESPECIAL BytecodeTest.<init> ()V, ASTORE 1, LABEL L2060575533, LINENUMBER 12 L2060575533, BIPUSH 65, ISTORE 2, LABEL L1771691609, LINENUMBER 13 L1771691609, ALOAD 1, LDC "world", INVOKEVIRTUAL BytecodeTest.helloWorld (Ljava/lang/String;)Ljava/lang/String;, ASTORE 3, LABEL L1960106808, LINENUMBER 14 L1960106808, ALOAD 0, ICONST_0, AALOAD, LDC "hello", INVOKEVIRTUAL java/lang/String.equals (Ljava/lang/Object;)Z, IFEQ L1115977076]
+1=[LABEL L104543434, LINENUMBER 15 L104543434, ILOAD 2, ICONST_1, IADD, I2C, ISTORE 2, LABEL L419871992, LINENUMBER 16 L419871992, GETSTATIC java/lang/System.out : Ljava/io/PrintStream;, NEW java/lang/StringBuilder, DUP, LDC "Hello ", INVOKESPECIAL java/lang/StringBuilder.<init> (Ljava/lang/String;)V, ILOAD 2, INVOKEVIRTUAL java/lang/StringBuilder.append (C)Ljava/lang/StringBuilder;, INVOKEVIRTUAL java/lang/StringBuilder.toString ()Ljava/lang/String;, INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V, LABEL L157305502, LINENUMBER 17 L157305502, GETSTATIC java/lang/System.out : Ljava/io/PrintStream;, ALOAD 3, INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V, LABEL L281202657, LINENUMBER 18 L281202657, GOTO L1709032799]
+2=[LABEL L1115977076, LINENUMBER 19 L1115977076, FRAME NEW [[Ljava/lang/String;, BytecodeTest, 1, java/lang/String], BIPUSH 97, ISTORE 2, LABEL L1568252461, LINENUMBER 20 L1568252461, LDC "WORLD", ASTORE 3, LABEL L1552312396, LINENUMBER 21 L1552312396, GETSTATIC java/lang/System.out : Ljava/io/PrintStream;, NEW java/lang/StringBuilder, DUP, ALOAD 3, INVOKESTATIC java/lang/String.valueOf (Ljava/lang/Object;)Ljava/lang/String;, INVOKESPECIAL java/lang/StringBuilder.<init> (Ljava/lang/String;)V, LDC " is null", INVOKEVIRTUAL java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;, INVOKEVIRTUAL java/lang/StringBuilder.toString ()Ljava/lang/String;, INVOKEVIRTUAL java/io/PrintStream.println (Ljava/lang/String;)V]
+3=[LABEL L1709032799, LINENUMBER 23 L1709032799, FRAME NEW [[Ljava/lang/String;, BytecodeTest, 1, java/lang/String], RETURN]
 inst/BytecodeTest.class

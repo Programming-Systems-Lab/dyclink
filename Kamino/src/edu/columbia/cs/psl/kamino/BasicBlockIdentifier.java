@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.Label;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.MethodVisitor;
@@ -18,7 +19,6 @@ import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.LdcInsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.MethodInsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.MethodNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.VarInsnNode;
-import edu.columbia.cs.psl.kamino.org.objectweb.asm.util.Printer;
 import edu.columbia.cs.psl.kamino.runtime.FlowOutput;
 
 //import edu.columbia.cs.psl.kamino.runtime.FlowToARFF;
@@ -26,12 +26,13 @@ import edu.columbia.cs.psl.kamino.runtime.FlowOutput;
 public class BasicBlockIdentifier extends MethodNode {
 
 	public Map<Label, Integer> label_frameID_map = new HashMap<Label, Integer>();
-	Map<String, List<String>> label_bytecode_map = new HashMap<String, List<String>>();
+	Map<Integer, List<String>> label_bytecode_map = new HashMap<Integer, List<String>>();
 
 	private MethodVisitor nextMV;
 	private MethodPrintingMV methodPrintingMV = new MethodPrintingMV(null);
 	private int currentFrameID = 0;
 	private String className;
+	private String methodDescription;
 
 	public Map<Label, Integer> getLabelFrameIDMap() {
 		return label_frameID_map;
@@ -41,6 +42,7 @@ public class BasicBlockIdentifier extends MethodNode {
 	        String[] exceptions) {
 		super(api, access, name, desc, signature, exceptions);
 		this.className = className;
+		this.methodDescription = className+"."+name+desc;
 		this.nextMV = nextMV;
 	}
 
@@ -50,17 +52,15 @@ public class BasicBlockIdentifier extends MethodNode {
 
 		// Keep track of the byte code to use later for displaying similar flows in byte code form
 		this.accept(methodPrintingMV);
-//        for (String m : methodPrintingMV.visitList) {
-//            System.out.println(m);
-//        }
 
 		// Iterate over instructions (1): Locate and record label for each basic block
 		AbstractInsnNode insn = this.instructions.getFirst();
-		// int nLabel = 0;
 		Label lastLabel = null;
+		ArrayList<String> gotoList = new ArrayList<String>();
 		int visitListLocation = 0;
 		int lastRecordedLocation = 0;
-		ArrayList<String> gotoList = new ArrayList<String>();
+
+		// int nLabel = 0;
 		while (insn != null) {
 			switch (insn.getType()) {
 				case AbstractInsnNode.FRAME:
@@ -81,35 +81,39 @@ public class BasicBlockIdentifier extends MethodNode {
 				case AbstractInsnNode.JUMP_INSN:
 					if (insn.getOpcode() == Opcodes.GOTO) {
 						gotoList.add(methodPrintingMV.visitList.get(visitListLocation).split(" ")[1]);
-						System.out.println("gotoList: " + gotoList);
 					}
 
-					// FIXME LAN - turn this into a data structure of some kind
-					System.out.println(methodPrintingMV.visitList.subList(lastRecordedLocation, visitListLocation + 1));
+					// Store basic block for display later
+					label_bytecode_map.put(currentFrameID, methodPrintingMV.visitList.subList(lastRecordedLocation, visitListLocation + 1));
 					lastRecordedLocation = visitListLocation + 1;
+
 					currentFrameID++;
 					break;
 
 				case AbstractInsnNode.LABEL:
 					// System.out.println("L" + nLabel + " = " + currentFrameID);
 					// nLabel++;
-					System.out.println("label: " + ((LabelNode) insn).getLabel());
-					if (gotoList.size() > 0) {
-						System.out.println("GOTOLIST: \"" + gotoList.get(0) + "\"");
-						if (gotoList.get(0).equals(((LabelNode) insn).getLabel())) {
-							System.out.println("TESTER TESTER " + ((LabelNode) insn).getLabel());
-						}
+
+					// FIXME LAN - may have problem with GOTO jumping to label read (do another check in second pass?)
+					if (gotoList.size() > 0 && gotoList.contains(((LabelNode) insn).getLabel().toString())) {
+						// Store basic block for display later
+						label_bytecode_map.put(currentFrameID, methodPrintingMV.visitList.subList(lastRecordedLocation, visitListLocation));
+						lastRecordedLocation = visitListLocation;
 					}
+
 					label_frameID_map.put((((LabelNode) insn).getLabel()), currentFrameID);
 					lastLabel = (((LabelNode) insn).getLabel());
 					break;
 			}
-			insn = insn.getNext();
 			if (methodPrintingMV.visitList.get(visitListLocation).contains("RETURN")) {
-				System.out.println(methodPrintingMV.visitList.subList(lastRecordedLocation, visitListLocation + 1));
+				// Store basic block for display later
+				label_bytecode_map.put(currentFrameID, methodPrintingMV.visitList.subList(lastRecordedLocation, visitListLocation + 1));
 				lastRecordedLocation = visitListLocation + 1;
 			}
+
 			visitListLocation++;
+			insn = insn.getNext();
+
 		}
 
 		// Iterate over instructions (2): Log basic blocks
@@ -118,6 +122,7 @@ public class BasicBlockIdentifier extends MethodNode {
 		while (insn != null) {
 			switch (insn.getType()) {
 			// CONTROL FLOW
+
 			// Inserted before instructions following unconditional branch, target of jump, or starts exception handler block
 				case AbstractInsnNode.FRAME:
 					AbstractInsnNode prev = insn.getPrevious();
@@ -263,5 +268,10 @@ public class BasicBlockIdentifier extends MethodNode {
 			insn = insn.getNext();
 		}
 		this.accept(nextMV);
+		System.out.println();
+		System.out.println(methodDescription);
+		for (Entry<Integer, List<String>> test : label_bytecode_map.entrySet()) {
+			System.out.println(test.getKey() + "=" + test.getValue());
+		}
 	}
 }

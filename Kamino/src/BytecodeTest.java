@@ -155,13 +155,13 @@ public class BytecodeTest {
     LINENUMBER 23 L9
     FRAME SAME
     RETURN
-   L12
-    LOCALVARIABLE args [Ljava/lang/String; L0 L12 0
-    LOCALVARIABLE bt LBytecodeTest; L1 L12 1
-    LOCALVARIABLE character C L2 L12 2
-    LOCALVARIABLE string Ljava/lang/String; L3 L12 3
-    MAXSTACK = 4
-    MAXLOCALS = 4
+//   L12
+//    LOCALVARIABLE args [Ljava/lang/String; L0 L12 0
+//    LOCALVARIABLE bt LBytecodeTest; L1 L12 1
+//    LOCALVARIABLE character C L2 L12 2
+//    LOCALVARIABLE string Ljava/lang/String; L3 L12 3
+//    MAXSTACK = 4
+//    MAXLOCALS = 4
 }
  
 */
