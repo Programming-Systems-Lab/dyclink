@@ -22,18 +22,10 @@ public class MethodPrintingMV extends MethodVisitor {
         visitList.add(str);
     }
 
-//    public void print(String str) {
-//        System.out.println(str);
-//    }
-
     @Override
     public void visitInsn(int opcode) {
         super.visitInsn(opcode);
         log(Printer.OPCODES[opcode]);
-//        if (Printer.OPCODES[opcode].contains("RETURN")) {
-//            log("bb" + bbNumber);
-//            bbNumber++;
-//        }
     }
 
     @Override
@@ -72,8 +64,6 @@ public class MethodPrintingMV extends MethodVisitor {
     public void visitJumpInsn(final int opcode, final Label label) {
         super.visitJumpInsn(opcode, label);
         log(Printer.OPCODES[opcode] + " " + label);
-//        log("bb" + bbNumber);
-//        bbNumber++;
     }
 
     @Override

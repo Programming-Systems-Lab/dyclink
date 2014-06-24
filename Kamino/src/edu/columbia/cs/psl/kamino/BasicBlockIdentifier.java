@@ -19,6 +19,7 @@ import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.LdcInsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.MethodInsnNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.MethodNode;
 import edu.columbia.cs.psl.kamino.org.objectweb.asm.tree.VarInsnNode;
+import edu.columbia.cs.psl.kamino.org.objectweb.asm.util.Printer;
 import edu.columbia.cs.psl.kamino.runtime.FlowOutput;
 
 //import edu.columbia.cs.psl.kamino.runtime.FlowToARFF;
@@ -42,7 +43,7 @@ public class BasicBlockIdentifier extends MethodNode {
 	        String[] exceptions) {
 		super(api, access, name, desc, signature, exceptions);
 		this.className = className;
-		this.methodDescription = className+"."+name+desc;
+		this.methodDescription = className + "." + name + desc;
 		this.nextMV = nextMV;
 	}
 
@@ -80,7 +81,9 @@ public class BasicBlockIdentifier extends MethodNode {
 
 				case AbstractInsnNode.JUMP_INSN:
 					if (insn.getOpcode() == Opcodes.GOTO) {
-						gotoList.add(methodPrintingMV.visitList.get(visitListLocation).split(" ")[1]);
+						System.out.println("GOTO:" + methodPrintingMV.visitList.get(visitListLocation));
+
+						gotoList.add(methodPrintingMV.visitList.get(visitListLocation).replace("GOTO ", "").trim());
 					}
 
 					// Store basic block for display later
@@ -97,8 +100,9 @@ public class BasicBlockIdentifier extends MethodNode {
 					// FIXME LAN - may have problem with GOTO jumping to label read (do another check in second pass?)
 					if (gotoList.size() > 0 && gotoList.contains(((LabelNode) insn).getLabel().toString())) {
 						// Store basic block for display later
-						label_bytecode_map.put(currentFrameID, methodPrintingMV.visitList.subList(lastRecordedLocation, visitListLocation));
-						lastRecordedLocation = visitListLocation;
+						label_bytecode_map.put(currentFrameID, methodPrintingMV.visitList.subList(lastRecordedLocation, visitListLocation + 1));
+						lastRecordedLocation = visitListLocation + 1;
+						gotoList.remove(((LabelNode) insn).getLabel().toString());
 					}
 
 					label_frameID_map.put((((LabelNode) insn).getLabel()), currentFrameID);

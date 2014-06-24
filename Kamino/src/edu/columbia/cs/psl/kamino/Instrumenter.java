@@ -98,17 +98,17 @@ public class Instrumenter {
             return owner.startsWith("java/lang/Object") || owner.startsWith("java/lang/Number") || owner.startsWith("java/lang/Comparable")
                     || owner.startsWith("java/lang/ref/SoftReference") || owner.startsWith("java/lang/ref/Reference")
                     || owner.startsWith("java/lang/ref/FinalizerReference")
-                    //																|| owner.startsWith("java/awt/image/BufferedImage")
-                    //																|| owner.equals("java/awt/Image")
+                    //	|| owner.startsWith("java/awt/image/BufferedImage")
+                    //	|| owner.equals("java/awt/Image")
                     || owner.startsWith("edu/columbia/cs/psl/phosphor") || owner.startsWith("sun/awt/image/codec/");
         } else
             return owner.startsWith("java/lang/Object") || owner.startsWith("java/lang/Boolean") || owner.startsWith("java/lang/Character")
                     || owner.startsWith("java/lang/Byte") || owner.startsWith("java/lang/Short")
-                    //					|| owner.startsWith("edu/columbia/cs/psl/microbench")
+                    //	|| owner.startsWith("edu/columbia/cs/psl/microbench")
                     || owner.startsWith("java/lang/Number") || owner.startsWith("java/lang/Comparable")
                     || owner.startsWith("java/lang/ref/SoftReference") || owner.startsWith("java/lang/ref/Reference")
-                    //																|| owner.startsWith("java/awt/image/BufferedImage")
-                    //																|| owner.equals("java/awt/Image")
+                    //	|| owner.startsWith("java/awt/image/BufferedImage")
+                    //	|| owner.equals("java/awt/Image")
                     || owner.startsWith("edu/columbia/cs/psl/phosphor") || owner.startsWith("sun/awt/image/codec/");
     }
 
