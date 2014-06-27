@@ -12,7 +12,7 @@ import edu.columbia.cs.psl.kamino.org.objectweb.asm.util.Printer;
 public class MethodPrintingMV extends MethodVisitor {
 
     public ArrayList<String> visitList = new ArrayList<String>();
-    int bbNumber = 0;
+//    int bbNumber = 0;
 
     public MethodPrintingMV(MethodVisitor mv) {
         super(Opcodes.ASM5, mv);
