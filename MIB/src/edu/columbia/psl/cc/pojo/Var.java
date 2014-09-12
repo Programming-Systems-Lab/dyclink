@@ -27,8 +27,16 @@ public class Var {
 		return this.methodName;
 	}
 	
-	public void setSil(String sil) {
-		this.sil = sil;
+	public void setSil(int silId) {
+		if (silId == 0) {
+			this.sil = "static";
+		} else if (silId == 1){
+			this.sil = "instance";
+ 		} else if (silId == 2) {
+ 			this.sil = "local";
+ 		} else {
+ 			System.err.println("No such sil ID");
+ 		}
 	}
 	
 	public String getSil() {

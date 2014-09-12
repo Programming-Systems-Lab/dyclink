@@ -224,7 +224,6 @@ private static final int[] Tinv0 =
      0x9ce4b4d8, 0x90c15664, 0x6184cb7b, 0x70b632d5, 0x745c6c48, 
      0x4257b8d0};
 
-    @extractTemplate
 	private static int shift(int r, int shift)
     {
         return (r >>> shift) | (r << -shift);
@@ -236,7 +235,6 @@ private static final int[] Tinv0 =
     private static final int m2 = 0x7f7f7f7f;
     private static final int m3 = 0x0000001b;
 
-    @extractTemplate
     private static int FFmulX(int x)
     {
         return (((x & m2) << 1) ^ (((x & m1) >>> 7) * m3));
@@ -252,7 +250,6 @@ private static final int[] Tinv0 =
 
     */
 
-    @extractTemplate
     private static int inv_mcol(int x)
     {
         int f2 = FFmulX(x);
@@ -263,7 +260,6 @@ private static final int[] Tinv0 =
         return f2 ^ f4 ^ f8 ^ shift(f2 ^ f9, 8) ^ shift(f4 ^ f9, 16) ^ shift(f9, 24);
     }
 
-    @extractTemplate
     private static int subWord(int x)
     {
         return (S[x&255]&255 | ((S[(x>>8)&255]&255)<<8) | ((S[(x>>16)&255]&255)<<16) | S[(x>>24)&255]<<24);
@@ -275,7 +271,6 @@ private static final int[] Tinv0 =
      * AES specified a fixed block size of 128 bits and key sizes 128/192/256 bits
      * This code is written assuming those are the only possible values
      */
-    @extractTemplate
     private int[][] generateWorkingKey(
                                     byte[] key,
                                     boolean forEncryption)
@@ -384,7 +379,6 @@ private static final int[] Tinv0 =
         return BLOCK_SIZE;
     }
 
-    @extractTemplate
     public int processBlock(
         byte[] in,
         int inOff,
@@ -426,7 +420,6 @@ private static final int[] Tinv0 =
     {
     }
 
-    @extractTemplate
     private void unpackBlock(
         byte[]      bytes,
         int         off)
@@ -454,7 +447,6 @@ private static final int[] Tinv0 =
         C3 |= bytes[index++] << 24;
     }
 
-    @extractTemplate
     private void packBlock(
         byte[]      bytes,
         int         off)
@@ -515,7 +507,6 @@ private static final int[] Tinv0 =
         this.C3 = (S[r3&255]&255) ^ ((S[(r0>>8)&255]&255)<<8) ^ ((S[(r1>>16)&255]&255)<<16) ^ (S[(r2>>24)&255]<<24) ^ KW[r][3];
     }
 
-    @extractTemplate
     private void decryptBlock(int[][] KW)
     {
         int t0 = this.C0 ^ KW[ROUNDS][0];

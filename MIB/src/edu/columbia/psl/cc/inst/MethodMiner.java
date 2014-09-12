@@ -11,7 +11,9 @@ import org.objectweb.asm.Opcodes;
 
 import edu.columbia.psl.cc.pojo.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.CodeTemplate;
+import edu.columbia.psl.cc.pojo.Dependency;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
+import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.util.GsonManager;
 
 public class MethodMiner extends MethodVisitor{
@@ -35,6 +37,10 @@ public class MethodMiner extends MethodVisitor{
 	private ClassMiner parent = null;
 	
 	private String key;
+	
+	private Dependency<Var> curDep = null;
+	
+	private ArrayList<Dependency<Var>> depList = new ArrayList<Dependency<Var>>();
 	
 	public MethodMiner(MethodVisitor mv, String owner, String templateAnnot, String testAnnot, ClassMiner parent, String key) {
 		super(Opcodes.ASM4, mv);
@@ -68,19 +74,23 @@ public class MethodMiner extends MethodVisitor{
 		}
 	}
 	
-	private void updateMethodRep(int opcode) {
-		boolean found = false;
-		for (Integer catId: BytecodeCategory.getOpcodeCategory().keySet()) {
-			if (BytecodeCategory.getOpcodeSetByCat(catId).contains(opcode)) {
-				updateSingleCat(catId, opcode);
-				found = true;
-				break ;
-			}
-		}
-		
-		if (!found) {
+	private int updateMethodRep(int opcode) {
+		int catId = BytecodeCategory.getSetIdByOpcode(opcode);
+		if (catId >= 0 ) {
+			updateSingleCat(catId, opcode);
+		} else {
 			System.err.println("Cannot find category for: " + opcode);
 		}
+		return catId;
+	}
+	
+	private Var genVar(int opocdoe, int var, int sil, String varInfo) {
+		Var newVar = new Var();
+		newVar.setClassName(this.owner);
+		newVar.setMethodName(this.key);
+		newVar.setSil(sil);
+		newVar.setVarInfo(varInfo);
+		return newVar;
 	}
 	
 	@Override
@@ -109,7 +119,21 @@ public class MethodMiner extends MethodVisitor{
 	
 	@Override
 	public void visitVarInsn(int opcode, int var) {
-		this.updateMethodRep(opcode);
+		int catId = this.updateMethodRep(opcode);
+		if (catId == 1) {
+			Var dataSource =this.genVar(opcode, var, 2, String.valueOf(var));
+			
+			if (this.curDep == null)
+				this.curDep = new Dependency<Var>();
+			curDep.addParent(dataSource);
+		} else if (catId == 2) {
+			Var dataSink = this.genVar(opcode, var, 2, String.valueOf(var));
+			this.curDep.setChild(dataSink);
+			this.depList.add(this.curDep);
+			this.curDep = null;
+		} else {
+			System.err.println("Weird var opcode: " + opcode);
+		}
 		this.mv.visitVarInsn(opcode, var);
 	}
 	
@@ -183,7 +207,7 @@ public class MethodMiner extends MethodVisitor{
 			CodeTemplate ct = new CodeTemplate();
 			ct.setCatSequence(sb.substring(0, sb.length() - 1));
 			ct.setCharSequence(sb2.toString());
-			
+			System.out.println("Check key: " + key);
 			if (isTemplate) {
 				GsonManager.writeJson(ct, this.key, true);
 			} else if (isTest) {

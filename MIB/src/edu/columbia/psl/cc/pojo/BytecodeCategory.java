@@ -98,6 +98,16 @@ public class BytecodeCategory {
 		return catMap.get(catId);
 	}
 	
+	public static int getSetIdByOpcode(int opcode) {
+		for (Integer i: catMap.keySet()) {
+			HashSet<Integer> ops = catMap.get(i);
+			if (ops.contains(opcode)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
 	public static HashMap<Integer, String> getOpcodeCategory() {
 		return opcodeCategory;
 	}

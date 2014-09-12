@@ -83,7 +83,8 @@ public class ClassMiner extends ClassVisitor{
 		if (this.isAnnot) {
 			String key = name + desc;
 			System.out.println(" " + key);
-			key = key.replaceAll("//W", "");
+			key = key.replaceAll("\\W", "");
+			System.out.println("Replace key: " + key);
 			mv = new MethodMiner(mv, this.owner, this.templateAnnot, this.testAnnot, this, key);
 		}
 		return mv;

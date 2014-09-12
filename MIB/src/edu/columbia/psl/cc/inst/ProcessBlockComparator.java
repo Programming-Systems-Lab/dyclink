@@ -29,10 +29,10 @@ public class ProcessBlockComparator {
 	
 	private static HashSet<String> getClassNames() {
 		HashSet<String> classNames = new HashSet<String>();
-		//classNames.add("edu.columbia.psl.cc.test.TemplateObjMethod");
+		classNames.add("edu.columbia.psl.cc.test.TemplateObjMethod");
 		//classNames.add("edu.columbia.psl.cc.AESEngineManual");
 		//classNames.add("edu.columbia.psl.cc.Rijndael");
-		classNames.add("edu.columbia.psl.cc.test.JohnExample");
+		//classNames.add("edu.columbia.psl.cc.test.JohnExample");
 		return classNames;
 	}
 	

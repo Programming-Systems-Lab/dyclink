@@ -193,6 +193,7 @@ public final class Rijndael {
      *
      * @param   cipherKey   the cipher key (128, 192, or 256 bits).
      */
+    @testTemplate
     private void expandKey(byte[] cipherKey) {
         int temp, r = 0;
         for (int i = 0, k = 0; i < Nk; i++, k += 4) {
@@ -345,6 +346,7 @@ public final class Rijndael {
     /**
      * Compute the decryption schedule from the encryption schedule .
      */
+    @testTemplate
     private void invertKey() {
         int d = 0, e = 4*Nr, w;
 	    /*
@@ -398,6 +400,7 @@ public final class Rijndael {
      * @param   keyBits     size of the cipher key in bits.
      * @param   direction   cipher direction (DIR_ENCRYPT, DIR_DECRYPT, or DIR_BOTH).
      */
+    @testTemplate
     public void makeKey(byte[] cipherKey, int keyBits, int direction)
             throws RuntimeException {
         // check key size:
@@ -433,6 +436,7 @@ public final class Rijndael {
      * @param   cipherKey   the cipher key (128, 192, or 256 bits).
      * @param   keyBits     size of the cipher key in bits.
      */
+    @testTemplate
     public void makeKey(byte[] cipherKey, int keyBits)
             throws RuntimeException {
         makeKey(cipherKey, keyBits, DIR_BOTH);
@@ -536,6 +540,7 @@ public final class Rijndael {
      * @param   ct          ciphertext block.
      * @param   pt          plaintext block.
      */
+    @testTemplate
     public void decrypt(byte[] ct, byte[] pt) {
         /*
 	     * map byte array block to cipher state
