@@ -1,0 +1,81 @@
+package edu.columbia.psl.cc.util;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
+
+public class GsonManager {
+	
+	private static String templateDir = "./template";
+	
+	private static String testDir = "./test";
+	
+	public static <T> void writeJson(T obj, String fileName, boolean isTemplate) {
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String toWrite = gson.toJson(obj);
+		try {
+			File f;
+			if (isTemplate) {
+				f = new File(templateDir + "/" + fileName + ".json");
+			} else {
+				f = new File(testDir + "/" + fileName + ".json");
+			}
+			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+			bw.write(toWrite);
+			bw.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	public static <T> T readJson(File f, T type) {
+		Gson gson = new Gson();
+		try {
+			JsonReader jr = new JsonReader(new FileReader(f));
+			T ret = gson.fromJson(jr, type.getClass());
+			return ret;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
+	
+	private static void cleanHelper(String fileName) {
+		File dir = new File(fileName);
+		if (!dir.isDirectory()) {
+			dir.delete();
+		} else {
+			for (File f: dir.listFiles()) {
+				cleanHelper(f.getAbsolutePath());
+			}
+		}
+	}
+	
+	public static void cleanDirs() {
+		File tempDir = new File(templateDir);
+		File teDir = new File(testDir);
+		boolean hasToDelete = true;
+		if (!tempDir.isDirectory()) {
+			tempDir.delete();
+			tempDir.mkdir();
+			hasToDelete = false;
+		}
+		
+		if (!teDir.isDirectory()) {
+			teDir.delete();
+			teDir.mkdir();
+			hasToDelete = false;
+		}
+		
+		if (hasToDelete) {
+			cleanHelper(tempDir.getAbsolutePath());
+			cleanHelper(teDir.getAbsolutePath());
+		}
+	}
+
+}
