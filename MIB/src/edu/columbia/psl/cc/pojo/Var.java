@@ -1,15 +1,30 @@
 package edu.columbia.psl.cc.pojo;
 
-public class Var {
+import java.util.HashMap;
+import java.util.Set;
+
+public abstract class Var {
 	
+	//The class that this var is used
 	private String className;
 	
+	//The method this var is used
 	private String methodName;
 	
 	//static, instance or local
-	private String sil;
+	protected int silId;
 	
-	private String varInfo;
+	private int opcode;
+	
+	private HashMap<Var, String> children = new HashMap<Var, String>();
+	
+	public void setOpcode(int opcode) {
+		this.opcode = opcode;
+	}
+	
+	public int getOpcode() {
+		return this.opcode;
+	}
 	
 	public void setClassName(String className) {
 		this.className = className;
@@ -27,33 +42,38 @@ public class Var {
 		return this.methodName;
 	}
 	
-	public void setSil(int silId) {
-		if (silId == 0) {
-			this.sil = "static";
-		} else if (silId == 1){
-			this.sil = "instance";
- 		} else if (silId == 2) {
- 			this.sil = "local";
- 		} else {
- 			System.err.println("No such sil ID");
- 		}
-	}
+	public int getSilId() {
+		return this.silId;
+	};
 	
 	public String getSil() {
-		return this.sil;
-	}
-		
-	public void setVarInfo(String varInfo) {
-		this.varInfo = varInfo;
+		if (this.silId == 0) {
+			return "static";
+		} else if (this.silId == 1) {
+			return "instance";
+		} else {
+			return "local";
+		}
 	}
 	
-	public String getVarInfo() {
-		return this.varInfo;
+	public void addChildren(Var child) {
+		String edge = this.getSil() + "->" + child.getSil();
+		this.children.put(child, edge);
 	}
+	
+	public HashMap<Var, String> getChildrenWithLabel() {
+		return this.children;
+	}
+	
+	public Set<Var> getChildren() {
+		return this.children.keySet();
+	}
+		
+	public abstract String getVarInfo();
 	
 	@Override
 	public String toString() {
-		return this.className + ":" + this.methodName + ":" + this.sil + ":" + this.varInfo;
+		return this.opcode + ":" + this.className + ":" + this.methodName + ":" + this.getSil() + ":" + this.getVarInfo();
 	}
 
 }

@@ -1,4 +1,4 @@
-package edu.columbia.psl.cc.pojo;
+package edu.columbia.psl.cc.datastruct;
 
 import java.io.File;
 import java.io.FileReader;
@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.objectweb.asm.Opcodes;
+
+import edu.columbia.psl.cc.pojo.OpcodeObj;
 
 public class BytecodeCategory {
 	

@@ -6,6 +6,7 @@ import edu.columbia.psl.cc.annot.testTemplate;
 
 @analyzeClass
 public class TemplateObjMethod {
+		
 	@extractTemplate
 	public Integer sequenceObjTemplate(Integer a, Integer b, Integer c) {
 		Integer d = a + 19;

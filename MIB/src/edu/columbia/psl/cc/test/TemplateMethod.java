@@ -7,6 +7,10 @@ import edu.columbia.psl.cc.annot.testTemplate;
 @analyzeClass
 public class TemplateMethod {
 	
+	private static int sVar;
+	
+	private int iVar;
+	
 	@extractTemplate
 	public int sequencePrimitiveTemplate(int a, int b, int c) {
 		int d = a + 5;

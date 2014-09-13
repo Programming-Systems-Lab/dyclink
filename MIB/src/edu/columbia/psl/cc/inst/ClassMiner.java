@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.util.LevenshteinDistance;
+import edu.columbia.psl.cc.util.StringUtil;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
@@ -29,8 +30,6 @@ public class ClassMiner extends ClassVisitor{
 	private HashMap<String, int[]> totalRepVectors = new HashMap<String, int[]>();
 	
 	private HashMap<String, HashMap<Integer, ArrayList<OpcodeObj>>> totalRecords = new HashMap<String, HashMap<Integer, ArrayList<OpcodeObj>>>();
-	
-	private LevenshteinDistance simCalculator = new LevenshteinDistance();
 	
 	private HashMap<String, ArrayList<OpcodeObj>> totalSequence = new HashMap<String, ArrayList<OpcodeObj>>();
 		
@@ -81,11 +80,7 @@ public class ClassMiner extends ClassVisitor{
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = this.cv.visitMethod(access, name, desc, signature, exceptions);
 		if (this.isAnnot) {
-			String key = name + desc;
-			System.out.println(" " + key);
-			key = key.replaceAll("\\W", "");
-			System.out.println("Replace key: " + key);
-			mv = new MethodMiner(mv, this.owner, this.templateAnnot, this.testAnnot, this, key);
+			mv = new MethodMiner(mv, this.owner, this.templateAnnot, this.testAnnot, name, desc);
 		}
 		return mv;
 	}

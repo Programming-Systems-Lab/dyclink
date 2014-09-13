@@ -22,6 +22,8 @@ public class LevenshteinDistance {
 			String targetSeq = targetMap.get(targetKey);
 			for (String tempKey: templateMap.keySet()) {
 				String tempSeq = templateMap.get(tempKey);
+				System.out.println("Target seq: " + targetSeq);
+				System.out.println("Test seq: " + tempSeq);
 				System.out.println(targetKey + " vs " + tempKey + " " + calDistance(targetSeq, tempSeq));
 			}
 		}

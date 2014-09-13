@@ -9,12 +9,14 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import edu.columbia.psl.cc.pojo.BytecodeCategory;
+import edu.columbia.psl.cc.datastruct.BytecodeCategory;
+import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.CodeTemplate;
 import edu.columbia.psl.cc.pojo.Dependency;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.util.GsonManager;
+import edu.columbia.psl.cc.util.StringUtil;
 
 public class MethodMiner extends MethodVisitor{
 	
@@ -34,21 +36,21 @@ public class MethodMiner extends MethodVisitor{
 	
 	private ArrayList<OpcodeObj> sequence = new ArrayList<OpcodeObj>();
 	
-	private ClassMiner parent = null;
+	private String myName;
 	
-	private String key;
+	private String myDesc;
 	
-	private Dependency<Var> curDep = null;
+	private ArrayList<Var> nonterminateVar = new ArrayList<Var>();
 	
-	private ArrayList<Dependency<Var>> depList = new ArrayList<Dependency<Var>>();
+	private VarPool varPool = new VarPool();
 	
-	public MethodMiner(MethodVisitor mv, String owner, String templateAnnot, String testAnnot, ClassMiner parent, String key) {
+	public MethodMiner(MethodVisitor mv, String owner, String templateAnnot, String testAnnot, String myName, String myDesc) {
 		super(Opcodes.ASM4, mv);
 		this.owner = owner;
 		this.templateAnnot = templateAnnot;
 		this.testAnnot = testAnnot;
-		this.parent = parent;
-		this.key = key;
+		this.myName = myName;
+		this.myDesc = myDesc;
 	}
 	
 	private static HashMap<Integer, ArrayList<OpcodeObj>> genRecordTemplate() {
@@ -84,13 +86,15 @@ public class MethodMiner extends MethodVisitor{
 		return catId;
 	}
 	
-	private Var genVar(int opocdoe, int var, int sil, String varInfo) {
-		Var newVar = new Var();
-		newVar.setClassName(this.owner);
-		newVar.setMethodName(this.key);
-		newVar.setSil(sil);
-		newVar.setVarInfo(varInfo);
-		return newVar;
+	private void handleDataSource(Var var) {
+		this.nonterminateVar.add(var);
+	}
+	
+	private void handleDataSink(Var var) {
+		for (Var parent: this.nonterminateVar) {
+			parent.addChildren(var);
+		}
+		this.nonterminateVar.clear();
 	}
 	
 	@Override
@@ -120,17 +124,18 @@ public class MethodMiner extends MethodVisitor{
 	@Override
 	public void visitVarInsn(int opcode, int var) {
 		int catId = this.updateMethodRep(opcode);
+		
+		if (catId < 0) {
+			System.err.println("Invalid var opcode: " + opcode);
+			return ;
+		}
+		//Local variable
+		int silId = 2;
+		Var v = this.varPool.searchVar(opcode, this.owner, this.myName, silId, String.valueOf(var));
 		if (catId == 1) {
-			Var dataSource =this.genVar(opcode, var, 2, String.valueOf(var));
-			
-			if (this.curDep == null)
-				this.curDep = new Dependency<Var>();
-			curDep.addParent(dataSource);
+			this.handleDataSource(v);
 		} else if (catId == 2) {
-			Var dataSink = this.genVar(opcode, var, 2, String.valueOf(var));
-			this.curDep.setChild(dataSink);
-			this.depList.add(this.curDep);
-			this.curDep = null;
+			this.handleDataSink(v);
 		} else {
 			System.err.println("Weird var opcode: " + opcode);
 		}
@@ -145,7 +150,22 @@ public class MethodMiner extends MethodVisitor{
 	
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-		this.updateMethodRep(opcode);
+		int catId = this.updateMethodRep(opcode);
+		
+		if (catId < 0) {
+			System.err.println("Invalid field opcode: " + opcode);
+			return ;
+		}
+		
+		if (catId == 10) {
+			int silId = (opcode == 178)?0: 1;
+			Var dataSource = this.varPool.searchVar(opcode, this.owner, this.myName, silId, name + ":" + desc);
+			this.handleDataSource(dataSource);
+		} else {
+			int silId = (opcode == 179)?0: 1;
+			Var dataSink = this.varPool.searchVar(opcode, this.owner, this.myName, silId, name + ":" + desc);
+			this.handleDataSink(dataSink);
+		}
 		this.mv.visitFieldInsn(opcode, owner, name, desc);
 	}
 	
@@ -207,11 +227,20 @@ public class MethodMiner extends MethodVisitor{
 			CodeTemplate ct = new CodeTemplate();
 			ct.setCatSequence(sb.substring(0, sb.length() - 1));
 			ct.setCharSequence(sb2.toString());
+			
+			String key = StringUtil.cleanPunc(this.myName) + StringUtil.parseDesc(this.myDesc);
 			System.out.println("Check key: " + key);
 			if (isTemplate) {
-				GsonManager.writeJson(ct, this.key, true);
+				GsonManager.writeJson(ct, key, true);
 			} else if (isTest) {
-				GsonManager.writeJson(ct, this.key, false);
+				GsonManager.writeJson(ct, key, false);
+			}
+			
+			System.out.println("Check var size: " + this.varPool.size());
+			for (Var v: this.varPool) {
+				for (Var child: v.getChildren()) {
+					System.out.println(v + "->" + child);
+				}
 			}
 		}
 		
