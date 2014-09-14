@@ -14,7 +14,8 @@ public class VarPool extends HashSet<Var>{
 	private static final long serialVersionUID = 1L;
 
 	private Var genObjVar(int opcode, String className, String methodName, int silId, String varInfo) {
-		ObjVar ov = new ObjVar(silId);
+		ObjVar ov = new ObjVar();
+		ov.setSilId(silId);
 		ov.setClassName(className);
 		ov.setMethodName(methodName);
 		
@@ -27,6 +28,7 @@ public class VarPool extends HashSet<Var>{
 	
 	private Var genLocalVar(int opcode, String className, String methodName, String varInfo) {
 		LocalVar lv = new LocalVar();
+		lv.setSilId(2);
 		lv.setOpcode(opcode);
 		lv.setClassName(className);
 		lv.setMethodName(methodName);

@@ -9,6 +9,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 
+import edu.columbia.psl.cc.pojo.Var;
+
 public class GsonManager {
 	
 	private static String templateDir = "./template";
@@ -16,7 +18,10 @@ public class GsonManager {
 	private static String testDir = "./test";
 	
 	public static <T> void writeJson(T obj, String fileName, boolean isTemplate) {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		GsonBuilder gb = new GsonBuilder();
+		gb.setPrettyPrinting();
+		gb.registerTypeAdapter(Var.class, new VarAdapter());
+		Gson gson = gb.create();
 		String toWrite = gson.toJson(obj);
 		try {
 			File f;
@@ -34,7 +39,10 @@ public class GsonManager {
 	}
 	
 	public static <T> T readJson(File f, T type) {
-		Gson gson = new Gson();
+		GsonBuilder gb = new GsonBuilder();
+		gb.setPrettyPrinting();
+		gb.registerTypeAdapter(Var.class, new VarAdapter());
+		Gson gson = gb.create();
 		try {
 			JsonReader jr = new JsonReader(new FileReader(f));
 			T ret = gson.fromJson(jr, type.getClass());

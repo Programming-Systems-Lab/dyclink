@@ -1,9 +1,10 @@
 package edu.columbia.psl.cc.pojo;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
-public abstract class Var {
+//For serialization purpose, cannot set Var as an abstract class
+public class Var {
 	
 	//The class that this var is used
 	private String className;
@@ -16,7 +17,8 @@ public abstract class Var {
 	
 	private int opcode;
 	
-	private HashMap<Var, String> children = new HashMap<Var, String>();
+	//private HashMap<Var, String> children = new HashMap<Var, String>();
+	private HashSet<Var> children = new HashSet<Var>();
 	
 	public void setOpcode(int opcode) {
 		this.opcode = opcode;
@@ -42,6 +44,10 @@ public abstract class Var {
 		return this.methodName;
 	}
 	
+	public void setSilId(int silId) {
+		this.silId = silId;
+	}
+	
 	public int getSilId() {
 		return this.silId;
 	};
@@ -57,23 +63,42 @@ public abstract class Var {
 	}
 	
 	public void addChildren(Var child) {
-		String edge = this.getSil() + "->" + child.getSil();
-		this.children.put(child, edge);
+		//String edge = this.getSil() + "->" + child.getSil();
+		//this.children.put(child, edge);
+		this.children.add(child);
 	}
 	
-	public HashMap<Var, String> getChildrenWithLabel() {
+	/*public HashMap<Var, String> getChildrenWithLabel() {
 		return this.children;
+	}*/
+	
+	public void setChildren(HashSet<Var> children) {
+		this.children = children;
 	}
 	
 	public Set<Var> getChildren() {
-		return this.children.keySet();
+		//return this.children.keySet();
+		return this.children;
 	}
 		
-	public abstract String getVarInfo();
+	public String getVarInfo() {
+		if (this.silId < 2) {
+			ObjVar ov = (ObjVar)this;
+			return ov.getNativeClassName() + ":" + ov.getVarName();
+		} else {
+			LocalVar lv = (LocalVar)this;
+			return String.valueOf(lv.getLocalVarId());
+		}
+	}
 	
 	@Override
 	public String toString() {
 		return this.opcode + ":" + this.className + ":" + this.methodName + ":" + this.getSil() + ":" + this.getVarInfo();
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.toString().hashCode();
 	}
 
 }

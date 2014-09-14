@@ -8,9 +8,18 @@ public class StringUtil {
 		return s1 + "->" + s2;
 	}
 	
-	public static String cleanPunc(String oriString) {
-		String ret = oriString.replaceAll("\\W", "_");
+	public static String cleanPuncHelper(String oriString, String newVal) {
+		String ret = oriString.replaceAll("\\W", newVal);
 		return ret;
+	}
+	
+	public static String cleanPunc(String oriString, Object...newVal) {
+		if (newVal.length == 0) {
+			return cleanPuncHelper(oriString, "");
+		} else {
+			String replaceBy = (String)newVal[0];
+			return cleanPuncHelper(oriString, replaceBy);
+		}
 	}
 	
 	public static String parseDesc(String desc) {
@@ -23,7 +32,7 @@ public class StringUtil {
 		String in = cleanPunc(desc.substring(0, idx + 1));
 		String out = cleanPunc(desc.substring(idx + 1, desc.length()));
 		
-		return in + ":" + out;
+		return in + "~" + out;
 	}
 
 }

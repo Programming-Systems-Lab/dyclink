@@ -13,11 +13,8 @@ import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.LevenshteinDistance;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
 
 public class ProcessBlockComparator {
 	

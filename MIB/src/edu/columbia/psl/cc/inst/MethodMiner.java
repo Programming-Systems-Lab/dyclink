@@ -227,8 +227,11 @@ public class MethodMiner extends MethodVisitor{
 			CodeTemplate ct = new CodeTemplate();
 			ct.setCatSequence(sb.substring(0, sb.length() - 1));
 			ct.setCharSequence(sb2.toString());
+			ct.setVars(varPool);
 			
-			String key = StringUtil.cleanPunc(this.myName) + StringUtil.parseDesc(this.myDesc);
+			String key = StringUtil.cleanPunc(this.owner, "_") 
+					+ "~" + StringUtil.cleanPunc(this.myName, "_") 
+					+ "~" + StringUtil.parseDesc(this.myDesc);
 			System.out.println("Check key: " + key);
 			if (isTemplate) {
 				GsonManager.writeJson(ct, key, true);

@@ -1,10 +1,16 @@
 package edu.columbia.psl.cc.pojo;
 
+import java.util.HashSet;
+
+import edu.columbia.psl.cc.datastruct.VarPool;
+
 public class CodeTemplate {
 	
-	String catSequence;
+	private String catSequence;
 	
-	String charSequence;
+	private String charSequence;
+	
+	private VarPool vars;
 	
 	public void setCatSequence(String catSequence) {
 		this.catSequence = catSequence;
@@ -20,6 +26,14 @@ public class CodeTemplate {
 	
 	public String getCharSequence() {
 		return this.charSequence;
+	}
+	
+	public void setVars(VarPool vars) {
+		this.vars = vars;
+	}
+	
+	public VarPool getVars() {
+		return this.vars;
 	}
 
 }
