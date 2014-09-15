@@ -8,14 +8,12 @@ import edu.columbia.psl.cc.pojo.Var;
 
 public class VarPool extends HashSet<Var>{
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	private Var genObjVar(int opcode, String className, String methodName, int silId, String varInfo) {
 		ObjVar ov = new ObjVar();
 		ov.setSilId(silId);
+		ov.setOpcode(opcode);
 		ov.setClassName(className);
 		ov.setMethodName(methodName);
 		

@@ -1,6 +1,9 @@
 package edu.columbia.psl.cc.pojo;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Set;
 
 //For serialization purpose, cannot set Var as an abstract class
@@ -17,8 +20,9 @@ public class Var {
 	
 	private int opcode;
 	
-	//private HashMap<Var, String> children = new HashMap<Var, String>();
-	private HashSet<Var> children = new HashSet<Var>();
+
+	//private HashSet<Var> children = new HashSet<Var>();	
+	private HashMap<String, Set<Var>> children = new HashMap<String, Set<Var>>();
 	
 	public void setOpcode(int opcode) {
 		this.opcode = opcode;
@@ -63,21 +67,26 @@ public class Var {
 	}
 	
 	public void addChildren(Var child) {
-		//String edge = this.getSil() + "->" + child.getSil();
+		String edge = this.getSil() + "-" + child.getSil();
 		//this.children.put(child, edge);
-		this.children.add(child);
+		if (this.children.keySet().contains(edge)) {
+			this.children.get(edge).add(child);
+		} else {
+			Set<Var> edgeSet = new HashSet<Var>();
+			edgeSet.add(child);
+			this.children.put(edge, edgeSet);
+		}
 	}
 	
-	/*public HashMap<Var, String> getChildrenWithLabel() {
-		return this.children;
-	}*/
+	public Set<Var> getChildrenWithLabel(String label) {
+		return this.children.get(label);
+	}
 	
-	public void setChildren(HashSet<Var> children) {
+	public void setChildren(HashMap<String, Set<Var>>children) {
 		this.children = children;
 	}
 	
-	public Set<Var> getChildren() {
-		//return this.children.keySet();
+	public HashMap<String, Set<Var>> getChildren() {
 		return this.children;
 	}
 		
@@ -92,8 +101,34 @@ public class Var {
 	}
 	
 	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Var))
+			return false;
+		
+		Var tmpV = (Var)o;
+		if (tmpV.getOpcode() != this.opcode)
+			return false;
+		
+		if (!tmpV.getClassName().equals(this.className))
+			return false;
+		
+		if (!tmpV.getMethodName().equals(this.methodName))
+			return false;
+		
+		if (tmpV.getSilId() != this.silId)
+			return false;
+		
+		if (!tmpV.getVarInfo().equals(this.getVarInfo()))
+			return false;
+		
+		//Consider children?
+		
+		return true;
+	}
+	
+	@Override
 	public String toString() {
-		return this.opcode + ":" + this.className + ":" + this.methodName + ":" + this.getSil() + ":" + this.getVarInfo();
+		return this.opcode + ":" + this.className + ":" + this.methodName + ":" + this.getSilId() + ":" + this.getVarInfo();
 	}
 	
 	@Override

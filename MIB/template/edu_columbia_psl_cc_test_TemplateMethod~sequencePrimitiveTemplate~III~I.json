@@ -7,7 +7,7 @@
       "methodName": "sequencePrimitiveTemplate",
       "silId": 2,
       "opcode": 54,
-      "children": [],
+      "children": {},
       "localVarId": 6
     },
     {
@@ -15,7 +15,7 @@
       "methodName": "sequencePrimitiveTemplate",
       "silId": 2,
       "opcode": 54,
-      "children": [],
+      "children": {},
       "localVarId": 5
     },
     {
@@ -23,7 +23,7 @@
       "methodName": "sequencePrimitiveTemplate",
       "silId": 2,
       "opcode": 54,
-      "children": [],
+      "children": {},
       "localVarId": 4
     },
     {
@@ -31,16 +31,18 @@
       "methodName": "sequencePrimitiveTemplate",
       "silId": 2,
       "opcode": 21,
-      "children": [
-        {
-          "localVarId": 6,
-          "className": "edu/columbia/psl/cc/test/TemplateMethod",
-          "methodName": "sequencePrimitiveTemplate",
-          "silId": 2,
-          "opcode": 54,
-          "children": []
-        }
-      ],
+      "children": {
+        "local-local": [
+          {
+            "localVarId": 6,
+            "className": "edu/columbia/psl/cc/test/TemplateMethod",
+            "methodName": "sequencePrimitiveTemplate",
+            "silId": 2,
+            "opcode": 54,
+            "children": {}
+          }
+        ]
+      },
       "localVarId": 3
     },
     {
@@ -48,16 +50,18 @@
       "methodName": "sequencePrimitiveTemplate",
       "silId": 2,
       "opcode": 21,
-      "children": [
-        {
-          "localVarId": 5,
-          "className": "edu/columbia/psl/cc/test/TemplateMethod",
-          "methodName": "sequencePrimitiveTemplate",
-          "silId": 2,
-          "opcode": 54,
-          "children": []
-        }
-      ],
+      "children": {
+        "local-local": [
+          {
+            "localVarId": 5,
+            "className": "edu/columbia/psl/cc/test/TemplateMethod",
+            "methodName": "sequencePrimitiveTemplate",
+            "silId": 2,
+            "opcode": 54,
+            "children": {}
+          }
+        ]
+      },
       "localVarId": 4
     },
     {
@@ -65,16 +69,18 @@
       "methodName": "sequencePrimitiveTemplate",
       "silId": 2,
       "opcode": 21,
-      "children": [
-        {
-          "localVarId": 6,
-          "className": "edu/columbia/psl/cc/test/TemplateMethod",
-          "methodName": "sequencePrimitiveTemplate",
-          "silId": 2,
-          "opcode": 54,
-          "children": []
-        }
-      ],
+      "children": {
+        "local-local": [
+          {
+            "localVarId": 6,
+            "className": "edu/columbia/psl/cc/test/TemplateMethod",
+            "methodName": "sequencePrimitiveTemplate",
+            "silId": 2,
+            "opcode": 54,
+            "children": {}
+          }
+        ]
+      },
       "localVarId": 5
     },
     {
@@ -82,7 +88,7 @@
       "methodName": "sequencePrimitiveTemplate",
       "silId": 2,
       "opcode": 21,
-      "children": [],
+      "children": {},
       "localVarId": 6
     },
     {
@@ -90,16 +96,18 @@
       "methodName": "sequencePrimitiveTemplate",
       "silId": 2,
       "opcode": 21,
-      "children": [
-        {
-          "localVarId": 4,
-          "className": "edu/columbia/psl/cc/test/TemplateMethod",
-          "methodName": "sequencePrimitiveTemplate",
-          "silId": 2,
-          "opcode": 54,
-          "children": []
-        }
-      ],
+      "children": {
+        "local-local": [
+          {
+            "localVarId": 4,
+            "className": "edu/columbia/psl/cc/test/TemplateMethod",
+            "methodName": "sequencePrimitiveTemplate",
+            "silId": 2,
+            "opcode": 54,
+            "children": {}
+          }
+        ]
+      },
       "localVarId": 1
     },
     {
@@ -107,16 +115,18 @@
       "methodName": "sequencePrimitiveTemplate",
       "silId": 2,
       "opcode": 21,
-      "children": [
-        {
-          "localVarId": 5,
-          "className": "edu/columbia/psl/cc/test/TemplateMethod",
-          "methodName": "sequencePrimitiveTemplate",
-          "silId": 2,
-          "opcode": 54,
-          "children": []
-        }
-      ],
+      "children": {
+        "local-local": [
+          {
+            "localVarId": 5,
+            "className": "edu/columbia/psl/cc/test/TemplateMethod",
+            "methodName": "sequencePrimitiveTemplate",
+            "silId": 2,
+            "opcode": 54,
+            "children": {}
+          }
+        ]
+      },
       "localVarId": 2
     }
   ]

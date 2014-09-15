@@ -7,7 +7,7 @@
       "methodName": "testPrimitiveSequence",
       "silId": 2,
       "opcode": 24,
-      "children": [],
+      "children": {},
       "localVarId": 9
     },
     {
@@ -15,16 +15,18 @@
       "methodName": "testPrimitiveSequence",
       "silId": 2,
       "opcode": 24,
-      "children": [
-        {
-          "localVarId": 9,
-          "className": "edu/columbia/psl/cc/test/TemplateMethod",
-          "methodName": "testPrimitiveSequence",
-          "silId": 2,
-          "opcode": 57,
-          "children": []
-        }
-      ],
+      "children": {
+        "local-local": [
+          {
+            "localVarId": 9,
+            "className": "edu/columbia/psl/cc/test/TemplateMethod",
+            "methodName": "testPrimitiveSequence",
+            "silId": 2,
+            "opcode": 57,
+            "children": {}
+          }
+        ]
+      },
       "localVarId": 7
     },
     {
@@ -32,16 +34,18 @@
       "methodName": "testPrimitiveSequence",
       "silId": 2,
       "opcode": 24,
-      "children": [
-        {
-          "localVarId": 7,
-          "className": "edu/columbia/psl/cc/test/TemplateMethod",
-          "methodName": "testPrimitiveSequence",
-          "silId": 2,
-          "opcode": 57,
-          "children": []
-        }
-      ],
+      "children": {
+        "local-local": [
+          {
+            "localVarId": 7,
+            "className": "edu/columbia/psl/cc/test/TemplateMethod",
+            "methodName": "testPrimitiveSequence",
+            "silId": 2,
+            "opcode": 57,
+            "children": {}
+          }
+        ]
+      },
       "localVarId": 5
     },
     {
@@ -49,16 +53,18 @@
       "methodName": "testPrimitiveSequence",
       "silId": 2,
       "opcode": 24,
-      "children": [
-        {
-          "localVarId": 5,
-          "className": "edu/columbia/psl/cc/test/TemplateMethod",
-          "methodName": "testPrimitiveSequence",
-          "silId": 2,
-          "opcode": 57,
-          "children": []
-        }
-      ],
+      "children": {
+        "local-local": [
+          {
+            "localVarId": 5,
+            "className": "edu/columbia/psl/cc/test/TemplateMethod",
+            "methodName": "testPrimitiveSequence",
+            "silId": 2,
+            "opcode": 57,
+            "children": {}
+          }
+        ]
+      },
       "localVarId": 3
     },
     {
@@ -66,7 +72,7 @@
       "methodName": "testPrimitiveSequence",
       "silId": 2,
       "opcode": 57,
-      "children": [],
+      "children": {},
       "localVarId": 9
     },
     {
@@ -74,16 +80,18 @@
       "methodName": "testPrimitiveSequence",
       "silId": 2,
       "opcode": 24,
-      "children": [
-        {
-          "localVarId": 9,
-          "className": "edu/columbia/psl/cc/test/TemplateMethod",
-          "methodName": "testPrimitiveSequence",
-          "silId": 2,
-          "opcode": 57,
-          "children": []
-        }
-      ],
+      "children": {
+        "local-local": [
+          {
+            "localVarId": 9,
+            "className": "edu/columbia/psl/cc/test/TemplateMethod",
+            "methodName": "testPrimitiveSequence",
+            "silId": 2,
+            "opcode": 57,
+            "children": {}
+          }
+        ]
+      },
       "localVarId": 1
     },
     {
@@ -91,7 +99,7 @@
       "methodName": "testPrimitiveSequence",
       "silId": 2,
       "opcode": 57,
-      "children": [],
+      "children": {},
       "localVarId": 7
     },
     {
@@ -99,7 +107,7 @@
       "methodName": "testPrimitiveSequence",
       "silId": 2,
       "opcode": 57,
-      "children": [],
+      "children": {},
       "localVarId": 5
     }
   ]

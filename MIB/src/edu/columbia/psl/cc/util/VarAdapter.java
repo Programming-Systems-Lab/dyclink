@@ -1,9 +1,10 @@
 package edu.columbia.psl.cc.util;
 
 import java.lang.reflect.Type;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -43,19 +44,18 @@ public class VarAdapter implements JsonSerializer<Var>, JsonDeserializer<Var>{
 		JsonElement methodElement = object.get("methodName");
 		JsonElement silIdElement = object.get("silId");
 		JsonElement opcodeElement = object.get("opcode");
-		JsonArray childrenElement = object.get("children").getAsJsonArray();
-		HashSet<Var> children = new HashSet<Var>();
-		for (int i = 0; i < childrenElement.size(); i++) {
-			JsonElement element = childrenElement.get(i);
-			Var tmpVar = context.<Var>deserialize(element, Var.class);
-			children.add(tmpVar);
+		JsonElement childrenElement = object.get("children");
+		JsonObject childrenObj = childrenElement.getAsJsonObject();
+		HashMap<String, Set<Var>> childrenMap = new HashMap<String, Set<Var>>();
+		for (Map.Entry<String, JsonElement>entry: childrenObj.entrySet()) {
+			childrenMap.put(entry.getKey(), context.<Set<Var>>deserialize(entry.getValue(), Set.class));
 		}
 		
 		var.setClassName(classElement.getAsString());
 		var.setMethodName(methodElement.getAsString());
 		var.setSilId(silIdElement.getAsInt());
 		var.setOpcode(opcodeElement.getAsInt());
-		var.setChildren(children);
+		var.setChildren(childrenMap);
 		return var;
 	}
 

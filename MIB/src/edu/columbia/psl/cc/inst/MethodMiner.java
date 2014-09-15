@@ -3,6 +3,8 @@ package edu.columbia.psl.cc.inst;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Label;
@@ -241,8 +243,16 @@ public class MethodMiner extends MethodVisitor{
 			
 			System.out.println("Check var size: " + this.varPool.size());
 			for (Var v: this.varPool) {
-				for (Var child: v.getChildren()) {
-					System.out.println(v + "->" + child);
+				if (v.getChildren().size() > 0) {
+					System.out.print("Source: " + v + "->");
+				}
+				
+				for (String edge: v.getChildren().keySet()) {
+					System.out.println(edge);
+					Set<Var> edgeChildren = v.getChildren().get(edge);
+					for (Var ev: edgeChildren) {
+						System.out.println("->" + "Sink: " +  ev);
+					}
 				}
 			}
 		}
