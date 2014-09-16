@@ -2,12 +2,13 @@ package edu.columbia.psl.cc.datastruct;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.pojo.VarPair;
 
-public class VarPairPool extends HashSet<VarPair>{
+public class VarPairPool extends LinkedHashSet<VarPair>{
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -50,16 +51,39 @@ public class VarPairPool extends HashSet<VarPair>{
 			return false;
 	}
 	
-	public VarPair searchVarPairPool(Var v1, Var v2) {
+	public double[] genSimilarityArray() {
+		double[] ret = new double[this.size()];
+		int count = 0;
+		for (VarPair vp: this) {
+			ret[count++] = vp.getSigma();
+		}
+		return ret;
+	}
+	
+	public VarPair searchVarPairPool(Var v1, Var v2, boolean createNew) {
 		for (VarPair vp: this) {
 			if (this.checkExistence(vp, v1, v2))
 				return vp;
 		}
 		
-		//Create new
-		VarPair newVp = new VarPair(v1, v2);
-		this.add(newVp);
-		return newVp;
+		if (createNew) {
+			//Create new
+			VarPair newVp = new VarPair(v1, v2);
+			this.add(newVp);
+			return newVp;
+		} else {
+			return null;
+		}
+	}
+	
+	public HashSet<VarPair> searchVarPairByVar1(Var v1) {
+		HashSet<VarPair> ret = new HashSet<VarPair>();
+		for (VarPair vp: this) {
+			if (vp.getVar1().equals(v1)) {
+				ret.add(vp);
+			}
+		}
+		return ret;
 	}
 	
 	public void updateVarPairSigma() {

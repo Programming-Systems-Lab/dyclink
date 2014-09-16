@@ -11,7 +11,7 @@ public class TemplateMethod {
 	
 	private int iVar;
 	
-	@extractTemplate
+	//@extractTemplate
 	public int sequencePrimitiveTemplate(int a, int b, int c) {
 		int d = a + 5;
 		int e = d + b;
@@ -33,5 +33,13 @@ public class TemplateMethod {
 		double d4 = d3 + 15;
 		double d5 = d4 + d1;
 		return d5;
+	}
+	
+	//@testTemplate
+	public double testDoubleTemplate(double a, double b, double c) {
+		double d = a + 5;
+		double e = d + b;
+		double f = e + c;
+		return f;
 	}
 }

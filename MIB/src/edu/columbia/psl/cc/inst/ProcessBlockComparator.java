@@ -8,13 +8,19 @@ import org.objectweb.asm.util.CheckClassAdapter;
 import edu.columbia.psl.cc.annot.analyzeClass;
 import edu.columbia.psl.cc.annot.extractTemplate;
 import edu.columbia.psl.cc.annot.testTemplate;
+import edu.columbia.psl.cc.datastruct.VarPairPool;
+import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.CodeTemplate;
+import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.LevenshteinDistance;
+import edu.columbia.psl.cc.util.SimilarityFlooding;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.Set;
 import java.util.HashSet;
+import java.util.HashMap;
 
 public class ProcessBlockComparator {
 	
@@ -67,18 +73,43 @@ public class ProcessBlockComparator {
 		
 		//For generic purpose
 		CodeTemplate type = new CodeTemplate();
+		HashMap<String, VarPool> templateMap = new HashMap<String, VarPool>();
 		for (File f: tempDir.listFiles(filter)) {
 			//Probably not the best way, how to make it generic?
 			CodeTemplate ct = GsonManager.readJson(f, type);
+			HashSet<Var> vSet = ct.getVars();
+			VarPool vp = new VarPool(vSet);
 			simCalculator.addData(f.getName(), ct.getCharSequence(), true);
+			templateMap.put(f.getName(), vp);
 		}
 		
+		HashMap<String, VarPool> testMap = new HashMap<String, VarPool>();
 		for (File f: testDir.listFiles(filter)) {
 			CodeTemplate ct = GsonManager.readJson(f, type);
+			HashSet<Var> vSet = ct.getVars();
+			VarPool vp = new VarPool(vSet);
+			System.out.println(ct.getVars());
 			simCalculator.addData(f.getName(), ct.getCharSequence(), false);
+			testMap.put(f.getName(), vp);
 		}
-		
 		simCalculator.generateResult();
+		
+		for (String templateName: templateMap.keySet()) {
+			VarPool templateTool = templateMap.get(templateName);
+			
+			for (String testName: testMap.keySet()) {
+				VarPool testPool = testMap.get(testName);
+				
+				SimilarityFlooding sf = new SimilarityFlooding();
+				sf.setMaxrRound(10);
+				sf.setDelta(0.1);
+				sf.constructVarPairPool(templateTool, testPool);
+				//sf.convergeCalculation();
+				//sf.getMarried();
+				sf.getSubGraph();
+				System.out.println(templateName + " vs " + testName + " " + sf.getSimilaritySum());
+			}
+		}
 	}
 
 }

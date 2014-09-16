@@ -24,15 +24,11 @@ public class VarPair {
 	private double sigma = 1;
 	
 	public VarPair(Var v1, Var v2) {
-		int compareResult = v1.toString().compareTo(v2.toString());
-		if (compareResult < 0) {
+		if (v1.equals(v2)) {
+			System.err.println("v1 and v2 are equal. Invalid");
+		} else {
 			this.v1 = v1;
 			this.v2 = v2;
-		} else if (compareResult > 0) {
-			this.v1 = v2;
-			this.v2 = v1;
-		} else {
-			System.err.println("VarPair: v1 v2 equlas. Invalid!");
 		}
 	}
 	

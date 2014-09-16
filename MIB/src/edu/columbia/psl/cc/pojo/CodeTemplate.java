@@ -10,7 +10,7 @@ public class CodeTemplate {
 	
 	private String charSequence;
 	
-	private VarPool vars;
+	private HashSet<Var> vars;
 	
 	public void setCatSequence(String catSequence) {
 		this.catSequence = catSequence;
@@ -28,11 +28,11 @@ public class CodeTemplate {
 		return this.charSequence;
 	}
 	
-	public void setVars(VarPool vars) {
+	public void setVars(HashSet<Var> vars) {
 		this.vars = vars;
 	}
 	
-	public VarPool getVars() {
+	public HashSet<Var> getVars() {
 		return this.vars;
 	}
 

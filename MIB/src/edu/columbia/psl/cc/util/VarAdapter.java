@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.pojo.LocalVar;
 import edu.columbia.psl.cc.pojo.ObjVar;
@@ -43,18 +44,17 @@ public class VarAdapter implements JsonSerializer<Var>, JsonDeserializer<Var>{
 		JsonElement classElement = object.get("className");
 		JsonElement methodElement = object.get("methodName");
 		JsonElement silIdElement = object.get("silId");
-		JsonElement opcodeElement = object.get("opcode");
 		JsonElement childrenElement = object.get("children");
 		JsonObject childrenObj = childrenElement.getAsJsonObject();
 		HashMap<String, Set<Var>> childrenMap = new HashMap<String, Set<Var>>();
+		TypeToken<Set<Var>> varSetType = new TypeToken<Set<Var>>(){};
 		for (Map.Entry<String, JsonElement>entry: childrenObj.entrySet()) {
-			childrenMap.put(entry.getKey(), context.<Set<Var>>deserialize(entry.getValue(), Set.class));
+			childrenMap.put(entry.getKey(), context.<Set<Var>>deserialize(entry.getValue(), varSetType.getType()));
 		}
 		
 		var.setClassName(classElement.getAsString());
 		var.setMethodName(methodElement.getAsString());
 		var.setSilId(silIdElement.getAsInt());
-		var.setOpcode(opcodeElement.getAsInt());
 		var.setChildren(childrenMap);
 		return var;
 	}
@@ -66,8 +66,8 @@ public class VarAdapter implements JsonSerializer<Var>, JsonDeserializer<Var>{
 		result.addProperty("className", var.getClassName());
 		result.addProperty("methodName", var.getMethodName());
 		result.addProperty("silId", var.getSilId());
-		result.addProperty("opcode", var.getOpcode());
-		JsonElement varChildren = context.serialize(var.getChildren());
+		TypeToken<Map<String, Set<Var>>> tt = new TypeToken<Map<String, Set<Var>>>(){};
+		JsonElement varChildren = context.serialize(var.getChildren(), tt.getType());
 		result.add("children", varChildren);
 		if (var.getSilId() < 2) {
 			ObjVar ov = (ObjVar)var;

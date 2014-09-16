@@ -18,19 +18,13 @@ public class Var {
 	//static, instance or local
 	protected int silId;
 	
-	private int opcode;
+	//private int opcode;
 	
-
 	//private HashSet<Var> children = new HashSet<Var>();	
 	private HashMap<String, Set<Var>> children = new HashMap<String, Set<Var>>();
 	
-	public void setOpcode(int opcode) {
-		this.opcode = opcode;
-	}
-	
-	public int getOpcode() {
-		return this.opcode;
-	}
+	//For calculating stable marriage
+	private boolean engaged = false;
 	
 	public void setClassName(String className) {
 		this.className = className;
@@ -66,6 +60,14 @@ public class Var {
 		}
 	}
 	
+	public void setEngaged(boolean engaged) {
+		this.engaged = engaged;
+	}
+	
+	public boolean isEngaged() {
+		return this.engaged;
+	}
+	
 	public void addChildren(Var child) {
 		String edge = this.getSil() + "-" + child.getSil();
 		//this.children.put(child, edge);
@@ -89,6 +91,14 @@ public class Var {
 	public HashMap<String, Set<Var>> getChildren() {
 		return this.children;
 	}
+	
+	public HashSet<Var> getAll() {
+		HashSet<Var> ret = new HashSet<Var>();
+		for (String label: this.children.keySet()) {
+			ret.addAll(this.children.get(label));
+		}
+		return ret;
+	}
 		
 	public String getVarInfo() {
 		if (this.silId < 2) {
@@ -106,8 +116,6 @@ public class Var {
 			return false;
 		
 		Var tmpV = (Var)o;
-		if (tmpV.getOpcode() != this.opcode)
-			return false;
 		
 		if (!tmpV.getClassName().equals(this.className))
 			return false;
@@ -128,7 +136,7 @@ public class Var {
 	
 	@Override
 	public String toString() {
-		return this.opcode + ":" + this.className + ":" + this.methodName + ":" + this.getSilId() + ":" + this.getVarInfo();
+		return this.className + ":" + this.methodName + ":" + this.getSilId() + ":" + this.getVarInfo();
 	}
 	
 	@Override

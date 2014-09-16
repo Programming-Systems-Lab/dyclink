@@ -133,7 +133,7 @@ public class MethodMiner extends MethodVisitor{
 		}
 		//Local variable
 		int silId = 2;
-		Var v = this.varPool.searchVar(opcode, this.owner, this.myName, silId, String.valueOf(var));
+		Var v = this.varPool.searchVar(this.owner, this.myName, silId, String.valueOf(var));
 		if (catId == 1) {
 			this.handleDataSource(v);
 		} else if (catId == 2) {
@@ -161,11 +161,11 @@ public class MethodMiner extends MethodVisitor{
 		
 		if (catId == 10) {
 			int silId = (opcode == 178)?0: 1;
-			Var dataSource = this.varPool.searchVar(opcode, this.owner, this.myName, silId, name + ":" + desc);
+			Var dataSource = this.varPool.searchVar(this.owner, this.myName, silId, name + ":" + desc);
 			this.handleDataSource(dataSource);
 		} else {
 			int silId = (opcode == 179)?0: 1;
-			Var dataSink = this.varPool.searchVar(opcode, this.owner, this.myName, silId, name + ":" + desc);
+			Var dataSink = this.varPool.searchVar(this.owner, this.myName, silId, name + ":" + desc);
 			this.handleDataSink(dataSink);
 		}
 		this.mv.visitFieldInsn(opcode, owner, name, desc);

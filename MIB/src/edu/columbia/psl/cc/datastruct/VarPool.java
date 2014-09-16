@@ -1,5 +1,6 @@
 package edu.columbia.psl.cc.datastruct;
 
+import java.util.Collection;
 import java.util.HashSet;
 
 import edu.columbia.psl.cc.pojo.LocalVar;
@@ -9,11 +10,20 @@ import edu.columbia.psl.cc.pojo.Var;
 public class VarPool extends HashSet<Var>{
 	
 	private static final long serialVersionUID = 1L;
+	
+	public VarPool() {
+		
+	}
+	
+	public VarPool(Collection<Var> input) {
+		for (Var v: input) {
+			this.add(v);
+		}
+	}
 
-	private Var genObjVar(int opcode, String className, String methodName, int silId, String varInfo) {
+	private Var genObjVar(String className, String methodName, int silId, String varInfo) {
 		ObjVar ov = new ObjVar();
 		ov.setSilId(silId);
-		ov.setOpcode(opcode);
 		ov.setClassName(className);
 		ov.setMethodName(methodName);
 		
@@ -24,20 +34,18 @@ public class VarPool extends HashSet<Var>{
 		return ov;
 	}
 	
-	private Var genLocalVar(int opcode, String className, String methodName, String varInfo) {
+	private Var genLocalVar(String className, String methodName, String varInfo) {
 		LocalVar lv = new LocalVar();
 		lv.setSilId(2);
-		lv.setOpcode(opcode);
 		lv.setClassName(className);
 		lv.setMethodName(methodName);
 		lv.setLocalVarId(Integer.valueOf(varInfo));
 		return lv;
 	}
 	
-	public Var searchVar(int opcode, String className, String methodName, int silId, String varInfo) {
+	public Var searchVar(String className, String methodName, int silId, String varInfo) {
 		for (Var v: this) {
-			if (v.getOpcode() == opcode && 
-					v.getClassName().equals(className) && 
+			if (v.getClassName().equals(className) && 
 					v.getMethodName().equals(methodName) && 
 					v.getSilId() == silId && 
 					v.getVarInfo().equals(varInfo)) {
@@ -48,9 +56,9 @@ public class VarPool extends HashSet<Var>{
 		//Reach here means that this var is new
 		Var v;
 		if (silId == 0 || silId == 1) {
-			v = this.genObjVar(opcode, className, methodName, silId, varInfo);
+			v = this.genObjVar(className, methodName, silId, varInfo);
 		} else {
-			v = this.genLocalVar(opcode, className, methodName, varInfo); 
+			v = this.genLocalVar(className, methodName, varInfo); 
 		}
 		this.add(v);
 		return v;
