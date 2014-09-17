@@ -61,55 +61,7 @@ public class SimilarityFlooding {
 		}
 		return true;
 	}
-	
-	public void constructVarPairPool(VarPool vPool1, VarPool vPool2) {
-		//First pass to generate all var pair in the pool
-		for (Var v1: vPool1) {
-			for (Var v2: vPool2) {
-				this.vpp.searchVarPairPool(v1, v2, true);
-			}
-		}
-		
-		//Second pass, create relationship between VarPair
-		//Avoid cycle
-		for (VarPair vp: this.vpp) {
-			System.out.println("Current vp: " + vp);
-			this.summarizeVarPairChildren(vp);
-		}
-		
-		//Update child and parent coefficient map
-		for (VarPair vp: this.vpp) {
-			VarPairPool.updateCoefficientMap(vp);
-		}
-	}
-	
-	private void summarizeVarPairChildren(VarPair vp) {
-		HashMap<String, Set<Var>> v1Map = vp.getVar1().getChildren();
-		HashMap<String, Set<Var>> v2Map = vp.getVar2().getChildren();
-		
-		//First pass to construct all relationship for this vp
-		for (String s1: v1Map.keySet()) {
-			Set<Var> v1Set = v1Map.get(s1);
-			Set<Var> v2Set = v2Map.get(s1);
-			
-			if (v2Set == null || v2Set.size() == 0)
-				continue;
-			
-			for (Var v1: v1Set) {
-				for (Var v2: v2Set) {
-					if (v1.equals(v2))
-						continue;
-					
-					VarPair childVp = this.vpp.searchVarPairPool(v1, v2, true);
-					System.out.println("Child vp: " + childVp);
-					//Add childVp as child of vp, add vp as parent of childVp
-					VarPairPool.addVarPair(s1, vp, childVp, true);
-					VarPairPool.addVarPair(s1, vp, childVp, false);
-				}
-			}
-		}
-	}
-	
+
 	public void convergeCalculation() {
 		for (int i = 0; i < this.maxRound; i++) {
 			this.vpp.updateVarPairSigma();
@@ -167,41 +119,56 @@ public class SimilarityFlooding {
 		HashSet<VarPair> children = parent.getAll(true);
 		if (children.size() == 0) {
 			//Trace back
-			HashSet<VarPair> grand = parent.getAll(false);
+			/*HashSet<VarPair> grand = parent.getAll(false);
 			for (VarPair g: grand) {
 				Set<VarPair> gReturn = this.exploreBackwardGraph(g, parent);				
 				ret.addAll(gReturn);
-			}
+			}*/
 			ret.add(parent);
 			return ret;
 		}
 		
-		Set<VarPair> bestC = null;
 		for (VarPair c: parent.getAll(true)) {
 			Set<VarPair> cReturn = exploreForwardGraph(c);
-			if (bestC == null)
-				bestC = cReturn;
-			else if (cReturn.size() > bestC.size())
-				bestC = cReturn;
+			ret.addAll(cReturn);
 		}
 		ret.add(parent);
-		ret.addAll(bestC);
 		return ret;
 	}
 	
 	public void getSubGraph() {
-		Set<VarPair> bestGraph = null;
+		HashSet<Set<VarPair>> allGraphs = new HashSet<Set<VarPair>>();
 		for (VarPair vp: this.vpp) {
 			Set<VarPair> myGraph = this.exploreForwardGraph(vp);
-			
-			System.out.print("Current vp: " + vp);
-			System.out.println(myGraph);
-			
-			if (bestGraph == null)
-				bestGraph = myGraph;
-			else if (myGraph.size() > bestGraph.size())
-				bestGraph = myGraph;
+			allGraphs.add(myGraph);
 		}
+		
+		Set<VarPair> bestGraph = null;
+		for (Set<VarPair> graph1: allGraphs) {
+			System.out.println("Original graph: " + graph1);
+			HashSet<VarPair> combined = new HashSet<VarPair>();
+			for (Set<VarPair> graph2: allGraphs) {
+				if (graph1.equals(graph2))
+					continue;
+				
+				for (VarPair vp1: graph1) {
+					HashSet<VarPair> vp1Child = vp1.getAll(true);
+					for (VarPair vp2: graph2) {
+						if (vp1Child.contains(vp2)) {
+							combined.addAll(graph1);
+							combined.addAll(graph2);
+						}
+					}
+				}
+			}
+			System.out.println("Combined graph: " + combined);
+			if (bestGraph == null) {
+				bestGraph = combined;
+			} else if(combined.size() > bestGraph.size()) {
+				bestGraph = combined;
+			}
+		}
+		System.out.println("Best graph: " + bestGraph);
 		System.out.println("Best graph size: " + bestGraph.size());
 	}
 	
@@ -365,7 +332,7 @@ public class SimilarityFlooding {
 		SimilarityFlooding sf = new SimilarityFlooding();
 		sf.setMaxrRound(20);
 		sf.setDelta(0.1);
-		sf.constructVarPairPool(vp1, vp2);
+		GraphUtil.constructVarPairPool(sf.getVarPairPool(), vp1, vp2);
 		VarPairPool vpp = sf.getVarPairPool();
 		for (VarPair tmp1: vpp) {
 			if (tmp1.getChildren().size() > 0) {

@@ -55,8 +55,10 @@ public class Var {
 			return "static";
 		} else if (this.silId == 1) {
 			return "instance";
-		} else {
+		} else if (this.silId == 2){
 			return "local";
+		} else {
+			return "fake";
 		}
 	}
 	
@@ -104,9 +106,12 @@ public class Var {
 		if (this.silId < 2) {
 			ObjVar ov = (ObjVar)this;
 			return ov.getNativeClassName() + ":" + ov.getVarName();
-		} else {
+		} else if (this.silId == 2){
 			LocalVar lv = (LocalVar)this;
 			return String.valueOf(lv.getLocalVarId());
+		} else {
+			FakeVar fv = (FakeVar)this;
+			return String.valueOf(fv.getFakeId());
 		}
 	}
 	

@@ -12,8 +12,10 @@ import edu.columbia.psl.cc.datastruct.VarPairPool;
 import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.CodeTemplate;
 import edu.columbia.psl.cc.pojo.Var;
+import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.LevenshteinDistance;
+import edu.columbia.psl.cc.util.ShortestPathKernel;
 import edu.columbia.psl.cc.util.SimilarityFlooding;
 
 import java.io.File;
@@ -94,20 +96,43 @@ public class ProcessBlockComparator {
 		}
 		simCalculator.generateResult();
 		
+		//To use ShortestPathKernel, need to make sure all template's size is the same
+		int maxSize = 0;
 		for (String templateName: templateMap.keySet()) {
-			VarPool templateTool = templateMap.get(templateName);
+			VarPool templatePool = templateMap.get(templateName);
+			if (templatePool.size() > maxSize) {
+				maxSize = templatePool.size();
+			}
+		}
+		
+		for (String templateName: templateMap.keySet()) {
+			VarPool templatePool = templateMap.get(templateName);
+			int diff = maxSize - templatePool.size();
+			if (diff > 0) {
+				VarPool ret = ShortestPathKernel.addFakeVar(templatePool, diff);
+				templateMap.put(templateName, ret);
+			}
+		}
+		
+		for (String templateName: templateMap.keySet()) {
+			VarPool templatePool = templateMap.get(templateName);
 			
 			for (String testName: testMap.keySet()) {
 				VarPool testPool = testMap.get(testName);
 				
-				SimilarityFlooding sf = new SimilarityFlooding();
+				/*SimilarityFlooding sf = new SimilarityFlooding();
 				sf.setMaxrRound(10);
 				sf.setDelta(0.1);
-				sf.constructVarPairPool(templateTool, testPool);
-				//sf.convergeCalculation();
-				//sf.getMarried();
-				sf.getSubGraph();
-				System.out.println(templateName + " vs " + testName + " " + sf.getSimilaritySum());
+				GraphUtil.constructVarPairPool(sf.getVarPairPool(), templatePool, testPool);
+				sf.convergeCalculation();
+				sf.getMarried();
+				System.out.println(templateName + " vs " + testName + " " + sf.getSimilaritySum());*/
+				
+				ShortestPathKernel spk = new ShortestPathKernel();
+				int[][] templateTable = spk.constructCostTable(templatePool);
+				int[][] testTable = spk.constructCostTable(testPool);
+				int kernelScore = spk.scoreShortestPaths(templateTable, testTable);
+				System.out.println(templateName + " vs " + testName + " " + kernelScore);
 			}
 		}
 	}

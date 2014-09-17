@@ -1,0 +1,138 @@
+{
+  "catSequence": "1,0,6,2,1,1,6,2,1,1,6,2,1,15",
+  "charSequence": "bagcbbgcbbgcbp",
+  "vars": [
+    {
+      "className": "edu/columbia/psl/cc/test/TemplateMethod",
+      "methodName": "sequencePrimitiveTemplate",
+      "silId": 2,
+      "children": {
+        "local-local": [
+          {
+            "className": "edu/columbia/psl/cc/test/TemplateMethod",
+            "methodName": "sequencePrimitiveTemplate",
+            "silId": 2,
+            "children": {
+              "local-local": [
+                {
+                  "className": "edu/columbia/psl/cc/test/TemplateMethod",
+                  "methodName": "sequencePrimitiveTemplate",
+                  "silId": 2,
+                  "children": {},
+                  "localVarId": 6
+                }
+              ]
+            },
+            "localVarId": 5
+          }
+        ]
+      },
+      "localVarId": 4
+    },
+    {
+      "className": "edu/columbia/psl/cc/test/TemplateMethod",
+      "methodName": "sequencePrimitiveTemplate",
+      "silId": 2,
+      "children": {
+        "local-local": [
+          {
+            "className": "edu/columbia/psl/cc/test/TemplateMethod",
+            "methodName": "sequencePrimitiveTemplate",
+            "silId": 2,
+            "children": {},
+            "localVarId": 6
+          }
+        ]
+      },
+      "localVarId": 3
+    },
+    {
+      "className": "edu/columbia/psl/cc/test/TemplateMethod",
+      "methodName": "sequencePrimitiveTemplate",
+      "silId": 2,
+      "children": {
+        "local-local": [
+          {
+            "className": "edu/columbia/psl/cc/test/TemplateMethod",
+            "methodName": "sequencePrimitiveTemplate",
+            "silId": 2,
+            "children": {
+              "local-local": [
+                {
+                  "className": "edu/columbia/psl/cc/test/TemplateMethod",
+                  "methodName": "sequencePrimitiveTemplate",
+                  "silId": 2,
+                  "children": {},
+                  "localVarId": 6
+                }
+              ]
+            },
+            "localVarId": 5
+          }
+        ]
+      },
+      "localVarId": 2
+    },
+    {
+      "className": "edu/columbia/psl/cc/test/TemplateMethod",
+      "methodName": "sequencePrimitiveTemplate",
+      "silId": 2,
+      "children": {
+        "local-local": [
+          {
+            "className": "edu/columbia/psl/cc/test/TemplateMethod",
+            "methodName": "sequencePrimitiveTemplate",
+            "silId": 2,
+            "children": {
+              "local-local": [
+                {
+                  "className": "edu/columbia/psl/cc/test/TemplateMethod",
+                  "methodName": "sequencePrimitiveTemplate",
+                  "silId": 2,
+                  "children": {
+                    "local-local": [
+                      {
+                        "className": "edu/columbia/psl/cc/test/TemplateMethod",
+                        "methodName": "sequencePrimitiveTemplate",
+                        "silId": 2,
+                        "children": {},
+                        "localVarId": 6
+                      }
+                    ]
+                  },
+                  "localVarId": 5
+                }
+              ]
+            },
+            "localVarId": 4
+          }
+        ]
+      },
+      "localVarId": 1
+    },
+    {
+      "className": "edu/columbia/psl/cc/test/TemplateMethod",
+      "methodName": "sequencePrimitiveTemplate",
+      "silId": 2,
+      "children": {},
+      "localVarId": 6
+    },
+    {
+      "className": "edu/columbia/psl/cc/test/TemplateMethod",
+      "methodName": "sequencePrimitiveTemplate",
+      "silId": 2,
+      "children": {
+        "local-local": [
+          {
+            "className": "edu/columbia/psl/cc/test/TemplateMethod",
+            "methodName": "sequencePrimitiveTemplate",
+            "silId": 2,
+            "children": {},
+            "localVarId": 6
+          }
+        ]
+      },
+      "localVarId": 5
+    }
+  ]
+}

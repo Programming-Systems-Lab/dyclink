@@ -2,7 +2,9 @@ package edu.columbia.psl.cc.datastruct;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import edu.columbia.psl.cc.pojo.FakeVar;
 import edu.columbia.psl.cc.pojo.LocalVar;
 import edu.columbia.psl.cc.pojo.ObjVar;
 import edu.columbia.psl.cc.pojo.Var;
@@ -10,6 +12,8 @@ import edu.columbia.psl.cc.pojo.Var;
 public class VarPool extends HashSet<Var>{
 	
 	private static final long serialVersionUID = 1L;
+	
+	private static AtomicInteger fakeIdCreator = new AtomicInteger();
 	
 	public VarPool() {
 		
@@ -20,8 +24,12 @@ public class VarPool extends HashSet<Var>{
 			this.add(v);
 		}
 	}
+	
+	private static int genFakeId() {
+		return fakeIdCreator.getAndIncrement();
+	}
 
-	private Var genObjVar(String className, String methodName, int silId, String varInfo) {
+	private static Var genObjVar(String className, String methodName, int silId, String varInfo) {
 		ObjVar ov = new ObjVar();
 		ov.setSilId(silId);
 		ov.setClassName(className);
@@ -34,13 +42,22 @@ public class VarPool extends HashSet<Var>{
 		return ov;
 	}
 	
-	private Var genLocalVar(String className, String methodName, String varInfo) {
+	private static Var genLocalVar(String className, String methodName, String varInfo) {
 		LocalVar lv = new LocalVar();
 		lv.setSilId(2);
 		lv.setClassName(className);
 		lv.setMethodName(methodName);
 		lv.setLocalVarId(Integer.valueOf(varInfo));
 		return lv;
+	}
+	
+	private Var genFakeVar() {
+		FakeVar fakeVar = new FakeVar();
+		fakeVar.setMethodName("fakeMethod");
+		fakeVar.setClassName("fakeClass");
+		fakeVar.setSilId(3);
+		fakeVar.setFakeId(genFakeId());
+		return fakeVar;
 	}
 	
 	public Var searchVar(String className, String methodName, int silId, String varInfo) {
@@ -56,9 +73,11 @@ public class VarPool extends HashSet<Var>{
 		//Reach here means that this var is new
 		Var v;
 		if (silId == 0 || silId == 1) {
-			v = this.genObjVar(className, methodName, silId, varInfo);
+			v = genObjVar(className, methodName, silId, varInfo);
+		} else if (silId == 2){
+			v = genLocalVar(className, methodName, varInfo); 
 		} else {
-			v = this.genLocalVar(className, methodName, varInfo); 
+			v = genFakeVar();
 		}
 		this.add(v);
 		return v;
