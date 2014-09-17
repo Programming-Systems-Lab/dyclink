@@ -23,6 +23,9 @@ public class Var {
 	//private HashSet<Var> children = new HashSet<Var>();	
 	private HashMap<String, Set<Var>> children = new HashMap<String, Set<Var>>();
 	
+	//For breaking infinite loop when serializing
+	private HashMap<String, Set<String>> childrenRep = new HashMap<String ,Set<String>>();
+	
 	//For calculating stable marriage
 	private boolean engaged = false;
 	
@@ -92,6 +95,14 @@ public class Var {
 	
 	public HashMap<String, Set<Var>> getChildren() {
 		return this.children;
+	}
+	
+	public void setChildrenRep(HashMap<String, Set<String>>childrenRep) {
+		this.childrenRep = childrenRep;
+	}
+	
+	public HashMap<String, Set<String>> getChildrenRep() {
+		return this.childrenRep;
 	}
 	
 	public HashSet<Var> getAll() {

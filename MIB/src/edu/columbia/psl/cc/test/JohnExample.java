@@ -22,7 +22,7 @@ public class JohnExample {
 		}
 	}
 	
-	@extractTemplate
+	//@extractTemplate
 	public void foo2(long[] a, long[] b) {
 		for (int j = 0; j < b.length; j++) {
 			b[j] /= j * (j-1) / 6 + 1;
@@ -36,7 +36,7 @@ public class JohnExample {
 		}
 	}
 	
-	@testTemplate
+	//@testTemplate
 	public long foo3(long[] arr1, long[] arr2) {
 		long ret = 0;
 		

@@ -2,6 +2,7 @@ package edu.columbia.psl.cc.util;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,18 +45,28 @@ public class VarAdapter implements JsonSerializer<Var>, JsonDeserializer<Var>{
 		JsonElement classElement = object.get("className");
 		JsonElement methodElement = object.get("methodName");
 		JsonElement silIdElement = object.get("silId");
-		JsonElement childrenElement = object.get("children");
+		
+		/*JsonElement childrenElement = object.get("children");
 		JsonObject childrenObj = childrenElement.getAsJsonObject();
 		HashMap<String, Set<Var>> childrenMap = new HashMap<String, Set<Var>>();
 		TypeToken<Set<Var>> varSetType = new TypeToken<Set<Var>>(){};
 		for (Map.Entry<String, JsonElement>entry: childrenObj.entrySet()) {
 			childrenMap.put(entry.getKey(), context.<Set<Var>>deserialize(entry.getValue(), varSetType.getType()));
+		}*/
+		
+		JsonElement childrenRepElement = object.get("childrenRep");
+		JsonObject childrenRepObj = childrenRepElement.getAsJsonObject();
+		HashMap<String, Set<String>> childrenRepMap = new HashMap<String, Set<String>>();
+		TypeToken<Set<String>> varRepSetType = new TypeToken<Set<String>>(){};
+		for (Map.Entry<String, JsonElement>entry: childrenRepObj.entrySet()) {
+			childrenRepMap.put(entry.getKey(), context.<Set<String>>deserialize(entry.getValue(), varRepSetType.getType()));
 		}
 		
 		var.setClassName(classElement.getAsString());
 		var.setMethodName(methodElement.getAsString());
 		var.setSilId(silIdElement.getAsInt());
-		var.setChildren(childrenMap);
+		var.setChildren(new HashMap<String, Set<Var>>());
+		var.setChildrenRep(childrenRepMap);
 		return var;
 	}
 
@@ -66,9 +77,24 @@ public class VarAdapter implements JsonSerializer<Var>, JsonDeserializer<Var>{
 		result.addProperty("className", var.getClassName());
 		result.addProperty("methodName", var.getMethodName());
 		result.addProperty("silId", var.getSilId());
-		TypeToken<Map<String, Set<Var>>> tt = new TypeToken<Map<String, Set<Var>>>(){};
+		
+		/*TypeToken<Map<String, Set<Var>>> tt = new TypeToken<Map<String, Set<Var>>>(){};		
 		JsonElement varChildren = context.serialize(var.getChildren(), tt.getType());
-		result.add("children", varChildren);
+		result.add("children", varChildren);*/
+		
+		TypeToken<Map<String, Set<String>>> tt = new TypeToken<Map<String, Set<String>>>(){};
+		HashMap<String, Set<String>> childrenRepMap = new HashMap<String, Set<String>>();
+		for (String label: var.getChildren().keySet()) {
+			Set<Var> children = var.getChildren().get(label);
+			Set<String> childrenRep = new HashSet<String>();
+			for (Var v: children) {
+				childrenRep.add(v.toString());
+			}
+			childrenRepMap.put(label, childrenRep);
+		}
+		JsonElement varChildrenRep = context.serialize(childrenRepMap, tt.getType());
+		result.add("childrenRep", varChildrenRep);
+		
 		if (var.getSilId() < 2) {
 			ObjVar ov = (ObjVar)var;
 			result.addProperty("nativeClassName", ov.getNativeClassName());

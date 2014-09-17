@@ -34,11 +34,11 @@ public class ProcessBlockComparator {
 	
 	private static HashSet<String> getClassNames() {
 		HashSet<String> classNames = new HashSet<String>();
-		classNames.add("edu.columbia.psl.cc.test.TemplateMethod");
+		//classNames.add("edu.columbia.psl.cc.test.TemplateMethod");
 		//classNames.add("edu.columbia.psl.cc.test.TemplateObjMethod");
 		//classNames.add("edu.columbia.psl.cc.AESEngineManual");
 		//classNames.add("edu.columbia.psl.cc.Rijndael");
-		//classNames.add("edu.columbia.psl.cc.test.JohnExample");
+		classNames.add("edu.columbia.psl.cc.test.JohnExample");
 		return classNames;
 	}
 	
@@ -79,8 +79,9 @@ public class ProcessBlockComparator {
 		for (File f: tempDir.listFiles(filter)) {
 			//Probably not the best way, how to make it generic?
 			CodeTemplate ct = GsonManager.readJson(f, type);
+			ct.reconstructVars();
 			HashSet<Var> vSet = ct.getVars();
-			VarPool vp = new VarPool(vSet);
+			VarPool vp = new VarPool(vSet);				
 			simCalculator.addData(f.getName(), ct.getCharSequence(), true);
 			templateMap.put(f.getName(), vp);
 		}
@@ -88,9 +89,9 @@ public class ProcessBlockComparator {
 		HashMap<String, VarPool> testMap = new HashMap<String, VarPool>();
 		for (File f: testDir.listFiles(filter)) {
 			CodeTemplate ct = GsonManager.readJson(f, type);
+			ct.reconstructVars();
 			HashSet<Var> vSet = ct.getVars();
 			VarPool vp = new VarPool(vSet);
-			System.out.println(ct.getVars());
 			simCalculator.addData(f.getName(), ct.getCharSequence(), false);
 			testMap.put(f.getName(), vp);
 		}
