@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class CondNode extends BCTreeNode {
+public class CondNode extends InstNode {
 	
 	private static String defaultLabel = "straight";
 	
@@ -13,7 +13,7 @@ public class CondNode extends BCTreeNode {
 	
 	private String label;
 	
-	private Map<String, BCTreeNode> labelMap = new HashMap<String, BCTreeNode>();
+	private Map<String, InstNode> labelMap = new HashMap<String, InstNode>();
 	
 	public static String getDefaultLabel() {
 		return defaultLabel;
@@ -36,7 +36,7 @@ public class CondNode extends BCTreeNode {
 	}
 	
 	@Override
-	public void addChild(BCTreeNode bn, String label) {
+	public void addChild(InstNode bn, String label) {
 		if (label == null) {
 			this.labelMap.put(defaultLabel, bn);
 		} else {
@@ -45,15 +45,15 @@ public class CondNode extends BCTreeNode {
 	}
 	
 	@Override
-	public Set<BCTreeNode> getChildren() {
-		Set<BCTreeNode> ret = new HashSet<BCTreeNode>();
+	public Set<InstNode> getChildren() {
+		Set<InstNode> ret = new HashSet<InstNode>();
 		for (String label: this.labelMap.keySet()) {
 			ret.add(this.labelMap.get(label));
 		}
 		return ret;
 	}
 	
-	public BCTreeNode getChildByLabel(String label) {
+	public InstNode getChildByLabel(String label) {
 		return this.labelMap.get(label);
 	}
 	

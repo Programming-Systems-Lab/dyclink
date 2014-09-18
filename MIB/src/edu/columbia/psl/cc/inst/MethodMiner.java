@@ -15,7 +15,8 @@ import org.objectweb.asm.Opcodes;
 import edu.columbia.psl.cc.datastruct.BCTreeNodePool;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.VarPool;
-import edu.columbia.psl.cc.pojo.BCTreeNode;
+import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.pojo.BlockNode;
 import edu.columbia.psl.cc.pojo.CodeTemplate;
 import edu.columbia.psl.cc.pojo.CondNode;
 import edu.columbia.psl.cc.pojo.Dependency;
@@ -46,15 +47,15 @@ public class MethodMiner extends MethodVisitor{
 	
 	private String myDesc;
 	
-	private Set<Var> nonterminateVar = new HashSet<Var>();
+	private List<Var> nonterminateVar = new ArrayList<Var>();
 	
 	private VarPool varPool = new VarPool();
 	
-	private BCTreeNodePool nodePool = new BCTreeNodePool();
+	private List<BlockNode> cfg = new ArrayList<BlockNode>();
 	
-	private BCTreeNode root = null;
+	private BlockNode curBlock;
 	
-	private BCTreeNode curBN = null;
+	private boolean needNewBlock = false;
 	
 	public MethodMiner(MethodVisitor mv, String owner, String templateAnnot, String testAnnot, String myName, String myDesc) {
 		super(Opcodes.ASM4, mv);
@@ -73,6 +74,10 @@ public class MethodMiner extends MethodVisitor{
 			template.put(i, opjList);
 		}
 		return template;
+	}
+	
+	public synchronized void needNewBlock(boolean needNewBlock) {
+		this.needNewBlock = needNewBlock;
 	}
 	
 	private void recordOps(int category, int opcode) {
@@ -98,34 +103,54 @@ public class MethodMiner extends MethodVisitor{
 		return catId;
 	}
 	
+	private void genNewBlockNode(String label) {
+		BlockNode block = new BlockNode();
+		block.setLabel(label);
+		this.cfg.add(block);
+		this.curBlock = block;
+	}
+	
+	private BlockNode getCurrentBlockNode() {
+		return this.curBlock;
+	}
+	
 	private void handleDataSource(Var var) {
 		this.nonterminateVar.add(var);
 	}
+	
+	private void summarizeDataSource() {
+		if (this.nonterminateVar.size() == 0)
+			return ;
 		
-	private void handleDataSink(Var var, String label, int...opcode) {
-		/*for (Var parent: this.nonterminateVar) {
-			parent.addChildren(var);
-		}*/
-		
-		BCTreeNode sourceNode = this.nodePool.searchBCTreeNode(this.nonterminateVar, true);
-		BCTreeNode sinkNode;
-		if (opcode.length == 0) {
-			sinkNode = this.nodePool.searchBCTreeNode(var, true);
-		} else {
-			sinkNode = this.nodePool.searchCondNode(opcode[0], label, true);
-		}
-		sourceNode.addChild(sinkNode, label);
-		
-		if (this.root == null) {
-			sourceNode.addChild(sinkNode, null);
-			this.root = sourceNode;
-			this.curBN = sinkNode;
-		} else {
-			sourceNode.addChild(sinkNode, null);
-			this.curBN.addChild(sourceNode, null);
-			this.curBN = sinkNode;
+		InstNode sourceNode = new InstNode();
+		sourceNode.setLoad(true);
+		for (Var sVar: this.nonterminateVar) {
+			sourceNode.addVar(sVar);
 		}
 		this.nonterminateVar.clear();
+		this.getCurrentBlockNode().addInst(sourceNode);
+	}
+		
+	private void handleDataSink(Var var, String label, int...opcode) {
+		this.summarizeDataSource();
+		
+		if (var != null) {
+			InstNode sinkNode = new InstNode();
+			sinkNode.addVar(var);
+			sinkNode.setLoad(false);
+			this.getCurrentBlockNode().addInst(sinkNode);
+		} else {
+			CondNode condNode = new CondNode();
+			condNode.setOpcode(opcode[0]);
+			condNode.setLabel(label);
+			this.getCurrentBlockNode().addInst(condNode);
+		}
+	}
+	
+	private void checkAndGenBlock() {
+		if (this.needNewBlock) {
+			this.genNewBlockNode(null);
+		}
 	}
 	
 	@Override
@@ -142,7 +167,9 @@ public class MethodMiner extends MethodVisitor{
 	
 	@Override
 	public void visitLabel(Label label) {
-		System.out.println("Check label: " + label.toString());
+		this.summarizeDataSource();
+		this.genNewBlockNode(label.toString());
+		this.needNewBlock(false);
 		this.mv.visitLabel(label);
 	}
 	
@@ -154,18 +181,21 @@ public class MethodMiner extends MethodVisitor{
 	
 	@Override
 	public void visitInsn(int opcode) {
+		this.checkAndGenBlock();
 		this.updateMethodRep(opcode);
 		this.mv.visitInsn(opcode);
 	}
 	
 	@Override
 	public void visitIntInsn(int opcode, int operand) {
+		this.checkAndGenBlock();
 		this.updateMethodRep(opcode);
 		this.mv.visitIntInsn(opcode, operand);
 	}
 	
 	@Override
 	public void visitVarInsn(int opcode, int var) {
+		this.checkAndGenBlock();
 		int catId = this.updateMethodRep(opcode);
 		
 		if (catId < 0) {
@@ -187,12 +217,14 @@ public class MethodMiner extends MethodVisitor{
 	
 	@Override
 	public void visitTypeInsn(int opcode, String type) {
+		this.checkAndGenBlock();
 		this.updateMethodRep(opcode);
 		this.mv.visitTypeInsn(opcode, type);
 	}
 	
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+		this.checkAndGenBlock();
 		int catId = this.updateMethodRep(opcode);
 		
 		if (catId < 0) {
@@ -214,26 +246,31 @@ public class MethodMiner extends MethodVisitor{
 	
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+		this.checkAndGenBlock();
 		this.updateMethodRep(opcode);
 		this.mv.visitMethodInsn(opcode, owner, name, desc);
 	}
 	
 	@Override
 	public void visitJumpInsn(int opcode, Label label) {
-		System.out.println("Jump: " + opcode + " " + label);
+		//System.out.println("Jump: " + opcode + " " + label);
+		this.checkAndGenBlock();
 		this.updateMethodRep(opcode);
 		this.handleDataSink(null, label.toString(), opcode);
+		this.needNewBlock(true);
 		this.mv.visitJumpInsn(opcode, label);
 	}
 	
 	@Override
 	public void visitLdcInsn(Object cst) {
+		this.checkAndGenBlock();
 		this.updateSingleCat(0, Opcodes.LDC);
 		this.mv.visitLdcInsn(cst);
 	}
 	
 	@Override
 	public void visitIincInsn(int var, int increment) {
+		this.checkAndGenBlock();
 		this.updateSingleCat(6, Opcodes.IINC);
 		this.mv.visitIincInsn(var, increment);
 	}
@@ -241,6 +278,7 @@ public class MethodMiner extends MethodVisitor{
 	@Override
 	public void visitTableSwitchInsn(int min, int max, Label dflt, Label...labels) {
 		//In jump set
+		this.checkAndGenBlock();
 		this.updateSingleCat(15, Opcodes.TABLESWITCH);
 		this.mv.visitTableSwitchInsn(min, max, dflt, labels);
 	}
@@ -248,6 +286,7 @@ public class MethodMiner extends MethodVisitor{
 	@Override
 	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
 		//In jump set
+		this.checkAndGenBlock();
 		this.updateSingleCat(15, Opcodes.LOOKUPSWITCH);
 		this.mv.visitLookupSwitchInsn(dflt, keys, labels);
 	}
@@ -255,8 +294,15 @@ public class MethodMiner extends MethodVisitor{
 	@Override
 	public void visitMultiANewArrayInsn(String desc, int dims) {
 		//In object set
+		this.checkAndGenBlock();
 		this.updateSingleCat(13, Opcodes.MULTIANEWARRAY);
 		this.mv.visitMultiANewArrayInsn(desc, dims);
+	}
+	
+	@Override
+	public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
+		this.checkAndGenBlock();
+		this.mv.visitTryCatchBlock(start, end, handler, type);
 	}
 	
 	@Override
@@ -269,7 +315,13 @@ public class MethodMiner extends MethodVisitor{
 				sb.append(oo.getCatId() + ",");
 				sb2.append((char)(oo.getCatId() + 97));
 			}
-			CodeTemplate ct = new CodeTemplate();
+			
+			System.out.println("Check blocks");
+			for (BlockNode node: this.cfg) {
+				System.out.println(node);
+			}
+			
+			/*CodeTemplate ct = new CodeTemplate();
 			ct.setCatSequence(sb.substring(0, sb.length() - 1));
 			ct.setCharSequence(sb2.toString());
 			ct.setVars(varPool);
@@ -297,7 +349,7 @@ public class MethodMiner extends MethodVisitor{
 						System.out.println("->" + "Sink: " +  ev);
 					}
 				}
-			}
+			}*/
 		}
 		
 		this.mv.visitEnd();

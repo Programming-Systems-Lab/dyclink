@@ -11,6 +11,7 @@ public class TemplateMethod {
 	
 	private int iVar;
 	
+	@extractTemplate
 	public void dummy(int a, int b) {
 		String ret = "";
 		int c = 5;
@@ -50,7 +51,7 @@ public class TemplateMethod {
 		return ret;
 	}
 	
-	@extractTemplate
+	//@extractTemplate
 	public String ifTemplate(int a, int b, int c) {
 		if (a > b) {
 			if (c > 5) {

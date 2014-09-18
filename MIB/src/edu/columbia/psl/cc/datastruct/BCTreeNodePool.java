@@ -4,28 +4,28 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-import edu.columbia.psl.cc.pojo.BCTreeNode;
+import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.CondNode;
 import edu.columbia.psl.cc.pojo.Var;
 
-public class BCTreeNodePool extends HashSet<BCTreeNode> {
+public class BCTreeNodePool extends HashSet<InstNode> {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public BCTreeNode searchBCTreeNode(Set<Var> node, boolean createNew) {
-		for (BCTreeNode n: this) {
+	public InstNode searchBCTreeNode(Set<Var> node, boolean createNew) {
+		for (InstNode n: this) {
 			if (n.equals(node)) {
 				return n;
 			}
 		}
 		
 		if (createNew) {
-			BCTreeNode bn = new BCTreeNode();
+			InstNode bn = new InstNode();
 			for (Var v: node) {
-				bn.expandNode(v);
+				bn.addVar(v);
 			}
 			this.add(bn);
 			return bn;
@@ -33,14 +33,14 @@ public class BCTreeNodePool extends HashSet<BCTreeNode> {
 		return null;
 	}
 	
-	public BCTreeNode searchBCTreeNode(Var node, boolean createNew) {
+	public InstNode searchBCTreeNode(Var node, boolean createNew) {
 		Set<Var> fakeSet = new HashSet<Var>();
 		fakeSet.add(node);
 		return this.searchBCTreeNode(fakeSet, createNew);
 	}
 	
 	public CondNode searchCondNode(int opcode, String label, boolean createNew) {
-		for (BCTreeNode n: this) {
+		for (InstNode n: this) {
 			if (!n.getClass().equals(CondNode.class))
 				continue;
 			
