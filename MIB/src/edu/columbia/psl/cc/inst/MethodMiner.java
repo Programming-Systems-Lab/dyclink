@@ -3,6 +3,7 @@ package edu.columbia.psl.cc.inst;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -11,9 +12,12 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import edu.columbia.psl.cc.datastruct.BCTreeNodePool;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.VarPool;
+import edu.columbia.psl.cc.pojo.BCTreeNode;
 import edu.columbia.psl.cc.pojo.CodeTemplate;
+import edu.columbia.psl.cc.pojo.CondNode;
 import edu.columbia.psl.cc.pojo.Dependency;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.pojo.Var;
@@ -42,9 +46,15 @@ public class MethodMiner extends MethodVisitor{
 	
 	private String myDesc;
 	
-	private ArrayList<Var> nonterminateVar = new ArrayList<Var>();
+	private Set<Var> nonterminateVar = new HashSet<Var>();
 	
 	private VarPool varPool = new VarPool();
+	
+	private BCTreeNodePool nodePool = new BCTreeNodePool();
+	
+	private BCTreeNode root = null;
+	
+	private BCTreeNode curBN = null;
 	
 	public MethodMiner(MethodVisitor mv, String owner, String templateAnnot, String testAnnot, String myName, String myDesc) {
 		super(Opcodes.ASM4, mv);
@@ -91,10 +101,29 @@ public class MethodMiner extends MethodVisitor{
 	private void handleDataSource(Var var) {
 		this.nonterminateVar.add(var);
 	}
-	
-	private void handleDataSink(Var var) {
-		for (Var parent: this.nonterminateVar) {
+		
+	private void handleDataSink(Var var, String label, int...opcode) {
+		/*for (Var parent: this.nonterminateVar) {
 			parent.addChildren(var);
+		}*/
+		
+		BCTreeNode sourceNode = this.nodePool.searchBCTreeNode(this.nonterminateVar, true);
+		BCTreeNode sinkNode;
+		if (opcode.length == 0) {
+			sinkNode = this.nodePool.searchBCTreeNode(var, true);
+		} else {
+			sinkNode = this.nodePool.searchCondNode(opcode[0], label, true);
+		}
+		sourceNode.addChild(sinkNode, label);
+		
+		if (this.root == null) {
+			sourceNode.addChild(sinkNode, null);
+			this.root = sourceNode;
+			this.curBN = sinkNode;
+		} else {
+			sourceNode.addChild(sinkNode, null);
+			this.curBN.addChild(sourceNode, null);
+			this.curBN = sinkNode;
 		}
 		this.nonterminateVar.clear();
 	}
@@ -109,6 +138,18 @@ public class MethodMiner extends MethodVisitor{
 			System.out.println("Test annotated: " + desc);
 		}
 		return this.mv.visitAnnotation(desc, visible);
+	}
+	
+	@Override
+	public void visitLabel(Label label) {
+		System.out.println("Check label: " + label.toString());
+		this.mv.visitLabel(label);
+	}
+	
+	@Override
+	public void visitLineNumber(int line, Label label) {
+		//System.out.println("Check line: " + line + " " + label.toString());
+		this.mv.visitLineNumber(line, label);
 	}
 	
 	@Override
@@ -137,7 +178,7 @@ public class MethodMiner extends MethodVisitor{
 		if (catId == 1) {
 			this.handleDataSource(v);
 		} else if (catId == 2) {
-			this.handleDataSink(v);
+			this.handleDataSink(v, null);
 		} else {
 			System.err.println("Weird var opcode: " + opcode);
 		}
@@ -166,7 +207,7 @@ public class MethodMiner extends MethodVisitor{
 		} else {
 			int silId = (opcode == 179)?0: 1;
 			Var dataSink = this.varPool.searchVar(this.owner, this.myName, silId, name + ":" + desc);
-			this.handleDataSink(dataSink);
+			this.handleDataSink(dataSink, null);
 		}
 		this.mv.visitFieldInsn(opcode, owner, name, desc);
 	}
@@ -179,7 +220,9 @@ public class MethodMiner extends MethodVisitor{
 	
 	@Override
 	public void visitJumpInsn(int opcode, Label label) {
+		System.out.println("Jump: " + opcode + " " + label);
 		this.updateMethodRep(opcode);
+		this.handleDataSink(null, label.toString(), opcode);
 		this.mv.visitJumpInsn(opcode, label);
 	}
 	
