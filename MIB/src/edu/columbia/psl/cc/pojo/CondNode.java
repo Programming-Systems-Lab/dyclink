@@ -35,6 +35,13 @@ public class CondNode extends InstNode {
 		return this.label;
 	}
 	
+	public boolean isGoto() {
+		if (this.opcode == 167)
+			return true;
+		else
+			return false;
+	}
+	
 	@Override
 	public void addChild(InstNode bn, String label) {
 		if (label == null) {

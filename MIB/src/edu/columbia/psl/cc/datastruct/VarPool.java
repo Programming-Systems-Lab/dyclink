@@ -42,6 +42,14 @@ public class VarPool extends HashSet<Var>{
 		return ov;
 	}
 	
+	/**
+	 * When generate a local var, don't know its start/end label
+	 * Add labels when analyze it
+	 * @param className
+	 * @param methodName
+	 * @param varInfo
+	 * @return
+	 */
 	private static Var genLocalVar(String className, String methodName, String varInfo) {
 		LocalVar lv = new LocalVar();
 		lv.setSilId(2);
@@ -59,7 +67,7 @@ public class VarPool extends HashSet<Var>{
 		fakeVar.setFakeId(genFakeId());
 		return fakeVar;
 	}
-	
+		
 	public Var searchVar(String className, String methodName, int silId, String varInfo) {
 		for (Var v: this) {
 			if (v.getClassName().equals(className) && 

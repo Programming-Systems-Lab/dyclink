@@ -1,11 +1,13 @@
 package edu.columbia.psl.cc.inst;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Label;
@@ -20,12 +22,19 @@ import edu.columbia.psl.cc.pojo.BlockNode;
 import edu.columbia.psl.cc.pojo.CodeTemplate;
 import edu.columbia.psl.cc.pojo.CondNode;
 import edu.columbia.psl.cc.pojo.Dependency;
+import edu.columbia.psl.cc.pojo.LabelInterval;
+import edu.columbia.psl.cc.pojo.LocalVar;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.util.GsonManager;
+import edu.columbia.psl.cc.util.RelationMiner;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class MethodMiner extends MethodVisitor{
+	
+	public String artifactLabelHead = "ArtifactLabel";
+	
+	private AtomicInteger artifactLabel = new AtomicInteger();
 	
 	private String owner;
 	
@@ -53,9 +62,13 @@ public class MethodMiner extends MethodVisitor{
 	
 	private List<BlockNode> cfg = new ArrayList<BlockNode>();
 	
-	private BlockNode curBlock;
+	private RelationMiner rMiner = new RelationMiner();
 	
-	private boolean needNewBlock = false;
+	private Set<String> dontMergeSet = new HashSet<String>();
+	
+	private Map<Var, List<LabelInterval>> localVarMap = new HashMap<Var, List<LabelInterval>>();
+	
+	private BlockNode curBlock;
 	
 	public MethodMiner(MethodVisitor mv, String owner, String templateAnnot, String testAnnot, String myName, String myDesc) {
 		super(Opcodes.ASM4, mv);
@@ -66,6 +79,10 @@ public class MethodMiner extends MethodVisitor{
 		this.myDesc = myDesc;
 	}
 	
+	private synchronized String getArtifactLabel() {
+		return artifactLabelHead + this.artifactLabel.incrementAndGet();
+	}
+	
 	private static HashMap<Integer, ArrayList<OpcodeObj>> genRecordTemplate() {
 		HashMap<Integer, ArrayList<OpcodeObj>> template = new HashMap<Integer, ArrayList<OpcodeObj>>();
 		//Now we have 12 categories
@@ -74,10 +91,6 @@ public class MethodMiner extends MethodVisitor{
 			template.put(i, opjList);
 		}
 		return template;
-	}
-	
-	public synchronized void needNewBlock(boolean needNewBlock) {
-		this.needNewBlock = needNewBlock;
 	}
 	
 	private void recordOps(int category, int opcode) {
@@ -147,12 +160,6 @@ public class MethodMiner extends MethodVisitor{
 		}
 	}
 	
-	private void checkAndGenBlock() {
-		if (this.needNewBlock) {
-			this.genNewBlockNode(null);
-		}
-	}
-	
 	@Override
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
 		if (desc.equals(this.templateAnnot)) {
@@ -169,7 +176,6 @@ public class MethodMiner extends MethodVisitor{
 	public void visitLabel(Label label) {
 		this.summarizeDataSource();
 		this.genNewBlockNode(label.toString());
-		this.needNewBlock(false);
 		this.mv.visitLabel(label);
 	}
 	
@@ -181,21 +187,18 @@ public class MethodMiner extends MethodVisitor{
 	
 	@Override
 	public void visitInsn(int opcode) {
-		this.checkAndGenBlock();
 		this.updateMethodRep(opcode);
 		this.mv.visitInsn(opcode);
 	}
 	
 	@Override
 	public void visitIntInsn(int opcode, int operand) {
-		this.checkAndGenBlock();
 		this.updateMethodRep(opcode);
 		this.mv.visitIntInsn(opcode, operand);
 	}
 	
 	@Override
 	public void visitVarInsn(int opcode, int var) {
-		this.checkAndGenBlock();
 		int catId = this.updateMethodRep(opcode);
 		
 		if (catId < 0) {
@@ -217,14 +220,12 @@ public class MethodMiner extends MethodVisitor{
 	
 	@Override
 	public void visitTypeInsn(int opcode, String type) {
-		this.checkAndGenBlock();
 		this.updateMethodRep(opcode);
 		this.mv.visitTypeInsn(opcode, type);
 	}
 	
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-		this.checkAndGenBlock();
 		int catId = this.updateMethodRep(opcode);
 		
 		if (catId < 0) {
@@ -246,7 +247,6 @@ public class MethodMiner extends MethodVisitor{
 	
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-		this.checkAndGenBlock();
 		this.updateMethodRep(opcode);
 		this.mv.visitMethodInsn(opcode, owner, name, desc);
 	}
@@ -254,23 +254,20 @@ public class MethodMiner extends MethodVisitor{
 	@Override
 	public void visitJumpInsn(int opcode, Label label) {
 		//System.out.println("Jump: " + opcode + " " + label);
-		this.checkAndGenBlock();
 		this.updateMethodRep(opcode);
 		this.handleDataSink(null, label.toString(), opcode);
-		this.needNewBlock(true);
+		this.dontMergeSet.add(label.toString());
 		this.mv.visitJumpInsn(opcode, label);
 	}
 	
 	@Override
 	public void visitLdcInsn(Object cst) {
-		this.checkAndGenBlock();
 		this.updateSingleCat(0, Opcodes.LDC);
 		this.mv.visitLdcInsn(cst);
 	}
 	
 	@Override
 	public void visitIincInsn(int var, int increment) {
-		this.checkAndGenBlock();
 		this.updateSingleCat(6, Opcodes.IINC);
 		this.mv.visitIincInsn(var, increment);
 	}
@@ -278,7 +275,6 @@ public class MethodMiner extends MethodVisitor{
 	@Override
 	public void visitTableSwitchInsn(int min, int max, Label dflt, Label...labels) {
 		//In jump set
-		this.checkAndGenBlock();
 		this.updateSingleCat(15, Opcodes.TABLESWITCH);
 		this.mv.visitTableSwitchInsn(min, max, dflt, labels);
 	}
@@ -286,7 +282,6 @@ public class MethodMiner extends MethodVisitor{
 	@Override
 	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
 		//In jump set
-		this.checkAndGenBlock();
 		this.updateSingleCat(15, Opcodes.LOOKUPSWITCH);
 		this.mv.visitLookupSwitchInsn(dflt, keys, labels);
 	}
@@ -294,15 +289,25 @@ public class MethodMiner extends MethodVisitor{
 	@Override
 	public void visitMultiANewArrayInsn(String desc, int dims) {
 		//In object set
-		this.checkAndGenBlock();
 		this.updateSingleCat(13, Opcodes.MULTIANEWARRAY);
 		this.mv.visitMultiANewArrayInsn(desc, dims);
 	}
 	
 	@Override
 	public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
-		this.checkAndGenBlock();
 		this.mv.visitTryCatchBlock(start, end, handler, type);
+	}
+	
+	@Override
+	public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int indes) {
+		Var v = this.varPool.searchVar(this.owner, this.myName, 2, String.valueOf(indes));
+		LabelInterval lv = new LabelInterval();
+		lv.setStartLabel(start.toString());
+		lv.setEndLabel(end.toString());
+		
+		LocalVar localVar = (LocalVar)v;
+		localVar.addLabelInterval(lv);		
+		this.mv.visitLocalVariable(name, desc, signature, start, end, indes);
 	}
 	
 	@Override
@@ -316,7 +321,7 @@ public class MethodMiner extends MethodVisitor{
 				sb2.append((char)(oo.getCatId() + 97));
 			}
 			
-			System.out.println("Check blocks");
+			System.out.println("Block analysis");
 			for (BlockNode node: this.cfg) {
 				System.out.println(node);
 			}
@@ -334,9 +339,28 @@ public class MethodMiner extends MethodVisitor{
 				GsonManager.writeJson(ct, key, true);
 			} else if (isTest) {
 				GsonManager.writeJson(ct, key, false);
+			}*/
+			
+			this.rMiner.setBlockNodes(this.cfg);
+			this.rMiner.setDontMergeSet(this.dontMergeSet);
+			//this.rMiner.constructRelation();
+			this.rMiner.mergeBlockNodes();
+			
+			System.out.println("Block analysis after mergeing");
+			for (BlockNode node: this.cfg) {
+				System.out.println(node);
 			}
 			
-			System.out.println("Check var size: " + this.varPool.size());
+			this.rMiner.constructCFG();
+			System.out.println("Block analysis after CFG");
+			for (BlockNode node: this.cfg) {
+				System.out.println("Source: " + node);
+				for (BlockNode child: node.getChildrenBlock()) {
+					System.out.println("==>Children: " + child);
+				}
+			}
+			
+			/*System.out.println("Variable analysis: " + this.varPool.size());
 			for (Var v: this.varPool) {
 				if (v.getChildren().size() > 0) {
 					System.out.print("Source: " + v + "->");

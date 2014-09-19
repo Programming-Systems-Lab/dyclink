@@ -119,7 +119,17 @@ public class Var {
 			return ov.getNativeClassName() + ":" + ov.getVarName();
 		} else if (this.silId == 2){
 			LocalVar lv = (LocalVar)this;
-			return String.valueOf(lv.getLocalVarId());
+			StringBuilder sb = new StringBuilder();
+			sb.append(lv.getLocalVarId());
+			
+			if (lv.getIntervals().size() > 0) {
+				for (LabelInterval interval: lv.getIntervals()) {
+					sb.append(interval + "&");
+				}
+				return sb.toString().substring(0, sb.length() - 1);
+			} else {
+				return sb.toString();
+			}
 		} else {
 			FakeVar fv = (FakeVar)this;
 			return String.valueOf(fv.getFakeId());

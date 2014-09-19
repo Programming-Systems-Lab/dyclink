@@ -2,6 +2,8 @@ package edu.columbia.psl.cc.pojo;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 
 public class BlockNode {
 	
@@ -10,6 +12,8 @@ public class BlockNode {
 	private String label;
 	
 	private List<InstNode> insts = new ArrayList<InstNode>();
+	
+	private Set<BlockNode> children = new HashSet<BlockNode>();
 	
 	public void setLabel(String label) {
 		if (label == null)
@@ -28,6 +32,14 @@ public class BlockNode {
 	
 	public List<InstNode> getInsts() {
 		return insts;
+	}
+	
+	public void addChildBlock(BlockNode bn) {
+		this.children.add(bn);
+	}
+	
+	public Set<BlockNode> getChildrenBlock() {
+		return this.children;
 	}
 	
 	@Override

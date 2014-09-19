@@ -16,6 +16,7 @@ public class TemplateMethod {
 		String ret = "";
 		int c = 5;
 		if (a > 3) {
+			int d = 9;
 			if (b < 5) {
 				ret = "Test123";
 			} else {
