@@ -1,29 +1,20 @@
 package edu.columbia.psl.cc.pojo;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 
 public class InstNode {
 	
-	private static String loadString = "load";
-	
-	private static String storeString = "store";
-	
-	//For vars, it's possible to have multiple one. For cond, it's only one
 	private List<Var> vars = new ArrayList<Var>();
 	
-	private Set<InstNode> childrenNodes = new HashSet<InstNode>();
+	private OpcodeObj op;
 	
-	private boolean load = false;
-	
-	public void setLoad(boolean load) {
-		this.load = load;
+	public void setOp(OpcodeObj op) {
+		this.op = op;
 	}
 	
-	public boolean isLoad() {
-		return this.load;
+	public OpcodeObj getOp() {
+		return this.op;
 	}
 	
 	public void addVar(Var v) {
@@ -34,25 +25,16 @@ public class InstNode {
 		return this.vars;
 	}
 	
-	public void addChild(InstNode bn, String label) {
-		this.childrenNodes.add(bn);
-	}
-	
-	public Set<InstNode> getChildren() {
-		return this.childrenNodes;
+	public boolean isLoad() {
+		if (this.getOp().getCatId() == 1 || this.getOp().getCatId() == 2)
+			return true;
+		else 
+			return false;
 	}
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		if (load) {
-			sb.append(loadString + " ");
-		} else {
-			sb.append(storeString + " ");
-		}
-		sb.append(this.vars.toString());
-		return sb.toString();
+		return op + " " + vars;
 	}
-	
 
 }

@@ -1,30 +1,13 @@
 package edu.columbia.psl.cc.pojo;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 public class CondNode extends InstNode {
 	
 	private static String defaultLabel = "straight";
 	
-	private int opcode;
-	
 	private String label;
-	
-	private Map<String, InstNode> labelMap = new HashMap<String, InstNode>();
 	
 	public static String getDefaultLabel() {
 		return defaultLabel;
-	}
-
-	public void setOpcode(int opcode) {
-		this.opcode = opcode;
-	}
-	
-	public int getOpcode() {
-		return this.opcode;
 	}
 	
 	public void setLabel(String label) {
@@ -36,37 +19,15 @@ public class CondNode extends InstNode {
 	}
 	
 	public boolean isGoto() {
-		if (this.opcode == 167)
+		if (this.getOp().getOpcode() == 167)
 			return true;
 		else
 			return false;
 	}
 	
 	@Override
-	public void addChild(InstNode bn, String label) {
-		if (label == null) {
-			this.labelMap.put(defaultLabel, bn);
-		} else {
-			this.labelMap.put(label, bn);
-		}
-	}
-	
-	@Override
-	public Set<InstNode> getChildren() {
-		Set<InstNode> ret = new HashSet<InstNode>();
-		for (String label: this.labelMap.keySet()) {
-			ret.add(this.labelMap.get(label));
-		}
-		return ret;
-	}
-	
-	public InstNode getChildByLabel(String label) {
-		return this.labelMap.get(label);
-	}
-	
-	@Override
 	public String toString() {
-		return this.opcode + ":" + this.label; 
+		return this.getOp() + ":" + this.label; 
 	}
 	
 	@Override
@@ -80,7 +41,7 @@ public class CondNode extends InstNode {
 			return false;
 		
 		CondNode cn = (CondNode)o;
-		if (cn.getOpcode() != this.opcode)
+		if (!cn.getOp().equals(this.getOp()))
 			return false;
 		
 		if (cn.getLabel().equals(this.label))

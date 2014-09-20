@@ -43,13 +43,18 @@ public class TemplateMethod {
 		return f;
 	}
 	
-	public String ifTemplate(int a) {
-		String ret;
-		if (a > 5)
-			ret = "Bigger than 5";
-		else
-			ret = "Smaller than 5";
-		return ret;
+	public String dummyString(int a) {
+		return String.valueOf(a);
+	}
+	
+	public void textExternal(int a) {
+		int a1 = 1;
+		int a2 = 2;
+		int a3 = 3;
+		int a4 = a2;
+		int b = a + parallelPrimitiveTemplate(a1, a2, a3);
+		String c = this.dummyString(a);
+		boolean f = (c instanceof Object);
 	}
 	
 	//@extractTemplate
@@ -73,6 +78,21 @@ public class TemplateMethod {
 	
 	public int instanceMethod(int a, int[] b) {
 		int ret = a + this.iVar + b[0];
+		switch(a) {
+			case 0:
+				b[0] = 0;
+				break;
+			case 2:
+				b[0] = 1;
+				break;
+			case 6:
+				b[0] = 6;
+			default:
+				b[0] = 2;
+		}
+		Object[] objArray = new Object[5];
+		Object[][][] multiple = new Object[3][4][5];
+		Object obj = new Object();
 		return ret;
 	}
 	

@@ -18,7 +18,7 @@ public class JohnExample {
 		}
 		
 		for (int i = 0; i < arr2.length; i++) {
-			arr2[i] *= i * (i-1) / 6;
+			arr2[i] *= (i * (i-1)) / 6;
 		}
 	}
 	

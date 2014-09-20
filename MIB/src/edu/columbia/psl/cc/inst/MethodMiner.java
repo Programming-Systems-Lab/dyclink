@@ -14,7 +14,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import edu.columbia.psl.cc.datastruct.BCTreeNodePool;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.InstNode;
@@ -24,18 +23,16 @@ import edu.columbia.psl.cc.pojo.CondNode;
 import edu.columbia.psl.cc.pojo.Dependency;
 import edu.columbia.psl.cc.pojo.LabelInterval;
 import edu.columbia.psl.cc.pojo.LocalVar;
+import edu.columbia.psl.cc.pojo.MultiNewArrayNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
+import edu.columbia.psl.cc.pojo.SwitchNode;
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.RelationMiner;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class MethodMiner extends MethodVisitor{
-	
-	public String artifactLabelHead = "ArtifactLabel";
-	
-	private AtomicInteger artifactLabel = new AtomicInteger();
-	
+		
 	private String owner;
 	
 	private String templateAnnot;
@@ -77,10 +74,6 @@ public class MethodMiner extends MethodVisitor{
 		this.testAnnot = testAnnot;
 		this.myName = myName;
 		this.myDesc = myDesc;
-	}
-	
-	private synchronized String getArtifactLabel() {
-		return artifactLabelHead + this.artifactLabel.incrementAndGet();
 	}
 	
 	private static HashMap<Integer, ArrayList<OpcodeObj>> genRecordTemplate() {
@@ -127,7 +120,7 @@ public class MethodMiner extends MethodVisitor{
 		return this.curBlock;
 	}
 	
-	private void handleDataSource(Var var) {
+	/*private void handleDataSource(Var var) {
 		this.nonterminateVar.add(var);
 	}
 	
@@ -158,6 +151,31 @@ public class MethodMiner extends MethodVisitor{
 			condNode.setLabel(label);
 			this.getCurrentBlockNode().addInst(condNode);
 		}
+	}*/
+	
+	private void handleInstruction(int opcode, Var var) {
+		OpcodeObj op = BytecodeCategory.getOpcodeObj(opcode);
+		InstNode inst = new InstNode();
+		inst.setOp(op);
+		inst.addVar(var);
+		this.curBlock.addInst(inst);
+	}
+	
+	private void handleLabelNode(int opcode, boolean isJump, String...label) {
+		OpcodeObj op = BytecodeCategory.getOpcodeObj(opcode);
+		if (isJump) {
+			CondNode cond = new CondNode();
+			cond.setOp(op);
+			cond.setLabel(label[0]);
+			this.curBlock.addInst(cond);
+		} else {
+			SwitchNode switchNode = new SwitchNode();
+			switchNode.setOp(op);
+			for (int i = 0; i < label.length; i++) {
+				switchNode.addLabel(label[i]);
+			}
+			this.curBlock.addInst(switchNode);
+		}
 	}
 	
 	@Override
@@ -174,7 +192,7 @@ public class MethodMiner extends MethodVisitor{
 	
 	@Override
 	public void visitLabel(Label label) {
-		this.summarizeDataSource();
+		//this.summarizeDataSource();
 		this.genNewBlockNode(label.toString());
 		this.mv.visitLabel(label);
 	}
@@ -188,12 +206,14 @@ public class MethodMiner extends MethodVisitor{
 	@Override
 	public void visitInsn(int opcode) {
 		this.updateMethodRep(opcode);
+		this.handleInstruction(opcode, null);
 		this.mv.visitInsn(opcode);
 	}
 	
 	@Override
 	public void visitIntInsn(int opcode, int operand) {
 		this.updateMethodRep(opcode);
+		this.handleInstruction(opcode, null);
 		this.mv.visitIntInsn(opcode, operand);
 	}
 	
@@ -208,19 +228,21 @@ public class MethodMiner extends MethodVisitor{
 		//Local variable
 		int silId = 2;
 		Var v = this.varPool.searchVar(this.owner, this.myName, silId, String.valueOf(var));
-		if (catId == 1) {
+		this.handleInstruction(opcode, v);
+		/*if (catId == 1 || catId == 2) {
 			this.handleDataSource(v);
-		} else if (catId == 2) {
+		} else if (catId == 3 || catId == 4) {
 			this.handleDataSink(v, null);
 		} else {
 			System.err.println("Weird var opcode: " + opcode);
-		}
+		}*/
 		this.mv.visitVarInsn(opcode, var);
 	}
 	
 	@Override
 	public void visitTypeInsn(int opcode, String type) {
 		this.updateMethodRep(opcode);
+		this.handleInstruction(opcode, null);
 		this.mv.visitTypeInsn(opcode, type);
 	}
 	
@@ -233,7 +255,10 @@ public class MethodMiner extends MethodVisitor{
 			return ;
 		}
 		
-		if (catId == 10) {
+		int silId = (opcode == 178 || opcode == 179)?0: 1;
+		Var var = this.varPool.searchVar(this.owner, this.myName, silId, name + ":" + desc);
+		this.handleInstruction(opcode, var);
+		/*if (catId == 10) {
 			int silId = (opcode == 178)?0: 1;
 			Var dataSource = this.varPool.searchVar(this.owner, this.myName, silId, name + ":" + desc);
 			this.handleDataSource(dataSource);
@@ -241,13 +266,14 @@ public class MethodMiner extends MethodVisitor{
 			int silId = (opcode == 179)?0: 1;
 			Var dataSink = this.varPool.searchVar(this.owner, this.myName, silId, name + ":" + desc);
 			this.handleDataSink(dataSink, null);
-		}
+		}*/
 		this.mv.visitFieldInsn(opcode, owner, name, desc);
 	}
 	
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 		this.updateMethodRep(opcode);
+		this.handleInstruction(opcode, null);
 		this.mv.visitMethodInsn(opcode, owner, name, desc);
 	}
 	
@@ -255,34 +281,51 @@ public class MethodMiner extends MethodVisitor{
 	public void visitJumpInsn(int opcode, Label label) {
 		//System.out.println("Jump: " + opcode + " " + label);
 		this.updateMethodRep(opcode);
-		this.handleDataSink(null, label.toString(), opcode);
+		//this.handleDataSink(null, label.toString(), opcode);
+		this.handleLabelNode(opcode, true, label.toString());
 		this.dontMergeSet.add(label.toString());
 		this.mv.visitJumpInsn(opcode, label);
 	}
 	
 	@Override
 	public void visitLdcInsn(Object cst) {
+		//Anyway to avoid change the category manually everytime?
 		this.updateSingleCat(0, Opcodes.LDC);
+		//18, 19, 20 are opcodes for ldc, but we don't care which one
+		this.handleInstruction(18, null);
 		this.mv.visitLdcInsn(cst);
 	}
 	
 	@Override
 	public void visitIincInsn(int var, int increment) {
-		this.updateSingleCat(6, Opcodes.IINC);
+		this.updateSingleCat(9, Opcodes.IINC);
+		Var v = this.varPool.searchVar(this.owner, this.myName, 2, String.valueOf(var));
+		//132 is the opcode for iinc
+		this.handleInstruction(132, v);
 		this.mv.visitIincInsn(var, increment);
 	}
 	
 	@Override
 	public void visitTableSwitchInsn(int min, int max, Label dflt, Label...labels) {
 		//In jump set
-		this.updateSingleCat(15, Opcodes.TABLESWITCH);
+		this.updateSingleCat(19, Opcodes.TABLESWITCH);
+		String[] labelArray = new String[labels.length];
+		for (int i = 0; i < labels.length; i++) {
+			labelArray[i] = labels[i].toString();
+		}
+		this.handleLabelNode(170, false, labelArray);
 		this.mv.visitTableSwitchInsn(min, max, dflt, labels);
 	}
 	
 	@Override
 	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
 		//In jump set
-		this.updateSingleCat(15, Opcodes.LOOKUPSWITCH);
+		this.updateSingleCat(19, Opcodes.LOOKUPSWITCH);
+		String[] labelArray = new String[labels.length];
+		for (int i= 0; i < labels.length; i++) {
+			labelArray[i] = labels[i].toString();
+		}
+		this.handleLabelNode(171, false, labelArray);
 		this.mv.visitLookupSwitchInsn(dflt, keys, labels);
 	}
 	
@@ -290,11 +333,18 @@ public class MethodMiner extends MethodVisitor{
 	public void visitMultiANewArrayInsn(String desc, int dims) {
 		//In object set
 		this.updateSingleCat(13, Opcodes.MULTIANEWARRAY);
+		OpcodeObj op = BytecodeCategory.getOpcodeObj(197);
+		MultiNewArrayNode node = new MultiNewArrayNode();
+		node.setOp(op);
+		node.setDesc(desc);
+		node.setDim(dims);
+		this.curBlock.addInst(node);
 		this.mv.visitMultiANewArrayInsn(desc, dims);
 	}
 	
 	@Override
 	public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
+		//Temporarily ignore. Error handling should not affect program similarity?
 		this.mv.visitTryCatchBlock(start, end, handler, type);
 	}
 	
