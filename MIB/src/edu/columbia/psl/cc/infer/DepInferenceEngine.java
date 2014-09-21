@@ -8,20 +8,76 @@ import java.util.Map;
 import java.util.HashMap;
 
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
+import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.BlockNode;
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.pojo.Var;
+import edu.columbia.psl.cc.util.RelationManager;
 
 public class DepInferenceEngine {
 	
-	private static String noString = "no";
+	private List<BlockNode> blocks = new ArrayList<BlockNode>();
+	
+	private VarPool vp = null;
+		
+	public void setBlocks(List<BlockNode> blocks) {
+		this.blocks = blocks;
+	}
+	
+	public List<BlockNode> getBlocks() {
+		return this.blocks;
+	} 
+	
+	public void setVarPool(VarPool vp) {
+		this.vp = vp;
+	}
+	
+	public VarPool getVarPool() {
+		return this.vp;
+	}
+	
+	public void executeInference() {
+		//Backward for mining data dependency and extract control var from blocks
+		for (BlockNode bn: this.blocks) {
+			backwardInduct(bn);
+		}
+		
+		for (BlockNode bn: this.blocks) {
+			forwardInduct(bn);
+		}
+ 	}
 	
 	private static boolean noInput(List<String> inList) {
-		String pivot = inList.get(0);
-		if (pivot.equals(noString)) {
+		if (inList.size() == 0)
 			return true;
-		} else {
+		else
 			return false;
+	}
+	
+	private static void constructRelation(Var parentVar, InstNode childInst) {
+		if (BytecodeCategory.readCategory().contains(childInst.getOp().getCatId())) {
+			parentVar.addChildren(childInst.getVar(), RelationManager.getControlRead());
+		} else if (BytecodeCategory.writeCategory().contains(childInst.getOp().getCatId())) {
+			parentVar.addChildren(childInst.getVar(), RelationManager.getControlWrite());
+		}
+	}
+	
+	public static void forwardInduct(BlockNode bn) {
+		List<Var> controlVars = bn.getControlDepVarsToChildren();
+		Set<BlockNode> children = bn.getChildrenBlock();
+		
+		for (Var v: controlVars) {
+			for (BlockNode child: children) {
+				List<InstNode> insts = child.getInsts();
+				
+				for (InstNode inst: insts) {
+					if (inst.getVar() == null)
+						continue ;
+					
+					constructRelation(v, inst);
+				}
+			}
 		}
 	}
 	
@@ -34,12 +90,25 @@ public class DepInferenceEngine {
 		List<String> inferBuf = null;
 		Map<Var, Set<Var>> depMap = new HashMap<Var, Set<Var>>();
 		boolean shouldAnalyze = false;
+		int extractControlNum = 0;
 		Var curVar = null;
+		List<Var> controlVars = new ArrayList<Var>();
+		
+		InstNode lastInst = insts.get(insts.size() - 1);
+		int lastInstInSize = lastInst.getOp().getInList().size();
+		
+		if (BytecodeCategory.controlCategory().contains(lastInst.getOp().getCatId()) 
+				&& lastInstInSize > 0) {
+			extractControlNum = lastInstInSize;
+			shouldAnalyze = true;
+		}
+		
 		//From the end
 		for (int i = insts.size() - 1; i >= 0; i--) {
 			InstNode inst = insts.get(i);
 			
-			if (BytecodeCategory.writeCategory().contains(inst.getOp().getCatId())) {
+			int opcat = inst.getOp().getCatId();
+			if (BytecodeCategory.writeCategory().contains(opcat)) {
 				shouldAnalyze = true;
 			}
 			
@@ -52,7 +121,7 @@ public class DepInferenceEngine {
 					inferBuf.addAll(instInput);
 					
 					curVar = inst.getVar();
-					if (!depMap.containsKey(curVar)) {
+					if (!depMap.containsKey(curVar) && curVar != null) {
 						Set<Var> parents = new HashSet<Var>();
 						depMap.put(curVar, parents);
 					}
@@ -65,7 +134,15 @@ public class DepInferenceEngine {
 				} else {
 					//If the inst is load, it might affect curVar
 					if (inst.isLoad()) {
-						depMap.get(curVar).add(inst.getVar());
+						if (curVar != null) {
+							depMap.get(curVar).add(inst.getVar());
+							inst.getVar().addChildren(curVar);
+						}
+						
+						if (extractControlNum > 0) {
+							controlVars.add(inst.getVar());
+							extractControlNum--;
+						}
 					}
 					inferBuf.remove(inferBuf.size() - 1);
 				}
@@ -73,18 +150,30 @@ public class DepInferenceEngine {
 				if (inferBuf.size() == 0) {
 					inferBuf = null;
 					curVar = null;
+					shouldAnalyze = false;
 				}
 			}
 		}
 		
+		bn.setDataDepMap(depMap);
+		bn.setControlDepVarsToChildren(controlVars);
+		
 		//Check potential node
-		for (Var v: depMap.keySet()) {
+		System.out.println("Block: " + bn.getLabel());
+		System.out.println("Data dependency");
+		for (Var v: bn.getDataDepMap().keySet()) {
 			System.out.println("Var: " + v);
 			System.out.println("Parents:");
 			for (Var p: depMap.get(v)) {
 				System.out.println("  " + p);
 			}
 		}
+		
+		System.out.println("Control vars");
+		for (Var v: bn.getControlDepVarsToChildren()) {
+			System.out.println(v);
+		}
+		System.out.println();
 	}
 
 }

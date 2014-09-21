@@ -75,7 +75,10 @@ public class Var {
 	
 	public void addChildren(Var child) {
 		String edge = this.getSil() + "-" + child.getSil();
-		//this.children.put(child, edge);
+		this.addChildren(child, edge);
+	}
+	
+	public void addChildren(Var child, String edge) {
 		if (this.children.keySet().contains(edge)) {
 			this.children.get(edge).add(child);
 		} else {

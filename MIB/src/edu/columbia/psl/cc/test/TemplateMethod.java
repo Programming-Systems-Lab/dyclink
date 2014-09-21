@@ -13,7 +13,7 @@ public class TemplateMethod {
 	
 	Object lock1 = new Object();
 	
-	@extractTemplate
+	//@extractTemplate
 	public void dummy(int a, int b) {
 		String ret = "";
 		int c = 5;
@@ -30,10 +30,13 @@ public class TemplateMethod {
 	}
 	
 	public synchronized int add(int a, int b) {
+		int[][] c = new int[4][5];
+		this.iVar = 8;
+		c[1][2] = 9;
 		return a + b;
 	}
 	
-	//@extractTemplate
+	@extractTemplate
 	public int sequencePrimitiveTemplate(int a, int b, int c) {
 		int d = a + 5;
 		int e = d + b;
@@ -81,6 +84,12 @@ public class TemplateMethod {
 			return ret3;
 		}
 	}
+	
+	public void fakeInstanceMethod(int a, int b) {
+		int c = a + 5;
+		int d = 6;
+		int e = b + c;
+	} 
 	
 	public int instanceMethod(int a, int[] b) {
 		int ret = a + this.iVar + b[0];

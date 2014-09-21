@@ -58,8 +58,13 @@ public class BytecodeCategory {
 	}
 	
 	public static List<String> processOpTableElement(String rawContent) {
-		String[] contentArray = rawContent.split(":");
 		List<String> ret = new ArrayList<String>();
+		
+		if (rawContent.equals("no")) {
+			return ret;
+		}
+		
+		String[] contentArray = rawContent.split(":");
 		for (String s: contentArray) {
 			ret.add(s);
 		}
@@ -137,6 +142,18 @@ public class BytecodeCategory {
 	public static HashSet<Integer> writeCategory() {
 		HashSet<Integer> ret = new HashSet<Integer>();
 		ret.add(3);
+		return ret;
+	}
+	
+	public static HashSet<Integer> readCategory() {
+		HashSet<Integer> ret = new HashSet<Integer>();
+		ret.add(1);
+		return ret;
+	}
+	
+	public static HashSet<Integer> controlCategory() {
+		HashSet<Integer> ret = new HashSet<Integer>();
+		ret.add(13);
 		return ret;
 	}
 	

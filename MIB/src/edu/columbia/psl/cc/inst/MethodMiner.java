@@ -62,6 +62,8 @@ public class MethodMiner extends MethodVisitor{
 	
 	private RelationMiner rMiner = new RelationMiner();
 	
+	private DepInferenceEngine infer = new DepInferenceEngine();
+	
 	private Set<String> dontMergeSet = new HashSet<String>();
 	
 	private Map<Var, List<LabelInterval>> localVarMap = new HashMap<Var, List<LabelInterval>>();
@@ -411,10 +413,24 @@ public class MethodMiner extends MethodVisitor{
 				}
 			}
 			
-			System.out.println("Start backward induction");
-			for (BlockNode block: this.cfg) {
-				System.out.println("Block: " + block.getLabel());
-				DepInferenceEngine.backwardInduct(block);
+			System.out.println("Start inference");
+			this.infer.setBlocks(this.cfg);
+			this.infer.setVarPool(this.varPool);
+			this.infer.executeInference();
+			
+			System.out.println("Overall variable dependency: ");
+			
+			for (Var v: this.infer.getVarPool()) {
+				System.out.println("Parent var: " + v);
+				
+				for (String edge: v.getChildren().keySet()) {
+					System.out.println("Edge: " + edge);
+					
+					Set<Var> children = v.getChildren().get(edge);
+					for (Var childV: children) {
+						System.out.println(" " + childV);
+					}
+				}
 			}
 			
 			/*System.out.println("Variable analysis: " + this.varPool.size());

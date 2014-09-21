@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.HashMap;
 
 public class BlockNode {
 	
@@ -14,6 +16,10 @@ public class BlockNode {
 	private List<InstNode> insts = new ArrayList<InstNode>();
 	
 	private Set<BlockNode> children = new HashSet<BlockNode>();
+	
+	private Map<Var, Set<Var>> dataDepMap;
+	
+	private List<Var> controlVarsToChildren;
 	
 	public void setLabel(String label) {
 		if (label == null)
@@ -40,6 +46,22 @@ public class BlockNode {
 	
 	public Set<BlockNode> getChildrenBlock() {
 		return this.children;
+	}
+	
+	public void setDataDepMap(Map<Var, Set<Var>> dataDepMap) {
+		this.dataDepMap = dataDepMap;
+	}
+	
+	public Map<Var, Set<Var>> getDataDepMap() {
+		return this.dataDepMap;
+	}
+	
+	public void setControlDepVarsToChildren(List<Var> controlVarsToChildren) {
+		this.controlVarsToChildren = controlVarsToChildren;
+	}
+	
+	public List<Var> getControlDepVarsToChildren() {
+		return this.controlVarsToChildren;
 	}
 	
 	@Override
