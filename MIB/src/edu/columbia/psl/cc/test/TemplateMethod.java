@@ -11,6 +11,8 @@ public class TemplateMethod {
 	
 	private int iVar;
 	
+	Object lock1 = new Object();
+	
 	@extractTemplate
 	public void dummy(int a, int b) {
 		String ret = "";
@@ -25,6 +27,10 @@ public class TemplateMethod {
 		} else {
 			ret = "Test789";
 		}
+	}
+	
+	public synchronized int add(int a, int b) {
+		return a + b;
 	}
 	
 	//@extractTemplate

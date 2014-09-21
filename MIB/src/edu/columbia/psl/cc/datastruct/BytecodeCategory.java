@@ -3,8 +3,10 @@ package edu.columbia.psl.cc.datastruct;
 import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import org.objectweb.asm.Opcodes;
 
@@ -55,6 +57,15 @@ public class BytecodeCategory {
 		return opcodeCategory.get(catId);
 	}
 	
+	public static List<String> processOpTableElement(String rawContent) {
+		String[] contentArray = rawContent.split(":");
+		List<String> ret = new ArrayList<String>();
+		for (String s: contentArray) {
+			ret.add(s);
+		}
+		return ret;
+	}
+	
 	private static void loadOpcodeTable() {
 		File f = new File(opTablePath);
 		if (!f.exists()) {
@@ -77,6 +88,15 @@ public class BytecodeCategory {
 				oo.setCatId(catId);
 				oo.setOpcode(opcode);
 				oo.setInstruction(info[3]);
+				
+				//Process input
+				List<String> inList = processOpTableElement(info[4]);
+				oo.setInList(inList);
+				
+				//Process output
+				List<String> outList = processOpTableElement(info[5]);
+				oo.setOutList(outList);
+				
 				opcodeTable.put(opcode, oo);
 				
 				if (catMap.keySet().contains(catId)) {
@@ -112,6 +132,12 @@ public class BytecodeCategory {
 	
 	public static HashMap<Integer, String> getOpcodeCategory() {
 		return opcodeCategory;
+	}
+	
+	public static HashSet<Integer> writeCategory() {
+		HashSet<Integer> ret = new HashSet<Integer>();
+		ret.add(3);
+		return ret;
 	}
 	
 }

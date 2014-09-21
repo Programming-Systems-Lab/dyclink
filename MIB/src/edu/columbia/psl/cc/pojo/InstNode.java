@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class InstNode {
 	
-	private List<Var> vars = new ArrayList<Var>();
+	private Var var;
 	
 	private OpcodeObj op;
 	
@@ -17,12 +17,12 @@ public class InstNode {
 		return this.op;
 	}
 	
-	public void addVar(Var v) {
-		this.vars.add(v);
+	public void setVar(Var v) {
+		this.var = v;
 	}
 	
-	public List<Var> getVars() {
-		return this.vars;
+	public Var getVar() {
+		return this.var;
 	}
 	
 	public boolean isLoad() {
@@ -34,7 +34,7 @@ public class InstNode {
 	
 	@Override
 	public String toString() {
-		return op + " " + vars;
+		return op + " " + var;
 	}
 
 }

@@ -1,12 +1,20 @@
 package edu.columbia.psl.cc.pojo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class OpcodeObj {
 	
-	int catId;
+	private int catId;
 	
-	int opcode;
+	private int opcode;
 	
-	String instruction;
+	private String instruction;
+	
+	//Probably need to change to pojo some time in the future?
+	private List<String> inList = new ArrayList<String>();
+	
+	private List<String> outList = new ArrayList<String>();
 	
 	public void setCatId(int catId) {
 		this.catId = catId;
@@ -34,6 +42,22 @@ public class OpcodeObj {
 	
 	public String getInstruction() {
 		return this.instruction;
+	}
+	
+	public void setInList(List<String> inList) {
+		this.inList = inList;
+	}
+	
+	public List<String> getInList() {
+		return this.inList;
+	}
+	
+	public void setOutList(List<String> outList) {
+		this.outList = outList;
+	}
+	
+	public List<String> getOutList() {
+		return this.outList;
 	}
 	
 	@Override

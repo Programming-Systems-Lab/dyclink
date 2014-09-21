@@ -16,6 +16,7 @@ import org.objectweb.asm.Opcodes;
 
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.VarPool;
+import edu.columbia.psl.cc.infer.DepInferenceEngine;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.BlockNode;
 import edu.columbia.psl.cc.pojo.CodeTemplate;
@@ -157,7 +158,7 @@ public class MethodMiner extends MethodVisitor{
 		OpcodeObj op = BytecodeCategory.getOpcodeObj(opcode);
 		InstNode inst = new InstNode();
 		inst.setOp(op);
-		inst.addVar(var);
+		inst.setVar(var);
 		this.curBlock.addInst(inst);
 	}
 	
@@ -408,6 +409,12 @@ public class MethodMiner extends MethodVisitor{
 				for (BlockNode child: node.getChildrenBlock()) {
 					System.out.println("==>Children: " + child);
 				}
+			}
+			
+			System.out.println("Start backward induction");
+			for (BlockNode block: this.cfg) {
+				System.out.println("Block: " + block.getLabel());
+				DepInferenceEngine.backwardInduct(block);
 			}
 			
 			/*System.out.println("Variable analysis: " + this.varPool.size());

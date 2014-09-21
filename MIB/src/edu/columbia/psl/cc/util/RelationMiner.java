@@ -91,13 +91,9 @@ public class RelationMiner {
 	}
 	
 	private void addChildrenToParent(InstNode parent, InstNode child) {
-		List<Var> parentVars = parent.getVars();
-		List<Var> childVars = child.getVars();
-		for (Var v: parentVars) {
-			for (Var cv: childVars) {
-				v.addChildren(cv);
-			}
-		}
+		Var parentVar = parent.getVar();
+		Var childVar = child.getVar();
+		parentVar.addChildren(childVar);
 	}
 	
 	private void connectLastLoadWithCurBlock(InstNode lastLoad, BlockNode block) {
