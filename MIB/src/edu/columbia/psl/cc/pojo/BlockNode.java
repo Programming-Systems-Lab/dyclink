@@ -17,8 +17,6 @@ public class BlockNode {
 	
 	private Set<BlockNode> children = new HashSet<BlockNode>();
 	
-	private Map<Var, Set<Var>> dataDepMap;
-	
 	private List<Var> controlVarsToChildren;
 	
 	public void setLabel(String label) {
@@ -46,14 +44,6 @@ public class BlockNode {
 	
 	public Set<BlockNode> getChildrenBlock() {
 		return this.children;
-	}
-	
-	public void setDataDepMap(Map<Var, Set<Var>> dataDepMap) {
-		this.dataDepMap = dataDepMap;
-	}
-	
-	public Map<Var, Set<Var>> getDataDepMap() {
-		return this.dataDepMap;
 	}
 	
 	public void setControlDepVarsToChildren(List<Var> controlVarsToChildren) {

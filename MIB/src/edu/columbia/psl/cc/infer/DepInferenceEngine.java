@@ -42,11 +42,30 @@ public class DepInferenceEngine {
 		for (BlockNode bn: this.blocks) {
 			backwardInduct(bn);
 		}
+		System.out.println("Data dependency");
+		showInferenceResult(this.vp);
 		
 		for (BlockNode bn: this.blocks) {
 			forwardInduct(bn);
 		}
+		
+		System.out.println("Overall dependency");
+		showInferenceResult(this.vp);
  	}
+	
+	private static void showInferenceResult(VarPool vp) {
+		for (Var v: vp) {
+			System.out.println("Parent: " + v);
+			
+			for (String edge: v.getChildren().keySet()) {
+				Set<Var> cVars = v.getChildrenWithLabel(edge);
+				System.out.println("Edge: " + edge);
+				for (Var cv: cVars) {
+					System.out.println("	Child: " + cv);
+				}
+			}
+		}
+	}
 	
 	private static boolean noInput(List<String> inList) {
 		if (inList.size() == 0)
@@ -88,7 +107,6 @@ public class DepInferenceEngine {
 			return ;
 		
 		List<String> inferBuf = null;
-		Map<Var, Set<Var>> depMap = new HashMap<Var, Set<Var>>();
 		boolean shouldAnalyze = false;
 		int extractControlNum = 0;
 		Var curVar = null;
@@ -121,10 +139,6 @@ public class DepInferenceEngine {
 					inferBuf.addAll(instInput);
 					
 					curVar = inst.getVar();
-					if (!depMap.containsKey(curVar) && curVar != null) {
-						Set<Var> parents = new HashSet<Var>();
-						depMap.put(curVar, parents);
-					}
 					continue;
 				}
 				
@@ -135,7 +149,7 @@ public class DepInferenceEngine {
 					//If the inst is load, it might affect curVar
 					if (inst.isLoad()) {
 						if (curVar != null) {
-							depMap.get(curVar).add(inst.getVar());
+							//depMap.get(curVar).add(inst.getVar());
 							inst.getVar().addChildren(curVar);
 						}
 						
@@ -155,19 +169,11 @@ public class DepInferenceEngine {
 			}
 		}
 		
-		bn.setDataDepMap(depMap);
+		//bn.setDataDepMap(depMap);
 		bn.setControlDepVarsToChildren(controlVars);
 		
 		//Check potential node
 		System.out.println("Block: " + bn.getLabel());
-		System.out.println("Data dependency");
-		for (Var v: bn.getDataDepMap().keySet()) {
-			System.out.println("Var: " + v);
-			System.out.println("Parents:");
-			for (Var p: depMap.get(v)) {
-				System.out.println("  " + p);
-			}
-		}
 		
 		System.out.println("Control vars");
 		for (Var v: bn.getControlDepVarsToChildren()) {

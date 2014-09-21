@@ -418,21 +418,6 @@ public class MethodMiner extends MethodVisitor{
 			this.infer.setVarPool(this.varPool);
 			this.infer.executeInference();
 			
-			System.out.println("Overall variable dependency: ");
-			
-			for (Var v: this.infer.getVarPool()) {
-				System.out.println("Parent var: " + v);
-				
-				for (String edge: v.getChildren().keySet()) {
-					System.out.println("Edge: " + edge);
-					
-					Set<Var> children = v.getChildren().get(edge);
-					for (Var childV: children) {
-						System.out.println(" " + childV);
-					}
-				}
-			}
-			
 			/*System.out.println("Variable analysis: " + this.varPool.size());
 			for (Var v: this.varPool) {
 				if (v.getChildren().size() > 0) {

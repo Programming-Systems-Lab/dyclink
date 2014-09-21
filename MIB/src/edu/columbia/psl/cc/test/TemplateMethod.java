@@ -13,7 +13,7 @@ public class TemplateMethod {
 	
 	Object lock1 = new Object();
 	
-	//@extractTemplate
+	@extractTemplate
 	public void dummy(int a, int b) {
 		String ret = "";
 		int c = 5;
@@ -36,7 +36,7 @@ public class TemplateMethod {
 		return a + b;
 	}
 	
-	@extractTemplate
+	//@extractTemplate
 	public int sequencePrimitiveTemplate(int a, int b, int c) {
 		int d = a + 5;
 		int e = d + b;
