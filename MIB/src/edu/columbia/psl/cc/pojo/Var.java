@@ -123,16 +123,14 @@ public class Var {
 		} else if (this.silId == 2){
 			LocalVar lv = (LocalVar)this;
 			StringBuilder sb = new StringBuilder();
-			sb.append(lv.getLocalVarId());
+			sb.append(lv.getLocalVarId() + ":");
 			
 			if (lv.getIntervals().size() > 0) {
 				for (LabelInterval interval: lv.getIntervals()) {
 					sb.append(interval + "&");
 				}
-				return sb.toString().substring(0, sb.length() - 1);
-			} else {
-				return sb.toString();
 			}
+			return sb.substring(0, sb.length() - 1);
 		} else {
 			FakeVar fv = (FakeVar)this;
 			return String.valueOf(fv.getFakeId());

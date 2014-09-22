@@ -95,11 +95,13 @@ public class MethodMiner extends MethodVisitor{
 		this.sequence.add(obj);
 	}
 	
+	private boolean annotGuard() {
+		return (this.isTemplate || this.isTest);
+	}
+	
 	private void updateSingleCat(int catId, int opcode) {
-		if (this.isTemplate || this.isTest) {
-			repVector[catId]++;
-			recordOps(catId, opcode);
-		}
+		repVector[catId]++;
+		recordOps(catId, opcode);
 	}
 	
 	private int updateMethodRep(int opcode) {
@@ -112,9 +114,9 @@ public class MethodMiner extends MethodVisitor{
 		return catId;
 	}
 	
-	private void genNewBlockNode(String label) {
+	private void genNewBlockNode(Label labelObj) {
 		BlockNode block = new BlockNode();
-		block.setLabel(label);
+		block.setLabelObj(labelObj);
 		this.cfg.add(block);
 		this.curBlock = block;
 	}
@@ -196,7 +198,9 @@ public class MethodMiner extends MethodVisitor{
 	@Override
 	public void visitLabel(Label label) {
 		//this.summarizeDataSource();
-		this.genNewBlockNode(label.toString());
+		if (this.annotGuard()) {
+			this.genNewBlockNode(label);
+		}
 		this.mv.visitLabel(label);
 	}
 	
@@ -208,140 +212,164 @@ public class MethodMiner extends MethodVisitor{
 	
 	@Override
 	public void visitInsn(int opcode) {
-		this.updateMethodRep(opcode);
-		this.handleInstruction(opcode, null);
+		if (this.annotGuard()) {
+			this.updateMethodRep(opcode);
+			this.handleInstruction(opcode, null);
+		}
 		this.mv.visitInsn(opcode);
 	}
 	
 	@Override
 	public void visitIntInsn(int opcode, int operand) {
-		this.updateMethodRep(opcode);
-		this.handleInstruction(opcode, null);
+		if (this.annotGuard()) {
+			this.updateMethodRep(opcode);
+			this.handleInstruction(opcode, null);
+		}
 		this.mv.visitIntInsn(opcode, operand);
 	}
 	
 	@Override
 	public void visitVarInsn(int opcode, int var) {
-		int catId = this.updateMethodRep(opcode);
-		
-		if (catId < 0) {
-			System.err.println("Invalid var opcode: " + opcode);
-			return ;
+		if (this.annotGuard()) {
+			int catId = this.updateMethodRep(opcode);
+			
+			if (catId < 0) {
+				System.err.println("Invalid var opcode: " + opcode);
+				return ;
+			}
+			//Local variable
+			int silId = 2;
+			Var v = this.varPool.searchVar(this.owner, this.myName, silId, String.valueOf(var));
+			this.handleInstruction(opcode, v);
+			/*if (catId == 1 || catId == 2) {
+				this.handleDataSource(v);
+			} else if (catId == 3 || catId == 4) {
+				this.handleDataSink(v, null);
+			} else {
+				System.err.println("Weird var opcode: " + opcode);
+			}*/
 		}
-		//Local variable
-		int silId = 2;
-		Var v = this.varPool.searchVar(this.owner, this.myName, silId, String.valueOf(var));
-		this.handleInstruction(opcode, v);
-		/*if (catId == 1 || catId == 2) {
-			this.handleDataSource(v);
-		} else if (catId == 3 || catId == 4) {
-			this.handleDataSink(v, null);
-		} else {
-			System.err.println("Weird var opcode: " + opcode);
-		}*/
 		this.mv.visitVarInsn(opcode, var);
 	}
 	
 	@Override
 	public void visitTypeInsn(int opcode, String type) {
-		this.updateMethodRep(opcode);
-		this.handleInstruction(opcode, null);
+		if (this.annotGuard()) {
+			this.updateMethodRep(opcode);
+			this.handleInstruction(opcode, null);
+		}
 		this.mv.visitTypeInsn(opcode, type);
 	}
 	
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-		int catId = this.updateMethodRep(opcode);
-		
-		if (catId < 0) {
-			System.err.println("Invalid field opcode: " + opcode);
-			return ;
+		if (this.annotGuard()) {
+			int catId = this.updateMethodRep(opcode);
+			
+			if (catId < 0) {
+				System.err.println("Invalid field opcode: " + opcode);
+				return ;
+			}
+			
+			int silId = (opcode == 178 || opcode == 179)?0: 1;
+			Var var = this.varPool.searchVar(this.owner, this.myName, silId, name + ":" + desc);
+			this.handleInstruction(opcode, var);
+			/*if (catId == 10) {
+				int silId = (opcode == 178)?0: 1;
+				Var dataSource = this.varPool.searchVar(this.owner, this.myName, silId, name + ":" + desc);
+				this.handleDataSource(dataSource);
+			} else {
+				int silId = (opcode == 179)?0: 1;
+				Var dataSink = this.varPool.searchVar(this.owner, this.myName, silId, name + ":" + desc);
+				this.handleDataSink(dataSink, null);
+			}*/
 		}
-		
-		int silId = (opcode == 178 || opcode == 179)?0: 1;
-		Var var = this.varPool.searchVar(this.owner, this.myName, silId, name + ":" + desc);
-		this.handleInstruction(opcode, var);
-		/*if (catId == 10) {
-			int silId = (opcode == 178)?0: 1;
-			Var dataSource = this.varPool.searchVar(this.owner, this.myName, silId, name + ":" + desc);
-			this.handleDataSource(dataSource);
-		} else {
-			int silId = (opcode == 179)?0: 1;
-			Var dataSink = this.varPool.searchVar(this.owner, this.myName, silId, name + ":" + desc);
-			this.handleDataSink(dataSink, null);
-		}*/
 		this.mv.visitFieldInsn(opcode, owner, name, desc);
 	}
 	
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-		this.updateMethodRep(opcode);
-		this.handleInstruction(opcode, null);
+		if (this.annotGuard()) {
+			this.updateMethodRep(opcode);
+			this.handleInstruction(opcode, null);
+		}
 		this.mv.visitMethodInsn(opcode, owner, name, desc);
 	}
 	
 	@Override
 	public void visitJumpInsn(int opcode, Label label) {
-		//System.out.println("Jump: " + opcode + " " + label);
-		this.updateMethodRep(opcode);
-		//this.handleDataSink(null, label.toString(), opcode);
-		this.handleLabelNode(opcode, true, label.toString());
-		this.dontMergeSet.add(label.toString());
+		if (this.annotGuard()) {
+			//System.out.println("Jump: " + opcode + " " + label);
+			this.updateMethodRep(opcode);
+			//this.handleDataSink(null, label.toString(), opcode);
+			this.handleLabelNode(opcode, true, label.toString());
+			this.dontMergeSet.add(label.toString());
+		}
 		this.mv.visitJumpInsn(opcode, label);
 	}
 	
 	@Override
 	public void visitLdcInsn(Object cst) {
-		//Anyway to avoid change the category manually everytime?
-		this.updateSingleCat(0, Opcodes.LDC);
-		//18, 19, 20 are opcodes for ldc, but we don't care which one
-		this.handleInstruction(18, null);
+		if (this.annotGuard()) {
+			//Anyway to avoid change the category manually everytime?
+			this.updateSingleCat(0, Opcodes.LDC);
+			//18, 19, 20 are opcodes for ldc, but we don't care which one
+			this.handleInstruction(18, null);
+		}
 		this.mv.visitLdcInsn(cst);
 	}
 	
 	@Override
 	public void visitIincInsn(int var, int increment) {
-		this.updateSingleCat(9, Opcodes.IINC);
-		Var v = this.varPool.searchVar(this.owner, this.myName, 2, String.valueOf(var));
-		//132 is the opcode for iinc
-		this.handleInstruction(132, v);
+		if (this.annotGuard()) {
+			this.updateSingleCat(9, Opcodes.IINC);
+			Var v = this.varPool.searchVar(this.owner, this.myName, 2, String.valueOf(var));
+			//132 is the opcode for iinc
+			this.handleInstruction(132, v);
+		}
 		this.mv.visitIincInsn(var, increment);
 	}
 	
 	@Override
 	public void visitTableSwitchInsn(int min, int max, Label dflt, Label...labels) {
-		//In jump set
-		this.updateSingleCat(19, Opcodes.TABLESWITCH);
-		String[] labelArray = new String[labels.length];
-		for (int i = 0; i < labels.length; i++) {
-			labelArray[i] = labels[i].toString();
+		if (this.annotGuard()) {
+			//In jump set
+			this.updateSingleCat(19, Opcodes.TABLESWITCH);
+			String[] labelArray = new String[labels.length];
+			for (int i = 0; i < labels.length; i++) {
+				labelArray[i] = labels[i].toString();
+			}
+			this.handleLabelNode(170, false, labelArray);
 		}
-		this.handleLabelNode(170, false, labelArray);
 		this.mv.visitTableSwitchInsn(min, max, dflt, labels);
 	}
 	
 	@Override
 	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
-		//In jump set
-		this.updateSingleCat(19, Opcodes.LOOKUPSWITCH);
-		String[] labelArray = new String[labels.length];
-		for (int i= 0; i < labels.length; i++) {
-			labelArray[i] = labels[i].toString();
+		if (this.annotGuard()) {
+			//In jump set
+			this.updateSingleCat(19, Opcodes.LOOKUPSWITCH);
+			String[] labelArray = new String[labels.length];
+			for (int i= 0; i < labels.length; i++) {
+				labelArray[i] = labels[i].toString();
+			}
+			this.handleLabelNode(171, false, labelArray);
 		}
-		this.handleLabelNode(171, false, labelArray);
 		this.mv.visitLookupSwitchInsn(dflt, keys, labels);
 	}
 	
 	@Override
 	public void visitMultiANewArrayInsn(String desc, int dims) {
-		//In object set
-		this.updateSingleCat(13, Opcodes.MULTIANEWARRAY);
-		OpcodeObj op = BytecodeCategory.getOpcodeObj(197);
-		MultiNewArrayNode node = new MultiNewArrayNode();
-		node.setOp(op);
-		node.setDesc(desc);
-		node.setDim(dims);
-		this.curBlock.addInst(node);
+		if (this.annotGuard()) {
+			//In object set
+			this.updateSingleCat(13, Opcodes.MULTIANEWARRAY);
+			OpcodeObj op = BytecodeCategory.getOpcodeObj(197);
+			MultiNewArrayNode node = new MultiNewArrayNode();
+			node.setOp(op);
+			node.setDesc(desc);
+			node.setDim(dims);
+			this.curBlock.addInst(node);
+		}
 		this.mv.visitMultiANewArrayInsn(desc, dims);
 	}
 	
@@ -353,13 +381,19 @@ public class MethodMiner extends MethodVisitor{
 	
 	@Override
 	public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int indes) {
-		Var v = this.varPool.searchVar(this.owner, this.myName, 2, String.valueOf(indes));
-		LabelInterval lv = new LabelInterval();
-		lv.setStartLabel(start.toString());
-		lv.setEndLabel(end.toString());
-		
-		LocalVar localVar = (LocalVar)v;
-		localVar.addLabelInterval(lv);		
+		if (this.annotGuard()) {
+			//Var v = this.varPool.searchVar(this.owner, this.myName, 2, String.valueOf(indes));
+			Var v = this.varPool.retrieveLocalVarID(this.owner, this.myName, indes);
+			
+			if (v != null) {
+				LabelInterval lv = new LabelInterval();
+				lv.setStartOffset(start.getOffset());
+				lv.setEndOffset(end.getOffset());
+				
+				LocalVar localVar = (LocalVar)v;
+				localVar.addLabelInterval(lv);
+			}
+		}
 		this.mv.visitLocalVariable(name, desc, signature, start, end, indes);
 	}
 	
@@ -374,8 +408,21 @@ public class MethodMiner extends MethodVisitor{
 				sb2.append((char)(oo.getCatId() + 97));
 			}
 			
+			//Split the local var with mulitple labels
+			System.out.println("Var pool before splitting");
+			for (Var v: this.varPool) {
+				System.out.println(v);
+			}
+			this.varPool.splitLocalVarWithMultipleLabels();
+			
+			System.out.println("Var pool after splitting");
+			for (Var v: this.varPool) {
+				System.out.println(v);
+			}
+			
 			System.out.println("Block analysis");
 			for (BlockNode node: this.cfg) {
+				System.out.println("Label off set: " + node.getLabelObj().getOffset());
 				System.out.println(node);
 			}
 			

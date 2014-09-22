@@ -11,6 +11,8 @@ import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.BlockNode;
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.pojo.LabelInterval;
+import edu.columbia.psl.cc.pojo.LocalVar;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.util.RelationManager;
@@ -40,13 +42,13 @@ public class DepInferenceEngine {
 	public void executeInference() {
 		//Backward for mining data dependency and extract control var from blocks
 		for (BlockNode bn: this.blocks) {
-			backwardInduct(bn);
+			this.backwardInduct(bn);
 		}
 		System.out.println("Data dependency");
 		showInferenceResult(this.vp);
 		
 		for (BlockNode bn: this.blocks) {
-			forwardInduct(bn);
+			this.forwardInduct(bn);
 		}
 		
 		System.out.println("Overall dependency");
@@ -82,7 +84,7 @@ public class DepInferenceEngine {
 		}
 	}
 	
-	public static void forwardInduct(BlockNode bn) {
+	public void forwardInduct(BlockNode bn) {
 		List<Var> controlVars = bn.getControlDepVarsToChildren();
 		Set<BlockNode> children = bn.getChildrenBlock();
 		
@@ -100,7 +102,7 @@ public class DepInferenceEngine {
 		}
 	}
 	
-	public static void backwardInduct(BlockNode bn) {
+	public void backwardInduct(BlockNode bn) {
 		List<InstNode> insts = bn.getInsts();
 		
 		if (insts.size() == 0)
@@ -124,6 +126,21 @@ public class DepInferenceEngine {
 		//From the end
 		for (int i = insts.size() - 1; i >= 0; i--) {
 			InstNode inst = insts.get(i);
+			
+			//Split local var, if it got multiple label intervals
+			Var check = inst.getVar();
+			if (check instanceof LocalVar) {
+				LocalVar vCheck = (LocalVar)check;
+				List<LabelInterval> intervals = vCheck.getIntervals();
+				if (intervals.size() > 1) {
+					//This local var has been removed
+					LocalVar newVar = this.vp.retrieveLocalVar(vCheck.getClassName(), 
+							vCheck.getMethodName(), 
+							vCheck.getLocalVarId(), 
+							bn.getLabelObj().getOffset());
+					inst.setVar(newVar);
+				}
+			}
 			
 			int opcat = inst.getOp().getCatId();
 			if (BytecodeCategory.writeCategory().contains(opcat)) {

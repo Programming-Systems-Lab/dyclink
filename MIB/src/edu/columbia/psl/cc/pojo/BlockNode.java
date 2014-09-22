@@ -7,11 +7,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.objectweb.asm.Label;
+
 public class BlockNode {
 	
 	private static String defaultLabel = "Nonlabel";
 	
-	private String label;
+	private Label label;
 	
 	private List<InstNode> insts = new ArrayList<InstNode>();
 	
@@ -19,15 +21,16 @@ public class BlockNode {
 	
 	private List<Var> controlVarsToChildren;
 	
-	public void setLabel(String label) {
-		if (label == null)
-			this.label = defaultLabel;
-		else
-			this.label = label;
+	public void setLabelObj(Label labelObj) {
+		this.label = labelObj;
+	}
+	
+	public Label getLabelObj() {
+		return this.label;
 	}
 	
 	public String getLabel() {
-		return this.label;
+		return this.label.toString();
 	}
 	
 	public void addInst(InstNode var) {

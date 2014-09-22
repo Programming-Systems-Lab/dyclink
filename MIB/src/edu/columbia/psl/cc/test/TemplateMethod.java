@@ -29,6 +29,11 @@ public class TemplateMethod {
 		}
 	}
 	
+	//@extractTemplate
+	public void dummu2() {
+		int a = this.iVar + sVar;
+	}
+	
 	public synchronized int add(int a, int b) {
 		int[][] c = new int[4][5];
 		this.iVar = 8;

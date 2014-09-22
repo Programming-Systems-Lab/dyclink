@@ -2,29 +2,29 @@ package edu.columbia.psl.cc.pojo;
 
 public class LabelInterval {
 	
-	private String startLabel;
+	private int startOffset;
 	
-	private String endLabel;
+	private int endOffset;
 	
-	public void setStartLabel(String startLabel) {
-		this.startLabel = startLabel;
+	public void setStartOffset(int startOffset) {
+		this.startOffset = startOffset;
 	}
 	
-	public String getStartLabel() {
-		return this.startLabel;
+	public int getStartOffset() {
+		return this.startOffset;
 	}
 	
-	public void setEndLabel(String endLabel) {
-		this.endLabel = endLabel;
+	public void setEndOffset(int endOffset) {
+		this.endOffset = endOffset;
 	}
 	
-	public String getEndLabel() {
-		return this.endLabel;
+	public int getEndOffset() {
+		return this.endOffset;
 	}
 	
 	@Override
 	public String toString() {
-		return this.startLabel.toString() + "-" + this.endLabel.toString();
+		return String.valueOf(this.startOffset) + "-" + String.valueOf(this.endOffset);
 	}
 
 }
