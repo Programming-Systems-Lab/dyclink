@@ -157,4 +157,10 @@ public class BytecodeCategory {
 		return ret;
 	}
 	
+	public static HashSet<Integer> dupCategory() {
+		HashSet<Integer> ret = new HashSet<Integer>();
+		ret.add(6);
+		return ret;
+	}
+	
 }

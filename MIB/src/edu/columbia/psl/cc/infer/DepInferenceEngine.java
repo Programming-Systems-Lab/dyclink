@@ -16,6 +16,7 @@ import edu.columbia.psl.cc.pojo.LocalVar;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.util.RelationManager;
+import edu.columbia.psl.cc.util.SpecialInstHandler;
 
 public class DepInferenceEngine {
 	
@@ -69,7 +70,7 @@ public class DepInferenceEngine {
 		}
 	}
 	
-	private static boolean noInput(List<String> inList) {
+	public static boolean noInput(List<String> inList) {
 		if (inList.size() == 0)
 			return true;
 		else
@@ -126,8 +127,7 @@ public class DepInferenceEngine {
 		//From the end
 		for (int i = insts.size() - 1; i >= 0; i--) {
 			InstNode inst = insts.get(i);
-			
-			//Split local var, if it got multiple label intervals
+			System.out.println("Check inst: " + inst);
 			Var check = inst.getVar();
 			if (check instanceof LocalVar) {
 				LocalVar vCheck = (LocalVar)check;
@@ -143,7 +143,11 @@ public class DepInferenceEngine {
 			}
 			
 			int opcat = inst.getOp().getCatId();
-			if (BytecodeCategory.writeCategory().contains(opcat)) {
+			/*if (BytecodeCategory.writeCategory().contains(opcat)) {
+				shouldAnalyze = true;
+			}*/
+			
+			if (inst.isStore() || inst.isArrayStore()) {
 				shouldAnalyze = true;
 			}
 			
@@ -151,17 +155,30 @@ public class DepInferenceEngine {
 				List<String> instInput = inst.getOp().getInList();			
 				List<String> instOutput = inst.getOp().getOutList();
 				
+				//Array store needs a forward analysis. Handle it in another class
+				if (inst.isArrayStore()) {
+					System.out.println("Start inference for array store");
+					int forward = SpecialInstHandler.locateChildVarForArrayStore(inst, insts, i);
+					System.out.println("Forward: " + forward);
+					i -= forward;					
+					continue ;
+				}
+				
 				if (inferBuf == null) {
+					System.out.println("Cur inst to initialize inferBuf: " + inst);
 					inferBuf = new ArrayList<String>();
 					inferBuf.addAll(instInput);
+					if (inst.isStore())
+						curVar = inst.getVar();
 					
-					curVar = inst.getVar();
-					continue;
+					continue ;
 				}
 				
 				if (!noInput(instInput)) {
 					inferBuf.remove(inferBuf.size() - 1);
 					inferBuf.addAll(instInput);
+				} else if (BytecodeCategory.dupCategory().contains(opcat)) {
+					SpecialInstHandler.handleDup(inst, inferBuf);
 				} else {
 					//If the inst is load, it might affect curVar
 					if (inst.isLoad()) {

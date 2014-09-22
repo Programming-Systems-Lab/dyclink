@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class InstNode {
-	
+		
 	private Var var;
 	
 	private OpcodeObj op;
@@ -26,9 +26,31 @@ public class InstNode {
 	}
 	
 	public boolean isLoad() {
-		if (this.getOp().getCatId() == 1 || this.getOp().getCatId() == 2)
+		//Exclude aload series
+		if (this.getOp().getCatId() == 1)
 			return true;
 		else 
+			return false;
+	}
+	
+	public boolean isArrayLoad() {
+		if (this.getOp().getCatId() == 2)
+			return true;
+		else
+			return false;
+	}
+	
+	public boolean isStore() {
+		if (this.getOp().getCatId() == 3)
+			return true;
+		else 
+			return false;
+	}
+	
+	public boolean isArrayStore() {
+		if (this.getOp().getCatId() == 4)
+			return true;
+		else
 			return false;
 	}
 	

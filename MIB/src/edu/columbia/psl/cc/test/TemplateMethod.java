@@ -13,7 +13,7 @@ public class TemplateMethod {
 	
 	Object lock1 = new Object();
 	
-	@extractTemplate
+	//@extractTemplate
 	public void dummy(int a, int b) {
 		String ret = "";
 		int c = 5;
@@ -27,6 +27,32 @@ public class TemplateMethod {
 		} else {
 			ret = "Test789";
 		}
+	}
+	
+	@extractTemplate
+	public void dummy2() {
+		int[] b = new int[]{1, 1, 1};
+		//int k = 2;
+		//b[0] = k;
+		int k = 5 + b[0];
+	}
+	
+	public void dummy3() {
+		int[] b = new int[3];
+		int[] d = new int[4];
+		int j = 5;
+		int l = 6;
+		b[d[0]] = j + d[2];
+		
+		int k = j + b[2];
+		
+		int[][] c = new int[1][2];
+		c[0][1] = k;
+		
+		/*int[] a = new int[]{1, 1, 1};
+		for (int i = 0; i < a.length; i++) {
+			a[i] += a[i] * i;
+		}*/
 	}
 	
 	//@extractTemplate
