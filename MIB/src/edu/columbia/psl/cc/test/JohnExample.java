@@ -52,13 +52,11 @@ public class JohnExample {
 	}
 	
 	public void foo4() {
-		for (int i = 0; i < 10; i++) {
-			
+		int[] a = new int[4];
+		for (int i =0; i < a.length; i++) {
+			a[i] = i+5;
 		}
-		
-		for (int j = 0; j < 20; j++){
-			
-		}
+		int b = 0;
 	}
-
+	
 }

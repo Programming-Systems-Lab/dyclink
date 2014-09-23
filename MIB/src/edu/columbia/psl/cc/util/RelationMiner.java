@@ -155,6 +155,50 @@ public class RelationMiner {
 		return cn.getLabel();
 	}
 	
+	public boolean loopHelper(BlockNode curNode, BlockNode oriNode) {
+		if (curNode == null)
+			return false;
+		
+		if (!curNode.getLabel().equals(oriNode.getLabel())) {
+			boolean result = false;
+			for (BlockNode c: curNode.getChildrenBlock()) {
+				result = result || loopHelper(c, oriNode);
+			}
+			return result;
+		} else
+			return true;
+	}
+	
+	public void detectLoop(BlockNode bn) {
+		List<BlockNode> children = bn.getChildrenBlock();
+		Iterator<BlockNode> instIT = children.iterator();
+		while (instIT.hasNext()) {
+			BlockNode c = instIT.next();
+			if (loopHelper(c, bn))
+				instIT.remove();
+		}
+	}
+	
+	public void breakLoop() {
+		for (BlockNode bn: this.blocks) {
+			if (bn.getChildrenBlock().size() == 0)
+				continue;
+			
+			if (bn.getInsts().size() == 0)
+				continue ;
+			
+			InstNode lastInst = bn.getInsts().get(bn.getInsts().size() - 1);
+			if (this.checkDestination(lastInst) != null) {
+				CondNode cond = (CondNode)lastInst;
+				if (!cond.isGoto()) {
+					this.detectLoop(bn);
+				}
+			} else {
+				continue ;
+			}
+		}
+	}
+	
 	public void constructCFG() {
 		BlockNode parentBlock = null;
 		for (BlockNode bn: this.blocks) {

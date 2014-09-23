@@ -1,9 +1,12 @@
 package edu.columbia.psl.cc.util;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
+import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.infer.DepInferenceEngine;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.Var;
@@ -23,8 +26,10 @@ public class SpecialInstHandler {
 		int removeCount = inst.getOp().getOutList().size() - inst.getOp().getInList().size();
 		
 		ListIterator<String> inferIT = inferBuf.listIterator();
-		while (removeCount > 0 && inferIT.hasNext()) {
+		while (inferIT.hasNext() && removeCount > 0) {
+			inferIT.next();
 			inferIT.remove();
+			removeCount--;
 		}		
 	}
 	
@@ -54,37 +59,32 @@ public class SpecialInstHandler {
 		simulateBuf.addAll(inst.getOp().getInList());
 		
 		Var childVar = null;
-		List<Var> parentVars = new ArrayList<Var>();
+		Set<Var> parentVars = new HashSet<Var>();
 		int ret = 0;
 		boolean shouldRecord = true;
+		
 		//The instruction that changes "value" is the parent
 		for (int i = idx - 1; i >= 0; i--) {
 			InstNode curInst = insts.get(i);
-			System.out.println("Current inst: " + curInst);
 			
 			if (simulateBuf.size() == 2)
 				shouldRecord = false;
 			
-			System.out.println("IsLoad: " + curInst.isLoad());
-			System.out.println("Should record: " + shouldRecord);
 			simulateBuf.remove(simulateBuf.size() - 1);
-			if (!DepInferenceEngine.noInput(curInst.getOp().getInList())) {
-				simulateBuf.addAll(inst.getOp().getInList());
+			if (BytecodeCategory.dupCategory().contains(curInst.getOp().getCatId())) {
+				handleDup(curInst, simulateBuf);
+			} else if (!DepInferenceEngine.noInput(curInst.getOp().getInList())) {
+				simulateBuf.addAll(curInst.getOp().getInList());
 			} else if (curInst.isLoad() && shouldRecord){
-				System.out.println("Get a parent var: " + curInst.getVar());
 				parentVars.add(curInst.getVar());
 			}
 			ret++;
 			
 			if (simulateBuf.size() == 0) {
-				System.out.println("Child var: " + curInst);
 				childVar = curInst.getVar();
 				break ;
 			}
 		}
-		
-		System.out.println("Child var: " + childVar);
-		System.out.println("Parent var: " + parentVars);
 		
 		if (childVar == null)
 			System.err.println("Cannot locate child var for inst: " + inst);

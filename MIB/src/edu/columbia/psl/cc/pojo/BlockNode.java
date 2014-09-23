@@ -17,7 +17,7 @@ public class BlockNode {
 	
 	private List<InstNode> insts = new ArrayList<InstNode>();
 	
-	private Set<BlockNode> children = new HashSet<BlockNode>();
+	private List<BlockNode> children = new ArrayList<BlockNode>();
 	
 	private List<Var> controlVarsToChildren;
 	
@@ -45,7 +45,7 @@ public class BlockNode {
 		this.children.add(bn);
 	}
 	
-	public Set<BlockNode> getChildrenBlock() {
+	public List<BlockNode> getChildrenBlock() {
 		return this.children;
 	}
 	

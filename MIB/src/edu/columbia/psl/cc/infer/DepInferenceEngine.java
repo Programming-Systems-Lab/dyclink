@@ -87,7 +87,7 @@ public class DepInferenceEngine {
 	
 	public void forwardInduct(BlockNode bn) {
 		List<Var> controlVars = bn.getControlDepVarsToChildren();
-		Set<BlockNode> children = bn.getChildrenBlock();
+		List<BlockNode> children = bn.getChildrenBlock();
 		
 		for (Var v: controlVars) {
 			for (BlockNode child: children) {
@@ -100,6 +100,36 @@ public class DepInferenceEngine {
 					constructRelation(v, inst);
 				}
 			}
+		}
+	}
+	
+	public void preprocessSplitVars() {
+		for (BlockNode bn: this.blocks) {
+			List<InstNode> insts = bn.getInsts();
+			
+			if (insts.size() == 0)
+				return ;
+			
+			for (InstNode inst: insts) {
+				Var check = inst.getVar();
+				if (check instanceof LocalVar) {
+					LocalVar vCheck = (LocalVar)check;
+					List<LabelInterval> intervals = vCheck.getIntervals();
+					
+					if (intervals.size() > 1) {
+						//This local var has been removed
+						//System.out.println("Capture inst with removed vars: " + inst);
+						//System.out.println("Check corresponding label: " + bn.getLabelObj().getOffset());
+						LocalVar newVar = this.vp.retrieveLocalVar(vCheck.getClassName(), 
+								vCheck.getMethodName(), 
+								vCheck.getLocalVarId(), 
+								bn.getLabelObj().getOffset(), 
+								true);
+						inst.setVar(newVar);
+					}
+				}
+			}
+			
 		}
 	}
 	
@@ -126,22 +156,7 @@ public class DepInferenceEngine {
 		
 		//From the end
 		for (int i = insts.size() - 1; i >= 0; i--) {
-			InstNode inst = insts.get(i);
-			System.out.println("Check inst: " + inst);
-			Var check = inst.getVar();
-			if (check instanceof LocalVar) {
-				LocalVar vCheck = (LocalVar)check;
-				List<LabelInterval> intervals = vCheck.getIntervals();
-				if (intervals.size() > 1) {
-					//This local var has been removed
-					LocalVar newVar = this.vp.retrieveLocalVar(vCheck.getClassName(), 
-							vCheck.getMethodName(), 
-							vCheck.getLocalVarId(), 
-							bn.getLabelObj().getOffset());
-					inst.setVar(newVar);
-				}
-			}
-			
+			InstNode inst = insts.get(i);			
 			int opcat = inst.getOp().getCatId();
 			/*if (BytecodeCategory.writeCategory().contains(opcat)) {
 				shouldAnalyze = true;
@@ -157,15 +172,12 @@ public class DepInferenceEngine {
 				
 				//Array store needs a forward analysis. Handle it in another class
 				if (inst.isArrayStore()) {
-					System.out.println("Start inference for array store");
 					int forward = SpecialInstHandler.locateChildVarForArrayStore(inst, insts, i);
-					System.out.println("Forward: " + forward);
 					i -= forward;					
 					continue ;
 				}
 				
 				if (inferBuf == null) {
-					System.out.println("Cur inst to initialize inferBuf: " + inst);
 					inferBuf = new ArrayList<String>();
 					inferBuf.addAll(instInput);
 					if (inst.isStore())
@@ -174,11 +186,11 @@ public class DepInferenceEngine {
 					continue ;
 				}
 				
-				if (!noInput(instInput)) {
+				if (BytecodeCategory.dupCategory().contains(opcat)) {
+					SpecialInstHandler.handleDup(inst, inferBuf);
+				} else if (!noInput(instInput)) {
 					inferBuf.remove(inferBuf.size() - 1);
 					inferBuf.addAll(instInput);
-				} else if (BytecodeCategory.dupCategory().contains(opcat)) {
-					SpecialInstHandler.handleDup(inst, inferBuf);
 				} else {
 					//If the inst is load, it might affect curVar
 					if (inst.isLoad()) {

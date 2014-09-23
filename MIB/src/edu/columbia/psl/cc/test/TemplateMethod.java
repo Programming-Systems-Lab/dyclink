@@ -35,6 +35,8 @@ public class TemplateMethod {
 		//int k = 2;
 		//b[0] = k;
 		int k = 5 + b[0];
+		//int[][] b = new int[1][2];
+		//b[0][1] = k; 
 	}
 	
 	public void dummy3() {

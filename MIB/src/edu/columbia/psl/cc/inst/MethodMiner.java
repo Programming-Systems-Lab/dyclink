@@ -460,9 +460,19 @@ public class MethodMiner extends MethodVisitor{
 				}
 			}
 			
+			this.rMiner.breakLoop();
+			System.out.println("Block analysis after breaking loop");
+			for (BlockNode node: this.cfg) {
+				System.out.println("Source: " + node);
+				for (BlockNode child: node.getChildrenBlock()) {
+					System.out.println("==>Children: " + child);
+				}
+			}
+			
 			System.out.println("Start inference");
 			this.infer.setBlocks(this.cfg);
 			this.infer.setVarPool(this.varPool);
+			this.infer.preprocessSplitVars();
 			this.infer.executeInference();
 			
 			/*System.out.println("Variable analysis: " + this.varPool.size());

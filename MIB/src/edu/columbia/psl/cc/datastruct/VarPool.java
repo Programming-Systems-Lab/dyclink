@@ -72,16 +72,20 @@ public class VarPool extends ArrayList<Var>{
 		return fakeVar;
 	}
 	
-	private static boolean rangeSearch(int offset, int startOffset, int endOffset) {
+	private static int rangeSearch(int offset, int startOffset, int endOffset) {
 		
-		System.out.println("Target: " + offset);
+		/*System.out.println("Target: " + offset);
 		System.out.println("Start: " + startOffset);
-		System.out.println("End: " + endOffset);
+		System.out.println("End: " + endOffset);*/
 		
-		if (offset >= startOffset && offset <= endOffset)
-			return true;
-		else
-			return false;
+		if (offset >= startOffset && offset <= endOffset) {
+			return 0;
+		} else {
+			int startDiff = Math.abs(offset - startOffset);
+			int endDiff = Math.abs(offset -endOffset);
+			int ret = startDiff <= endDiff? startDiff: endDiff;
+			return ret;
+		}
 	}
 		
 	public void splitLocalVarWithMultipleLabels() {
@@ -97,24 +101,37 @@ public class VarPool extends ArrayList<Var>{
 			if (lv.getIntervals().size() == 1)
 				continue;
 			
-			System.out.println("Check contains: " + this.contains(v));
 			varIT.remove();
-			System.out.println("Check remove: " + this.contains(v));
 			
 			System.out.println("Start to split var: " + lv);
 			for (LabelInterval interval: lv.getIntervals()) {
 				LocalVar newVar = genLocalVar(lv.getClassName(), lv.getMethodName(), lv.getLocalVarId());
 				newVar.addLabelInterval(interval);
-				System.out.println("New var: " + newVar);
 				record.add(newVar);
 			}
 		}
 		
-		System.out.println("Check record: " + record);
 		this.addAll(record);
 	}
 	
-	public LocalVar retrieveLocalVar(String className, String methodName, int varId, int offset) {
+	/**
+	 * mustExist is for inconsistent label provided by asm
+	 * The exact label of the first appearance of a var is a little bit diff from what asm provides
+	 * @param className
+	 * @param methodName
+	 * @param varId
+	 * @param offset
+	 * @param mustExist
+	 * @return
+	 */
+	public LocalVar retrieveLocalVar(String className, 
+			String methodName, 
+			int varId, 
+			int offset, 
+			boolean mustExist) {
+		
+		int minDiff = Integer.MAX_VALUE;
+		LocalVar minLv = null;
 		for (Var v: this) {
 			if (!(v instanceof LocalVar))
 				continue ;
@@ -124,13 +141,28 @@ public class VarPool extends ArrayList<Var>{
 			LabelInterval interval = lv.getIntervals().get(0);
 			if (lv.getClassName().equals(className) && 
 					lv.getMethodName().equals(methodName) && 
-					lv.getLocalVarId() == varId && 
-					rangeSearch(offset, interval.getStartOffset(), interval.getEndOffset())) {
-				return lv;
+					lv.getLocalVarId() == varId) {
+				int searchResult = rangeSearch(offset, interval.getStartOffset(), interval.getEndOffset());
+				if (searchResult == 0) {
+					return lv;
+				} else {
+					if (searchResult < minDiff) {
+						minLv = lv;
+						minDiff = searchResult;
+					}
+				}
+					
 			}
 		}
-		System.err.println("Warning find no local var: " + className + " " + methodName + " " + varId + " " + offset);
-		return null;
+		
+		if (mustExist) {
+			System.out.println("No perfect match. Label diff: " + minDiff);
+			System.out.println("Best Variable: " + minLv);
+			return minLv;
+		} else {
+			System.err.println("Warning find no local var: " + className + " " + methodName + " " + varId + " " + offset);
+			return null;
+		}
 	}
 	
 	public LocalVar retrieveLocalVarID(String className, String methodName, int varId) {
