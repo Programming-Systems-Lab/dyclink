@@ -1,5 +1,6 @@
 package edu.columbia.psl.cc.util;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -48,6 +49,7 @@ public class RelationMiner {
 	
 	private void merge(BlockNode curBlock, BlockNode bn) {
 		//Add inst from bn to curBlock
+		System.out.println("Merge: " + curBlock.getLabelObj().getOffset() + " " + bn.getLabelObj().getOffset());
 		for (InstNode inst: bn.getInsts()) {
 			curBlock.addInst(inst);
 		}
@@ -155,31 +157,12 @@ public class RelationMiner {
 		return cn.getLabel();
 	}
 	
-	public boolean loopHelper(BlockNode curNode, BlockNode oriNode) {
-		if (curNode == null)
-			return false;
-		
-		if (!curNode.getLabel().equals(oriNode.getLabel())) {
-			boolean result = false;
-			for (BlockNode c: curNode.getChildrenBlock()) {
-				result = result || loopHelper(c, oriNode);
-			}
-			return result;
-		} else
-			return true;
+	public List<Set<BlockNode>> getSCC() {
+		SCCDriver scc = new SCCDriver(this.blocks);
+		return scc.calculateSCC();
 	}
 	
-	public void detectLoop(BlockNode bn) {
-		List<BlockNode> children = bn.getChildrenBlock();
-		Iterator<BlockNode> instIT = children.iterator();
-		while (instIT.hasNext()) {
-			BlockNode c = instIT.next();
-			if (loopHelper(c, bn))
-				instIT.remove();
-		}
-	}
-	
-	public void breakLoop() {
+	/*public void breakLoop() {
 		for (BlockNode bn: this.blocks) {
 			if (bn.getChildrenBlock().size() == 0)
 				continue;
@@ -197,9 +180,35 @@ public class RelationMiner {
 				continue ;
 			}
 		}
-	}
+	}*/
 	
 	public void constructCFG() {
+		for (int i = 0; i < this.blocks.size(); i++) {
+			BlockNode bn = this.blocks.get(i);
+			
+			List<InstNode> bnInsts = bn.getInsts();
+			
+			if (bnInsts.size() != 0) {
+				InstNode lastInst = bnInsts.get(bnInsts.size() - 1);
+				String destLabel = this.checkDestination(lastInst);
+				if (destLabel != null) {
+					BlockNode dest = this.searchBlockByLabel(destLabel);
+					bn.addChildBlock(dest);
+					
+					CondNode cond = (CondNode)lastInst;
+					if (!cond.isGoto() && (i < this.blocks.size() - 1)) {
+						bn.addChildBlock(this.blocks.get(i+1));
+					}
+				} else if (i < (this.blocks.size() - 1)) {
+					bn.addChildBlock(this.blocks.get(i+1));
+				}
+			} else {
+				System.err.println("Block without any instruction: " + bn.getLabel());
+			}
+		}
+	}
+	
+	/*public void constructCFG() {
 		BlockNode parentBlock = null;
 		for (BlockNode bn: this.blocks) {
 			if (parentBlock == null) {
@@ -226,6 +235,6 @@ public class RelationMiner {
 			}
 			parentBlock = bn;
 		}
-	}
+	}*/
 
 }

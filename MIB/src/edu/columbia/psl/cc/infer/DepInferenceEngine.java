@@ -22,8 +22,14 @@ public class DepInferenceEngine {
 	
 	private List<BlockNode> blocks = new ArrayList<BlockNode>();
 	
+	private List<Set<BlockNode>> scc;
+	
 	private VarPool vp = null;
 		
+	public void setSCC(List<Set<BlockNode>> scc) {
+		this.scc = scc;
+	}
+	
 	public void setBlocks(List<BlockNode> blocks) {
 		this.blocks = blocks;
 	}
@@ -85,19 +91,30 @@ public class DepInferenceEngine {
 		}
 	}
 	
+	private boolean checkSCC(BlockNode parent, BlockNode child) {
+		for (Set<BlockNode> s: this.scc) {
+			if (s.contains(parent) && s.contains(child))
+				return true;
+		}
+		return false;
+	}
+	
 	public void forwardInduct(BlockNode bn) {
 		List<Var> controlVars = bn.getControlDepVarsToChildren();
 		List<BlockNode> children = bn.getChildrenBlock();
 		
 		for (Var v: controlVars) {
 			for (BlockNode child: children) {
-				List<InstNode> insts = child.getInsts();
-				
-				for (InstNode inst: insts) {
-					if (inst.getVar() == null)
-						continue ;
+				if (this.checkSCC(bn, child)) {
+					System.out.println("In same scc: " + bn.getLabelObj().getOffset() + " " + child.getLabelObj().getOffset());
+					List<InstNode> insts = child.getInsts();
 					
-					constructRelation(v, inst);
+					for (InstNode inst: insts) {
+						if (inst.getVar() == null)
+							continue ;
+						
+						constructRelation(v, inst);
+					}
 				}
 			}
 		}
@@ -219,7 +236,7 @@ public class DepInferenceEngine {
 		bn.setControlDepVarsToChildren(controlVars);
 		
 		//Check potential node
-		System.out.println("Block: " + bn.getLabel());
+		System.out.println("Block: " + bn.getLabelObj().getOffset() + " " + bn.getLabel());
 		
 		System.out.println("Control vars");
 		for (Var v: bn.getControlDepVarsToChildren()) {

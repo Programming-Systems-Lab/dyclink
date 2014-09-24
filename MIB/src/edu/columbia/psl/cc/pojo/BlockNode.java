@@ -21,6 +21,10 @@ public class BlockNode {
 	
 	private List<Var> controlVarsToChildren;
 	
+	private int index;
+	
+	private int lowLink;
+	
 	public void setLabelObj(Label labelObj) {
 		this.label = labelObj;
 	}
@@ -57,13 +61,46 @@ public class BlockNode {
 		return this.controlVarsToChildren;
 	}
 	
+	public void setIndex(int index) {
+		this.index = index;
+	}
+	
+	public int getIndex() {
+		return this.index;
+	}
+	
+	public void setLowLink(int lowLink) {
+		this.lowLink = lowLink;
+	}
+	
+	public int getLowLink() {
+		return this.lowLink;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(this.label + "\n");
+		sb.append(this.label.getOffset() + " " + this.label + "\n");
 		for (InstNode in: this.insts) {
 			sb.append(in + "\n");
 		}
 		return sb.toString();
+	}
+	
+	@Override
+	public boolean equals(Object tmp) {
+		if (!(tmp instanceof BlockNode))
+			return false;
+		
+		BlockNode tmpBn = (BlockNode)tmp;
+		if (tmpBn.getLabel().equals(this.getLabel()))
+			return true;
+		else
+			return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.getLabel().hashCode();
 	}
 }

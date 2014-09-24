@@ -70,14 +70,17 @@ public class SpecialInstHandler {
 			if (simulateBuf.size() == 2)
 				shouldRecord = false;
 			
-			simulateBuf.remove(simulateBuf.size() - 1);
 			if (BytecodeCategory.dupCategory().contains(curInst.getOp().getCatId())) {
 				handleDup(curInst, simulateBuf);
-			} else if (!DepInferenceEngine.noInput(curInst.getOp().getInList())) {
-				simulateBuf.addAll(curInst.getOp().getInList());
-			} else if (curInst.isLoad() && shouldRecord){
-				parentVars.add(curInst.getVar());
-			}
+			} else {
+				simulateBuf.remove(simulateBuf.size() - 1);
+				if (!DepInferenceEngine.noInput(curInst.getOp().getInList())) {
+					simulateBuf.addAll(curInst.getOp().getInList());
+				} else if (curInst.isLoad() && shouldRecord){
+					parentVars.add(curInst.getVar());
+				}
+			} 
+			
 			ret++;
 			
 			if (simulateBuf.size() == 0) {

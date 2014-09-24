@@ -7,7 +7,32 @@ import edu.columbia.psl.cc.annot.testTemplate;
 @analyzeClass
 public class JohnExample {
 	
+	//@extractTemplate
+	public String foo0(int a, int b) {
+		int c = a + b;
+		
+		String ret = "";
+		if (c > 5) {
+			ret = "Larger than 5";
+		} else {
+			ret = "Smaller or equal to 5";
+		}
+		return ret;
+	}
+	
 	@extractTemplate
+	public void foofoo(long[] arr1, long[] arr2) {
+		for (int i = 0; i < arr1.length; i++) {
+			if (i % 4 == 0)
+				arr1[i] += i*6;
+			else {
+				arr1[i] += i;
+			}
+		}
+	}
+	
+	
+	//@extractTemplate
 	public void foo1(long[] arr1, long[] arr2) {
 		for (int i = 0; i < arr1.length; i++) {
 			if (i % 4 == 0)
