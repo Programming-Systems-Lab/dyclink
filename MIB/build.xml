@@ -1,0 +1,28 @@
+<project name="mib" basedir=".">
+    	<property name="src.dir"	value="src"/>
+    	<property name="build.dir"	value="build"/>
+    	<property name="classes.dir"	value="${build.dir}/classes"/>
+    	<property name="jar.dir"	value="${build.dir}/jar"/>
+    	<property name="lib.dir"	value="lib"/>
+    	
+    	<path id="classpath">
+    		<fileset dir="${lib.dir}" includes="**/*.jar"/>
+    	</path>
+    	
+    	<target name="clean">
+    	    <delete dir="${build.dir}"/>
+    	</target>
+    	
+    	<target name="compile">
+    	    <mkdir dir="${classes.dir}"/>
+    	    <javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" />
+    	</target>
+    	
+    	<target name="jar">
+    	    <mkdir dir="${jar.dir}"/>
+    	    <manifest file="MANIFEST.MF">
+    	        <attribute name="Premain-Class" value="edu.columbia.psl.cc.premain.PreMain" />
+    	    </manifest>
+    	    <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}" manifest="MANIFEST.MF"/>
+    	</target>
+</project>

@@ -84,4 +84,13 @@ public class JohnExample {
 		int b = 0;
 	}
 	
+	public void method1(int a, int b) {
+		int result = method2(a, b);
+	}
+	
+	public int method2(int c, int d) {
+		int ret = c + d;
+		return ret;
+	}
+	
 }
