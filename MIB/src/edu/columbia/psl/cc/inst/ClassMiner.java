@@ -15,6 +15,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class ClassMiner extends ClassVisitor{
 	
@@ -81,7 +82,11 @@ public class ClassMiner extends ClassVisitor{
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = this.cv.visitMethod(access, name, desc, signature, exceptions);
 		if (this.isAnnot) {
-			mv = new MethodMiner(mv, this.owner, this.templateAnnot, this.testAnnot, name, desc);
+			//mv = new MethodMiner(mv, this.owner, this.templateAnnot, this.testAnnot, name, desc);
+			DynamicMethodMiner dmm = new DynamicMethodMiner(mv, this.owner, access, name, desc, this.templateAnnot, this.testAnnot);
+			LocalVariablesSorter lvs = new LocalVariablesSorter(access, desc, dmm);
+			dmm.setLocalVariablesSorter(lvs);
+			return lvs;
 		}
 		return mv;
 	}

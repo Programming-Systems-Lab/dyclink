@@ -1,5 +1,8 @@
 package edu.columbia.psl.cc.inst;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
@@ -30,7 +33,6 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 		// TODO Auto-generated method stub
 		
 		String name = className.replace("/", ".");
-		System.out.println("Class name: " + name);
 		if (!name.startsWith("java") && !name.startsWith("sun")) {
 			//Start the instrumentation here;
 			try {
@@ -38,8 +40,17 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 				ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
 				ClassMiner cm = new ClassMiner(new CheckClassAdapter(cw, false), 
 						name.replace(".", "/"), classAnnot, templateAnnot, testAnnot);
-				cr.accept(cm, 0);
-				System.out.println("After accept");
+				cr.accept(cm, ClassReader.EXPAND_FRAMES);
+				
+				File f = new File("debug/");
+				if (!f.exists()) {
+					f.mkdir();
+				}
+				FileOutputStream fos = new FileOutputStream("debug/" + name + ".class");
+				ByteArrayOutputStream bos = new ByteArrayOutputStream(cw.toByteArray().length);
+				bos.write(cw.toByteArray());
+				bos.writeTo(fos);
+				fos.close();
 				return cw.toByteArray();
 			} catch (Exception ex) {
 				System.out.println("In the exception");

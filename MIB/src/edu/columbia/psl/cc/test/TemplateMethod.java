@@ -1,8 +1,11 @@
 package edu.columbia.psl.cc.test;
 
+import org.objectweb.asm.Type;
+
 import edu.columbia.psl.cc.annot.analyzeClass;
 import edu.columbia.psl.cc.annot.extractTemplate;
 import edu.columbia.psl.cc.annot.testTemplate;
+import edu.columbia.psl.cc.util.MethodStackRecorder;
 
 @analyzeClass
 public class TemplateMethod {
@@ -29,7 +32,7 @@ public class TemplateMethod {
 		}
 	}
 	
-	@extractTemplate
+	//@extractTemplate
 	public void dummy2() {
 		int[] b = new int[]{1, 1, 1};
 		//int k = 2;
@@ -58,8 +61,54 @@ public class TemplateMethod {
 	}
 	
 	//@extractTemplate
-	public void dummu2() {
+	public void dummmy2() {
 		int a = this.iVar + sVar;
+	}
+	
+	@extractTemplate
+	public void dummy4(int a, int b) {
+		int c = a + b;
+		String ret = "";
+		if (c > 5) {
+			ret = "ret > 5"; 
+		} else {
+			ret = "ret <= 5";
+		}
+	}
+	
+	public void unidentified(String input1, String input2) {
+		int a = 1;
+		int b = 2;
+		String ret = input1 + input2;
+		int[][] test = new int[5][6];
+	}
+	
+	public void simulateStack() {
+		this.unidentified("abc", "cde");
+		MethodStackRecorder msr = new MethodStackRecorder();
+		msr.handleOpcode(21, 1);
+		msr.handleOpcode(21, 2);
+		msr.handleOpcode(96, -1);
+		msr.handleOpcode(54, 3);
+		msr.handleOpcode(18, -1);
+		msr.handleOpcode(58, 4);
+		msr.handleOpcode(21, 3);
+		msr.handleOpcode(8, -1);
+		msr.handleOpcode(164, -1);
+		msr.handleOpcode(18, -1);
+		msr.handleOpcode(58, 4);
+		msr.dumpGraph();
+	}
+	
+	public static void main(String[] args) {
+		TemplateMethod tm = new TemplateMethod();
+		tm.dummy4(1, 6);
+		//tm.simulateStack();
+		/*Type methodType = Type.getMethodType("(II)V");
+		System.out.println(methodType.getSize());
+		System.out.println(methodType.getReturnType().getDescriptor());
+		System.out.println(methodType.getArgumentTypes().length);
+		System.out.println(methodType.getArgumentsAndReturnSizes());*/
 	}
 	
 	public synchronized int add(int a, int b) {
