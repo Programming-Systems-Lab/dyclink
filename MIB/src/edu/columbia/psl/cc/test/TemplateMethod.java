@@ -60,12 +60,13 @@ public class TemplateMethod {
 		}*/
 	}
 	
-	//@extractTemplate
-	public void dummmy2() {
-		int a = this.iVar + sVar;
+	@extractTemplate
+	public void dummmy2(int a, int b) {
+		//int a = this.iVar + sVar;
+		int c = a + b;
 	}
 	
-	@extractTemplate
+	//@extractTemplate
 	public void dummy4(int a, int b) {
 		int c = a + b;
 		String ret = "";
@@ -102,7 +103,8 @@ public class TemplateMethod {
 	
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
-		tm.dummy4(1, 6);
+		//tm.dummy4(1, 6);
+		tm.dummmy2(1, 6);
 		//tm.simulateStack();
 		/*Type methodType = Type.getMethodType("(II)V");
 		System.out.println(methodType.getSize());

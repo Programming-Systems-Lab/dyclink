@@ -81,6 +81,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleOpcode(int opcode, int localVarIdx) {
+		System.out.println("Handling now: " + opcode + " " + localVarIdx);
 		OpcodeObj oo =BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
 		

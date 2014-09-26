@@ -57,24 +57,14 @@ public class ClassMiner extends ClassVisitor{
 		}
 		return this.cv.visitAnnotation(desc, visible);
 	}
-	
-	@Override
-	public void visitAttribute(Attribute attr) {
 		
-	}
-	
-	@Override
-	public void visitInnerClass(String name, String outerName, String innerName, int access) {
-		
-	}
-	
 	@Override
 	public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
 		if (this.isAnnot) {
 			System.out.println(desc + " " + name);
 			return this.cv.visitField(access, name, desc, signature, value);
 		} else {
-			return null;
+			return this.cv.visitField(access, name, desc, signature, value);
 		}
 	}
 	
