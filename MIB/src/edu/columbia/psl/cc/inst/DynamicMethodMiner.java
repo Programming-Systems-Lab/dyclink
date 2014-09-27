@@ -26,17 +26,17 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	private static String srHandleCommon = "handleOpcode";
 	
-	private static String srHCDesc = "(II)V";
+	private static String srHCDesc = "(ILjava/lang/String;I)V";
 	
-	private static String srHCDescString = "(ILjava/lang/String;)V";
+	private static String srHCDescString = "(ILjava/lang/String;Ljava/lang/String;)V";
 	
 	private static String srHandleMultiArray = "handleMultiNewArray";
 	
-	private static String srHandleMultiArrayDesc = "(Ljava/lang/String;I)V";
+	private static String srHandleMultiArrayDesc = "(Ljava/lang/String;ILjava/lang/String;)V";
 	
 	private static String srHandleMethod = "handleMethod";
 	
-	private static String srHandleMethodDesc = "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
+	private static String srHandleMethodDesc = "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
 	
 	private static String srGraphDump = "dumpGraph";
 	
@@ -59,6 +59,8 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	private LocalVariablesSorter lvs;
 	
 	private int localMsrId = -1;
+	
+	private Label curLabel = null;
 	 
 	public DynamicMethodMiner(MethodVisitor mv, String className, int access, String myName, String desc, String templateAnnot, String testAnnot) {
 		super(Opcodes.ASM4, mv, access, myName, desc);
@@ -88,7 +90,6 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	public void onMethodEnter() {
 		if (this.annotGuard()) {
 			//Create the method stack recorder
-			System.out.println("Create method stack recorder");
 			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
 			System.out.println("Method Stack Recorder name: " + methodStackRecorder);
 			this.mv.visitTypeInsn(Opcodes.NEW, methodStackRecorder);
@@ -103,15 +104,18 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		if (desc.equals(this.templateAnnot)) {
 			this.isTemplate = true;
 			System.out.println("Template annotated: " + desc);
+			System.out.println("Method name: " + this.myName);
 		} else if (desc.equals(this.testAnnot)) {
 			this.isTest = true;
 			System.out.println("Test annotated: " + desc);
+			System.out.println("Method name: " + this.myName);
 		}
 		return this.mv.visitAnnotation(desc, visible);
 	}
 	
 	@Override
 	public void visitLabel(Label label) {
+		this.curLabel = label;
 		this.mv.visitLabel(label);
 	}
 	
@@ -143,11 +147,10 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	private void handleOpcode(int opcode, int...addInfo) {
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.convertConst(opcode);
+		this.mv.visitLdcInsn(this.curLabel.toString());
 		if (addInfo.length == 0) {
-			System.out.println("I am in without add info: " + opcode);
 			this.mv.visitInsn(Opcodes.ICONST_M1);
 		} else {
-			System.out.println("I am in with info: " + opcode + " " + addInfo[0]);
 			//this.mv.visitInsn(addInfo[0]);
 			this.convertConst(addInfo[0]);
 		}
@@ -155,9 +158,9 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	}
 	
 	private void handleOpcode(int opcode, String addInfo) {
-		System.out.println("I am in with string: " + opcode + " " + addInfo);
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.convertConst(opcode);
+		this.mv.visitLdcInsn(this.curLabel.toString());
 		this.mv.visitLdcInsn(addInfo);
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleCommon, srHCDescString);
 	}
@@ -166,12 +169,14 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.mv.visitLdcInsn(desc);
 		this.convertConst(dim);
+		this.mv.visitLdcInsn(this.curLabel.toString());
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleMultiArray, srHandleMultiArrayDesc);
 	}
 	
 	public void handleMethod(int opcode, String owner, String name, String desc) {
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.convertConst(opcode);
+		this.mv.visitLdcInsn(this.curLabel.toString());
 		this.mv.visitLdcInsn(owner);
 		this.mv.visitLdcInsn(name);
 		this.mv.visitLdcInsn(desc);
@@ -181,29 +186,28 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	@Override
 	public void visitInsn(int opcode) {
 		if (this.annotGuard() && !isReturn(opcode)) {
-			this.mv.visitInsn(opcode);
 			this.handleOpcode(opcode);
+			this.mv.visitInsn(opcode);
 		} else if (this.annotGuard() && isReturn(opcode)) {
 			this.handleOpcode(opcode);
 			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 			this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srGraphDump, srGraphDumpDesc);
 			this.mv.visitInsn(opcode);
-		}else {
+		} else {
 			this.mv.visitInsn(opcode);
 		}
 	}
 	
 	@Override
 	public void visitIntInsn(int opcode, int operand) {
-		this.mv.visitIntInsn(opcode, operand);
 		if (this.annotGuard()) {
 			this.handleOpcode(opcode, operand);
 		}
+		this.mv.visitIntInsn(opcode, operand);
 	}
 	
 	@Override
 	public void visitVarInsn(int opcode, int var) {
-		this.mv.visitVarInsn(opcode, var);
 		if (this.annotGuard()) {
 			if (var == this.localMsrId) {
 				System.out.println("Got the var created by MIB");
@@ -212,83 +216,84 @@ public class DynamicMethodMiner extends AdviceAdapter {
 				this.handleOpcode(opcode, var);
 			}
 		}
+		this.mv.visitVarInsn(opcode, var);
 	}
 	
 	@Override
 	public void visitTypeInsn(int opcode, String type) {
-		this.mv.visitTypeInsn(opcode, type);
 		if (this.annotGuard()) {
 			this.handleOpcode(opcode, type);
 		}
+		this.mv.visitTypeInsn(opcode, type);
 	}
 	
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-		this.mv.visitFieldInsn(opcode, owner, name, desc);
 		if (this.annotGuard()) {
 			String fullField = owner + "." + name + "." + desc;
 			this.handleOpcode(opcode, fullField);
 		}
+		this.mv.visitFieldInsn(opcode, owner, name, desc);
 	}
 	
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-		this.mv.visitMethodInsn(opcode, owner, name, desc);
 		if (this.annotGuard()) {
 			//Definitely need a special handler for method
-			this.handleOpcode(opcode);
+			this.handleMethod(opcode, owner, name, desc);
 		}
+		this.mv.visitMethodInsn(opcode, owner, name, desc);
 	}
 	
 	@Override
 	public void visitJumpInsn(int opcode, Label label) {
-		this.mv.visitJumpInsn(opcode, label);
 		if (this.annotGuard()) {
 			String labelString = label.toString();
 			this.handleOpcode(opcode, labelString);
 		}
+		this.mv.visitJumpInsn(opcode, label);
 	}
 	
 	@Override
 	public void visitLdcInsn(Object cst) {
-		this.mv.visitLdcInsn(cst);
 		if (this.annotGuard()) {
 			this.handleOpcode(Opcodes.LDC, cst.toString());
 		}
+		this.mv.visitLdcInsn(cst);
 	}
 	
 	@Override
 	public void visitIincInsn(int var, int increment) {
-		this.mv.visitIincInsn(var, increment);
 		if (this.annotGuard()) {
 			this.handleOpcode(Opcodes.IINC, var);
 		}
+		this.mv.visitIincInsn(var, increment);
 	}
 	
 	@Override
 	public void visitTableSwitchInsn(int min, int max, Label dflt, Label...labels) {
-		this.mv.visitTableSwitchInsn(min, max, dflt, labels);
 		if (this.annotGuard()) {
 			String labelString = dflt.toString();
 			this.handleOpcode(Opcodes.TABLESWITCH, labelString);
 		}
+		this.mv.visitTableSwitchInsn(min, max, dflt, labels);
 	}
 	
 	@Override
 	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
-		this.mv.visitLookupSwitchInsn(dflt, keys, labels);
 		if (this.annotGuard()) {
 			String labelString = dflt.toString();
 			this.handleOpcode(Opcodes.LOOKUPSWITCH, labelString);
 		}
+		this.mv.visitLookupSwitchInsn(dflt, keys, labels);
 	}
 	
 	@Override
 	public void visitMultiANewArrayInsn(String desc, int dims) {
-		this.mv.visitMultiANewArrayInsn(desc, dims);
 		if (this.annotGuard()) {
 			this.handleMultiNewArray(desc, dims);
 		}
+		this.mv.visitMultiANewArrayInsn(desc, dims);
 	}
 	
 	@Override
@@ -315,11 +320,8 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	/*@Override
 	public void visitEnd() {
 		if (this.annotGuard()) {
-			System.out.println("Visti end");
-			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
-			this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srGraphDump, srGraphDumpDesc);
+			System.out.println("Method visit ends");
 		}
-		
 		this.mv.visitEnd();
 	}*/
 

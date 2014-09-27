@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,11 +16,15 @@ import edu.columbia.psl.cc.pojo.OpcodeObj;
 
 public class MethodStackRecorder {
 	
-	private AtomicInteger instCounter = new AtomicInteger();
+	private String curLabel = null;
+	
+	private AtomicInteger instCounter = null;
 
 	private Stack<String> stackSimulator = new Stack<String>();
 	
-	private List<String> controlVars = new ArrayList<String>();
+	//private List<String> controlVars = new ArrayList<String>();
+	
+	private String curControlVar = null;
 	
 	private Map<Integer, String> localVarRecorder = new HashMap<Integer, String>();
 	
@@ -27,7 +32,13 @@ public class MethodStackRecorder {
 	
 	private Map<String, List<String>> controlDep = new HashMap<String, List<String>>();
 	
-	private synchronized int getInstIdx() {
+	private synchronized int getInstIdx(String label) {
+		if (curLabel == null || !curLabel.equals(label)) {
+			this.curLabel = label;
+			this.instCounter = new AtomicInteger();
+			return this.instCounter.getAndIncrement();
+		}
+		
 		return this.instCounter.getAndIncrement();
 	}
 	
@@ -59,15 +70,27 @@ public class MethodStackRecorder {
 		return null;
 	}
 	
-	public void handleOpcode(int opcode, String addInfo) {
+	private synchronized void updateControlVar(String fullInst) {
+		this.curControlVar = fullInst;
+		
+		/*if (this.controlVars.size() == 0) {
+			this.controlVars.add(fullInst);
+		} else {
+			this.controlVars.remove(this.controlVars.size() - 1);
+			this.controlVars.add(fullInst);
+		}*/
+	}
+	
+	public void handleOpcode(int opcode, String label, String addInfo) {
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
-		String fullInst = this.getInstIdx() + " " + oo.getInstruction() + " " + addInfo;
+		String fullInst = this.getInstIdx(label) + " " + oo.getInstruction() + " " + addInfo;
 		
 		this.updateControlRelation(fullInst);
 		
-		if (BytecodeCategory.controlCategory().contains(opcat))
-			this.controlVars.add(fullInst);
+		if (BytecodeCategory.controlCategory().contains(opcat)) {
+			this.updateControlVar(fullInst);
+		}
 		
 		int inputSize = oo.getInList().size();
 		if (inputSize > 0) {
@@ -80,12 +103,17 @@ public class MethodStackRecorder {
 		this.updateStackSimulator(oo, fullInst);
 	}
 	
-	public void handleOpcode(int opcode, int localVarIdx) {
+	/**
+	 * localVarIdx is not necessarily a local var
+	 * @param opcode
+	 * @param localVarIdx
+	 */
+	public void handleOpcode(int opcode, String label, int localVarIdx) {
 		System.out.println("Handling now: " + opcode + " " + localVarIdx);
 		OpcodeObj oo =BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
 		
-		String fullInst = this.getInstIdx() + " " + oo.getInstruction() + " ";
+		String fullInst = this.getInstIdx(label) + " " + oo.getInstruction() + " ";
 		if (localVarIdx >= 0) {
 			fullInst += localVarIdx;
 		}
@@ -99,6 +127,7 @@ public class MethodStackRecorder {
 		
 		System.out.println("Check lastInst: " + lastInst);
 		//The store instruction will be the sink. The inst on the stack will be source
+		boolean hasUpdate = false;
 		if (BytecodeCategory.writeCategory().contains(opcat)) {
 			if (lastInst.length() > 0) {
 				System.out.println("Update data dep");
@@ -108,31 +137,41 @@ public class MethodStackRecorder {
 				this.updateCachedMap(lastInst, fullInst, false);
 				this.safePop();
 			}
-		} else if (BytecodeCategory.readCategory().contains(opcat)) {
+		} else if (opcode == Opcodes.IINC) {
+			this.localVarRecorder.put(localVarIdx, fullInst);
+		}else if (BytecodeCategory.readCategory().contains(opcat)) {
 			//Search local var recorder;
 			String parentInst = this.localVarRecorder.get(localVarIdx);
 			if (parentInst != null)
 				this.updateCachedMap(parentInst, fullInst, false);
+		} else if (BytecodeCategory.dupCategory().contains(opcat)) {
+			this.handleDup(opcode);
+			hasUpdate = true;
 		} else {
 			if (BytecodeCategory.controlCategory().contains(opcat))
-				this.controlVars.add(fullInst);
+				this.updateControlVar(fullInst);
 			
 			int inputSize = oo.getInList().size();
+			String lastTmp = "";
 			if (inputSize > 0) {
 				for (int i = 0; i < inputSize; i++) {
 					//Should not return null here
 					String tmpInst = this.safePop();
-					this.updateCachedMap(tmpInst, fullInst, false);
+					if (!tmpInst.equals(lastTmp))
+						this.updateCachedMap(tmpInst, fullInst, false);
+					
+					lastTmp = tmpInst;
 				}
 			}
 		}
 		
-		this.updateStackSimulator(oo, fullInst);
+		if (!hasUpdate) 
+			this.updateStackSimulator(oo, fullInst);
 	}
 	
-	public void handleMultiNewArray(String desc, int dim) {
+	public void handleMultiNewArray(String desc, int dim, String label) {
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(Opcodes.MULTIANEWARRAY);
-		String fullInst = this.getInstIdx() + " " + oo.getInstruction() + " " + desc + " " + dim;
+		String fullInst = this.getInstIdx(label) + " " + oo.getInstruction() + " " + desc + " " + dim;
 		
 		this.updateControlRelation(fullInst);
 		
@@ -144,9 +183,9 @@ public class MethodStackRecorder {
 		this.updateStackSimulator(oo, fullInst);
 	}
 	
-	public void handleMethod(int opcode, String owner, String name, String desc) {
+	public void handleMethod(int opcode, String label, String owner, String name, String desc) {
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
-		String fullInst = this.getInstIdx() + " " + oo.getInstruction() + " " + owner + " " + name + " " + desc;
+		String fullInst = this.getInstIdx(label) + " " + oo.getInstruction() + " " + owner + " " + name + " " + desc;
 		
 		this.updateControlRelation(fullInst);
 		
@@ -160,6 +199,78 @@ public class MethodStackRecorder {
 		
 		if (!returnType.equals("V")) {
 			this.updateStackSimulator(1, fullInst);
+		}
+	}
+	
+	public void handleDup(int opcode) {
+		String dupString = "";
+		String dupString2 = "";
+		Stack<String> stackBuf;
+		switch (opcode) {
+			case 89:
+				dupString = this.stackSimulator.peek();
+				this.stackSimulator.push(dupString);
+				break ;
+			case 90:
+				dupString = this.stackSimulator.peek();
+				stackBuf = new Stack<String>();
+				for (int i = 0; i < 2; i++) {
+					stackBuf.push(this.safePop());
+				}
+				
+				this.stackSimulator.push(dupString);
+				while(!stackBuf.isEmpty()) {
+					this.stackSimulator.push(stackBuf.pop());
+				}
+				break ;
+			case 91:
+				dupString = this.stackSimulator.peek();
+				stackBuf = new Stack<String>();
+				for (int i = 0; i < 3; i++) {
+					stackBuf.push(this.safePop());
+				}
+				
+				this.stackSimulator.push(dupString);
+				//Should only push three times
+				while (!stackBuf.isEmpty()) {
+					this.stackSimulator.push(stackBuf.pop());
+				}
+				break ;
+			case 92:
+				dupString = this.stackSimulator.get(this.stackSimulator.size() - 1);
+	 			dupString2 = this.stackSimulator.get(this.stackSimulator.size() - 2);
+	 			
+	 			this.stackSimulator.push(dupString2);
+	 			this.stackSimulator.push(dupString);
+	 			break ;
+			case 93:
+				dupString = this.stackSimulator.get(this.stackSimulator.size() - 1);
+	 			dupString2 = this.stackSimulator.get(this.stackSimulator.size() - 2);
+	 			stackBuf = new Stack<String>();
+	 			for (int i = 0; i < 3; i++) {
+	 				stackBuf.push(this.safePop());
+	 			}
+	 			
+	 			this.stackSimulator.push(dupString2);
+	 			this.stackSimulator.push(dupString);
+	 			while (!stackBuf.isEmpty()) {
+	 				this.stackSimulator.push(stackBuf.pop());
+	 			}
+	 			break ;
+			case 94:
+				dupString = this.stackSimulator.get(this.stackSimulator.size() - 1);
+	 			dupString2 = this.stackSimulator.get(this.stackSimulator.size() - 2);
+	 			stackBuf = new Stack<String>();
+	 			for (int i =0 ; i < 4; i++) {
+	 				stackBuf.push(this.safePop());
+	 			}
+	 			
+	 			this.stackSimulator.push(dupString2);
+	 			this.stackSimulator.push(dupString);
+	 			while (!stackBuf.isEmpty()) {
+	 				this.stackSimulator.push(stackBuf.pop());
+	 			}
+	 			break ;
 		}
 	}
 	
@@ -179,9 +290,11 @@ public class MethodStackRecorder {
 	
 	private void updateControlRelation(String fullInst) {
 		//Construct control relations
-		for (String control: this.controlVars) {
+		if (this.curControlVar != null)
+			this.updateCachedMap(this.curControlVar, fullInst, true);
+		/*for (String control: this.controlVars) {
 			this.updateCachedMap(control, fullInst, true);
-		}
+		}*/
 	}
 	
 	public void dumpGraph() {

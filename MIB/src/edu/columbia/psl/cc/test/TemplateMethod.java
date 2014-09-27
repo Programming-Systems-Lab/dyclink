@@ -1,5 +1,7 @@
 package edu.columbia.psl.cc.test;
 
+import java.util.Stack;
+
 import org.objectweb.asm.Type;
 
 import edu.columbia.psl.cc.annot.analyzeClass;
@@ -45,9 +47,10 @@ public class TemplateMethod {
 	public void dummy3() {
 		int[] b = new int[3];
 		int[] d = new int[4];
+		Object[] oo = new Object[5];
 		int j = 5;
 		int l = 6;
-		b[d[0]] = j + d[2];
+		b[j] = j + d[2];
 		
 		int k = j + b[2];
 		
@@ -67,6 +70,13 @@ public class TemplateMethod {
 	}
 	
 	//@extractTemplate
+	public void dummyArray(int[] a) {
+		int i = 2;
+		int j = 5;
+		a[i] = j;
+	}
+	
+	//@extractTemplate
 	public void dummy4(int a, int b) {
 		int c = a + b;
 		String ret = "";
@@ -75,29 +85,52 @@ public class TemplateMethod {
 		} else {
 			ret = "ret <= 5";
 		}
+		System.out.println("Result: " + c);
+	}
+	
+	//@extractTemplate
+	public void dummyFor(int[] a) {
+		int j = 5;
+		for (int i = 0; i < a.length; i++) {
+			a[i] += j; 
+		}
+	}
+	
+	public void dummyFor(double[] a) {
+		int j = 5;
+		for (int i = 0; i < a.length; i++) {
+			a[i] += j;
+		}
+			
 	}
 	
 	public void unidentified(String input1, String input2) {
 		int a = 1;
 		int b = 2;
-		String ret = input1 + input2;
-		int[][] test = new int[5][6];
+		double c = a + b;
+		double[] d = new double[5];
+		d[0] += 5;
+		c += 1;
+		long aa = 10;
+		long bb = 15;
+		boolean cc = aa > bb;
 	}
 	
 	public void simulateStack() {
 		this.unidentified("abc", "cde");
+		String label = "123";
 		MethodStackRecorder msr = new MethodStackRecorder();
-		msr.handleOpcode(21, 1);
-		msr.handleOpcode(21, 2);
-		msr.handleOpcode(96, -1);
-		msr.handleOpcode(54, 3);
-		msr.handleOpcode(18, -1);
-		msr.handleOpcode(58, 4);
-		msr.handleOpcode(21, 3);
-		msr.handleOpcode(8, -1);
-		msr.handleOpcode(164, -1);
-		msr.handleOpcode(18, -1);
-		msr.handleOpcode(58, 4);
+		msr.handleOpcode(21, "123", 1);
+		msr.handleOpcode(21, label, 2);
+		msr.handleOpcode(96, label, -1);
+		msr.handleOpcode(54, label, 3);
+		msr.handleOpcode(18, label, -1);
+		msr.handleOpcode(58, label, 4);
+		msr.handleOpcode(21, label, 3);
+		msr.handleOpcode(8, label, -1);
+		msr.handleOpcode(164, label, -1);
+		msr.handleOpcode(18, label, -1);
+		msr.handleOpcode(58, label, 4);
 		msr.dumpGraph();
 	}
 	
@@ -105,6 +138,8 @@ public class TemplateMethod {
 		TemplateMethod tm = new TemplateMethod();
 		//tm.dummy4(1, 6);
 		tm.dummmy2(1, 6);
+		//int[] test = {1, 2, 3};
+		//tm.dummyArray(test);
 		//tm.simulateStack();
 		/*Type methodType = Type.getMethodType("(II)V");
 		System.out.println(methodType.getSize());

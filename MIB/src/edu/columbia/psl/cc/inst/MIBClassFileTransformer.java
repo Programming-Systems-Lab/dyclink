@@ -36,12 +36,6 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 		if (!name.startsWith("java") && !name.startsWith("sun")) {
 			//Start the instrumentation here;
 			try {
-				FileOutputStream fos1 = new FileOutputStream("debug/" + name + "_tmp" + ".class");
-				ByteArrayOutputStream bos1 = new ByteArrayOutputStream(classfileBuffer.length);
-				bos1.write(classfileBuffer);
-				bos1.writeTo(fos1);
-				fos1.close();
-				
 				ClassReader cr = new ClassReader(name);
 				ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
 				ClassMiner cm = new ClassMiner(new CheckClassAdapter(cw, false), 
@@ -52,6 +46,7 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 				if (!f.exists()) {
 					f.mkdir();
 				}
+				
 				FileOutputStream fos = new FileOutputStream("debug/" + name + ".class");
 				ByteArrayOutputStream bos = new ByteArrayOutputStream(cw.toByteArray().length);
 				bos.write(cw.toByteArray());
