@@ -102,5 +102,8 @@ public class AESExample {
   		
   		byte[] decrypted = decode(encrypted);
   		System.out.println("Check decryption: " + new String(decrypted));
+  		
+  		byte[] textArray = forEncrypt.getBytes();
+  		
   	}
 }

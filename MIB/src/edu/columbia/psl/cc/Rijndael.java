@@ -540,7 +540,7 @@ public final class Rijndael {
      * @param   ct          ciphertext block.
      * @param   pt          plaintext block.
      */
-    @testTemplate
+    //@testTemplate
     public void decrypt(byte[] ct, byte[] pt) {
         /*
 	     * map byte array block to cipher state

@@ -63,20 +63,28 @@ public class TemplateMethod {
 		}*/
 	}
 	
-	@extractTemplate
-	public void dummmy2(int a, int b) {
+	//@extractTemplate
+	public int dummmy2(int a, int b) {
 		//int a = this.iVar + sVar;
 		int c = a + b;
+		return c;
 	}
 	
-	//@extractTemplate
+	@extractTemplate
+	public void dummyInvoke() {
+		int a = 5; 
+		int b= 3;
+		this.dummmy2(a, b);
+	}
+	
+	@extractTemplate
 	public void dummyArray(int[] a) {
 		int i = 2;
 		int j = 5;
 		a[i] = j;
 	}
 	
-	//@extractTemplate
+	@extractTemplate
 	public void dummy4(int a, int b) {
 		int c = a + b;
 		String ret = "";
@@ -85,10 +93,9 @@ public class TemplateMethod {
 		} else {
 			ret = "ret <= 5";
 		}
-		System.out.println("Result: " + c);
 	}
 	
-	//@extractTemplate
+	@extractTemplate
 	public void dummyFor(int[] a) {
 		int j = 5;
 		for (int i = 0; i < a.length; i++) {
@@ -100,24 +107,17 @@ public class TemplateMethod {
 		int j = 5;
 		for (int i = 0; i < a.length; i++) {
 			a[i] += j;
-		}
-			
+		}			
 	}
 	
-	public void unidentified(String input1, String input2) {
-		int a = 1;
-		int b = 2;
-		double c = a + b;
+	@extractTemplate
+	public void unidentified() {
+		double i = 5;
 		double[] d = new double[5];
-		d[0] += 5;
-		c += 1;
-		long aa = 10;
-		long bb = 15;
-		boolean cc = aa > bb;
+		d[0] = i;
 	}
 	
 	public void simulateStack() {
-		this.unidentified("abc", "cde");
 		String label = "123";
 		MethodStackRecorder msr = new MethodStackRecorder();
 		msr.handleOpcode(21, "123", 1);
@@ -137,9 +137,11 @@ public class TemplateMethod {
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
 		//tm.dummy4(1, 6);
-		tm.dummmy2(1, 6);
-		//int[] test = {1, 2, 3};
+		//tm.dummmy2(1, 6);
+		int[] test = {1, 2, 3};
+		tm.dummyFor(test);
 		//tm.dummyArray(test);
+		//tm.unidentified();
 		//tm.simulateStack();
 		/*Type methodType = Type.getMethodType("(II)V");
 		System.out.println(methodType.getSize());

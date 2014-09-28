@@ -2,6 +2,7 @@ package edu.columbia.psl.cc.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,9 +29,9 @@ public class MethodStackRecorder {
 	
 	private Map<Integer, String> localVarRecorder = new HashMap<Integer, String>();
 	
-	private Map<String, List<String>> dataDep = new HashMap<String, List<String>>();
+	private Map<String, Set<String>> dataDep = new HashMap<String, Set<String>>();
 	
-	private Map<String, List<String>> controlDep = new HashMap<String, List<String>>();
+	private Map<String, Set<String>> controlDep = new HashMap<String, Set<String>>();
 	
 	private synchronized int getInstIdx(String label) {
 		if (curLabel == null || !curLabel.equals(label)) {
@@ -42,12 +43,16 @@ public class MethodStackRecorder {
 		return this.instCounter.getAndIncrement();
 	}
 	
+	public String genInstHead(OpcodeObj oo, String label) {
+		return label + " " + this.getInstIdx(label) + " " + oo.getInstruction();
+	}
+	
 	private void updateCachedMap(String parent, String child, boolean isControl) {
 		if (isControl) {
 			if (this.controlDep.containsKey(parent)) {
 				this.controlDep.get(parent).add(child);
 			} else {
-				List<String> children = new ArrayList<String>();
+				Set<String> children = new HashSet<String>();
 				children.add(child);
 				this.controlDep.put(parent, children);
 			}
@@ -55,12 +60,12 @@ public class MethodStackRecorder {
 			if (this.dataDep.containsKey(parent)) {
 				this.dataDep.get(parent).add(child);
 			} else {
-				List<String> children = new ArrayList<String>();
+				Set<String> children = new HashSet<String>();
 				children.add(child);
 				this.dataDep.put(parent, children);
 			}
 		}
-		System.out.println("Update map: " + this.dataDep);
+		//System.out.println("Update map: " + this.dataDep);
 	}
 	
 	private synchronized String safePop() {
@@ -84,7 +89,7 @@ public class MethodStackRecorder {
 	public void handleOpcode(int opcode, String label, String addInfo) {
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
-		String fullInst = this.getInstIdx(label) + " " + oo.getInstruction() + " " + addInfo;
+		String fullInst = this.genInstHead(oo, label) + " " + addInfo;
 		
 		this.updateControlRelation(fullInst);
 		
@@ -113,9 +118,9 @@ public class MethodStackRecorder {
 		OpcodeObj oo =BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
 		
-		String fullInst = this.getInstIdx(label) + " " + oo.getInstruction() + " ";
+		String fullInst = this.genInstHead(oo, label);
 		if (localVarIdx >= 0) {
-			fullInst += localVarIdx;
+			fullInst = fullInst + " " + localVarIdx;
 		}
 		
 		String lastInst = "";
@@ -145,7 +150,9 @@ public class MethodStackRecorder {
 			if (parentInst != null)
 				this.updateCachedMap(parentInst, fullInst, false);
 		} else if (BytecodeCategory.dupCategory().contains(opcat)) {
+			System.out.println("Stack before dup: " + this.stackSimulator);
 			this.handleDup(opcode);
+			System.out.println("Stack after dup: " + this.stackSimulator);
 			hasUpdate = true;
 		} else {
 			if (BytecodeCategory.controlCategory().contains(opcat))
@@ -171,7 +178,7 @@ public class MethodStackRecorder {
 	
 	public void handleMultiNewArray(String desc, int dim, String label) {
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(Opcodes.MULTIANEWARRAY);
-		String fullInst = this.getInstIdx(label) + " " + oo.getInstruction() + " " + desc + " " + dim;
+		String fullInst = this.genInstHead(oo, label) + " " + desc + " " + dim;
 		
 		this.updateControlRelation(fullInst);
 		
@@ -185,7 +192,7 @@ public class MethodStackRecorder {
 	
 	public void handleMethod(int opcode, String label, String owner, String name, String desc) {
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
-		String fullInst = this.getInstIdx(label) + " " + oo.getInstruction() + " " + owner + " " + name + " " + desc;
+		String fullInst = this.genInstHead(oo, label) + " " + owner + " " + name + " " + desc;
 		
 		this.updateControlRelation(fullInst);
 		
@@ -284,8 +291,8 @@ public class MethodStackRecorder {
 		for (int i = 0; i < times; i++) {
 			this.stackSimulator.push(fullInst);
 		}
-		System.out.println("Check data dep: " + this.dataDep);
-		System.out.println("Check stack simulator: " + this.stackSimulator);
+		//System.out.println("Check data dep: " + this.dataDep);
+		//System.out.println("Check stack simulator: " + this.stackSimulator);
 	}
 	
 	private void updateControlRelation(String fullInst) {
