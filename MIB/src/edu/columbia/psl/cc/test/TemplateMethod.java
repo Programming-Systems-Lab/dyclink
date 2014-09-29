@@ -148,7 +148,7 @@ public class TemplateMethod {
 		msr.handleOpcode(164, label, -1);
 		msr.handleOpcode(18, label, -1);
 		msr.handleOpcode(58, label, 4);
-		msr.dumpGraph();
+		msr.dumpGraph("class", "method", "desc", true);
 	}
 	
 	public static void main(String[] args) {

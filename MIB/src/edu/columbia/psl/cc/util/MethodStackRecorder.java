@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import com.google.gson.reflect.TypeToken;
+
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 
@@ -46,7 +48,7 @@ public class MethodStackRecorder {
 	}
 	
 	public String genInstHead(OpcodeObj oo, String label) {
-		return label + " " + this.getInstIdx(label) + " " + oo.getInstruction();
+		return label + " " + this.getInstIdx(label) + " " + oo.getOpcode() + " " + oo.getInstruction();
 	}
 	
 	private void updateCachedMap(String parent, String child, boolean isControl) {
@@ -318,7 +320,7 @@ public class MethodStackRecorder {
 		}*/
 	}
 	
-	public void dumpGraph() {
+	public void dumpGraph(String owner, String myName, String myDesc, boolean isTemplate) {
 		System.out.println("Data dependency:");
 		int dataDepCount = 0;
 		for (String parent: this.dataDep.navigableKeySet()) {
@@ -340,6 +342,26 @@ public class MethodStackRecorder {
 			}
 		}
 		System.out.println("Total control dependency: " + controlDepCount);
+		
+		String key = StringUtil.cleanPunc(owner, "_") 
+				+ "~" + StringUtil.cleanPunc(myName, "_") 
+				+ "~" + StringUtil.parseDesc(myDesc);
+		//GsonManager.writeJson(this.dataDep, key, isTemplate);
+		TypeToken<TreeMap<String, TreeSet<String>>> typeToken = new TypeToken<TreeMap<String, TreeSet<String>>>(){};
+		
+		//Try mergindata map and control map
+		System.out.println("Original map size: " + dataDep.size());
+		TreeMap<String, TreeSet<String>> mergeMap = new TreeMap<String, TreeSet<String>>(this.dataDep);
+		for (String inst: this.controlDep.keySet()) {
+			if (mergeMap.containsKey(inst)) {
+				mergeMap.get(inst).addAll(this.controlDep.get(inst));
+			} else {
+				mergeMap.put(inst, this.controlDep.get(inst));
+			}
+		} 
+		System.out.println("After merging: " + mergeMap.size());
+		//GsonManager.writeJsonGeneric(this.dataDep, key, typeToken, isTemplate);
+		GsonManager.writeJsonGeneric(mergeMap, key, typeToken, isTemplate);
 	}
 
 }

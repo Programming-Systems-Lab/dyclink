@@ -1,14 +1,26 @@
 package edu.columbia.psl.cc.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 
 import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.Var;
 
 public class ShortestPathKernel {
 	
-	private static int limit = (int)1E3;
+	private static int limit = (int)1E2;
+	
+	private static String costTableDir = "./cost_tables/";
 	
 	public static VarPool addFakeVar(VarPool smallPool, int diff) {
 		VarPool ret = new VarPool(smallPool);
@@ -18,11 +30,26 @@ public class ShortestPathKernel {
 		return ret;
 	}
 	
-	private int kernelMethod(int x1, int x2) {
-		return x1 * x2;
+	public static String parseLabel(String inst) {
+		String[] instElements = inst.split(" ");
+		String label = instElements[2];
+		return label;
 	}
 	
-	public int scoreShortestPaths(int[][]g1, int[][]g2) {
+	public static double calConstant(int g1Num, int g2Num) {
+		System.out.println("Check g1Num: " + g1Num);
+		System.out.println("Check g2Num: " + g2Num);
+		return 0.25 * (Math.pow(g1Num, 2) - g1Num) * (Math.pow(g2Num, 2) - g2Num);  
+	}
+	
+	private int kernelMethod(CostObj x1, CostObj x2) {
+		if (x1.getLabels().equals(x2.getLabels()) && x1.getCost() == x2.getCost())
+			return 1;
+		else
+			return 0;
+	}
+	
+	public double scoreShortestPaths(CostObj[][]g1, CostObj[][]g2) {
 		int total = 0;
 		for (int i = 0; i < g1.length; i++) {
 			for (int j = 0; j < g1.length; j++) {
@@ -33,7 +60,118 @@ public class ShortestPathKernel {
 				}
 			}
 		}
-		return total;
+		
+		double constant = calConstant(g1.length, g2.length);
+		double ret = (1/constant) * total;
+		System.out.println("Check constant: " + constant);
+		System.out.println("Check total: " + total);
+		System.out.println("Check ret: " + ret);
+		return ret;
+	}
+	
+	public CostObj[][] constructCostTable(String methodName, TreeMap<String, TreeSet<String>> depMap, Comparator...comp) {
+		ArrayList<String> allNodes = new ArrayList<String>(depMap.keySet());
+		
+		if (comp.length == 0)
+			Collections.sort(allNodes);
+		else
+			Collections.sort(allNodes, comp[0]);
+		
+		//int[][] costTable = new int[allNodes.size()][allNodes.size()];
+		CostObj[][] costTable = new CostObj[allNodes.size()][allNodes.size()];
+		HashMap<Integer, String> labelCache = new HashMap<Integer, String>();
+		for (int i = 0; i < costTable.length; i++) {
+			for (int j = 0; j < costTable.length; j++) {
+				
+				CostObj co = new CostObj();
+				String var1 = allNodes.get(i);
+				String var2 = allNodes.get(j);
+				
+				if (!labelCache.containsKey(i)) {
+					String startLabel = parseLabel(var1);
+					labelCache.put(i, startLabel);
+					co.addLabel(startLabel);
+				} else {
+					co.addLabel(labelCache.get(i));
+				}
+				
+				if (!labelCache.containsKey(j)) {
+					String endLabel = parseLabel(var2);
+					labelCache.put(j, endLabel);
+					co.addLabel(endLabel);
+				} else {
+					co.addLabel(labelCache.get(j));
+				}
+				
+				if (i == j) {
+					co.setCost(0);
+					costTable[i][j] = co;
+					continue;
+				}
+				
+				if (depMap.get(var1) == null) {
+					co.setCost(limit);
+					costTable[i][j] = co;
+					//costTable[i][j] = limit;
+				} else {
+					if (depMap.get(var1).contains(var2)) {
+						co.setCost(1);
+						costTable[i][j] = co;
+						//costTable[i][j] = 1;
+					} else {
+						co.setCost(limit);
+						costTable[i][j] = co;
+						//costTable[i][j] = limit;
+					}
+				}
+			}
+		}
+		
+		for (int i = 0; i < costTable.length; i++) {
+			for (int j = 0; j < costTable.length; j++) {
+				for (int k = 0; k < costTable.length; k++) {
+					if (costTable[i][j].cost > costTable[i][k].cost + costTable[k][j].cost) {
+						costTable[i][j].cost = costTable[i][k].cost + costTable[k][j].cost;
+					}
+				}
+			}
+		}
+		
+		//Debugging purpose, dump cost table
+		StringBuilder sb = new StringBuilder();
+		sb.append("head,");
+		for (int i = 0; i < allNodes.size(); i++) {
+			if (i == allNodes.size() - 1) {
+				sb.append(allNodes.get(i) + "\n");
+			} else {
+				sb.append(allNodes.get(i) + ",");
+			}
+		}
+		
+		System.out.println("Check cost table");
+		for (int i = 0; i < costTable.length; i++) {
+			StringBuilder rawBuilder = new StringBuilder();
+			rawBuilder.append(allNodes.get(i) + ",");
+			for (int j = 0; j < costTable.length; j++) {
+				rawBuilder.append(costTable[i][j].cost + ",");
+			}
+			sb.append(rawBuilder.toString().substring(0, rawBuilder.length() - 1) + "\n");
+		}
+		
+		try {
+			File f = new File(costTableDir + methodName + ".csv");
+			if (f.exists()) {
+				f.delete();
+			}
+			f.createNewFile();
+			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+			bw.write(sb.toString());
+			bw.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		return costTable;
 	}
 	
 	public int[][] constructCostTable(VarPool vp1) {
@@ -83,6 +221,29 @@ public class ShortestPathKernel {
 		}
 		
 		return costTable;
+	}
+	
+	public static class CostObj {
+		
+		private List<String> labels = new ArrayList<String>();;
+		
+		private int cost;
+		
+		public void addLabel(String label) {
+			this.labels.add(label);
+		}
+		
+		public List<String> getLabels() {
+			return labels;
+		}
+		
+		public void setCost(int cost) {
+			this.cost = cost;
+		}
+		
+		public int getCost() {
+			return this.cost;
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -170,8 +331,8 @@ public class ShortestPathKernel {
 		int[][] costTable2 = spk.constructCostTable(vp2);
 		int[][] costTable3 = spk.constructCostTable(vp3);
 		
-		System.out.println("Score kernel: " + spk.scoreShortestPaths(costTable1, costTable2));
-		System.out.println("Score kernel: " + spk.scoreShortestPaths(costTable2, costTable3));
-		System.out.println("Score kernel: " + spk.scoreShortestPaths(costTable1, costTable3));
+		//System.out.println("Score kernel: " + spk.scoreShortestPaths(costTable1, costTable2));
+		//System.out.println("Score kernel: " + spk.scoreShortestPaths(costTable2, costTable3));
+		//System.out.println("Score kernel: " + spk.scoreShortestPaths(costTable1, costTable3));
 	}
 }

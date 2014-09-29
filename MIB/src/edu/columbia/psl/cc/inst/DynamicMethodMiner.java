@@ -40,7 +40,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	private static String srGraphDump = "dumpGraph";
 	
-	private static String srGraphDumpDesc = "()V";
+	private static String srGraphDumpDesc = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V";
 	
 	private String className;
 	
@@ -219,6 +219,14 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		} else if (this.annotGuard() && isReturn(opcode)) {
 			this.handleOpcode(opcode);
 			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+			this.mv.visitLdcInsn(this.className);
+			this.mv.visitLdcInsn(this.myName);
+			this.mv.visitLdcInsn(this.desc);
+			if (this.isTemplate) {
+				this.mv.visitInsn(Opcodes.ICONST_1);
+			} else {
+				this.mv.visitInsn(Opcodes.ICONST_0);
+			}
 			this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srGraphDump, srGraphDumpDesc);
 			this.mv.visitInsn(opcode);
 		} else {

@@ -132,8 +132,8 @@ public class ProcessBlockComparator {
 				ShortestPathKernel spk = new ShortestPathKernel();
 				int[][] templateTable = spk.constructCostTable(templatePool);
 				int[][] testTable = spk.constructCostTable(testPool);
-				int kernelScore = spk.scoreShortestPaths(templateTable, testTable);
-				System.out.println(templateName + " vs " + testName + " " + kernelScore);
+				//int kernelScore = spk.scoreShortestPaths(templateTable, testTable);
+				//System.out.println(templateName + " vs " + testName + " " + kernelScore);
 			}
 		}
 	}

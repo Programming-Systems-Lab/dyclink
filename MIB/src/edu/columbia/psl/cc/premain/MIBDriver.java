@@ -1,14 +1,25 @@
 package edu.columbia.psl.cc.premain;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.lang.reflect.Method;
 
+import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.TreeSet;
+
+import edu.columbia.psl.cc.util.GsonManager;
+
 public class MIBDriver {
+	
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		//Clean directory
+		GsonManager.cleanDirs();
+		
 		String className = args[0];
 		String[] newArgs = new String[args.length - 1];
 		
@@ -23,6 +34,9 @@ public class MIBDriver {
 			Method mainMethod = targetClass.getMethod("main", String[].class);
 			System.out.println("Capture main method: " + mainMethod);
 			mainMethod.invoke(null, (Object)newArgs);
+			
+			//Put the analysis here temporarily
+			
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
