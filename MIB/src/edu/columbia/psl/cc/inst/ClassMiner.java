@@ -1,5 +1,6 @@
 package edu.columbia.psl.cc.inst;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -61,7 +62,6 @@ public class ClassMiner extends ClassVisitor{
 	@Override
 	public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
 		if (this.isAnnot) {
-			System.out.println(desc + " " + name);
 			return this.cv.visitField(access, name, desc, signature, value);
 		} else {
 			return this.cv.visitField(access, name, desc, signature, value);
@@ -75,8 +75,18 @@ public class ClassMiner extends ClassVisitor{
 			//mv = new MethodMiner(mv, this.owner, this.templateAnnot, this.testAnnot, name, desc);
 			DynamicMethodMiner dmm = new DynamicMethodMiner(mv, this.owner, access, name, desc, this.templateAnnot, this.testAnnot);
 			LocalVariablesSorter lvs = new LocalVariablesSorter(access, desc, dmm);
+			
+			//See the comment from https://github.com/pmahoney/asm-bug/blob/master/src/main/java/Main.java
+			/*try {
+				final Field field = LocalVariablesSorter.class.getDeclaredField("changed");
+				field.setAccessible(true);
+				field.setBoolean(lvs, true);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}*/
+			
 			dmm.setLocalVariablesSorter(lvs);
-			return lvs;
+			return dmm.getLocalVariablesSorter();
 		}
 		return mv;
 	}

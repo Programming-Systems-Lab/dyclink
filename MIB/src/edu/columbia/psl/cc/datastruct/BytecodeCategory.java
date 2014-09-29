@@ -163,4 +163,11 @@ public class BytecodeCategory {
 		return ret;
 	}
 	
+	public static HashSet<Integer> staticMethod() {
+		HashSet<Integer> ret = new HashSet<Integer>();
+		ret.add(184);
+		ret.add(186);
+		return ret;
+	}
+	
 }

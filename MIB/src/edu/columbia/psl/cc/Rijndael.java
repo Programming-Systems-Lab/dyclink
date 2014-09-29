@@ -193,7 +193,7 @@ public final class Rijndael {
      *
      * @param   cipherKey   the cipher key (128, 192, or 256 bits).
      */
-    @testTemplate
+    //@testTemplate
     private void expandKey(byte[] cipherKey) {
         int temp, r = 0;
         for (int i = 0, k = 0; i < Nk; i++, k += 4) {
@@ -346,7 +346,7 @@ public final class Rijndael {
     /**
      * Compute the decryption schedule from the encryption schedule .
      */
-    @testTemplate
+    //@testTemplate
     private void invertKey() {
         int d = 0, e = 4*Nr, w;
 	    /*
@@ -400,7 +400,7 @@ public final class Rijndael {
      * @param   keyBits     size of the cipher key in bits.
      * @param   direction   cipher direction (DIR_ENCRYPT, DIR_DECRYPT, or DIR_BOTH).
      */
-    @testTemplate
+    //@testTemplate
     public void makeKey(byte[] cipherKey, int keyBits, int direction)
             throws RuntimeException {
         // check key size:
@@ -414,16 +414,7 @@ public final class Rijndael {
         rdk = new int[Nw];
         if ((direction & DIR_BOTH) != 0) {
             expandKey(cipherKey);
-            /*
-            for (int r = 0; r <= Nr; r++) {
-            	System.out.print("RK" + r + "=");
-            	for (int i = 0; i < 4; i++) {
-            		int w = rek[4*r + i];
-            		System.out.print(" " + Integer.toHexString(w));
-            	}
-            	System.out.println();
-            }
-            */
+
             if ((direction & DIR_DECRYPT) != 0) {
                 invertKey();
             }
@@ -436,7 +427,7 @@ public final class Rijndael {
      * @param   cipherKey   the cipher key (128, 192, or 256 bits).
      * @param   keyBits     size of the cipher key in bits.
      */
-    @testTemplate
+    //@testTemplate
     public void makeKey(byte[] cipherKey, int keyBits)
             throws RuntimeException {
         makeKey(cipherKey, keyBits, DIR_BOTH);

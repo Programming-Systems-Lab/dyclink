@@ -75,6 +75,10 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		this.lvs = lvs;
 	}
 	
+	public LocalVariablesSorter getLocalVariablesSorter() {
+		return this.lvs;
+	}
+	
 	private boolean annotGuard() {
 		return (this.isTemplate || this.isTest);
 	}
@@ -96,8 +100,32 @@ public class DynamicMethodMiner extends AdviceAdapter {
 			this.mv.visitInsn(Opcodes.DUP);
 			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, methodStackRecorder, "<init>", "()V");
 			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
+			
+			/*Label initLabel = new Label();
+			this.mv.visitJumpInsn(Opcodes.GOTO, initLabel);
+			this.mv.visitLabel(initLabel);
+			int workaround = this.lvs.newLocal(Type.INT_TYPE);
+			this.mv.visitInsn(Opcodes.ICONST_0);
+			this.mv.visitVarInsn(Opcodes.ISTORE, workaround);*/
 		}
 	}
+	
+	/*@Override
+	public void visitCode() {
+		this.mv.visitCode();
+		if (this.annotGuard()) {
+			//Create the method stack recorder
+			Label startLabel = new Label();
+			this.mv.visitLabel(startLabel);
+			System.out.println("Create new label: " + startLabel);
+			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
+			System.out.println("Method Stack Recorder name: " + methodStackRecorder);
+			this.mv.visitTypeInsn(Opcodes.NEW, methodStackRecorder);
+			this.mv.visitInsn(Opcodes.DUP);
+			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, methodStackRecorder, "<init>", "()V");
+			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
+		}
+	}*/
 	
 	@Override
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
@@ -212,7 +240,6 @@ public class DynamicMethodMiner extends AdviceAdapter {
 			if (var == this.localMsrId) {
 				System.out.println("Got the var created by MIB");
 			} else {
-				System.out.println(opcode + " " + var);
 				this.handleOpcode(opcode, var);
 			}
 		}

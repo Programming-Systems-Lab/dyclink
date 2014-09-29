@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.objectweb.asm.Opcodes;
@@ -29,9 +31,9 @@ public class MethodStackRecorder {
 	
 	private Map<Integer, String> localVarRecorder = new HashMap<Integer, String>();
 	
-	private Map<String, Set<String>> dataDep = new HashMap<String, Set<String>>();
+	private TreeMap<String, TreeSet<String>> dataDep = new TreeMap<String, TreeSet<String>>();
 	
-	private Map<String, Set<String>> controlDep = new HashMap<String, Set<String>>();
+	private TreeMap<String, TreeSet<String>> controlDep = new TreeMap<String, TreeSet<String>>();
 	
 	private synchronized int getInstIdx(String label) {
 		if (curLabel == null || !curLabel.equals(label)) {
@@ -52,7 +54,7 @@ public class MethodStackRecorder {
 			if (this.controlDep.containsKey(parent)) {
 				this.controlDep.get(parent).add(child);
 			} else {
-				Set<String> children = new HashSet<String>();
+				TreeSet<String> children = new TreeSet<String>();
 				children.add(child);
 				this.controlDep.put(parent, children);
 			}
@@ -60,7 +62,7 @@ public class MethodStackRecorder {
 			if (this.dataDep.containsKey(parent)) {
 				this.dataDep.get(parent).add(child);
 			} else {
-				Set<String> children = new HashSet<String>();
+				TreeSet<String> children = new TreeSet<String>();
 				children.add(child);
 				this.dataDep.put(parent, children);
 			}
@@ -106,6 +108,7 @@ public class MethodStackRecorder {
 			}
 		}
 		this.updateStackSimulator(oo, fullInst);
+		this.showStackSimulator();
 	}
 	
 	/**
@@ -150,9 +153,7 @@ public class MethodStackRecorder {
 			if (parentInst != null)
 				this.updateCachedMap(parentInst, fullInst, false);
 		} else if (BytecodeCategory.dupCategory().contains(opcat)) {
-			System.out.println("Stack before dup: " + this.stackSimulator);
 			this.handleDup(opcode);
-			System.out.println("Stack after dup: " + this.stackSimulator);
 			hasUpdate = true;
 		} else {
 			if (BytecodeCategory.controlCategory().contains(opcat))
@@ -174,6 +175,7 @@ public class MethodStackRecorder {
 		
 		if (!hasUpdate) 
 			this.updateStackSimulator(oo, fullInst);
+		this.showStackSimulator();
 	}
 	
 	public void handleMultiNewArray(String desc, int dim, String label) {
@@ -188,16 +190,23 @@ public class MethodStackRecorder {
 			this.updateCachedMap(tmpInst, fullInst, false);
 		}
 		this.updateStackSimulator(oo, fullInst);
+		this.showStackSimulator();
 	}
 	
 	public void handleMethod(int opcode, String label, String owner, String name, String desc) {
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		String fullInst = this.genInstHead(oo, label) + " " + owner + " " + name + " " + desc;
+		System.out.println("Method full inst: " + fullInst);
 		
 		this.updateControlRelation(fullInst);
 		
 		Type methodType = Type.getMethodType(desc);
+		//+1 for object reference, if instance method
 		int argSize = methodType.getArgumentTypes().length;
+		if (!BytecodeCategory.staticMethod().contains(opcode)) {
+			argSize++;
+		}
+		System.out.println("Arg size: " + argSize);
 		String returnType = methodType.getReturnType().getDescriptor();
 		for (int i = 0; i < argSize; i++) {
 			String tmpInst = this.safePop();
@@ -207,6 +216,7 @@ public class MethodStackRecorder {
 		if (!returnType.equals("V")) {
 			this.updateStackSimulator(1, fullInst);
 		}
+		this.showStackSimulator();
 	}
 	
 	public void handleDup(int opcode) {
@@ -295,6 +305,10 @@ public class MethodStackRecorder {
 		//System.out.println("Check stack simulator: " + this.stackSimulator);
 	}
 	
+	private void showStackSimulator() {
+		System.out.println(this.stackSimulator);
+	}
+	
 	private void updateControlRelation(String fullInst) {
 		//Construct control relations
 		if (this.curControlVar != null)
@@ -306,20 +320,26 @@ public class MethodStackRecorder {
 	
 	public void dumpGraph() {
 		System.out.println("Data dependency:");
-		for (String parent: this.dataDep.keySet()) {
+		int dataDepCount = 0;
+		for (String parent: this.dataDep.navigableKeySet()) {
 			System.out.println("Source: " + parent);
 			for (String childInst: this.dataDep.get(parent)) {
 				System.out.println("	Sink: " + childInst);
+				dataDepCount++;
 			}
 		}
+		System.out.println("Total data dependency: " + dataDepCount);
 		
 		System.out.println("Control dependency:");
-		for (String parent: this.controlDep.keySet()) {
+		int controlDepCount = 0;
+		for (String parent: this.controlDep.navigableKeySet()) {
 			System.out.println("Source: " + parent);
 			for (String childInst: this.controlDep.get(parent)) {
-				System.out.println("	Sinke: " + childInst);
+				System.out.println("	Sink: " + childInst);
+				controlDepCount++;
 			}
 		}
+		System.out.println("Total control dependency: " + controlDepCount);
 	}
 
 }

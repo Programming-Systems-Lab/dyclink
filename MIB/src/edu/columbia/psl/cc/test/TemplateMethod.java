@@ -2,6 +2,7 @@ package edu.columbia.psl.cc.test;
 
 import java.util.Stack;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 
 import edu.columbia.psl.cc.annot.analyzeClass;
@@ -71,10 +72,26 @@ public class TemplateMethod {
 	}
 	
 	@extractTemplate
+	public int testField(int input) {
+		int ret = this.iVar + sVar + input;
+		Label l = new Label();
+		l.getOffset();
+		return ret;
+	}
+	
+	@extractTemplate
+	public void testContinuousAnd(int keyBits) {
+		//int ret = 0;
+		if (keyBits != 128 && keyBits != 192 && keyBits != 256) {
+			throw new RuntimeException("Invalid AES key size (" + keyBits + " bits)");
+        }
+	}
+	
+	//@extractTemplate
 	public void dummyInvoke() {
 		int a = 5; 
 		int b= 3;
-		this.dummmy2(a, b);
+		int c = this.dummmy2(a, b);
 	}
 	
 	@extractTemplate
@@ -136,10 +153,13 @@ public class TemplateMethod {
 	
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
+		tm.testField(5);
+		//tm.testContinuousAnd(128);
+		//tm.dummyInvoke();
 		//tm.dummy4(1, 6);
 		//tm.dummmy2(1, 6);
-		int[] test = {1, 2, 3};
-		tm.dummyFor(test);
+		//int[] test = {1, 2, 3};
+		//tm.dummyFor(test);
 		//tm.dummyArray(test);
 		//tm.unidentified();
 		//tm.simulateStack();
