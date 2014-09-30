@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import java.util.HashMap;
 import java.util.TreeSet;
 
+import edu.columbia.psl.cc.util.DynamicGraphAnalyzer;
 import edu.columbia.psl.cc.util.GsonManager;
 
 public class MIBDriver {
@@ -36,7 +37,7 @@ public class MIBDriver {
 			mainMethod.invoke(null, (Object)newArgs);
 			
 			//Put the analysis here temporarily
-			
+			DynamicGraphAnalyzer.analyzeTemplate();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

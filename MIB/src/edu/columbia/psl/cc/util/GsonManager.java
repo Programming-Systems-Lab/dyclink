@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -18,6 +19,29 @@ public class GsonManager {
 	private static String templateDir = "./template";
 	
 	private static String testDir = "./test";
+	
+	private static String pathDir = "./path";
+	
+	private static String labelmapDir = "./labelmap";
+	
+	public static void writePath(String fileName, List<String> path) {
+		StringBuilder sb = new StringBuilder();
+		for (String inst: path) {
+			sb.append(inst + "\n");
+		}
+		
+		try {
+			File f = new File(pathDir + "/" + fileName + ".txt");
+			if (f.exists())
+				f.delete();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+			bw.write(sb.toString());
+			bw.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
 	
 	public static <T> void writeJson(T obj, String fileName, boolean isTemplate) {
 		GsonBuilder gb = new GsonBuilder();
@@ -56,17 +80,26 @@ public class GsonManager {
 		return null;
 	}
 	
-	public static <T> void writeJsonGeneric(T obj, String fileName, TypeToken typeToken, boolean isTemplate) {
+	/**
+	 * 0 for template, 1 for test, 2 for labelmap
+	 * @param obj
+	 * @param fileName
+	 * @param typeToken
+	 * @param isTemplate
+	 */
+	public static <T> void writeJsonGeneric(T obj, String fileName, TypeToken typeToken, int dirIdx) {
 		GsonBuilder gb = new GsonBuilder();
 		gb.setPrettyPrinting();
 		Gson gson = gb.create();
 		String toWrite = gson.toJson(obj, typeToken.getType());
 		try {
 			File f;
-			if (isTemplate) {
+			if (dirIdx == 0) {
 				f = new File(templateDir + "/" + fileName + ".json");
-			} else {
+			} else if (dirIdx == 1) {
 				f = new File(testDir + "/" + fileName + ".json");
+			} else {
+				f = new File(labelmapDir + "/" + fileName + ".json");
 			}
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
 			bw.write(toWrite);

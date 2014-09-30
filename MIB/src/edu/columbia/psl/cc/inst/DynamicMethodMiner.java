@@ -1,5 +1,7 @@
 package edu.columbia.psl.cc.inst;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -11,6 +13,8 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
+import com.google.gson.reflect.TypeToken;
+
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.BlockNode;
 import edu.columbia.psl.cc.pojo.LabelInterval;
@@ -18,9 +22,13 @@ import edu.columbia.psl.cc.pojo.LocalVar;
 import edu.columbia.psl.cc.pojo.MultiNewArrayNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.pojo.Var;
+import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.MethodStackRecorder;
+import edu.columbia.psl.cc.util.StringUtil;
 
 public class DynamicMethodMiner extends AdviceAdapter {
+	
+	private static String labelmapDir = "./labelmap/";
 	
 	private static String methodStackRecorder = Type.getInternalName(MethodStackRecorder.class);
 	
@@ -61,6 +69,8 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	private int localMsrId = -1;
 	
 	private Label curLabel = null;
+	
+	private List<Label> allLabels = new ArrayList<Label>();
 	 
 	public DynamicMethodMiner(MethodVisitor mv, String className, int access, String myName, String desc, String templateAnnot, String testAnnot) {
 		super(Opcodes.ASM4, mv, access, myName, desc);
@@ -144,6 +154,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	@Override
 	public void visitLabel(Label label) {
 		this.curLabel = label;
+		this.allLabels.add(label);
 		this.mv.visitLabel(label);
 	}
 	
@@ -352,12 +363,18 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		}
 	}*/
 	
-	/*@Override
+	@Override
 	public void visitEnd() {
 		if (this.annotGuard()) {
-			System.out.println("Method visit ends");
+			//Generate label map
+			HashMap<String, Integer> labelMap = new HashMap<String, Integer>();
+			for (Label l: this.allLabels) {
+				labelMap.put(l.toString(), l.getOffset());
+			}
+			String key = StringUtil.genKey(className, myName, desc) + "_map";
+			TypeToken<HashMap<String, Integer>> typeToken = new TypeToken<HashMap<String, Integer>>(){};
+			GsonManager.writeJsonGeneric(labelMap, key, typeToken, 2);
 		}
 		this.mv.visitEnd();
-	}*/
-
+	}
 }

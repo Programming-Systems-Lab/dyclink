@@ -34,5 +34,18 @@ public class StringUtil {
 		
 		return in + "~" + out;
 	}
+	
+	public static String genKey(String className, String methodName, String methodDesc) {
+		String key = StringUtil.cleanPunc(className, "_") 
+				+ "~" + StringUtil.cleanPunc(methodName, "_") 
+				+ "~" + StringUtil.parseDesc(methodDesc);
+		return key;
+	}
+	
+	public static String parseElement(String inst, int idx) {
+		String[] instElements = inst.split(" ");
+		String label = instElements[idx];
+		return label;
+	}
 
 }

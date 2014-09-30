@@ -1,5 +1,6 @@
 package edu.columbia.psl.cc.util;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,9 +34,11 @@ public class MethodStackRecorder {
 	
 	private Map<Integer, String> localVarRecorder = new HashMap<Integer, String>();
 	
-	private TreeMap<String, TreeSet<String>> dataDep = new TreeMap<String, TreeSet<String>>();
+	private HashMap<String, TreeSet<String>> dataDep = new HashMap<String, TreeSet<String>>();
 	
-	private TreeMap<String, TreeSet<String>> controlDep = new TreeMap<String, TreeSet<String>>();
+	private HashMap<String, TreeSet<String>> controlDep = new HashMap<String, TreeSet<String>>();
+	
+	private List<String> path = new ArrayList<String>();
 	
 	private synchronized int getInstIdx(String label) {
 		if (curLabel == null || !curLabel.equals(label)) {
@@ -49,6 +52,10 @@ public class MethodStackRecorder {
 	
 	public String genInstHead(OpcodeObj oo, String label) {
 		return label + " " + this.getInstIdx(label) + " " + oo.getOpcode() + " " + oo.getInstruction();
+	}
+	
+	private void updatePath(String fullInst) {
+		this.path.add(fullInst);
 	}
 	
 	private void updateCachedMap(String parent, String child, boolean isControl) {
@@ -96,6 +103,7 @@ public class MethodStackRecorder {
 		String fullInst = this.genInstHead(oo, label) + " " + addInfo;
 		
 		this.updateControlRelation(fullInst);
+		this.updatePath(fullInst);
 		
 		if (BytecodeCategory.controlCategory().contains(opcat)) {
 			this.updateControlVar(fullInst);
@@ -134,6 +142,7 @@ public class MethodStackRecorder {
 		}
 		
 		this.updateControlRelation(fullInst);
+		this.updatePath(fullInst);
 		
 		System.out.println("Check lastInst: " + lastInst);
 		//The store instruction will be the sink. The inst on the stack will be source
@@ -185,6 +194,7 @@ public class MethodStackRecorder {
 		String fullInst = this.genInstHead(oo, label) + " " + desc + " " + dim;
 		
 		this.updateControlRelation(fullInst);
+		this.updatePath(fullInst);
 		
 		//Parse method type
 		for (int i = 0; i < dim; i++) {
@@ -201,6 +211,7 @@ public class MethodStackRecorder {
 		System.out.println("Method full inst: " + fullInst);
 		
 		this.updateControlRelation(fullInst);
+		this.updatePath(fullInst);
 		
 		Type methodType = Type.getMethodType(desc);
 		//+1 for object reference, if instance method
@@ -321,36 +332,64 @@ public class MethodStackRecorder {
 	}
 	
 	public void dumpGraph(String owner, String myName, String myDesc, boolean isTemplate) {
+		//Load label map first
+		String labelMapKey = "./labelmap/" + StringUtil.genKey(owner, myName, myDesc) + "_map.json";
+		TypeToken<HashMap<String, Integer>> labelType = new TypeToken<HashMap<String, Integer>>(){};
+		File labelFile = new File(labelMapKey);
+		HashMap<String, Integer> labelMap = GsonManager.readJsonGeneric(labelFile, labelType);
+		
+		TreeMap<String, TreeSet<String>> sortedDep = new TreeMap<String, TreeSet<String>>();
 		System.out.println("Data dependency:");
 		int dataDepCount = 0;
-		for (String parent: this.dataDep.navigableKeySet()) {
-			System.out.println("Source: " + parent);
+		for (String parent: this.dataDep.keySet()) {
+			String opLabel = StringUtil.parseElement(parent, 0);
+			String npLabel = "L" + labelMap.get(opLabel);
+			String newParent = parent.replace(opLabel, npLabel);
+			System.out.println("Source: " + newParent);
+			TreeSet<String> children = new TreeSet<String>();
 			for (String childInst: this.dataDep.get(parent)) {
-				System.out.println("	Sink: " + childInst);
+				String ocLabel = StringUtil.parseElement(childInst, 0);
+				String ncLabel = "L" + labelMap.get(ocLabel);
+				String newChild = childInst.replace(ocLabel, ncLabel);
+				children.add(newChild);
+				System.out.println("	Sink: " + newChild);
 				dataDepCount++;
 			}
+			sortedDep.put(newParent, children);
 		}
 		System.out.println("Total data dependency: " + dataDepCount);
 		
 		System.out.println("Control dependency:");
 		int controlDepCount = 0;
-		for (String parent: this.controlDep.navigableKeySet()) {
-			System.out.println("Source: " + parent);
+		for (String parent: this.controlDep.keySet()) {
+			String opLabel = StringUtil.parseElement(parent, 0);
+			String npLabel = "L" + labelMap.get(opLabel);
+			String newParent = parent.replace(opLabel, npLabel);
+			System.out.println("Source: " + newParent);
+			TreeSet<String> children = new TreeSet<String>();
 			for (String childInst: this.controlDep.get(parent)) {
-				System.out.println("	Sink: " + childInst);
+				String ocLabel = StringUtil.parseElement(childInst, 0);
+				String ncLabel = "L" + labelMap.get(ocLabel);
+				String newChild = childInst.replace(ocLabel, ncLabel);
+				children.add(newChild);
+				System.out.println("	Sink: " + newChild);
 				controlDepCount++;
 			}
+			
+			if (!sortedDep.containsKey(newParent)) {
+				sortedDep.put(newParent, children);
+			} else {
+				sortedDep.get(newParent).addAll(children);
+			}
+			
 		}
 		System.out.println("Total control dependency: " + controlDepCount);
 		
-		String key = StringUtil.cleanPunc(owner, "_") 
-				+ "~" + StringUtil.cleanPunc(myName, "_") 
-				+ "~" + StringUtil.parseDesc(myDesc);
-		//GsonManager.writeJson(this.dataDep, key, isTemplate);
+		String key = StringUtil.genKey(owner, myName, myDesc);
 		TypeToken<TreeMap<String, TreeSet<String>>> typeToken = new TypeToken<TreeMap<String, TreeSet<String>>>(){};
 		
-		//Try mergindata map and control map
-		System.out.println("Original map size: " + dataDep.size());
+		//Try merging data map and control map
+		/*System.out.println("Original map size: " + dataDep.size());
 		TreeMap<String, TreeSet<String>> mergeMap = new TreeMap<String, TreeSet<String>>(this.dataDep);
 		for (String inst: this.controlDep.keySet()) {
 			if (mergeMap.containsKey(inst)) {
@@ -359,9 +398,14 @@ public class MethodStackRecorder {
 				mergeMap.put(inst, this.controlDep.get(inst));
 			}
 		} 
-		System.out.println("After merging: " + mergeMap.size());
-		//GsonManager.writeJsonGeneric(this.dataDep, key, typeToken, isTemplate);
-		GsonManager.writeJsonGeneric(mergeMap, key, typeToken, isTemplate);
+		System.out.println("After merging: " + mergeMap.size());*/
+		
+		if (isTemplate) {
+			GsonManager.writeJsonGeneric(sortedDep, key, typeToken, 0);
+		} else {
+			GsonManager.writeJsonGeneric(sortedDep, key, typeToken, 1);
+		}
+		GsonManager.writePath(key, this.path);
 	}
 
 }

@@ -30,12 +30,6 @@ public class ShortestPathKernel {
 		return ret;
 	}
 	
-	public static String parseLabel(String inst) {
-		String[] instElements = inst.split(" ");
-		String label = instElements[2];
-		return label;
-	}
-	
 	public static double calConstant(int g1Num, int g2Num) {
 		System.out.println("Check g1Num: " + g1Num);
 		System.out.println("Check g2Num: " + g2Num);
@@ -88,7 +82,7 @@ public class ShortestPathKernel {
 				String var2 = allNodes.get(j);
 				
 				if (!labelCache.containsKey(i)) {
-					String startLabel = parseLabel(var1);
+					String startLabel = StringUtil.parseElement(var1, 2);
 					labelCache.put(i, startLabel);
 					co.addLabel(startLabel);
 				} else {
@@ -96,7 +90,7 @@ public class ShortestPathKernel {
 				}
 				
 				if (!labelCache.containsKey(j)) {
-					String endLabel = parseLabel(var2);
+					String endLabel = StringUtil.parseElement(var2, 2);
 					labelCache.put(j, endLabel);
 					co.addLabel(endLabel);
 				} else {

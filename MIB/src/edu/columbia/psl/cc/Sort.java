@@ -115,7 +115,6 @@ public class Sort {
 		System.arraycopy(ar, 0, copy3, 0, ar.length);
 		System.arraycopy(ar, 0, copy4, 0, ar.length);
 		System.arraycopy(ar, 0, copy5, 0, ar.length);
-		//s.selectionSort(ar);
 		s.mySort(copy1);
 		s.showArray(copy1);
 		s.selectionSort(copy2);

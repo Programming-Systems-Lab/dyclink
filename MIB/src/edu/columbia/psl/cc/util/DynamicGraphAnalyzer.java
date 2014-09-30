@@ -74,6 +74,8 @@ public class DynamicGraphAnalyzer {
 		HashMap<String, TreeMap<String, TreeSet<String>>> templateMap = loadTemplate(templateDir, typeToken);
 		HashMap<String, TreeMap<String, TreeSet<String>>> testMap = loadTemplate(testDir, typeToken);
 		
+		TypeToken<HashMap<String, Integer>> labelType = new TypeToken<HashMap<String, Integer>>(){};
+		
 		int maxCount = 0;
 		HashMap<String, HashSet<String>> nodeInfo = new HashMap<String, HashSet<String>>();
 		for (String name: templateMap.keySet()) {
