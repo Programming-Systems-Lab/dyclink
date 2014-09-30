@@ -8,8 +8,10 @@ import java.util.TreeMap;
 import java.util.HashMap;
 import java.util.TreeSet;
 
+import edu.columbia.psl.cc.util.Analyzer;
 import edu.columbia.psl.cc.util.DynamicGraphAnalyzer;
 import edu.columbia.psl.cc.util.GsonManager;
+import edu.columbia.psl.cc.util.StaticBytecodeCatAnalyzer;
 
 public class MIBDriver {
 	
@@ -33,11 +35,16 @@ public class MIBDriver {
 			System.out.println("Confirm class: " + targetClass);
 			
 			Method mainMethod = targetClass.getMethod("main", String[].class);
-			System.out.println("Capture main method: " + mainMethod);
 			mainMethod.invoke(null, (Object)newArgs);
 			
 			//Put the analysis here temporarily
-			DynamicGraphAnalyzer.analyzeTemplate();
+			System.out.println("Dynamic Graph Analysis");
+			Analyzer dynamicAnalyzer = new DynamicGraphAnalyzer();
+			dynamicAnalyzer.analyzeTemplate();
+			
+			System.out.println("Static Analysis");
+			Analyzer staticAnalyzer = new StaticBytecodeCatAnalyzer();
+			staticAnalyzer.analyzeTemplate();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

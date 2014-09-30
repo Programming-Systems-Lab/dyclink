@@ -1,5 +1,7 @@
 package edu.columbia.psl.cc.util;
 
+import java.util.HashMap;
+
 public class StringUtil {
 	
 	private static String pattern = ")";
@@ -46,6 +48,13 @@ public class StringUtil {
 		String[] instElements = inst.split(" ");
 		String label = instElements[idx];
 		return label;
+	}
+	
+	public static String replaceLabel(String oriInst, HashMap<String, Integer> labelMap) {
+		String opLabel = StringUtil.parseElement(oriInst, 0);
+		String npLabel = "L" + labelMap.get(opLabel);
+		String newInst = oriInst.replace(opLabel, npLabel);
+		return newInst;
 	}
 
 }

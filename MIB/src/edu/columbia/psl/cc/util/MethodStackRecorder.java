@@ -2,6 +2,7 @@ package edu.columbia.psl.cc.util;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,8 +18,10 @@ import org.objectweb.asm.Type;
 
 import com.google.gson.reflect.TypeToken;
 
+import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
+import edu.columbia.psl.cc.pojo.StaticRep;
 
 public class MethodStackRecorder {
 	
@@ -332,25 +335,25 @@ public class MethodStackRecorder {
 	}
 	
 	public void dumpGraph(String owner, String myName, String myDesc, boolean isTemplate) {
-		//Load label map first
-		String labelMapKey = "./labelmap/" + StringUtil.genKey(owner, myName, myDesc) + "_map.json";
-		TypeToken<HashMap<String, Integer>> labelType = new TypeToken<HashMap<String, Integer>>(){};
-		File labelFile = new File(labelMapKey);
-		HashMap<String, Integer> labelMap = GsonManager.readJsonGeneric(labelFile, labelType);
+		//Load static map first
+		String staticMapKey = MIBConfiguration.getLabelmapDir() + "/" + StringUtil.genKey(owner, myName, myDesc) + "_map.json";
+		//TypeToken<HashMap<String, Integer>> labelType = new TypeToken<HashMap<String, Integer>>(){};
+		TypeToken<StaticRep> staticType = new TypeToken<StaticRep>(){};
+		File staticFile = new File(staticMapKey);
+		StaticRep staticRep = GsonManager.readJsonGeneric(staticFile, staticType);
+		HashMap<String, Integer> labelMap = staticRep.getLabelMap();
+		System.out.println("MethodStackRecorder: catString: " + staticRep.getOpCatString());
+		System.out.println("MethodStackRecorder: catFreq: " + Arrays.toString(staticRep.getOpCatFreq()));
 		
 		TreeMap<String, TreeSet<String>> sortedDep = new TreeMap<String, TreeSet<String>>();
 		System.out.println("Data dependency:");
 		int dataDepCount = 0;
 		for (String parent: this.dataDep.keySet()) {
-			String opLabel = StringUtil.parseElement(parent, 0);
-			String npLabel = "L" + labelMap.get(opLabel);
-			String newParent = parent.replace(opLabel, npLabel);
+			String newParent = StringUtil.replaceLabel(parent, labelMap);
 			System.out.println("Source: " + newParent);
 			TreeSet<String> children = new TreeSet<String>();
 			for (String childInst: this.dataDep.get(parent)) {
-				String ocLabel = StringUtil.parseElement(childInst, 0);
-				String ncLabel = "L" + labelMap.get(ocLabel);
-				String newChild = childInst.replace(ocLabel, ncLabel);
+				String newChild = StringUtil.replaceLabel(childInst, labelMap);
 				children.add(newChild);
 				System.out.println("	Sink: " + newChild);
 				dataDepCount++;
@@ -362,15 +365,11 @@ public class MethodStackRecorder {
 		System.out.println("Control dependency:");
 		int controlDepCount = 0;
 		for (String parent: this.controlDep.keySet()) {
-			String opLabel = StringUtil.parseElement(parent, 0);
-			String npLabel = "L" + labelMap.get(opLabel);
-			String newParent = parent.replace(opLabel, npLabel);
+			String newParent = StringUtil.replaceLabel(parent, labelMap);
 			System.out.println("Source: " + newParent);
 			TreeSet<String> children = new TreeSet<String>();
 			for (String childInst: this.controlDep.get(parent)) {
-				String ocLabel = StringUtil.parseElement(childInst, 0);
-				String ncLabel = "L" + labelMap.get(ocLabel);
-				String newChild = childInst.replace(ocLabel, ncLabel);
+				String newChild = StringUtil.replaceLabel(childInst, labelMap);
 				children.add(newChild);
 				System.out.println("	Sink: " + newChild);
 				controlDepCount++;

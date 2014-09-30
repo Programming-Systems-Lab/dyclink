@@ -1,4 +1,4 @@
-package edu.columbia.psl.cc.util;
+package edu.columbia.psl.cc.analysis;
 
 import java.util.ArrayList;
 import java.util.HashSet;

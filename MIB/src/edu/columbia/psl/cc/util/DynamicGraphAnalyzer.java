@@ -9,9 +9,11 @@ import java.util.TreeSet;
 
 import com.google.gson.reflect.TypeToken;
 
-import edu.columbia.psl.cc.util.ShortestPathKernel.CostObj;
+import edu.columbia.psl.cc.analysis.ShortestPathKernel;
+import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.pojo.CostObj;
 
-public class DynamicGraphAnalyzer {
+public class DynamicGraphAnalyzer implements Analyzer {
 	
 	public static HashMap<String, TreeMap<String, TreeSet<String>>> loadTemplate(File dir, TypeToken typeToken) {
 		HashMap<String, TreeMap<String, TreeSet<String>>> ret = new HashMap<String, TreeMap<String, TreeSet<String>>>();
@@ -59,22 +61,13 @@ public class DynamicGraphAnalyzer {
 		}
 	}
 	
-	public static void analyzeTemplate() {
-		File templateDir = new File("./template");
-		File testDir = new File("./test");
-		FilenameFilter filter = new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				// TODO Auto-generated method stub
-				return name.toLowerCase().endsWith(".json");
-			}
-		};
+	public void analyzeTemplate() {
+		File templateDir = new File(MIBConfiguration.getTemplateDir());
+		File testDir = new File(MIBConfiguration.getTestDir());
 		
 		TypeToken<TreeMap<String, TreeSet<String>>> typeToken = new TypeToken<TreeMap<String, TreeSet<String>>>(){};
 		HashMap<String, TreeMap<String, TreeSet<String>>> templateMap = loadTemplate(templateDir, typeToken);
 		HashMap<String, TreeMap<String, TreeSet<String>>> testMap = loadTemplate(testDir, typeToken);
-		
-		TypeToken<HashMap<String, Integer>> labelType = new TypeToken<HashMap<String, Integer>>(){};
 		
 		int maxCount = 0;
 		HashMap<String, HashSet<String>> nodeInfo = new HashMap<String, HashSet<String>>();
@@ -125,7 +118,7 @@ public class DynamicGraphAnalyzer {
 				TreeMap<String, TreeSet<String>> testMethod = testMap.get(testName);
 				System.out.println("Construct cost table: " + testName);
 				CostObj[][] testCostTable = spk.constructCostTable(testName, testMethod);
-				double graphScore = spk.scoreShortestPaths(templateCostTable, testCostTable);
+				double graphScore = spk.calculateSimilarity(templateCostTable, testCostTable);
 				
 				System.out.println(templateName + " vs " + testName + " " + graphScore);
 			}
@@ -137,7 +130,8 @@ public class DynamicGraphAnalyzer {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		analyzeTemplate();
+		DynamicGraphAnalyzer analyzer = new DynamicGraphAnalyzer();
+		analyzer.analyzeTemplate();
 	}
 
 }

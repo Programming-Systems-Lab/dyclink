@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ArrayList;
 
+import edu.columbia.psl.cc.analysis.LevenshteinDistance;
 import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
-import edu.columbia.psl.cc.util.LevenshteinDistance;
 import edu.columbia.psl.cc.util.StringUtil;
 
 import org.objectweb.asm.AnnotationVisitor;

@@ -5,6 +5,9 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.util.CheckClassAdapter;
 
+import edu.columbia.psl.cc.analysis.LevenshteinDistance;
+import edu.columbia.psl.cc.analysis.ShortestPathKernel;
+import edu.columbia.psl.cc.analysis.SimilarityFlooding;
 import edu.columbia.psl.cc.annot.analyzeClass;
 import edu.columbia.psl.cc.annot.extractTemplate;
 import edu.columbia.psl.cc.annot.testTemplate;
@@ -14,9 +17,6 @@ import edu.columbia.psl.cc.pojo.CodeTemplate;
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.GsonManager;
-import edu.columbia.psl.cc.util.LevenshteinDistance;
-import edu.columbia.psl.cc.util.ShortestPathKernel;
-import edu.columbia.psl.cc.util.SimilarityFlooding;
 
 import java.io.File;
 import java.io.FilenameFilter;

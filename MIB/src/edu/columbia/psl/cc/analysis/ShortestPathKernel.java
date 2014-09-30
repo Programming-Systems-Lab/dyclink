@@ -1,4 +1,4 @@
-package edu.columbia.psl.cc.util;
+package edu.columbia.psl.cc.analysis;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,9 +14,11 @@ import java.io.File;
 import java.io.FileWriter;
 
 import edu.columbia.psl.cc.datastruct.VarPool;
+import edu.columbia.psl.cc.pojo.CostObj;
 import edu.columbia.psl.cc.pojo.Var;
+import edu.columbia.psl.cc.util.StringUtil;
 
-public class ShortestPathKernel {
+public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 	
 	private static int limit = (int)1E2;
 	
@@ -43,7 +45,8 @@ public class ShortestPathKernel {
 			return 0;
 	}
 	
-	public double scoreShortestPaths(CostObj[][]g1, CostObj[][]g2) {
+	@Override
+	public double calculateSimilarity(CostObj[][]g1, CostObj[][]g2) {
 		int total = 0;
 		for (int i = 0; i < g1.length; i++) {
 			for (int j = 0; j < g1.length; j++) {
@@ -124,8 +127,9 @@ public class ShortestPathKernel {
 		for (int i = 0; i < costTable.length; i++) {
 			for (int j = 0; j < costTable.length; j++) {
 				for (int k = 0; k < costTable.length; k++) {
-					if (costTable[i][j].cost > costTable[i][k].cost + costTable[k][j].cost) {
-						costTable[i][j].cost = costTable[i][k].cost + costTable[k][j].cost;
+					if (costTable[i][j].getCost() > costTable[i][k].getCost() + costTable[k][j].getCost()) {
+						//costTable[i][j].cost = costTable[i][k].cost + costTable[k][j].cost;
+						costTable[i][j].setCost(costTable[i][k].getCost() + costTable[k][j].getCost());
 					}
 				}
 			}
@@ -147,7 +151,7 @@ public class ShortestPathKernel {
 			StringBuilder rawBuilder = new StringBuilder();
 			rawBuilder.append(allNodes.get(i) + ",");
 			for (int j = 0; j < costTable.length; j++) {
-				rawBuilder.append(costTable[i][j].cost + ",");
+				rawBuilder.append(costTable[i][j].getCost() + ",");
 			}
 			sb.append(rawBuilder.toString().substring(0, rawBuilder.length() - 1) + "\n");
 		}
@@ -215,29 +219,6 @@ public class ShortestPathKernel {
 		}
 		
 		return costTable;
-	}
-	
-	public static class CostObj {
-		
-		private List<String> labels = new ArrayList<String>();;
-		
-		private int cost;
-		
-		public void addLabel(String label) {
-			this.labels.add(label);
-		}
-		
-		public List<String> getLabels() {
-			return labels;
-		}
-		
-		public void setCost(int cost) {
-			this.cost = cost;
-		}
-		
-		public int getCost() {
-			return this.cost;
-		}
 	}
 	
 	public static void main(String[] args) {

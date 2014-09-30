@@ -10,15 +10,12 @@ import java.util.List;
 
 import org.objectweb.asm.Opcodes;
 
+import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 
 public class BytecodeCategory {
 	
 	//private static String opTablePath = "opcodes/opcode_table.txt";
-	
-	private static String opTablePath = "opcodes/opcode_cats.csv";
-	
-	private static String opCodeCatId = "opcodes/opcode_ids.csv";
 	
 	private static HashMap<Integer, String> opcodeCategory = new HashMap<Integer, String>();
 	
@@ -32,7 +29,7 @@ public class BytecodeCategory {
 	}
 	
 	private static void loadOpcodeCategory() {		
-		File f = new File(opCodeCatId);
+		File f = new File(MIBConfiguration.getOpCodeCatId());
 		
 		if (!f.exists()) {
 			System.err.println("Opcode category ID table does not exist");
@@ -72,7 +69,7 @@ public class BytecodeCategory {
 	}
 	
 	private static void loadOpcodeTable() {
-		File f = new File(opTablePath);
+		File f = new File(MIBConfiguration.getOpTablePath());
 		if (!f.exists()) {
 			System.err.println("Find no opcode table information");
 			return ;

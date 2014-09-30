@@ -12,17 +12,18 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
+import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.Var;
 
 public class GsonManager {
 	
-	private static String templateDir = "./template";
+	private static String templateDir = MIBConfiguration.getTemplateDir();
 	
-	private static String testDir = "./test";
+	private static String testDir = MIBConfiguration.getTestDir();
 	
-	private static String pathDir = "./path";
+	private static String pathDir = MIBConfiguration.getPathDir();
 	
-	private static String labelmapDir = "./labelmap";
+	private static String labelmapDir = MIBConfiguration.getLabelmapDir();
 	
 	public static void writePath(String fileName, List<String> path) {
 		StringBuilder sb = new StringBuilder();

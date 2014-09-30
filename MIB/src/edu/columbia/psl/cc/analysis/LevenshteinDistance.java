@@ -1,8 +1,8 @@
-package edu.columbia.psl.cc.util;
+package edu.columbia.psl.cc.analysis;
 
 import java.util.HashMap;
 
-public class LevenshteinDistance {
+public class LevenshteinDistance implements MIBSimilarity<String>{
 	
 	private HashMap<String, String> templateMap = new HashMap<String, String>();
 	
@@ -24,12 +24,13 @@ public class LevenshteinDistance {
 				String tempSeq = templateMap.get(tempKey);
 				System.out.println("Target seq: " + targetSeq);
 				System.out.println("Test seq: " + tempSeq);
-				System.out.println(targetKey + " vs " + tempKey + " " + calDistance(targetSeq, tempSeq));
+				System.out.println(targetKey + " vs " + tempKey + " " + this.calculateSimilarity(targetSeq, tempSeq));
 			}
 		}
 	}
 	
-	public static int calDistance(String s0, String s1) {                          
+	@Override
+	public double calculateSimilarity(String s0, String s1) {                          
 	    int len0 = s0.length() + 1;                                                     
 	    int len1 = s1.length() + 1;                                                     
 	 
@@ -73,6 +74,7 @@ public class LevenshteinDistance {
 		String s1 = "bagcbbgcbbgcbp";
 		String s2 = "bbgcbagcbbgcbp";
 		
-		System.out.println("Test: " + calDistance(s1, s2));
+		LevenshteinDistance ld = new LevenshteinDistance();
+		System.out.println("Test: " + ld.calculateSimilarity(s1, s2));
 	}
 }

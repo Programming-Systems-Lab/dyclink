@@ -1,4 +1,4 @@
-package edu.columbia.psl.cc.util;
+package edu.columbia.psl.cc.analysis;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +13,7 @@ import edu.columbia.psl.cc.datastruct.VarPairPool;
 import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.pojo.VarPair;
+import edu.columbia.psl.cc.util.GraphUtil;
 
 public class SimilarityFlooding {
 	
