@@ -12,13 +12,14 @@ import com.google.gson.reflect.TypeToken;
 import edu.columbia.psl.cc.analysis.ShortestPathKernel;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.CostObj;
+import edu.columbia.psl.cc.pojo.GraphTemplate;
 
 public class DynamicGraphAnalyzer implements Analyzer {
 	
-	public static HashMap<String, TreeMap<String, TreeSet<String>>> loadTemplate(File dir, TypeToken typeToken) {
-		HashMap<String, TreeMap<String, TreeSet<String>>> ret = new HashMap<String, TreeMap<String, TreeSet<String>>>();
+	public static <T> HashMap<String, T> loadTemplate(File dir, TypeToken<T> typeToken) {
+		HashMap<String, T> ret = new HashMap<String, T>();
 		if (!dir.isDirectory()) {
-			TreeMap<String, TreeSet<String>> temp = GsonManager.readJsonGeneric(dir, typeToken);
+			T temp = GsonManager.readJsonGeneric(dir, typeToken);
 			ret.put(dir.getName(), temp);
 		} else {
 			FilenameFilter filter = new FilenameFilter() {
@@ -30,11 +31,23 @@ public class DynamicGraphAnalyzer implements Analyzer {
 			
 			for (File f: dir.listFiles(filter)) {
 				String name = f.getName().replace(".json", "");
-				TreeMap<String, TreeSet<String>> value = GsonManager.readJsonGeneric(f, typeToken);
+				T value = GsonManager.readJsonGeneric(f, typeToken);
 				ret.put(name, value);
 			}
 		}
 		return ret;
+	}
+	
+	public static TreeMap<String, TreeSet<String>> mergeDataControlMap(GraphTemplate gt) {
+		TreeMap<String, TreeSet<String>> merged = gt.getDataGraph();
+		for (String ckey: gt.getControlGraph().keySet()) {
+			if (merged.containsKey(ckey)) {
+				merged.get(ckey).addAll(gt.getControlGraph().get(ckey));
+			} else {
+				merged.put(ckey, gt.getControlGraph().get(ckey));
+			}
+		}
+		return merged;
 	}
 	
 	public static void expandDepMap(HashMap<String, HashSet<String>> nodeInfo, HashMap<String, TreeMap<String, TreeSet<String>>> depMaps) {
@@ -61,13 +74,28 @@ public class DynamicGraphAnalyzer implements Analyzer {
 		}
 	}
 	
+	public HashMap<String, TreeMap<String, TreeSet<String>>> preprocessGraph(HashMap<String, GraphTemplate> graphs) {
+		HashMap<String, TreeMap<String, TreeSet<String>>> ret = new HashMap<String, TreeMap<String, TreeSet<String>>>();
+		for (String mkey: graphs.keySet()) {
+			GraphTemplate graph = graphs.get(mkey);
+			System.out.println("Check method: " + mkey);
+			System.out.println("Invoke method lookup: " + graph.getInvokeMethodLookup());
+			System.out.println("Last 2nd inst: " + graph.getLastSecondInst());
+			ret.put(mkey, mergeDataControlMap(graph));
+		}
+		return ret;
+	}
+	
 	public void analyzeTemplate() {
 		File templateDir = new File(MIBConfiguration.getTemplateDir());
 		File testDir = new File(MIBConfiguration.getTestDir());
 		
-		TypeToken<TreeMap<String, TreeSet<String>>> typeToken = new TypeToken<TreeMap<String, TreeSet<String>>>(){};
-		HashMap<String, TreeMap<String, TreeSet<String>>> templateMap = loadTemplate(templateDir, typeToken);
-		HashMap<String, TreeMap<String, TreeSet<String>>> testMap = loadTemplate(testDir, typeToken);
+		TypeToken<GraphTemplate> typeToken = new TypeToken<GraphTemplate>(){};
+		HashMap<String, GraphTemplate> templateGraphs = loadTemplate(templateDir, typeToken);
+		HashMap<String, GraphTemplate> testGraphs = loadTemplate(testDir, typeToken);
+		
+		HashMap<String, TreeMap<String, TreeSet<String>>> templateMap = this.preprocessGraph(templateGraphs);
+		HashMap<String, TreeMap<String, TreeSet<String>>> testMap = this.preprocessGraph(testGraphs);
 		
 		int maxCount = 0;
 		HashMap<String, HashSet<String>> nodeInfo = new HashMap<String, HashSet<String>>();

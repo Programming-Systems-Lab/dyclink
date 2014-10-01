@@ -63,15 +63,8 @@ public class TemplateMethod {
 			a[i] += a[i] * i;
 		}*/
 	}
-	
+		
 	//@extractTemplate
-	public int dummmy2(int a, int b) {
-		//int a = this.iVar + sVar;
-		int c = a + b;
-		return c;
-	}
-	
-	@extractTemplate
 	public int testField(int input) {
 		int ret = this.iVar + sVar + input;
 		Label l = new Label();
@@ -79,7 +72,7 @@ public class TemplateMethod {
 		return ret;
 	}
 	
-	@extractTemplate
+	//@extractTemplate
 	public void testContinuousAnd(int keyBits) {
 		//int ret = 0;
 		if (keyBits != 128 && keyBits != 192 && keyBits != 256) {
@@ -91,17 +84,17 @@ public class TemplateMethod {
 	public void dummyInvoke() {
 		int a = 5; 
 		int b= 3;
-		int c = this.dummmy2(a, b);
+		int c = this.addInside(a, b);
 	}
 	
-	@extractTemplate
+	//@extractTemplate
 	public void dummyArray(int[] a) {
 		int i = 2;
 		int j = 5;
 		a[i] = j;
 	}
 	
-	@extractTemplate
+	//@extractTemplate
 	public void dummy4(int a, int b) {
 		int c = a + b;
 		String ret = "";
@@ -112,7 +105,7 @@ public class TemplateMethod {
 		}
 	}
 	
-	@extractTemplate
+	//@extractTemplate
 	public void dummyFor(int[] a) {
 		int j = 5;
 		for (int i = 0; i < a.length; i++) {
@@ -127,7 +120,7 @@ public class TemplateMethod {
 		}			
 	}
 	
-	@extractTemplate
+	//@extractTemplate
 	public void unidentified() {
 		double i = 5;
 		double[] d = new double[5];
@@ -153,7 +146,8 @@ public class TemplateMethod {
 	
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
-		tm.testField(5);
+		System.out.println("TempalteMethod: " + tm.addOutside(3, 5));
+		//tm.testField(5);
 		//tm.testContinuousAnd(128);
 		//tm.dummyInvoke();
 		//tm.dummy4(1, 6);
@@ -170,11 +164,28 @@ public class TemplateMethod {
 		System.out.println(methodType.getArgumentsAndReturnSizes());*/
 	}
 	
-	public synchronized int add(int a, int b) {
-		int[][] c = new int[4][5];
-		this.iVar = 8;
-		c[1][2] = 9;
-		return a + b;
+	public int empty(int a, double b) {
+		int c = a + 5;
+		return c;
+	}
+	
+	@extractTemplate
+	public int add(int i1, int i2) {
+		return i1 + i2;
+	}
+	
+	//@extractTemplate
+	public int addInside(int a, int b) {
+		//int a = this.iVar + sVar;
+		int c = a + b;
+		this.empty(0, 5);
+		return c;
+	}
+	
+	@extractTemplate
+	public int addOutside(int a, int b) {
+		int c = this.add(a, b);
+		return c;
 	}
 	
 	//@extractTemplate

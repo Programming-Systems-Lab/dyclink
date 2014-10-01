@@ -1,0 +1,8 @@
+head,L67 0 21 iload 4,L67 1 172 ireturn,L8 0 25 aload 0,L8 1 21 iload 1,L8 2 21 iload 2,L8 3 182 invokevirtual edu/columbia/psl/cc/test/TemplateMethod add (II)I,L8 4 54 istore 4
+L67 0 21 iload 4,0,1,100,100,100,100,100
+L67 1 172 ireturn,100,0,100,100,100,100,100
+L8 0 25 aload 0,100,100,0,100,100,1,2
+L8 1 21 iload 1,100,100,100,0,100,1,2
+L8 2 21 iload 2,100,100,100,100,0,1,2
+L8 3 182 invokevirtual edu/columbia/psl/cc/test/TemplateMethod add (II)I,2,3,100,100,100,0,1
+L8 4 54 istore 4,1,2,100,100,100,100,0

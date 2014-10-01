@@ -1,0 +1,16 @@
+{
+  "lastSecondInst": "L8 2 96 iadd",
+  "invokeMethodLookup": {},
+  "dataGraph": {
+    "L8 0 21 iload 1": [
+      "L8 2 96 iadd"
+    ],
+    "L8 1 21 iload 2": [
+      "L8 2 96 iadd"
+    ],
+    "L8 2 96 iadd": [
+      "L8 3 172 ireturn"
+    ]
+  },
+  "controlGraph": {}
+}
