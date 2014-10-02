@@ -6,6 +6,10 @@ public class MIBConfiguration {
 	
 	private static String opCodeCatId = "opcodes/opcode_ids.csv";
 	
+	private static String costTableDir = "./cost_tables/";
+	
+	private static int costLimit = (int)1E2;
+	
 	private static String srHandleCommon = "handleOpcode";
 	
 	private static String srHCDesc = "(III)V";
@@ -31,6 +35,14 @@ public class MIBConfiguration {
 	private static String pathDir = "./path";
 	
 	private static String labelmapDir = "./labelmap";
+	
+	public static String getCostTableDir() {
+		return costTableDir;
+	}
+	
+	public static int getCostLimit() {
+		return costLimit;
+	}
 	
 	public static String getTemplateDir() {
 		return templateDir;

@@ -1,6 +1,11 @@
 package edu.columbia.psl.cc.analysis;
 
 import java.util.HashMap;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import edu.columbia.psl.cc.pojo.CostObj;
+import edu.columbia.psl.cc.pojo.InstNode;
 
 public class LevenshteinDistance implements MIBSimilarity<String>{
 	
@@ -76,5 +81,12 @@ public class LevenshteinDistance implements MIBSimilarity<String>{
 		
 		LevenshteinDistance ld = new LevenshteinDistance();
 		System.out.println("Test: " + ld.calculateSimilarity(s1, s2));
+	}
+
+	@Override
+	public String constructCostTable(String methodName,
+			TreeMap<InstNode, TreeSet<InstNode>> depMap) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

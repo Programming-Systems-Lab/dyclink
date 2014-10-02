@@ -9,6 +9,8 @@ import java.util.TreeSet;
 
 import com.google.gson.reflect.TypeToken;
 
+import edu.columbia.psl.cc.analysis.MIBSimilarity;
+import edu.columbia.psl.cc.analysis.SVDKernel;
 import edu.columbia.psl.cc.analysis.ShortestPathKernel;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.CostObj;
@@ -16,6 +18,8 @@ import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 
 public class DynamicGraphAnalyzer implements Analyzer {
+	
+	private MIBSimilarity scorer;
 	
 	public static <T> HashMap<String, T> loadTemplate(File dir, TypeToken<T> typeToken) {
 		HashMap<String, T> ret = new HashMap<String, T>();
@@ -75,6 +79,10 @@ public class DynamicGraphAnalyzer implements Analyzer {
 		}
 	}
 	
+	public void setAnalyzer(MIBSimilarity scorer) {
+		this.scorer = scorer;
+	}
+	
 	public HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>> preprocessGraph(HashMap<String, GraphTemplate> graphs) {
 		HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>> ret = new HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>>();
 		for (String mkey: graphs.keySet()) {
@@ -106,7 +114,7 @@ public class DynamicGraphAnalyzer implements Analyzer {
 		expandDepMap(nodeInfo, targetMap);
 	}
 	
-	public void analyzeTemplate() {
+	public <T> void analyzeTemplate() {
 		File templateDir = new File(MIBConfiguration.getTemplateDir());
 		File testDir = new File(MIBConfiguration.getTestDir());
 		
@@ -120,17 +128,18 @@ public class DynamicGraphAnalyzer implements Analyzer {
 		this.summarizeGraphs(templateMap);
 		this.summarizeGraphs(testMap);
 		
-		ShortestPathKernel spk = new ShortestPathKernel();
+		//MIBSimilarity scorer = new ShortestPathKernel();
+		MIBSimilarity scorer = new SVDKernel();
 		//Score kernel
 		for (String templateName: templateMap.keySet()) {
 			TreeMap<InstNode, TreeSet<InstNode>> templateMethod = templateMap.get(templateName);
 			System.out.println("Construct cost table: " + templateName);
-			CostObj[][] templateCostTable = spk.constructCostTable(templateName, templateMethod);
+			T templateCostTable = (T) scorer.constructCostTable(templateName, templateMethod);
 			for (String testName: testMap.keySet()) {
 				TreeMap<InstNode, TreeSet<InstNode>> testMethod = testMap.get(testName);
 				System.out.println("Construct cost table: " + testName);
-				CostObj[][] testCostTable = spk.constructCostTable(testName, testMethod);
-				double graphScore = spk.calculateSimilarity(templateCostTable, testCostTable);
+				T testCostTable = (T) scorer.constructCostTable(testName, testMethod);
+				double graphScore = scorer.calculateSimilarity(templateCostTable, testCostTable);
 				
 				System.out.println(templateName + " vs " + testName + " " + graphScore);
 			}

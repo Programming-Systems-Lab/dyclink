@@ -1,5 +1,8 @@
 package edu.columbia.psl.cc.util;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,9 +10,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.VarPairPool;
 import edu.columbia.psl.cc.datastruct.VarPool;
+import edu.columbia.psl.cc.pojo.CostObj;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
@@ -52,7 +57,7 @@ public class GraphUtil {
 			}
 		}
 	}*/
-	
+		
 	private static void summarizeVarPairChildren(VarPairPool vpp, VarPair vp) {
 		HashMap<String, Set<Var>> v1Map = vp.getVar1().getChildren();
 		HashMap<String, Set<Var>> v2Map = vp.getVar2().getChildren();

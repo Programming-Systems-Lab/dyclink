@@ -2,5 +2,5 @@ package edu.columbia.psl.cc.util;
 
 public interface Analyzer {
 	
-	public void analyzeTemplate();
+	public <T> void analyzeTemplate();
 }

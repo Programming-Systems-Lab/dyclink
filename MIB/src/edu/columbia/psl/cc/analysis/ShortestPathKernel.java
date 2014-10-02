@@ -13,6 +13,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 
+import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.CostObj;
 import edu.columbia.psl.cc.pojo.InstNode;
@@ -22,8 +23,6 @@ import edu.columbia.psl.cc.util.StringUtil;
 public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 	
 	private static int limit = (int)1E2;
-	
-	private static String costTableDir = "./cost_tables/";
 	
 	public static VarPool addFakeVar(VarPool smallPool, int diff) {
 		VarPool ret = new VarPool(smallPool);
@@ -65,107 +64,6 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 		System.out.println("Check total: " + total);
 		System.out.println("Check ret: " + ret);
 		return ret;
-	}
-	
-	public CostObj[][] constructCostTable(String methodName, TreeMap<InstNode, TreeSet<InstNode>> depMap) {
-		ArrayList<InstNode> allNodes = new ArrayList<InstNode>(depMap.navigableKeySet());
-		
-		//int[][] costTable = new int[allNodes.size()][allNodes.size()];
-		CostObj[][] costTable = new CostObj[allNodes.size()][allNodes.size()];
-		HashMap<Integer, String> labelCache = new HashMap<Integer, String>();
-		for (int i = 0; i < costTable.length; i++) {
-			for (int j = 0; j < costTable.length; j++) {
-				
-				CostObj co = new CostObj();
-				InstNode inst1 = allNodes.get(i);
-				InstNode inst2 = allNodes.get(j);
-				
-				if (!labelCache.containsKey(i)) {
-					String startLabel = StringUtil.parseElement(inst1.toString(), 2);
-					labelCache.put(i, startLabel);
-					co.addLabel(startLabel);
-				} else {
-					co.addLabel(labelCache.get(i));
-				}
-				
-				if (!labelCache.containsKey(j)) {
-					String endLabel = StringUtil.parseElement(inst2.toString(), 2);
-					labelCache.put(j, endLabel);
-					co.addLabel(endLabel);
-				} else {
-					co.addLabel(labelCache.get(j));
-				}
-				
-				if (i == j) {
-					co.setCost(0);
-					costTable[i][j] = co;
-					continue;
-				}
-				
-				if (depMap.get(inst1) == null) {
-					co.setCost(limit);
-					costTable[i][j] = co;
-					//costTable[i][j] = limit;
-				} else {
-					if (depMap.get(inst1).contains(inst2)) {
-						co.setCost(1);
-						costTable[i][j] = co;
-						//costTable[i][j] = 1;
-					} else {
-						co.setCost(limit);
-						costTable[i][j] = co;
-						//costTable[i][j] = limit;
-					}
-				}
-			}
-		}
-		
-		for (int i = 0; i < costTable.length; i++) {
-			for (int j = 0; j < costTable.length; j++) {
-				for (int k = 0; k < costTable.length; k++) {
-					if (costTable[i][j].getCost() > costTable[i][k].getCost() + costTable[k][j].getCost()) {
-						//costTable[i][j].cost = costTable[i][k].cost + costTable[k][j].cost;
-						costTable[i][j].setCost(costTable[i][k].getCost() + costTable[k][j].getCost());
-					}
-				}
-			}
-		}
-		
-		//Debugging purpose, dump cost table
-		StringBuilder sb = new StringBuilder();
-		sb.append("head,");
-		for (int i = 0; i < allNodes.size(); i++) {
-			if (i == allNodes.size() - 1) {
-				sb.append(allNodes.get(i) + "\n");
-			} else {
-				sb.append(allNodes.get(i) + ",");
-			}
-		}
-		
-		System.out.println("Check cost table");
-		for (int i = 0; i < costTable.length; i++) {
-			StringBuilder rawBuilder = new StringBuilder();
-			rawBuilder.append(allNodes.get(i) + ",");
-			for (int j = 0; j < costTable.length; j++) {
-				rawBuilder.append(costTable[i][j].getCost() + ",");
-			}
-			sb.append(rawBuilder.toString().substring(0, rawBuilder.length() - 1) + "\n");
-		}
-		
-		try {
-			File f = new File(costTableDir + methodName + ".csv");
-			if (f.exists()) {
-				f.delete();
-			}
-			f.createNewFile();
-			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-			bw.write(sb.toString());
-			bw.close();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		
-		return costTable;
 	}
 	
 	public int[][] constructCostTable(VarPool vp1) {
@@ -212,6 +110,96 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 				sb.append(costTable[i][j] + " ");
 			}
 			System.out.println(sb.toString());
+		}
+		
+		return costTable;
+	}
+	
+	@Override
+	public CostObj[][] constructCostTable(String methodName, TreeMap<InstNode, TreeSet<InstNode>> depMap) {
+		ArrayList<InstNode> allNodes = new ArrayList<InstNode>(depMap.navigableKeySet());
+		
+		//int[][] costTable = new int[allNodes.size()][allNodes.size()];
+		CostObj[][] costTable = new CostObj[allNodes.size()][allNodes.size()];
+		for (int i = 0; i < costTable.length; i++) {
+			for (int j = 0; j < costTable.length; j++) {
+				
+				CostObj co = new CostObj();
+				InstNode inst1 = allNodes.get(i);
+				InstNode inst2 = allNodes.get(j);
+				
+				String startLabel = inst1.getOp().getInstruction();
+				String endLabel = inst2.getOp().getInstruction();
+				co.addLabel(startLabel);
+				co.addLabel(endLabel);
+				
+				if (i == j) {
+					co.setCost(0);
+					costTable[i][j] = co;
+					continue;
+				}
+				
+				if (depMap.get(inst1) == null) {
+					co.setCost(MIBConfiguration.getCostLimit());
+					costTable[i][j] = co;
+					//costTable[i][j] = limit;
+				} else {
+					if (depMap.get(inst1).contains(inst2)) {
+						co.setCost(1);
+						costTable[i][j] = co;
+						//costTable[i][j] = 1;
+					} else {
+						co.setCost(MIBConfiguration.getCostLimit());
+						costTable[i][j] = co;
+						//costTable[i][j] = limit;
+					}
+				}
+			}
+		}
+		
+		for (int i = 0; i < costTable.length; i++) {
+			for (int j = 0; j < costTable.length; j++) {
+				for (int k = 0; k < costTable.length; k++) {
+					if (costTable[i][j].getCost() > costTable[i][k].getCost() + costTable[k][j].getCost()) {
+						//costTable[i][j].cost = costTable[i][k].cost + costTable[k][j].cost;
+						costTable[i][j].setCost(costTable[i][k].getCost() + costTable[k][j].getCost());
+					}
+				}
+			}
+		}
+		
+		//Debugging purpose, dump cost table
+		StringBuilder sb = new StringBuilder();
+		sb.append("head,");
+		for (int i = 0; i < allNodes.size(); i++) {
+			if (i == allNodes.size() - 1) {
+				sb.append(allNodes.get(i) + "\n");
+			} else {
+				sb.append(allNodes.get(i) + ",");
+			}
+		}
+		
+		System.out.println("Check cost table");
+		for (int i = 0; i < costTable.length; i++) {
+			StringBuilder rawBuilder = new StringBuilder();
+			rawBuilder.append(allNodes.get(i) + ",");
+			for (int j = 0; j < costTable.length; j++) {
+				rawBuilder.append(costTable[i][j].getCost() + ",");
+			}
+			sb.append(rawBuilder.toString().substring(0, rawBuilder.length() - 1) + "\n");
+		}
+		
+		try {
+			File f = new File(MIBConfiguration.getCostTableDir() + methodName + ".csv");
+			if (f.exists()) {
+				f.delete();
+			}
+			f.createNewFile();
+			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+			bw.write(sb.toString());
+			bw.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 		
 		return costTable;
