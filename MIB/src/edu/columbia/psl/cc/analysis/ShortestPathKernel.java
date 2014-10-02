@@ -15,6 +15,7 @@ import java.io.FileWriter;
 
 import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.CostObj;
+import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.util.StringUtil;
 
@@ -66,13 +67,8 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 		return ret;
 	}
 	
-	public CostObj[][] constructCostTable(String methodName, TreeMap<String, TreeSet<String>> depMap, Comparator...comp) {
-		ArrayList<String> allNodes = new ArrayList<String>(depMap.keySet());
-		
-		if (comp.length == 0)
-			Collections.sort(allNodes);
-		else
-			Collections.sort(allNodes, comp[0]);
+	public CostObj[][] constructCostTable(String methodName, TreeMap<InstNode, TreeSet<InstNode>> depMap) {
+		ArrayList<InstNode> allNodes = new ArrayList<InstNode>(depMap.navigableKeySet());
 		
 		//int[][] costTable = new int[allNodes.size()][allNodes.size()];
 		CostObj[][] costTable = new CostObj[allNodes.size()][allNodes.size()];
@@ -81,11 +77,11 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 			for (int j = 0; j < costTable.length; j++) {
 				
 				CostObj co = new CostObj();
-				String var1 = allNodes.get(i);
-				String var2 = allNodes.get(j);
+				InstNode inst1 = allNodes.get(i);
+				InstNode inst2 = allNodes.get(j);
 				
 				if (!labelCache.containsKey(i)) {
-					String startLabel = StringUtil.parseElement(var1, 2);
+					String startLabel = StringUtil.parseElement(inst1.toString(), 2);
 					labelCache.put(i, startLabel);
 					co.addLabel(startLabel);
 				} else {
@@ -93,7 +89,7 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 				}
 				
 				if (!labelCache.containsKey(j)) {
-					String endLabel = StringUtil.parseElement(var2, 2);
+					String endLabel = StringUtil.parseElement(inst2.toString(), 2);
 					labelCache.put(j, endLabel);
 					co.addLabel(endLabel);
 				} else {
@@ -106,12 +102,12 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 					continue;
 				}
 				
-				if (depMap.get(var1) == null) {
+				if (depMap.get(inst1) == null) {
 					co.setCost(limit);
 					costTable[i][j] = co;
 					//costTable[i][j] = limit;
 				} else {
-					if (depMap.get(var1).contains(var2)) {
+					if (depMap.get(inst1).contains(inst2)) {
 						co.setCost(1);
 						costTable[i][j] = co;
 						//costTable[i][j] = 1;

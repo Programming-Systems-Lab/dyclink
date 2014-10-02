@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Label;
@@ -81,6 +82,8 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	private HashMap<Integer, ArrayList<OpcodeObj>> records = genRecordTemplate();
 	
 	private ArrayList<OpcodeObj> sequence = new ArrayList<OpcodeObj>();
+	
+	private AtomicInteger indexer = new AtomicInteger();
 	 
 	public DynamicMethodMiner(MethodVisitor mv, String className, int access, String myName, String desc, String templateAnnot, String testAnnot) {
 		super(Opcodes.ASM4, mv, access, myName, desc);
@@ -89,6 +92,10 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		this.desc = desc;
 		this.templateAnnot = templateAnnot;
 		this.testAnnot = testAnnot;
+	}
+	
+	public synchronized int getIndex() {
+		return indexer.getAndIncrement();
 	}
 	
 	private static HashMap<Integer, ArrayList<OpcodeObj>> genRecordTemplate() {
@@ -152,8 +159,10 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	public void convertConst(int cons) {
 		if (cons > 5 && cons < 128) {
 			this.mv.visitIntInsn(Opcodes.BIPUSH, cons);
-		} else if (cons >=128) {
+		} else if (cons >=128 && cons < 32768) {
 			this.mv.visitIntInsn(Opcodes.SIPUSH, cons);
+		} else if (cons >= 32768) {
+			this.mv.visitLdcInsn(cons);
 		}else if (cons == 0) {
 			this.mv.visitInsn(Opcodes.ICONST_0);
 		} else if (cons == 1) {
@@ -172,7 +181,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	private void handleOpcode(int opcode, int...addInfo) {
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.convertConst(opcode);
-		this.mv.visitLdcInsn(this.curLabel.toString());
+		this.convertConst(this.getIndex());
 		if (addInfo.length == 0) {
 			this.mv.visitInsn(Opcodes.ICONST_M1);
 		} else {
@@ -185,7 +194,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	private void handleOpcode(int opcode, String addInfo) {
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.convertConst(opcode);
-		this.mv.visitLdcInsn(this.curLabel.toString());
+		this.convertConst(this.getIndex());
 		this.mv.visitLdcInsn(addInfo);
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleCommon, srHCDescString);
 	}
@@ -194,14 +203,14 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.mv.visitLdcInsn(desc);
 		this.convertConst(dim);
-		this.mv.visitLdcInsn(this.curLabel.toString());
+		this.convertConst(this.getIndex());
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleMultiArray, srHandleMultiArrayDesc);
 	}
 	
 	public void handleMethod(int opcode, String owner, String name, String desc) {
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.convertConst(opcode);
-		this.mv.visitLdcInsn(this.curLabel.toString());
+		this.convertConst(this.getIndex());
 		this.mv.visitLdcInsn(owner);
 		this.mv.visitLdcInsn(name);
 		this.mv.visitLdcInsn(desc);

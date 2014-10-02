@@ -13,6 +13,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.Var;
 
 public class GsonManager {
@@ -25,10 +26,10 @@ public class GsonManager {
 	
 	private static String labelmapDir = MIBConfiguration.getLabelmapDir();
 	
-	public static void writePath(String fileName, List<String> path) {
+	public static void writePath(String fileName, List<InstNode> path) {
 		StringBuilder sb = new StringBuilder();
-		for (String inst: path) {
-			sb.append(inst + "\n");
+		for (InstNode inst: path) {
+			sb.append(inst.toString() + "\n");
 		}
 		
 		try {
@@ -91,7 +92,8 @@ public class GsonManager {
 	public static <T> void writeJsonGeneric(T obj, String fileName, TypeToken typeToken, int dirIdx) {
 		GsonBuilder gb = new GsonBuilder();
 		gb.setPrettyPrinting();
-		Gson gson = gb.create();
+		gb.registerTypeAdapter(InstNode.class, new InstNodeAdapter());
+		Gson gson = gb.enableComplexMapKeySerialization().create();
 		String toWrite = gson.toJson(obj, typeToken.getType());
 		try {
 			File f;
@@ -113,7 +115,8 @@ public class GsonManager {
 	public static <T> T readJsonGeneric(File f, TypeToken typeToken) {
 		GsonBuilder gb = new GsonBuilder();
 		gb.setPrettyPrinting();
-		Gson gson = gb.create();
+		gb.registerTypeAdapter(InstNode.class, new InstNodeAdapter());
+		Gson gson = gb.enableComplexMapKeySerialization().create();
 		try {
 			JsonReader jr = new JsonReader(new FileReader(f));
 			T ret = gson.fromJson(jr, typeToken.getType());
@@ -124,7 +127,7 @@ public class GsonManager {
 		}
 		return null;
 	}
-	
+		
 	private static void cleanHelper(String fileName) {
 		File dir = new File(fileName);
 		if (!dir.isDirectory()) {

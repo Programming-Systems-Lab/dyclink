@@ -105,11 +105,15 @@ public class TemplateMethod {
 		}
 	}
 	
-	//@extractTemplate
+	@extractTemplate
 	public void dummyFor(int[] a) {
+		int k = 100000;
 		int j = 5;
 		for (int i = 0; i < a.length; i++) {
-			a[i] += j; 
+			if (i < 2)
+				a[i] += j; 
+			else
+				a[i] += 1;
 		}
 	}
 	
@@ -126,24 +130,7 @@ public class TemplateMethod {
 		double[] d = new double[5];
 		d[0] = i;
 	}
-	
-	public void simulateStack() {
-		String label = "123";
-		MethodStackRecorder msr = new MethodStackRecorder();
-		msr.handleOpcode(21, "123", 1);
-		msr.handleOpcode(21, label, 2);
-		msr.handleOpcode(96, label, -1);
-		msr.handleOpcode(54, label, 3);
-		msr.handleOpcode(18, label, -1);
-		msr.handleOpcode(58, label, 4);
-		msr.handleOpcode(21, label, 3);
-		msr.handleOpcode(8, label, -1);
-		msr.handleOpcode(164, label, -1);
-		msr.handleOpcode(18, label, -1);
-		msr.handleOpcode(58, label, 4);
-		msr.dumpGraph("class", "method", "desc", true);
-	}
-	
+		
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
 		System.out.println("TempalteMethod: " + tm.addOutside(3, 5));

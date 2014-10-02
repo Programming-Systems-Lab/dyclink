@@ -8,17 +8,17 @@ public class MIBConfiguration {
 	
 	private static String srHandleCommon = "handleOpcode";
 	
-	private static String srHCDesc = "(ILjava/lang/String;I)V";
+	private static String srHCDesc = "(III)V";
 	
-	private static String srHCDescString = "(ILjava/lang/String;Ljava/lang/String;)V";
+	private static String srHCDescString = "(IILjava/lang/String;)V";
 	
 	private static String srHandleMultiArray = "handleMultiNewArray";
 	
-	private static String srHandleMultiArrayDesc = "(Ljava/lang/String;ILjava/lang/String;)V";
+	private static String srHandleMultiArrayDesc = "(Ljava/lang/String;II)V";
 	
 	private static String srHandleMethod = "handleMethod";
 	
-	private static String srHandleMethodDesc = "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
+	private static String srHandleMethodDesc = "(IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
 	
 	private static String srGraphDump = "dumpGraph";
 	

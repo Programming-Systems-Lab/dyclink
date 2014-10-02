@@ -13,6 +13,7 @@ import edu.columbia.psl.cc.analysis.ShortestPathKernel;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.CostObj;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
+import edu.columbia.psl.cc.pojo.InstNode;
 
 public class DynamicGraphAnalyzer implements Analyzer {
 	
@@ -38,9 +39,9 @@ public class DynamicGraphAnalyzer implements Analyzer {
 		return ret;
 	}
 	
-	public static TreeMap<String, TreeSet<String>> mergeDataControlMap(GraphTemplate gt) {
-		TreeMap<String, TreeSet<String>> merged = gt.getDataGraph();
-		for (String ckey: gt.getControlGraph().keySet()) {
+	public static TreeMap<InstNode, TreeSet<InstNode>> mergeDataControlMap(GraphTemplate gt) {
+		TreeMap<InstNode, TreeSet<InstNode>> merged = gt.getDataGraph();
+		for (InstNode ckey: gt.getControlGraph().keySet()) {
 			if (merged.containsKey(ckey)) {
 				merged.get(ckey).addAll(gt.getControlGraph().get(ckey));
 			} else {
@@ -50,13 +51,13 @@ public class DynamicGraphAnalyzer implements Analyzer {
 		return merged;
 	}
 	
-	public static void expandDepMap(HashMap<String, HashSet<String>> nodeInfo, HashMap<String, TreeMap<String, TreeSet<String>>> depMaps) {
+	public static void expandDepMap(HashMap<String, HashSet<InstNode>> nodeInfo, HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>> depMaps) {
 		for (String method: nodeInfo.keySet()) {
-			HashSet<String> allInsts = nodeInfo.get(method);
-			TreeMap<String, TreeSet<String>> depMap = depMaps.get(method);
+			HashSet<InstNode> allInsts = nodeInfo.get(method);
+			TreeMap<InstNode, TreeSet<InstNode>> depMap = depMaps.get(method);
 			
-			for (String inst: allInsts) {
-				if (depMap.get(inst) == null) {
+			for (InstNode inst: allInsts) {
+				if (!depMap.containsKey(inst)) {
 					depMap.put(inst, null);
 				}
 			}
@@ -74,8 +75,8 @@ public class DynamicGraphAnalyzer implements Analyzer {
 		}
 	}
 	
-	public HashMap<String, TreeMap<String, TreeSet<String>>> preprocessGraph(HashMap<String, GraphTemplate> graphs) {
-		HashMap<String, TreeMap<String, TreeSet<String>>> ret = new HashMap<String, TreeMap<String, TreeSet<String>>>();
+	public HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>> preprocessGraph(HashMap<String, GraphTemplate> graphs) {
+		HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>> ret = new HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>>();
 		for (String mkey: graphs.keySet()) {
 			GraphTemplate graph = graphs.get(mkey);
 			System.out.println("Check method: " + mkey);
@@ -86,6 +87,25 @@ public class DynamicGraphAnalyzer implements Analyzer {
 		return ret;
 	}
 	
+	public void summarizeGraphs(HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>> targetMap) {
+		HashMap<String, HashSet<InstNode>> nodeInfo = new HashMap<String, HashSet<InstNode>>();
+		for (String name: targetMap.keySet()) {
+			TreeMap<InstNode, TreeSet<InstNode>> tmpTemp = targetMap.get(name);
+			HashSet<InstNode> allNodes = new HashSet<InstNode>();
+			allNodes.addAll(tmpTemp.keySet());
+			
+			System.out.println("Graph name: " + name);
+			System.out.println("Original size: " + allNodes.size());
+			for (InstNode parent: tmpTemp.navigableKeySet()) {
+				allNodes.addAll(tmpTemp.get(parent));
+			}
+			System.out.println("Vertex number: " + allNodes.size());
+			
+			nodeInfo.put(name, allNodes);
+		}
+		expandDepMap(nodeInfo, targetMap);
+	}
+	
 	public void analyzeTemplate() {
 		File templateDir = new File(MIBConfiguration.getTemplateDir());
 		File testDir = new File(MIBConfiguration.getTestDir());
@@ -94,56 +114,20 @@ public class DynamicGraphAnalyzer implements Analyzer {
 		HashMap<String, GraphTemplate> templateGraphs = loadTemplate(templateDir, typeToken);
 		HashMap<String, GraphTemplate> testGraphs = loadTemplate(testDir, typeToken);
 		
-		HashMap<String, TreeMap<String, TreeSet<String>>> templateMap = this.preprocessGraph(templateGraphs);
-		HashMap<String, TreeMap<String, TreeSet<String>>> testMap = this.preprocessGraph(testGraphs);
+		HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>> templateMap = this.preprocessGraph(templateGraphs);
+		HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>> testMap = this.preprocessGraph(testGraphs);
 		
-		int maxCount = 0;
-		HashMap<String, HashSet<String>> nodeInfo = new HashMap<String, HashSet<String>>();
-		for (String name: templateMap.keySet()) {
-			TreeMap<String, TreeSet<String>> tmpTemp = templateMap.get(name);
-			HashSet<String> allNodes = new HashSet<String>();
-			allNodes.addAll(tmpTemp.keySet());
-			
-			for (String parent: tmpTemp.navigableKeySet()) {
-				allNodes.addAll(tmpTemp.get(parent));
-			}
-			System.out.println("Template: " + name);
-			System.out.println("Node size: " + allNodes.size());
-			
-			nodeInfo.put(name, allNodes);
-			
-			if (allNodes.size() > maxCount)
-				maxCount = allNodes.size();
-		}
-		System.out.println("Check maxCount: " + maxCount);
-		expandDepMap(nodeInfo, templateMap);
-		//compensateMap(templateMap, maxCount);
-		
-		HashMap<String, HashSet<String>> testNodeInfo = new HashMap<String, HashSet<String>>();
-		for (String name: testMap.keySet()) {
-			TreeMap<String, TreeSet<String>> tmpTest = testMap.get(name);
-			HashSet<String> allNodes = new HashSet<String>();
-			allNodes.addAll(tmpTest.keySet());
-			
-			for (String parent: tmpTest.navigableKeySet()) {
-				allNodes.addAll(tmpTest.get(parent));
-			}
-			
-			testNodeInfo.put(name, allNodes);
-			
-			System.out.println("Test: " + name);
-			System.out.println("Node size: " + allNodes.size());
-		}
-		expandDepMap(testNodeInfo, testMap);
+		this.summarizeGraphs(templateMap);
+		this.summarizeGraphs(testMap);
 		
 		ShortestPathKernel spk = new ShortestPathKernel();
 		//Score kernel
 		for (String templateName: templateMap.keySet()) {
-			TreeMap<String, TreeSet<String>> templateMethod = templateMap.get(templateName);
+			TreeMap<InstNode, TreeSet<InstNode>> templateMethod = templateMap.get(templateName);
 			System.out.println("Construct cost table: " + templateName);
 			CostObj[][] templateCostTable = spk.constructCostTable(templateName, templateMethod);
 			for (String testName: testMap.keySet()) {
-				TreeMap<String, TreeSet<String>> testMethod = testMap.get(testName);
+				TreeMap<InstNode, TreeSet<InstNode>> testMethod = testMap.get(testName);
 				System.out.println("Construct cost table: " + testName);
 				CostObj[][] testCostTable = spk.constructCostTable(testName, testMethod);
 				double graphScore = spk.calculateSimilarity(templateCostTable, testCostTable);

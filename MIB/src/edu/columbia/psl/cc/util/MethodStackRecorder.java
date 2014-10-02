@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,64 +22,56 @@ import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
+import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
+import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.pojo.StaticRep;
 
 public class MethodStackRecorder {
-	
-	private String curLabel = null;
-	
-	private AtomicInteger instCounter = null;
-
-	private Stack<String> stackSimulator = new Stack<String>();
-	
-	private String curControlVar = null;
-	
-	private Map<Integer, String> localVarRecorder = new HashMap<Integer, String>();
-	
-	private HashMap<String, TreeSet<String>> dataDep = new HashMap<String, TreeSet<String>>();
-	
-	private HashMap<String, TreeSet<String>> controlDep = new HashMap<String, TreeSet<String>>();
-	
-	private HashMap<String, ArrayList<String>> invokeMethodLookup = new HashMap<String, ArrayList<String>>();
-	
-	private List<String> path = new ArrayList<String>();
-	
-	private synchronized int getInstIdx(String label) {
-		if (curLabel == null || !curLabel.equals(label)) {
-			this.curLabel = label;
-			this.instCounter = new AtomicInteger();
-			return this.instCounter.getAndIncrement();
-		}
 		
-		return this.instCounter.getAndIncrement();
-	}
+	private Stack<InstNode> stackSimulator = new Stack<InstNode>();
 	
-	public String genInstHead(OpcodeObj oo, String label) {
+	private InstNode curControlInst = null;
+	
+	//private HashSet<InstNode> curControlInsts = new HashSet<InstNode>(); 
+	
+	private Map<Integer, InstNode> localVarRecorder = new HashMap<Integer, InstNode>();
+	
+	private TreeMap<InstNode, TreeSet<InstNode>> dataDep = new TreeMap<InstNode, TreeSet<InstNode>>();
+	
+	private TreeMap<InstNode, TreeSet<InstNode>> controlDep = new TreeMap<InstNode, TreeSet<InstNode>>();
+	
+	private HashMap<InstNode, ArrayList<InstNode>> invokeMethodLookup = new HashMap<InstNode, ArrayList<InstNode>>();
+	
+	private List<InstNode> path = new ArrayList<InstNode>();
+	
+	private InstPool pool = new InstPool();
+	
+	/*public String genInstHead(OpcodeObj oo, String label) {
 		return label + " " + this.getInstIdx(label) + " " + oo.getOpcode() + " " + oo.getInstruction();
-	}
-	
-	private void updatePath(String fullInst) {
+	}*/
+		
+	private void updatePath(InstNode fullInst) {
 		this.path.add(fullInst);
 	}
 	
-	private void updateInvokeMethod(String invokeMethod, String parentInst) {
+	private void updateInvokeMethod(InstNode invokeMethod, InstNode parentInst) {
 		if (this.invokeMethodLookup.containsKey(invokeMethod)) {
 			this.invokeMethodLookup.get(invokeMethod).add(parentInst);
 		} else {
-			ArrayList<String> parents = new ArrayList<String>();
+			ArrayList<InstNode> parents = new ArrayList<InstNode>();
 			parents.add(parentInst);
 			this.invokeMethodLookup.put(invokeMethod, parents);
 		}
 	}
 	
-	private void updateCachedMap(String parent, String child, boolean isControl) {
+	private void updateCachedMap(InstNode parent, InstNode child, boolean isControl) {
 		if (isControl) {
 			if (this.controlDep.containsKey(parent)) {
 				this.controlDep.get(parent).add(child);
 			} else {
-				TreeSet<String> children = new TreeSet<String>();
+				TreeSet<InstNode> children = new TreeSet<InstNode>();
 				children.add(child);
 				this.controlDep.put(parent, children);
 			}
@@ -86,7 +79,7 @@ public class MethodStackRecorder {
 			if (this.dataDep.containsKey(parent)) {
 				this.dataDep.get(parent).add(child);
 			} else {
-				TreeSet<String> children = new TreeSet<String>();
+				TreeSet<InstNode> children = new TreeSet<InstNode>();
 				children.add(child);
 				this.dataDep.put(parent, children);
 			}
@@ -94,45 +87,39 @@ public class MethodStackRecorder {
 		//System.out.println("Update map: " + this.dataDep);
 	}
 	
-	private synchronized String safePop() {
+	private synchronized InstNode safePop() {
 		if (this.stackSimulator.size() > 0) {
 			return this.stackSimulator.pop();
 		}
 		return null;
 	}
 	
-	private synchronized void updateControlVar(String fullInst) {
-		this.curControlVar = fullInst;
-		
-		/*if (this.controlVars.size() == 0) {
-			this.controlVars.add(fullInst);
-		} else {
-			this.controlVars.remove(this.controlVars.size() - 1);
-			this.controlVars.add(fullInst);
-		}*/
+	private synchronized void updateControlInst(InstNode fullInst) {
+		this.curControlInst = fullInst;
+		//this.curControlInsts.add(fullInst);
 	}
 	
-	public void handleOpcode(int opcode, String label, String addInfo) {
+	public void handleOpcode(int opcode, int instIdx, String addInfo) {
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
-		String fullInst = this.genInstHead(oo, label) + " " + addInfo;
+		InstNode fullInst = this.pool.searchAndGet(instIdx, opcode, addInfo);
 		
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
 		
 		if (BytecodeCategory.controlCategory().contains(opcat)) {
-			this.updateControlVar(fullInst);
+			this.updateControlInst(fullInst);
 		}
 		
 		int inputSize = oo.getInList().size();
 		if (inputSize > 0) {
 			for (int i = 0; i < inputSize; i++) {
 				//Should not return null here
-				String tmpInst = this.safePop();
+				InstNode tmpInst = this.safePop();
 				this.updateCachedMap(tmpInst, fullInst, false);
 			}
 		}
-		this.updateStackSimulator(oo, fullInst);
+		this.updateStackSimulator(fullInst);
 		this.showStackSimulator();
 	}
 	
@@ -141,17 +128,19 @@ public class MethodStackRecorder {
 	 * @param opcode
 	 * @param localVarIdx
 	 */
-	public void handleOpcode(int opcode, String label, int localVarIdx) {
+	public void handleOpcode(int opcode, int instIdx, int localVarIdx) {
 		System.out.println("Handling now: " + opcode + " " + localVarIdx);
-		OpcodeObj oo =BytecodeCategory.getOpcodeObj(opcode);
-		int opcat = oo.getCatId();
 		
-		String fullInst = this.genInstHead(oo, label);
+		InstNode fullInst = null;
 		if (localVarIdx >= 0) {
-			fullInst = fullInst + " " + localVarIdx;
+			fullInst = this.pool.searchAndGet(instIdx, opcode, String.valueOf(localVarIdx));
+		} else {
+			fullInst = this.pool.searchAndGet(instIdx, opcode, "");
 		}
 		
-		String lastInst = "";
+		int opcat = fullInst.getOp().getCatId();
+		
+		InstNode lastInst = null;
 		if (!stackSimulator.isEmpty()) {
 			lastInst = stackSimulator.peek();
 		}
@@ -163,7 +152,7 @@ public class MethodStackRecorder {
 		//The store instruction will be the sink. The inst on the stack will be source
 		boolean hasUpdate = false;
 		if (BytecodeCategory.writeCategory().contains(opcat)) {
-			if (lastInst.length() > 0) {
+			if (lastInst != null) {
 				System.out.println("Update data dep");
 				if (localVarIdx >= 0)
 					this.localVarRecorder.put(localVarIdx, fullInst);
@@ -172,25 +161,30 @@ public class MethodStackRecorder {
 				this.safePop();
 			}
 		} else if (opcode == Opcodes.IINC) {
-			this.localVarRecorder.put(localVarIdx, fullInst);
+			InstNode parentInst = this.localVarRecorder.get(localVarIdx);
+			if (parentInst != null)
+				this.updateCachedMap(parentInst, fullInst, false);
+			
+				this.localVarRecorder.put(localVarIdx, fullInst);
 		}else if (BytecodeCategory.readCategory().contains(opcat)) {
 			//Search local var recorder;
-			String parentInst = this.localVarRecorder.get(localVarIdx);
+			InstNode parentInst = this.localVarRecorder.get(localVarIdx);
 			if (parentInst != null)
 				this.updateCachedMap(parentInst, fullInst, false);
 		} else if (BytecodeCategory.dupCategory().contains(opcat)) {
 			this.handleDup(opcode);
 			hasUpdate = true;
 		} else {
-			if (BytecodeCategory.controlCategory().contains(opcat))
-				this.updateControlVar(fullInst);
+			if (BytecodeCategory.controlCategory().contains(opcat)) {
+				this.updateControlInst(fullInst);
+			}
 			
-			int inputSize = oo.getInList().size();
-			String lastTmp = "";
+			int inputSize = fullInst.getOp().getInList().size();
+			InstNode lastTmp = null;
 			if (inputSize > 0) {
 				for (int i = 0; i < inputSize; i++) {
 					//Should not return null here
-					String tmpInst = this.safePop();
+					InstNode tmpInst = this.safePop();
 					if (!tmpInst.equals(lastTmp))
 						this.updateCachedMap(tmpInst, fullInst, false);
 					
@@ -200,30 +194,30 @@ public class MethodStackRecorder {
 		}
 		
 		if (!hasUpdate) 
-			this.updateStackSimulator(oo, fullInst);
+			this.updateStackSimulator(fullInst);
 		this.showStackSimulator();
 	}
 	
-	public void handleMultiNewArray(String desc, int dim, String label) {
-		OpcodeObj oo = BytecodeCategory.getOpcodeObj(Opcodes.MULTIANEWARRAY);
-		String fullInst = this.genInstHead(oo, label) + " " + desc + " " + dim;
+	public void handleMultiNewArray(String desc, int dim, int instIdx) {
+		String addInfo = desc + " " + dim;
+		InstNode fullInst = this.pool.searchAndGet(instIdx, Opcodes.MULTIANEWARRAY, addInfo);
 		
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
 		
 		//Parse method type
 		for (int i = 0; i < dim; i++) {
-			String tmpInst = this.safePop();
+			InstNode tmpInst = this.safePop();
 			this.updateCachedMap(tmpInst, fullInst, false);
 		}
-		this.updateStackSimulator(oo, fullInst);
+		this.updateStackSimulator(fullInst);
 		this.showStackSimulator();
 	}
 	
-	public void handleMethod(int opcode, String label, String owner, String name, String desc) {
-		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
-		String fullInst = this.genInstHead(oo, label) + " " + owner + " " + name + " " + desc;
-		String methodKey = StringUtil.genKey(owner, name, desc);
+	public void handleMethod(int opcode, int instIdx, String owner, String name, String desc) {
+		String addInfo = owner + " " + name + " " + desc;
+		InstNode fullInst = this.pool.searchAndGet(instIdx, opcode, addInfo);
+		//String methodKey = StringUtil.genKey(owner, name, desc);
 		System.out.println("Method full inst: " + fullInst);
 		
 		this.updateControlRelation(fullInst);
@@ -238,9 +232,10 @@ public class MethodStackRecorder {
 		System.out.println("Arg size: " + argSize);
 		String returnType = methodType.getReturnType().getDescriptor();
 		for (int i = 0; i < argSize; i++) {
-			String tmpInst = this.safePop();
+			InstNode tmpInst = this.safePop();
 			this.updateCachedMap(tmpInst, fullInst, false);
-			this.updateInvokeMethod(methodKey, tmpInst);
+			//this.updateInvokeMethod(methodKey, tmpInst);
+			this.updateInvokeMethod(fullInst, tmpInst);
 		}
 		
 		if (!returnType.equals("V")) {
@@ -250,70 +245,70 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleDup(int opcode) {
-		String dupString = "";
-		String dupString2 = "";
-		Stack<String> stackBuf;
+		InstNode dupInst = null;
+		InstNode dupInst2 = null;
+		Stack<InstNode> stackBuf;
 		switch (opcode) {
 			case 89:
-				dupString = this.stackSimulator.peek();
-				this.stackSimulator.push(dupString);
+				dupInst = this.stackSimulator.peek();
+				this.stackSimulator.push(dupInst);
 				break ;
 			case 90:
-				dupString = this.stackSimulator.peek();
-				stackBuf = new Stack<String>();
+				dupInst = this.stackSimulator.peek();
+				stackBuf = new Stack<InstNode>();
 				for (int i = 0; i < 2; i++) {
 					stackBuf.push(this.safePop());
 				}
 				
-				this.stackSimulator.push(dupString);
+				this.stackSimulator.push(dupInst);
 				while(!stackBuf.isEmpty()) {
 					this.stackSimulator.push(stackBuf.pop());
 				}
 				break ;
 			case 91:
-				dupString = this.stackSimulator.peek();
-				stackBuf = new Stack<String>();
+				dupInst = this.stackSimulator.peek();
+				stackBuf = new Stack<InstNode>();
 				for (int i = 0; i < 3; i++) {
 					stackBuf.push(this.safePop());
 				}
 				
-				this.stackSimulator.push(dupString);
+				this.stackSimulator.push(dupInst);
 				//Should only push three times
 				while (!stackBuf.isEmpty()) {
 					this.stackSimulator.push(stackBuf.pop());
 				}
 				break ;
 			case 92:
-				dupString = this.stackSimulator.get(this.stackSimulator.size() - 1);
-	 			dupString2 = this.stackSimulator.get(this.stackSimulator.size() - 2);
+				dupInst = this.stackSimulator.get(this.stackSimulator.size() - 1);
+	 			dupInst2 = this.stackSimulator.get(this.stackSimulator.size() - 2);
 	 			
-	 			this.stackSimulator.push(dupString2);
-	 			this.stackSimulator.push(dupString);
+	 			this.stackSimulator.push(dupInst2);
+	 			this.stackSimulator.push(dupInst);
 	 			break ;
 			case 93:
-				dupString = this.stackSimulator.get(this.stackSimulator.size() - 1);
-	 			dupString2 = this.stackSimulator.get(this.stackSimulator.size() - 2);
-	 			stackBuf = new Stack<String>();
+				dupInst = this.stackSimulator.get(this.stackSimulator.size() - 1);
+	 			dupInst2 = this.stackSimulator.get(this.stackSimulator.size() - 2);
+	 			stackBuf = new Stack<InstNode>();
 	 			for (int i = 0; i < 3; i++) {
 	 				stackBuf.push(this.safePop());
 	 			}
 	 			
-	 			this.stackSimulator.push(dupString2);
-	 			this.stackSimulator.push(dupString);
+	 			this.stackSimulator.push(dupInst2);
+	 			this.stackSimulator.push(dupInst);
 	 			while (!stackBuf.isEmpty()) {
 	 				this.stackSimulator.push(stackBuf.pop());
 	 			}
 	 			break ;
 			case 94:
-				dupString = this.stackSimulator.get(this.stackSimulator.size() - 1);
-	 			dupString2 = this.stackSimulator.get(this.stackSimulator.size() - 2);
-	 			stackBuf = new Stack<String>();
+				dupInst = this.stackSimulator.get(this.stackSimulator.size() - 1);
+	 			dupInst2 = this.stackSimulator.get(this.stackSimulator.size() - 2);
+	 			stackBuf = new Stack<InstNode>();
 	 			for (int i =0 ; i < 4; i++) {
 	 				stackBuf.push(this.safePop());
 	 			}
 	 			
-	 			this.stackSimulator.push(dupString2);
-	 			this.stackSimulator.push(dupString);
+	 			this.stackSimulator.push(dupInst2);
+	 			this.stackSimulator.push(dupInst);
 	 			while (!stackBuf.isEmpty()) {
 	 				this.stackSimulator.push(stackBuf.pop());
 	 			}
@@ -321,12 +316,12 @@ public class MethodStackRecorder {
 		}
 	}
 	
-	private void updateStackSimulator(OpcodeObj oo, String fullInst) {
-		int outputSize = oo.getOutList().size();
+	private void updateStackSimulator(InstNode fullInst) {
+		int outputSize = fullInst.getOp().getOutList().size();
 		this.updateStackSimulator(outputSize, fullInst);
 	}
 	
-	private void updateStackSimulator(int times, String fullInst) {
+	private void updateStackSimulator(int times, InstNode fullInst) {
 		System.out.println("Stack push: " + fullInst);
 		for (int i = 0; i < times; i++) {
 			this.stackSimulator.push(fullInst);
@@ -339,23 +334,25 @@ public class MethodStackRecorder {
 		System.out.println(this.stackSimulator);
 	}
 	
-	private void updateControlRelation(String fullInst) {
-		//Construct control relations
-		if (this.curControlVar != null)
-			this.updateCachedMap(this.curControlVar, fullInst, true);
-		/*for (String control: this.controlVars) {
-			this.updateCachedMap(control, fullInst, true);
-		}*/
+	private void updateControlRelation(InstNode fullInst) {
+		if (this.curControlInst != null 
+				&& !BytecodeCategory.dupCategory().contains(fullInst.getOp().getCatId())) {
+			//Exclude dup, because they are not contained in data dep either
+			this.updateCachedMap(this.curControlInst, fullInst, true);
+			/*for (InstNode curControlInst: this.curControlInsts) {
+				this.updateCachedMap(curControlInst, fullInst, true);
+			}*/
+		}
 	}
 	
-	private void processInvokeMethodLookup(HashMap<String, Integer> labelMap) {
-		for (String mkey: this.invokeMethodLookup.keySet()) {
-			ArrayList<String> parents = this.invokeMethodLookup.get(mkey);
+	private void processInvokeMethodLookup() {
+		for (InstNode fullInst: this.invokeMethodLookup.keySet()) {
+			ArrayList<InstNode> parents = this.invokeMethodLookup.get(fullInst);
 			
-			for (int i = 0; i < parents.size(); i++) {
+			/*for (int i = 0; i < parents.size(); i++) {
 				String newParent = StringUtil.replaceLabel(parents.get(i), labelMap);
 				parents.set(i, newParent);
-			}
+			}*/
 			Collections.reverse(parents);
 		}
 	}
@@ -372,50 +369,47 @@ public class MethodStackRecorder {
 		
 		//For serilization
 		GraphTemplate gt = new GraphTemplate();
-		this.processInvokeMethodLookup(labelMap);
+		this.processInvokeMethodLookup();
 		gt.setInvokeMethodLookup(this.invokeMethodLookup);
 		
-		String lastSecondInst = "";
+		Type methodType = Type.getMethodType(myDesc);
+		int argSize = methodType.getArgumentTypes().length;
+		int returnSize = 1;
+		if (methodType.getReturnType().getDescriptor().equals("V")) {
+			returnSize = 0;
+		}
+		gt.setMethodArgSize(argSize);
+		gt.setMethodReturnSize(returnSize);
+		
+		InstNode lastSecondInst = null;
 		if (this.path.size() > 1) {
-			lastSecondInst = StringUtil.replaceLabel(this.path.get(this.path.size() - 2), labelMap);
+			lastSecondInst = this.path.get(this.path.size() - 2);
 		}
 		gt.setLastSecondInst(lastSecondInst);
 		
 		System.out.println("Data dependency:");
-		TreeMap<String, TreeSet<String>> dataGraph = new TreeMap<String, TreeSet<String>>();
 		int dataDepCount = 0;
-		for (String parent: this.dataDep.keySet()) {
-			String newParent = StringUtil.replaceLabel(parent, labelMap);
-			System.out.println("Source: " + newParent);
-			TreeSet<String> children = new TreeSet<String>();
-			for (String childInst: this.dataDep.get(parent)) {
-				String newChild = StringUtil.replaceLabel(childInst, labelMap);
-				children.add(newChild);
-				System.out.println("	Sink: " + newChild);
+		for (InstNode parent: this.dataDep.navigableKeySet()) {
+			System.out.println("Source: " + parent);
+			for (InstNode childInst: this.dataDep.get(parent)) {
+				System.out.println("	Sink: " + childInst);
 				dataDepCount++;
 			}
-			dataGraph.put(newParent, children);
 		}
 		System.out.println("Total data dependency: " + dataDepCount);
-		gt.setDataGraph(dataGraph);
+		gt.setDataGraph(this.dataDep);
 		
 		System.out.println("Control dependency:");
-		TreeMap<String, TreeSet<String>> controlGraph = new TreeMap<String, TreeSet<String>>();
 		int controlDepCount = 0;
-		for (String parent: this.controlDep.keySet()) {
-			String newParent = StringUtil.replaceLabel(parent, labelMap);
-			System.out.println("Source: " + newParent);
-			TreeSet<String> children = new TreeSet<String>();
-			for (String childInst: this.controlDep.get(parent)) {
-				String newChild = StringUtil.replaceLabel(childInst, labelMap);
-				children.add(newChild);
-				System.out.println("	Sink: " + newChild);
+		for (InstNode parent: this.controlDep.navigableKeySet()) {
+			System.out.println("Source: " + parent);
+			for (InstNode childInst: this.controlDep.get(parent)) {
+				System.out.println("	Sink: " + childInst);
 				controlDepCount++;
-			}
-			controlGraph.put(newParent, children);			
+			}		
 		}
 		System.out.println("Total control dependency: " + controlDepCount);
-		gt.setControlGraph(controlGraph);
+		gt.setControlGraph(this.controlDep);
 		
 		String key = StringUtil.genKey(owner, myName, myDesc);
 		TypeToken<GraphTemplate> typeToken = new TypeToken<GraphTemplate>(){};
