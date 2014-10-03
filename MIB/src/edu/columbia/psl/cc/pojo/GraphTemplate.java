@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import edu.columbia.psl.cc.datastruct.InstPool;
+
 public class GraphTemplate {
 	
 	private int methodArgSize;
@@ -13,11 +15,15 @@ public class GraphTemplate {
 		
 	private InstNode lastSecondInst;
 	
-	private HashMap<InstNode, ArrayList<InstNode>> invokeMethodLookup;
-
-	private TreeMap<InstNode, TreeSet<InstNode>> dataGraph;
+	private InstPool pool;
 	
-	private TreeMap<InstNode, TreeSet<InstNode>> controlGraph;
+	public void setInstPool(InstPool pool) {
+		this.pool = pool;
+	}
+	
+	public InstPool getInstPool() {
+		return this.pool;
+	}
 	
 	public void setMethodArgSize(int methodArgSize) {
 		this.methodArgSize = methodArgSize;
@@ -41,30 +47,6 @@ public class GraphTemplate {
 	
 	public InstNode getLastSecondInst() {
 		return this.lastSecondInst;
-	}
-	
-	public void setInvokeMethodLookup(HashMap<InstNode, ArrayList<InstNode>> invokeMethodLookup) {
-		this.invokeMethodLookup = invokeMethodLookup;
-	}
-	
-	public HashMap<InstNode, ArrayList<InstNode>> getInvokeMethodLookup() {
-		return this.invokeMethodLookup;
-	}
-	
-	public void setDataGraph(TreeMap<InstNode, TreeSet<InstNode>> dataGraph) {
-		this.dataGraph = dataGraph;
-	}
-	
-	public TreeMap<InstNode, TreeSet<InstNode>> getDataGraph() {
-		return this.dataGraph;
-	}
-	
-	public void setControlGraph(TreeMap<InstNode, TreeSet<InstNode>> controlGraph) {
-		this.controlGraph = controlGraph;
-	}
-	
-	public TreeMap<InstNode, TreeSet<InstNode>> getControlGraph() {
-		return this.controlGraph;
 	}
 
 }

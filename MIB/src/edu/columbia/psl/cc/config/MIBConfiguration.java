@@ -36,6 +36,24 @@ public class MIBConfiguration {
 	
 	private static String labelmapDir = "./labelmap";
 	
+	private static double controlWeight = 1.0;
+	
+	private static double dataWeight = 1.0;
+	
+	private static int precisionDigit = 3;
+	
+	public static int getPrecisionDigit() {
+		return precisionDigit;
+	}
+	
+	public static double getControlWeight() {
+		return controlWeight;
+	}
+	
+	public static double getDataWeight() {
+		return dataWeight;
+	}
+	
 	public static String getCostTableDir() {
 		return costTableDir;
 	}

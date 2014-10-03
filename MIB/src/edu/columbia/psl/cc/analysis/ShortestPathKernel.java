@@ -14,10 +14,12 @@ import java.io.File;
 import java.io.FileWriter;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.CostObj;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.Var;
+import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
@@ -39,10 +41,15 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 	}
 	
 	private int kernelMethod(CostObj x1, CostObj x2) {
-		if (x1.getLabels().equals(x2.getLabels()) && x1.getCost() == x2.getCost())
+		if (x1.getLabels().equals(x2.getLabels()) && 
+				x1.getCost() == x2.getCost() &&
+				x1.getCost() < MIBConfiguration.getCostLimit() &&
+				x1.getCost() > 0) {
+			//System.out.println("Debugger: " + x1);
 			return 1;
-		else
+		} else {
 			return 0;
+		}
 	}
 	
 	@Override
@@ -116,19 +123,19 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 	}
 	
 	@Override
-	public CostObj[][] constructCostTable(String methodName, TreeMap<InstNode, TreeSet<InstNode>> depMap) {
-		ArrayList<InstNode> allNodes = new ArrayList<InstNode>(depMap.navigableKeySet());
+	public CostObj[][] constructCostTable(String methodName, InstPool pool) {
+		ArrayList<InstNode> allNodes = new ArrayList<InstNode>(pool);
 		
 		//int[][] costTable = new int[allNodes.size()][allNodes.size()];
 		CostObj[][] costTable = new CostObj[allNodes.size()][allNodes.size()];
 		for (int i = 0; i < costTable.length; i++) {
+			InstNode inst1 = allNodes.get(i);
+			String startLabel = inst1.getOp().getInstruction();
 			for (int j = 0; j < costTable.length; j++) {
 				
 				CostObj co = new CostObj();
-				InstNode inst1 = allNodes.get(i);
 				InstNode inst2 = allNodes.get(j);
-				
-				String startLabel = inst1.getOp().getInstruction();
+			
 				String endLabel = inst2.getOp().getInstruction();
 				co.addLabel(startLabel);
 				co.addLabel(endLabel);
@@ -136,23 +143,15 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 				if (i == j) {
 					co.setCost(0);
 					costTable[i][j] = co;
-					continue;
-				}
-				
-				if (depMap.get(inst1) == null) {
+				} else if (!inst1.getChildFreqMap().containsKey(inst2.getIdx())) {
 					co.setCost(MIBConfiguration.getCostLimit());
 					costTable[i][j] = co;
 					//costTable[i][j] = limit;
 				} else {
-					if (depMap.get(inst1).contains(inst2)) {
-						co.setCost(1);
-						costTable[i][j] = co;
-						//costTable[i][j] = 1;
-					} else {
-						co.setCost(MIBConfiguration.getCostLimit());
-						costTable[i][j] = co;
-						//costTable[i][j] = limit;
-					}
+					double rawCost = (double)1/inst1.getChildFreqMap().get(inst2.getIdx());
+					double cost = GraphUtil.roundValue(rawCost);
+					co.setCost(cost);
+					costTable[i][j] = co;
 				}
 			}
 		}

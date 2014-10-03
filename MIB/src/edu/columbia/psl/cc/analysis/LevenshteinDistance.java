@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.CostObj;
 import edu.columbia.psl.cc.pojo.InstNode;
 
@@ -85,7 +86,7 @@ public class LevenshteinDistance implements MIBSimilarity<String>{
 
 	@Override
 	public String constructCostTable(String methodName,
-			TreeMap<InstNode, TreeSet<InstNode>> depMap) {
+			InstPool pool) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -12,42 +12,42 @@
 11 96 iadd 
 12 46 iaload 
 13 54 istore 7
-14 167 goto L1388338491
+14 167 goto L424167941
 47 21 iload 5
 48 21 iload 6
-49 164 if_icmple L644591081
+49 164 if_icmple L1632905845
 16 25 aload 1
 17 21 iload 5
 18 46 iaload 
 19 21 iload 7
-20 161 if_icmplt L1395193582
-21 167 goto L110708174
+20 161 if_icmplt L1492359994
+21 167 goto L209052924
 23 25 aload 1
 24 21 iload 6
 25 46 iaload 
 26 21 iload 7
-27 163 if_icmpgt L951442116
+27 163 if_icmpgt L269247176
 22 132 iinc 6
 23 25 aload 1
 24 21 iload 6
 25 46 iaload 
 26 21 iload 7
-27 163 if_icmpgt L951442116
+27 163 if_icmpgt L269247176
 22 132 iinc 6
 23 25 aload 1
 24 21 iload 6
 25 46 iaload 
 26 21 iload 7
-27 163 if_icmpgt L951442116
+27 163 if_icmpgt L269247176
 22 132 iinc 6
 23 25 aload 1
 24 21 iload 6
 25 46 iaload 
 26 21 iload 7
-27 163 if_icmpgt L951442116
+27 163 if_icmpgt L269247176
 28 21 iload 5
 29 21 iload 6
-30 163 if_icmpgt L1388338491
+30 163 if_icmpgt L424167941
 31 25 aload 1
 32 21 iload 5
 33 46 iaload 
@@ -66,21 +66,21 @@
 46 132 iinc 6
 47 21 iload 5
 48 21 iload 6
-49 164 if_icmple L644591081
+49 164 if_icmple L1632905845
 16 25 aload 1
 17 21 iload 5
 18 46 iaload 
 19 21 iload 7
-20 161 if_icmplt L1395193582
-21 167 goto L110708174
+20 161 if_icmplt L1492359994
+21 167 goto L209052924
 23 25 aload 1
 24 21 iload 6
 25 46 iaload 
 26 21 iload 7
-27 163 if_icmpgt L951442116
+27 163 if_icmpgt L269247176
 28 21 iload 5
 29 21 iload 6
-30 163 if_icmpgt L1388338491
+30 163 if_icmpgt L424167941
 31 25 aload 1
 32 21 iload 5
 33 46 iaload 
@@ -99,33 +99,33 @@
 46 132 iinc 6
 47 21 iload 5
 48 21 iload 6
-49 164 if_icmple L644591081
+49 164 if_icmple L1632905845
 16 25 aload 1
 17 21 iload 5
 18 46 iaload 
 19 21 iload 7
-20 161 if_icmplt L1395193582
+20 161 if_icmplt L1492359994
 15 132 iinc 5
 16 25 aload 1
 17 21 iload 5
 18 46 iaload 
 19 21 iload 7
-20 161 if_icmplt L1395193582
-21 167 goto L110708174
+20 161 if_icmplt L1492359994
+21 167 goto L209052924
 23 25 aload 1
 24 21 iload 6
 25 46 iaload 
 26 21 iload 7
-27 163 if_icmpgt L951442116
+27 163 if_icmpgt L269247176
 28 21 iload 5
 29 21 iload 6
-30 163 if_icmpgt L1388338491
+30 163 if_icmpgt L424167941
 47 21 iload 5
 48 21 iload 6
-49 164 if_icmple L644591081
+49 164 if_icmple L1632905845
 50 21 iload 2
 51 21 iload 6
-52 162 if_icmpge L1492359994
+52 162 if_icmpge L1938822199
 53 25 aload 0
 54 25 aload 1
 55 21 iload 2
@@ -133,7 +133,7 @@
 57 183 invokespecial edu/columbia/psl/cc/Sort quickSort ([III)V
 58 21 iload 5
 59 21 iload 3
-60 162 if_icmpge L1555011902
+60 162 if_icmpge L1415899750
 61 25 aload 0
 62 25 aload 1
 63 21 iload 5

@@ -3,12 +3,17 @@ package edu.columbia.psl.cc.util;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import org.apache.commons.math3.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
@@ -57,6 +62,10 @@ public class GraphUtil {
 			}
 		}
 	}*/
+	
+	public static double roundValue(double value) {
+		return Precision.round(value, MIBConfiguration.getPrecisionDigit());
+	}
 		
 	private static void summarizeVarPairChildren(VarPairPool vpp, VarPair vp) {
 		HashMap<String, Set<Var>> v1Map = vp.getVar1().getChildren();
@@ -104,6 +113,14 @@ public class GraphUtil {
 		for (VarPair vp: vpp) {
 			VarPairPool.updateCoefficientMap(vp);
 		}
+	}
+	
+	public static void main (String[] args) {
+		BigDecimal bd = new BigDecimal(0.11111);
+		System.out.println(bd.setScale(3, RoundingMode.HALF_UP));
+		System.out.println(Precision.round(0.11111, 3));
+		System.out.println(Precision.round(0.1115,3));
+		
 	}
 
 }

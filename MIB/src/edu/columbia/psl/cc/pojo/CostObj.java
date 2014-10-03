@@ -7,7 +7,7 @@ public class CostObj {
 	
 	private List<String> labels = new ArrayList<String>();;
 	
-	private int cost;
+	private double cost;
 	
 	public void addLabel(String label) {
 		this.labels.add(label);
@@ -17,11 +17,16 @@ public class CostObj {
 		return labels;
 	}
 	
-	public void setCost(int cost) {
+	public void setCost(double cost) {
 		this.cost = cost;
 	}
 	
-	public int getCost() {
+	public double getCost() {
 		return this.cost;
+	}
+	
+	@Override
+	public String toString() {
+		return labels.toString() + " " + cost;
 	}
 }

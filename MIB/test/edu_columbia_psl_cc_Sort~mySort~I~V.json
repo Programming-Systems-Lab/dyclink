@@ -5,1013 +5,640 @@
     "idx": 40,
     "op": 161,
     "inst": "if_icmplt",
-    "addInfo": "L1795829092"
+    "addInfo": "L1650627452",
+    "parentList": [
+      2,
+      39,
+      37,
+      35,
+      26
+    ],
+    "childFreqMap": {
+      "3": 7.0,
+      "4": 7.0,
+      "5": 7.0,
+      "41": 1.0
+    }
   },
-  "invokeMethodLookup": {},
-  "dataGraph": [
-    [
-      {
-        "idx": 0,
-        "op": 4,
-        "inst": "iconst_1",
-        "addInfo": ""
-      },
-      [
-        {
-          "idx": 1,
-          "op": 54,
-          "inst": "istore",
-          "addInfo": "3"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 1,
-        "op": 54,
-        "inst": "istore",
-        "addInfo": "3"
-      },
-      [
-        {
-          "idx": 3,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "3"
-        },
-        {
-          "idx": 36,
-          "op": 132,
-          "inst": "iinc",
-          "addInfo": "3"
-        },
-        {
-          "idx": 37,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "3"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 3,
-        "op": 21,
-        "inst": "iload",
-        "addInfo": "3"
-      },
-      [
-        {
-          "idx": 4,
-          "op": 54,
-          "inst": "istore",
-          "addInfo": "4"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 4,
-        "op": 54,
-        "inst": "istore",
-        "addInfo": "4"
-      },
-      [
-        {
-          "idx": 7,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 11,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 13,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 19,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 24,
-          "op": 132,
-          "inst": "iinc",
-          "addInfo": "4"
-        },
-        {
-          "idx": 25,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 28,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 33,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 6,
-        "op": 25,
-        "inst": "aload",
-        "addInfo": "1"
-      },
-      [
-        {
-          "idx": 8,
-          "op": 46,
-          "inst": "iaload",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 7,
-        "op": 21,
-        "inst": "iload",
-        "addInfo": "4"
-      },
-      [
-        {
-          "idx": 8,
-          "op": 46,
-          "inst": "iaload",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 8,
-        "op": 46,
-        "inst": "iaload",
-        "addInfo": ""
-      },
-      [
-        {
-          "idx": 9,
-          "op": 54,
-          "inst": "istore",
-          "addInfo": "5"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 9,
-        "op": 54,
-        "inst": "istore",
-        "addInfo": "5"
-      },
-      [
-        {
-          "idx": 22,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "5"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 10,
-        "op": 25,
-        "inst": "aload",
-        "addInfo": "1"
-      },
-      [
-        {
-          "idx": 17,
-          "op": 79,
-          "inst": "iastore",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 11,
-        "op": 21,
-        "inst": "iload",
-        "addInfo": "4"
-      },
-      [
-        {
-          "idx": 17,
-          "op": 79,
-          "inst": "iastore",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 12,
-        "op": 25,
-        "inst": "aload",
-        "addInfo": "1"
-      },
-      [
-        {
-          "idx": 16,
-          "op": 46,
-          "inst": "iaload",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 13,
-        "op": 21,
-        "inst": "iload",
-        "addInfo": "4"
-      },
-      [
-        {
-          "idx": 15,
-          "op": 100,
-          "inst": "isub",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 14,
-        "op": 4,
-        "inst": "iconst_1",
-        "addInfo": ""
-      },
-      [
-        {
-          "idx": 15,
-          "op": 100,
-          "inst": "isub",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 15,
-        "op": 100,
-        "inst": "isub",
-        "addInfo": ""
-      },
-      [
-        {
-          "idx": 16,
-          "op": 46,
-          "inst": "iaload",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 16,
-        "op": 46,
-        "inst": "iaload",
-        "addInfo": ""
-      },
-      [
-        {
-          "idx": 17,
-          "op": 79,
-          "inst": "iastore",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 18,
-        "op": 25,
-        "inst": "aload",
-        "addInfo": "1"
-      },
-      [
-        {
-          "idx": 23,
-          "op": 79,
-          "inst": "iastore",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 19,
-        "op": 21,
-        "inst": "iload",
-        "addInfo": "4"
-      },
-      [
-        {
-          "idx": 21,
-          "op": 100,
-          "inst": "isub",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 20,
-        "op": 4,
-        "inst": "iconst_1",
-        "addInfo": ""
-      },
-      [
-        {
-          "idx": 21,
-          "op": 100,
-          "inst": "isub",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 21,
-        "op": 100,
-        "inst": "isub",
-        "addInfo": ""
-      },
-      [
-        {
-          "idx": 23,
-          "op": 79,
-          "inst": "iastore",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 22,
-        "op": 21,
-        "inst": "iload",
-        "addInfo": "5"
-      },
-      [
-        {
-          "idx": 23,
-          "op": 79,
-          "inst": "iastore",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 24,
-        "op": 132,
-        "inst": "iinc",
-        "addInfo": "4"
-      },
-      [
-        {
-          "idx": 7,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 11,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 13,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 19,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 24,
-          "op": 132,
-          "inst": "iinc",
-          "addInfo": "4"
-        },
-        {
-          "idx": 25,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 28,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 33,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 25,
-        "op": 21,
-        "inst": "iload",
-        "addInfo": "4"
-      },
-      [
-        {
-          "idx": 26,
-          "op": 158,
-          "inst": "ifle",
-          "addInfo": "L901833818"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 27,
-        "op": 25,
-        "inst": "aload",
-        "addInfo": "1"
-      },
-      [
-        {
-          "idx": 31,
-          "op": 46,
-          "inst": "iaload",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 28,
-        "op": 21,
-        "inst": "iload",
-        "addInfo": "4"
-      },
-      [
-        {
-          "idx": 30,
-          "op": 100,
-          "inst": "isub",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 29,
-        "op": 4,
-        "inst": "iconst_1",
-        "addInfo": ""
-      },
-      [
-        {
-          "idx": 30,
-          "op": 100,
-          "inst": "isub",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 30,
-        "op": 100,
-        "inst": "isub",
-        "addInfo": ""
-      },
-      [
-        {
-          "idx": 31,
-          "op": 46,
-          "inst": "iaload",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 31,
-        "op": 46,
-        "inst": "iaload",
-        "addInfo": ""
-      },
-      [
-        {
-          "idx": 35,
-          "op": 163,
-          "inst": "if_icmpgt",
-          "addInfo": "L1434248423"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 32,
-        "op": 25,
-        "inst": "aload",
-        "addInfo": "1"
-      },
-      [
-        {
-          "idx": 34,
-          "op": 46,
-          "inst": "iaload",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 33,
-        "op": 21,
-        "inst": "iload",
-        "addInfo": "4"
-      },
-      [
-        {
-          "idx": 34,
-          "op": 46,
-          "inst": "iaload",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 34,
-        "op": 46,
-        "inst": "iaload",
-        "addInfo": ""
-      },
-      [
-        {
-          "idx": 35,
-          "op": 163,
-          "inst": "if_icmpgt",
-          "addInfo": "L1434248423"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 36,
-        "op": 132,
-        "inst": "iinc",
-        "addInfo": "3"
-      },
-      [
-        {
-          "idx": 3,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "3"
-        },
-        {
-          "idx": 36,
-          "op": 132,
-          "inst": "iinc",
-          "addInfo": "3"
-        },
-        {
-          "idx": 37,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "3"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 37,
-        "op": 21,
-        "inst": "iload",
-        "addInfo": "3"
-      },
-      [
-        {
-          "idx": 40,
-          "op": 161,
-          "inst": "if_icmplt",
-          "addInfo": "L1795829092"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 38,
-        "op": 25,
-        "inst": "aload",
-        "addInfo": "1"
-      },
-      [
-        {
-          "idx": 39,
-          "op": 190,
-          "inst": "arraylength",
-          "addInfo": ""
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 39,
-        "op": 190,
-        "inst": "arraylength",
-        "addInfo": ""
-      },
-      [
-        {
-          "idx": 40,
-          "op": 161,
-          "inst": "if_icmplt",
-          "addInfo": "L1795829092"
-        }
-      ]
-    ]
-  ],
-  "controlGraph": [
-    [
-      {
-        "idx": 2,
-        "op": 167,
-        "inst": "goto",
-        "addInfo": "L1249472894"
-      },
-      [
-        {
-          "idx": 37,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "3"
-        },
-        {
-          "idx": 38,
-          "op": 25,
-          "inst": "aload",
-          "addInfo": "1"
-        },
-        {
-          "idx": 39,
-          "op": 190,
-          "inst": "arraylength",
-          "addInfo": ""
-        },
-        {
-          "idx": 40,
-          "op": 161,
-          "inst": "if_icmplt",
-          "addInfo": "L1795829092"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 5,
-        "op": 167,
-        "inst": "goto",
-        "addInfo": "L1384763166"
-      },
-      [
-        {
-          "idx": 25,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 26,
-          "op": 158,
-          "inst": "ifle",
-          "addInfo": "L901833818"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 26,
-        "op": 158,
-        "inst": "ifle",
-        "addInfo": "L901833818"
-      },
-      [
-        {
-          "idx": 27,
-          "op": 25,
-          "inst": "aload",
-          "addInfo": "1"
-        },
-        {
-          "idx": 28,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 29,
-          "op": 4,
-          "inst": "iconst_1",
-          "addInfo": ""
-        },
-        {
-          "idx": 30,
-          "op": 100,
-          "inst": "isub",
-          "addInfo": ""
-        },
-        {
-          "idx": 31,
-          "op": 46,
-          "inst": "iaload",
-          "addInfo": ""
-        },
-        {
-          "idx": 32,
-          "op": 25,
-          "inst": "aload",
-          "addInfo": "1"
-        },
-        {
-          "idx": 33,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 34,
-          "op": 46,
-          "inst": "iaload",
-          "addInfo": ""
-        },
-        {
-          "idx": 35,
-          "op": 163,
-          "inst": "if_icmpgt",
-          "addInfo": "L1434248423"
-        },
-        {
-          "idx": 36,
-          "op": 132,
-          "inst": "iinc",
-          "addInfo": "3"
-        },
-        {
-          "idx": 37,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "3"
-        },
-        {
-          "idx": 38,
-          "op": 25,
-          "inst": "aload",
-          "addInfo": "1"
-        },
-        {
-          "idx": 39,
-          "op": 190,
-          "inst": "arraylength",
-          "addInfo": ""
-        },
-        {
-          "idx": 40,
-          "op": 161,
-          "inst": "if_icmplt",
-          "addInfo": "L1795829092"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 35,
-        "op": 163,
-        "inst": "if_icmpgt",
-        "addInfo": "L1434248423"
-      },
-      [
-        {
-          "idx": 6,
-          "op": 25,
-          "inst": "aload",
-          "addInfo": "1"
-        },
-        {
-          "idx": 7,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 8,
-          "op": 46,
-          "inst": "iaload",
-          "addInfo": ""
-        },
-        {
-          "idx": 9,
-          "op": 54,
-          "inst": "istore",
-          "addInfo": "5"
-        },
-        {
-          "idx": 10,
-          "op": 25,
-          "inst": "aload",
-          "addInfo": "1"
-        },
-        {
-          "idx": 11,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 12,
-          "op": 25,
-          "inst": "aload",
-          "addInfo": "1"
-        },
-        {
-          "idx": 13,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 14,
-          "op": 4,
-          "inst": "iconst_1",
-          "addInfo": ""
-        },
-        {
-          "idx": 15,
-          "op": 100,
-          "inst": "isub",
-          "addInfo": ""
-        },
-        {
-          "idx": 16,
-          "op": 46,
-          "inst": "iaload",
-          "addInfo": ""
-        },
-        {
-          "idx": 17,
-          "op": 79,
-          "inst": "iastore",
-          "addInfo": ""
-        },
-        {
-          "idx": 18,
-          "op": 25,
-          "inst": "aload",
-          "addInfo": "1"
-        },
-        {
-          "idx": 19,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 20,
-          "op": 4,
-          "inst": "iconst_1",
-          "addInfo": ""
-        },
-        {
-          "idx": 21,
-          "op": 100,
-          "inst": "isub",
-          "addInfo": ""
-        },
-        {
-          "idx": 22,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "5"
-        },
-        {
-          "idx": 23,
-          "op": 79,
-          "inst": "iastore",
-          "addInfo": ""
-        },
-        {
-          "idx": 24,
-          "op": 132,
-          "inst": "iinc",
-          "addInfo": "4"
-        },
-        {
-          "idx": 25,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "4"
-        },
-        {
-          "idx": 26,
-          "op": 158,
-          "inst": "ifle",
-          "addInfo": "L901833818"
-        },
-        {
-          "idx": 36,
-          "op": 132,
-          "inst": "iinc",
-          "addInfo": "3"
-        },
-        {
-          "idx": 37,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "3"
-        },
-        {
-          "idx": 38,
-          "op": 25,
-          "inst": "aload",
-          "addInfo": "1"
-        },
-        {
-          "idx": 39,
-          "op": 190,
-          "inst": "arraylength",
-          "addInfo": ""
-        },
-        {
-          "idx": 40,
-          "op": 161,
-          "inst": "if_icmplt",
-          "addInfo": "L1795829092"
-        }
-      ]
-    ],
-    [
-      {
-        "idx": 40,
-        "op": 161,
-        "inst": "if_icmplt",
-        "addInfo": "L1795829092"
-      },
-      [
-        {
-          "idx": 3,
-          "op": 21,
-          "inst": "iload",
-          "addInfo": "3"
-        },
-        {
-          "idx": 4,
-          "op": 54,
-          "inst": "istore",
-          "addInfo": "4"
-        },
-        {
-          "idx": 5,
-          "op": 167,
-          "inst": "goto",
-          "addInfo": "L1384763166"
-        },
-        {
-          "idx": 41,
-          "op": 177,
-          "inst": "return",
-          "addInfo": ""
-        }
-      ]
-    ]
+  "pool": [
+    {
+      "idx": 0,
+      "op": 4,
+      "inst": "iconst_1",
+      "addInfo": "",
+      "parentList": [],
+      "childFreqMap": {
+        "1": 1.0
+      }
+    },
+    {
+      "idx": 1,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "3",
+      "parentList": [
+        0
+      ],
+      "childFreqMap": {
+        "3": 1.0,
+        "36": 1.0,
+        "37": 1.0
+      }
+    },
+    {
+      "idx": 2,
+      "op": 167,
+      "inst": "goto",
+      "addInfo": "L449348672",
+      "parentList": [],
+      "childFreqMap": {
+        "37": 1.0,
+        "38": 1.0,
+        "39": 1.0,
+        "40": 1.0
+      }
+    },
+    {
+      "idx": 3,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "3",
+      "parentList": [
+        40,
+        1,
+        36
+      ],
+      "childFreqMap": {
+        "4": 7.0
+      }
+    },
+    {
+      "idx": 4,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "4",
+      "parentList": [
+        40,
+        3
+      ],
+      "childFreqMap": {
+        "7": 5.0,
+        "11": 5.0,
+        "13": 5.0,
+        "19": 5.0,
+        "24": 5.0,
+        "25": 7.0,
+        "28": 7.0,
+        "33": 7.0
+      }
+    },
+    {
+      "idx": 5,
+      "op": 167,
+      "inst": "goto",
+      "addInfo": "L181398600",
+      "parentList": [
+        40
+      ],
+      "childFreqMap": {
+        "25": 7.0,
+        "26": 7.0
+      }
+    },
+    {
+      "idx": 6,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "1",
+      "parentList": [
+        35
+      ],
+      "childFreqMap": {
+        "8": 9.0
+      }
+    },
+    {
+      "idx": 7,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "parentList": [
+        35,
+        4,
+        24
+      ],
+      "childFreqMap": {
+        "8": 9.0
+      }
+    },
+    {
+      "idx": 8,
+      "op": 46,
+      "inst": "iaload",
+      "addInfo": "",
+      "parentList": [
+        35,
+        7,
+        6
+      ],
+      "childFreqMap": {
+        "9": 9.0
+      }
+    },
+    {
+      "idx": 9,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "5",
+      "parentList": [
+        35,
+        8
+      ],
+      "childFreqMap": {
+        "22": 9.0
+      }
+    },
+    {
+      "idx": 10,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "1",
+      "parentList": [
+        35
+      ],
+      "childFreqMap": {
+        "17": 9.0
+      }
+    },
+    {
+      "idx": 11,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "parentList": [
+        35,
+        4,
+        24
+      ],
+      "childFreqMap": {
+        "17": 9.0
+      }
+    },
+    {
+      "idx": 12,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "1",
+      "parentList": [
+        35
+      ],
+      "childFreqMap": {
+        "16": 9.0
+      }
+    },
+    {
+      "idx": 13,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "parentList": [
+        35,
+        4,
+        24
+      ],
+      "childFreqMap": {
+        "15": 9.0
+      }
+    },
+    {
+      "idx": 14,
+      "op": 4,
+      "inst": "iconst_1",
+      "addInfo": "",
+      "parentList": [
+        35
+      ],
+      "childFreqMap": {
+        "15": 9.0
+      }
+    },
+    {
+      "idx": 15,
+      "op": 100,
+      "inst": "isub",
+      "addInfo": "",
+      "parentList": [
+        35,
+        14,
+        13
+      ],
+      "childFreqMap": {
+        "16": 9.0
+      }
+    },
+    {
+      "idx": 16,
+      "op": 46,
+      "inst": "iaload",
+      "addInfo": "",
+      "parentList": [
+        35,
+        15,
+        12
+      ],
+      "childFreqMap": {
+        "17": 9.0
+      }
+    },
+    {
+      "idx": 17,
+      "op": 79,
+      "inst": "iastore",
+      "addInfo": "",
+      "parentList": [
+        35,
+        16,
+        11,
+        10
+      ],
+      "childFreqMap": {}
+    },
+    {
+      "idx": 18,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "1",
+      "parentList": [
+        35
+      ],
+      "childFreqMap": {
+        "23": 9.0
+      }
+    },
+    {
+      "idx": 19,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "parentList": [
+        35,
+        4,
+        24
+      ],
+      "childFreqMap": {
+        "21": 9.0
+      }
+    },
+    {
+      "idx": 20,
+      "op": 4,
+      "inst": "iconst_1",
+      "addInfo": "",
+      "parentList": [
+        35
+      ],
+      "childFreqMap": {
+        "21": 9.0
+      }
+    },
+    {
+      "idx": 21,
+      "op": 100,
+      "inst": "isub",
+      "addInfo": "",
+      "parentList": [
+        35,
+        20,
+        19
+      ],
+      "childFreqMap": {
+        "23": 9.0
+      }
+    },
+    {
+      "idx": 22,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "5",
+      "parentList": [
+        35,
+        9
+      ],
+      "childFreqMap": {
+        "23": 9.0
+      }
+    },
+    {
+      "idx": 23,
+      "op": 79,
+      "inst": "iastore",
+      "addInfo": "",
+      "parentList": [
+        35,
+        22,
+        21,
+        18
+      ],
+      "childFreqMap": {}
+    },
+    {
+      "idx": 24,
+      "op": 132,
+      "inst": "iinc",
+      "addInfo": "4",
+      "parentList": [
+        35,
+        4,
+        24
+      ],
+      "childFreqMap": {
+        "7": 4.0,
+        "11": 4.0,
+        "13": 4.0,
+        "19": 4.0,
+        "24": 4.0,
+        "25": 9.0,
+        "28": 8.0,
+        "33": 8.0
+      }
+    },
+    {
+      "idx": 25,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "parentList": [
+        5,
+        4,
+        35,
+        24
+      ],
+      "childFreqMap": {
+        "26": 16.0
+      }
+    },
+    {
+      "idx": 26,
+      "op": 158,
+      "inst": "ifle",
+      "addInfo": "L2131238190",
+      "parentList": [
+        5,
+        25,
+        35
+      ],
+      "childFreqMap": {
+        "27": 15.0,
+        "28": 15.0,
+        "29": 15.0,
+        "30": 15.0,
+        "31": 15.0,
+        "32": 15.0,
+        "33": 15.0,
+        "34": 15.0,
+        "35": 15.0,
+        "36": 1.0,
+        "37": 1.0,
+        "38": 1.0,
+        "39": 1.0,
+        "40": 1.0
+      }
+    },
+    {
+      "idx": 27,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "1",
+      "parentList": [
+        26
+      ],
+      "childFreqMap": {
+        "31": 15.0
+      }
+    },
+    {
+      "idx": 28,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "parentList": [
+        26,
+        4,
+        24
+      ],
+      "childFreqMap": {
+        "30": 15.0
+      }
+    },
+    {
+      "idx": 29,
+      "op": 4,
+      "inst": "iconst_1",
+      "addInfo": "",
+      "parentList": [
+        26
+      ],
+      "childFreqMap": {
+        "30": 15.0
+      }
+    },
+    {
+      "idx": 30,
+      "op": 100,
+      "inst": "isub",
+      "addInfo": "",
+      "parentList": [
+        26,
+        29,
+        28
+      ],
+      "childFreqMap": {
+        "31": 15.0
+      }
+    },
+    {
+      "idx": 31,
+      "op": 46,
+      "inst": "iaload",
+      "addInfo": "",
+      "parentList": [
+        26,
+        30,
+        27
+      ],
+      "childFreqMap": {
+        "35": 15.0
+      }
+    },
+    {
+      "idx": 32,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "1",
+      "parentList": [
+        26
+      ],
+      "childFreqMap": {
+        "34": 15.0
+      }
+    },
+    {
+      "idx": 33,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "parentList": [
+        26,
+        4,
+        24
+      ],
+      "childFreqMap": {
+        "34": 15.0
+      }
+    },
+    {
+      "idx": 34,
+      "op": 46,
+      "inst": "iaload",
+      "addInfo": "",
+      "parentList": [
+        26,
+        33,
+        32
+      ],
+      "childFreqMap": {
+        "35": 15.0
+      }
+    },
+    {
+      "idx": 35,
+      "op": 163,
+      "inst": "if_icmpgt",
+      "addInfo": "L1486975107",
+      "parentList": [
+        26,
+        34,
+        31
+      ],
+      "childFreqMap": {
+        "6": 9.0,
+        "7": 9.0,
+        "8": 9.0,
+        "9": 9.0,
+        "10": 9.0,
+        "11": 9.0,
+        "12": 9.0,
+        "13": 9.0,
+        "14": 9.0,
+        "15": 9.0,
+        "16": 9.0,
+        "17": 9.0,
+        "18": 9.0,
+        "19": 9.0,
+        "20": 9.0,
+        "21": 9.0,
+        "22": 9.0,
+        "23": 9.0,
+        "24": 9.0,
+        "25": 9.0,
+        "26": 9.0,
+        "36": 6.0,
+        "37": 6.0,
+        "38": 6.0,
+        "39": 6.0,
+        "40": 6.0
+      }
+    },
+    {
+      "idx": 36,
+      "op": 132,
+      "inst": "iinc",
+      "addInfo": "3",
+      "parentList": [
+        35,
+        1,
+        26,
+        36
+      ],
+      "childFreqMap": {
+        "3": 6.0,
+        "36": 6.0,
+        "37": 7.0
+      }
+    },
+    {
+      "idx": 37,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "3",
+      "parentList": [
+        2,
+        1,
+        35,
+        36,
+        26
+      ],
+      "childFreqMap": {
+        "40": 8.0
+      }
+    },
+    {
+      "idx": 38,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "1",
+      "parentList": [
+        2,
+        35,
+        26
+      ],
+      "childFreqMap": {
+        "39": 8.0
+      }
+    },
+    {
+      "idx": 39,
+      "op": 190,
+      "inst": "arraylength",
+      "addInfo": "",
+      "parentList": [
+        2,
+        38,
+        35,
+        26
+      ],
+      "childFreqMap": {
+        "40": 8.0
+      }
+    },
+    {
+      "idx": 40,
+      "op": 161,
+      "inst": "if_icmplt",
+      "addInfo": "L1650627452",
+      "parentList": [
+        2,
+        39,
+        37,
+        35,
+        26
+      ],
+      "childFreqMap": {
+        "3": 7.0,
+        "4": 7.0,
+        "5": 7.0,
+        "41": 1.0
+      }
+    },
+    {
+      "idx": 41,
+      "op": 177,
+      "inst": "return",
+      "addInfo": "",
+      "parentList": [
+        40
+      ],
+      "childFreqMap": {}
+    }
   ]
 }

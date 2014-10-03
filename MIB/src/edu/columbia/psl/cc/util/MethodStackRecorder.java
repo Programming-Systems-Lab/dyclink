@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,12 +39,6 @@ public class MethodStackRecorder {
 	
 	private Map<Integer, InstNode> localVarRecorder = new HashMap<Integer, InstNode>();
 	
-	private TreeMap<InstNode, TreeSet<InstNode>> dataDep = new TreeMap<InstNode, TreeSet<InstNode>>();
-	
-	private TreeMap<InstNode, TreeSet<InstNode>> controlDep = new TreeMap<InstNode, TreeSet<InstNode>>();
-	
-	private HashMap<InstNode, ArrayList<InstNode>> invokeMethodLookup = new HashMap<InstNode, ArrayList<InstNode>>();
-	
 	private List<InstNode> path = new ArrayList<InstNode>();
 	
 	private InstPool pool = new InstPool();
@@ -56,33 +51,13 @@ public class MethodStackRecorder {
 		this.path.add(fullInst);
 	}
 	
-	private void updateInvokeMethod(InstNode invokeMethod, InstNode parentInst) {
-		if (this.invokeMethodLookup.containsKey(invokeMethod)) {
-			this.invokeMethodLookup.get(invokeMethod).add(parentInst);
-		} else {
-			ArrayList<InstNode> parents = new ArrayList<InstNode>();
-			parents.add(parentInst);
-			this.invokeMethodLookup.put(invokeMethod, parents);
-		}
-	}
-	
 	private void updateCachedMap(InstNode parent, InstNode child, boolean isControl) {
 		if (isControl) {
-			if (this.controlDep.containsKey(parent)) {
-				this.controlDep.get(parent).add(child);
-			} else {
-				TreeSet<InstNode> children = new TreeSet<InstNode>();
-				children.add(child);
-				this.controlDep.put(parent, children);
-			}
+			parent.increChild(child.getIdx(), MIBConfiguration.getControlWeight());
+			child.registerParent(parent.getIdx());
 		} else {
-			if (this.dataDep.containsKey(parent)) {
-				this.dataDep.get(parent).add(child);
-			} else {
-				TreeSet<InstNode> children = new TreeSet<InstNode>();
-				children.add(child);
-				this.dataDep.put(parent, children);
-			}
+			parent.increChild(child.getIdx(), MIBConfiguration.getDataWeight());
+			child.registerParent(parent.getIdx());		
 		}
 		//System.out.println("Update map: " + this.dataDep);
 	}
@@ -235,7 +210,6 @@ public class MethodStackRecorder {
 			InstNode tmpInst = this.safePop();
 			this.updateCachedMap(tmpInst, fullInst, false);
 			//this.updateInvokeMethod(methodKey, tmpInst);
-			this.updateInvokeMethod(fullInst, tmpInst);
 		}
 		
 		if (!returnType.equals("V")) {
@@ -345,18 +319,6 @@ public class MethodStackRecorder {
 		}
 	}
 	
-	private void processInvokeMethodLookup() {
-		for (InstNode fullInst: this.invokeMethodLookup.keySet()) {
-			ArrayList<InstNode> parents = this.invokeMethodLookup.get(fullInst);
-			
-			/*for (int i = 0; i < parents.size(); i++) {
-				String newParent = StringUtil.replaceLabel(parents.get(i), labelMap);
-				parents.set(i, newParent);
-			}*/
-			Collections.reverse(parents);
-		}
-	}
-	
 	public void dumpGraph(String owner, String myName, String myDesc, boolean isTemplate) {
 		//Load static map first
 		String staticMapKey = MIBConfiguration.getLabelmapDir() + "/" + StringUtil.genKey(owner, myName, myDesc) + "_map.json";
@@ -369,8 +331,6 @@ public class MethodStackRecorder {
 		
 		//For serilization
 		GraphTemplate gt = new GraphTemplate();
-		this.processInvokeMethodLookup();
-		gt.setInvokeMethodLookup(this.invokeMethodLookup);
 		
 		Type methodType = Type.getMethodType(myDesc);
 		int argSize = methodType.getArgumentTypes().length;
@@ -387,29 +347,22 @@ public class MethodStackRecorder {
 		}
 		gt.setLastSecondInst(lastSecondInst);
 		
-		System.out.println("Data dependency:");
-		int dataDepCount = 0;
-		for (InstNode parent: this.dataDep.navigableKeySet()) {
-			System.out.println("Source: " + parent);
-			for (InstNode childInst: this.dataDep.get(parent)) {
-				System.out.println("	Sink: " + childInst);
-				dataDepCount++;
-			}
-		}
-		System.out.println("Total data dependency: " + dataDepCount);
-		gt.setDataGraph(this.dataDep);
+		System.out.println("Instruction dependency:");
 		
-		System.out.println("Control dependency:");
-		int controlDepCount = 0;
-		for (InstNode parent: this.controlDep.navigableKeySet()) {
-			System.out.println("Source: " + parent);
-			for (InstNode childInst: this.controlDep.get(parent)) {
-				System.out.println("	Sink: " + childInst);
-				controlDepCount++;
-			}		
+		int depCount = 0;
+		Iterator<InstNode> instIterator = this.pool.iterator();
+		while (instIterator.hasNext()) {
+			InstNode curInst = instIterator.next();
+			System.out.println("Parent: " + curInst.toString());
+			TreeMap<Integer, Double> children = curInst.getChildFreqMap();
+			for (Integer c: children.navigableKeySet()) {
+				System.out.println("  Child: " + this.pool.searchAndGet(c) + " Freq: " + children.get(c));
+			}
+			depCount += children.size();
 		}
-		System.out.println("Total control dependency: " + controlDepCount);
-		gt.setControlGraph(this.controlDep);
+		System.out.println("Total dependency count: " + depCount);
+		
+		gt.setInstPool(this.pool);
 		
 		String key = StringUtil.genKey(owner, myName, myDesc);
 		TypeToken<GraphTemplate> typeToken = new TypeToken<GraphTemplate>(){};

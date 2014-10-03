@@ -1,7 +1,12 @@
 package edu.columbia.psl.cc.util;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -9,47 +14,49 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
+import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 
 public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializer<InstNode>{
-
+	
+	private InstPool pool = new InstPool();
+	
 	@Override
 	public InstNode deserialize(JsonElement json, Type typeOfT,
 			JsonDeserializationContext context) throws JsonParseException {
 		JsonObject object = json.getAsJsonObject();
-		if (json.isJsonObject()) {
-			InstNode inst = new InstNode();
-			int idx = object.get("idx").getAsInt();
-			int opcode = object.get("op").getAsInt();
-			OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
-			String addInfo = object.get("addInfo").getAsString();
-			
-			inst.setIdx(idx);
-			inst.setOp(oo);
-			inst.setAddInfo(addInfo);
-			return inst;
-		} else {
-			String rawKey = json.getAsString();
-			String[] parseKey = rawKey.split(" ");
-			InstNode inst = new InstNode();
-			
-			for (int i = 0; i < parseKey.length; i++) {
-				if (i == 0) {
-					int idx = Integer.valueOf(parseKey[i]);
-					inst.setIdx(idx);
-				} else if (i == 1) {
-					OpcodeObj oo = BytecodeCategory.getOpcodeObj(Integer.valueOf(parseKey[i]));
-					inst.setOp(oo);
-				} else if (i == 2) {
-					String addInfo = parseKey[i];
-					inst.setAddInfo(addInfo);
-				}
-			}
-			return inst;
+		int idx = object.get("idx").getAsInt();
+		int opcode = object.get("op").getAsInt();
+		String addInfo = object.get("addInfo").getAsString();
+		
+		JsonArray parentObj = object.get("parentList").getAsJsonArray();
+		ArrayList<Integer> parentList = new ArrayList<Integer>();
+		for (int i = 0; i < parentObj.size(); i++) {
+			parentList.add(parentObj.get(i).getAsInt());
 		}
+		
+		JsonObject childObj = object.get("childFreqMap").getAsJsonObject();
+		TreeMap<Integer, Double> childFreqMap = new TreeMap<Integer, Double>();
+		
+		for (Entry<String, JsonElement> entry: childObj.entrySet()) {
+			int instIdx = Integer.valueOf(entry.getKey());
+			double instFreq = entry.getValue().getAsDouble();
+			childFreqMap.put(instIdx, instFreq);
+		}
+		
+		//TypeToken<TreeMap<Integer, Double>> childToken = new TypeToken<TreeMap<Integer, Double>>(){};
+		//TypeToken<ArrayList<Integer>> parentToken = new TypeToken<ArrayList<Integer>>(){};
+		
+		InstNode inst = this.pool.searchAndGet(idx, opcode, addInfo);
+		inst.setParentList(parentList);
+		inst.setChildFreqMap(childFreqMap);
+		//inst.setChildFreqMap((TreeMap<Integer, Double>)context.deserialize(object.get("childFreqpMap"), childToken.getType()));
+		//inst.setParentList((ArrayList<Integer>)context.deserialize(object.get("parentList"), parentToken.getType()));
+		return inst;
 	}
 
 	@Override
@@ -61,6 +68,12 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		//For debuggin purpose, or we only need opcode
 		result.addProperty("inst", inst.getOp().getInstruction());
 		result.addProperty("addInfo", inst.getAddInfo());
+		
+		TypeToken<ArrayList<Integer>> listType = new TypeToken<ArrayList<Integer>>(){};
+		result.add("parentList", context.serialize(inst.getParentList(), listType.getType()));
+		
+		TypeToken<TreeMap<Integer, Double>> mapType = new TypeToken<TreeMap<Integer, Double>>(){};
+		result.add("childFreqMap", context.serialize(inst.getChildFreqMap(), mapType.getType()));
 		
 		return result;
 	}

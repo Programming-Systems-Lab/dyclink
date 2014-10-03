@@ -15,8 +15,10 @@ import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.CostObj;
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.util.GraphUtil;
 
 public class SVDKernel implements MIBSimilarity<double[][]>{
 
@@ -82,26 +84,29 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 	
 	@Override
 	public double[][] constructCostTable(String methodName,
-			TreeMap<InstNode, TreeSet<InstNode>> depMap) {
-		// TODO Auto-generated method stub
-		ArrayList<InstNode> allNodes = new ArrayList<InstNode>(depMap.navigableKeySet());
+			InstPool pool) {
+		// List here is just for facilitate dumping cost table. Should remove after
+		System.out.println("Check inst pool: " + pool);
+		ArrayList<InstNode> allNodes = new ArrayList<InstNode>(pool);
+		double[][] ret = new double[allNodes.size()][allNodes.size()];
 		
-		double[][] ret = new double[depMap.keySet().size()][depMap.keySet().size()];
 		for (int i = 0; i < allNodes.size(); i++) {
+			InstNode i1 = allNodes.get(i);
 			for (int j = 0; j < allNodes.size(); j++) {
-				InstNode inst1 = allNodes.get(i);
-				InstNode inst2 = allNodes.get(j);
-				
-				if (depMap.get(inst1) != null && depMap.get(inst1).contains(inst2)) {
-					ret[i][j] = 1;
+				InstNode i2 = allNodes.get(j);
+				if (i1.getChildFreqMap().containsKey(i2.getIdx())) {
+					double rawVal = (double)1/i1.getChildFreqMap().get(i2.getIdx());
+					double roundVal = GraphUtil.roundValue(rawVal);
+					ret[i][j] = roundVal;
 				} else {
-					ret[i][j] = MIBConfiguration.getCostLimit();
+					//ret[i][j] = MIBConfiguration.getCostLimit();
+					ret[i][j] = 0;
 				}
 			}
 		}
 		
 		/*ShortestPathKernel spk = new ShortestPathKernel();
-		CostObj[][] costTable = spk.constructCostTable(methodName, depMap);
+		CostObj[][] costTable = spk.constructCostTable(methodName, pool);
 		for (int i = 0; i < allNodes.size(); i++) {
 			for (int j = 0; j < allNodes.size(); j++) {
 				ret[i][j] = costTable[i][j].getCost();
@@ -111,20 +116,20 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 		//Debugging purpose, dump cost table
 		StringBuilder sb = new StringBuilder();
 		sb.append("head,");
-		for (int i = 0; i < allNodes.size(); i++) {
-			if (i == allNodes.size() - 1) {
-				sb.append(allNodes.get(i) + "\n");
+		for (int k = 0; k < allNodes.size(); k++) {
+			if (k == pool.size() - 1) {
+				sb.append(allNodes.get(k).toString() + "\n");
 			} else {
-				sb.append(allNodes.get(i) + ",");
+				sb.append(allNodes.get(k).toString() + ",");
 			}
 		}
 				
 		System.out.println("Check cost table");
-		for (int i = 0; i < ret.length; i++) {
+		for (int m = 0; m < ret.length; m++) {
 			StringBuilder rawBuilder = new StringBuilder();
-			rawBuilder.append(allNodes.get(i) + ",");
-			for (int j = 0; j < ret.length; j++) {
-				rawBuilder.append(ret[i][j] + ",");
+			rawBuilder.append(allNodes.get(m) + ",");
+			for (int n = 0; n < ret.length; n++) {
+				rawBuilder.append(ret[m][n] + ",");
 			}
 			sb.append(rawBuilder.toString().substring(0, rawBuilder.length() - 1) + "\n");
 		}

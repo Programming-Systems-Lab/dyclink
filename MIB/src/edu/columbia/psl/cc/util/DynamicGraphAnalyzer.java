@@ -44,7 +44,7 @@ public class DynamicGraphAnalyzer implements Analyzer {
 	}
 	
 	public static TreeMap<InstNode, TreeSet<InstNode>> mergeDataControlMap(GraphTemplate gt) {
-		TreeMap<InstNode, TreeSet<InstNode>> merged = gt.getDataGraph();
+		/*TreeMap<InstNode, TreeSet<InstNode>> merged = gt.getDataGraph();
 		for (InstNode ckey: gt.getControlGraph().keySet()) {
 			if (merged.containsKey(ckey)) {
 				merged.get(ckey).addAll(gt.getControlGraph().get(ckey));
@@ -52,7 +52,8 @@ public class DynamicGraphAnalyzer implements Analyzer {
 				merged.put(ckey, gt.getControlGraph().get(ckey));
 			}
 		}
-		return merged;
+		return merged;*/
+		return null;
 	}
 	
 	public static void expandDepMap(HashMap<String, HashSet<InstNode>> nodeInfo, HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>> depMaps) {
@@ -88,7 +89,7 @@ public class DynamicGraphAnalyzer implements Analyzer {
 		for (String mkey: graphs.keySet()) {
 			GraphTemplate graph = graphs.get(mkey);
 			System.out.println("Check method: " + mkey);
-			System.out.println("Invoke method lookup: " + graph.getInvokeMethodLookup());
+			//System.out.println("Invoke method lookup: " + graph.getInvokeMethodLookup());
 			System.out.println("Last 2nd inst: " + graph.getLastSecondInst());
 			ret.put(mkey, mergeDataControlMap(graph));
 		}
@@ -122,23 +123,16 @@ public class DynamicGraphAnalyzer implements Analyzer {
 		HashMap<String, GraphTemplate> templateGraphs = loadTemplate(templateDir, typeToken);
 		HashMap<String, GraphTemplate> testGraphs = loadTemplate(testDir, typeToken);
 		
-		HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>> templateMap = this.preprocessGraph(templateGraphs);
-		HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>> testMap = this.preprocessGraph(testGraphs);
-		
-		this.summarizeGraphs(templateMap);
-		this.summarizeGraphs(testMap);
-		
-		//MIBSimilarity scorer = new ShortestPathKernel();
-		MIBSimilarity scorer = new SVDKernel();
+		MIBSimilarity scorer = new ShortestPathKernel();
+		//MIBSimilarity scorer = new SVDKernel();
 		//Score kernel
-		for (String templateName: templateMap.keySet()) {
-			TreeMap<InstNode, TreeSet<InstNode>> templateMethod = templateMap.get(templateName);
-			System.out.println("Construct cost table: " + templateName);
-			T templateCostTable = (T) scorer.constructCostTable(templateName, templateMethod);
-			for (String testName: testMap.keySet()) {
-				TreeMap<InstNode, TreeSet<InstNode>> testMethod = testMap.get(testName);
-				System.out.println("Construct cost table: " + testName);
-				T testCostTable = (T) scorer.constructCostTable(testName, testMethod);
+		for (String templateName: templateGraphs.keySet()) {
+			GraphTemplate tempGraph = templateGraphs.get(templateName);
+			T templateCostTable = (T)scorer.constructCostTable(templateName, tempGraph.getInstPool());
+			
+			for (String testName: testGraphs.keySet()) {
+				GraphTemplate testGraph = testGraphs.get(testName);
+				T testCostTable = (T)scorer.constructCostTable(testName, testGraph.getInstPool());
 				double graphScore = scorer.calculateSimilarity(templateCostTable, testCostTable);
 				
 				System.out.println(templateName + " vs " + testName + " " + graphScore);

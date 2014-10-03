@@ -1,10 +1,10 @@
 package edu.columbia.psl.cc.datastruct;
 
-import java.util.HashSet;
+import java.util.TreeSet;
 
 import edu.columbia.psl.cc.pojo.InstNode;
 
-public class InstPool extends HashSet<InstNode> {
+public class InstPool extends TreeSet<InstNode> {
 
 	/**
 	 * 
@@ -26,6 +26,16 @@ public class InstPool extends HashSet<InstNode> {
 		probe.setAddInfo(addInfo);
 		this.add(probe);
 		return probe;
+	}
+	
+	public InstNode searchAndGet(int idx) {
+		for (InstNode inst: this) {
+			if (inst.getIdx() == idx)
+				return inst;
+		}
+		
+		System.err.println("Cannot find inst by idx: " + idx);
+		return null;
 	}
 
 }

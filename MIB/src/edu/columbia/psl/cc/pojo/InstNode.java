@@ -1,5 +1,9 @@
 package edu.columbia.psl.cc.pojo;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeMap;
+
 public class InstNode implements Comparable<InstNode>{
 	
 	private Var var;
@@ -13,6 +17,41 @@ public class InstNode implements Comparable<InstNode>{
 	private String fromMethod;
 	
 	private int linenumber;
+	
+	private ArrayList<Integer> parentList = new ArrayList<Integer>();
+	
+	//For freq map, the key is the inst idx, and the value is the frequency
+	private TreeMap<Integer, Double> childFreqMap = new TreeMap<Integer, Double>();
+	
+	public void registerParent(int parentIdx) {
+		if (!this.parentList.contains(parentIdx))
+			this.parentList.add(parentIdx);
+	}
+	
+	public void setParentList(ArrayList<Integer> parentList) {
+		this.parentList = parentList;
+	}
+	
+	public ArrayList<Integer> getParentList() {
+		return this.parentList;
+	}
+	
+	public void increChild(int childIdx, double amount) {
+		if (this.childFreqMap.containsKey(childIdx)) {
+			double count = this.childFreqMap.get(childIdx) + amount;
+			this.childFreqMap.put(childIdx, count);
+		} else {
+			this.childFreqMap.put(childIdx, amount);
+		}
+	}
+	
+	public void setChildFreqMap(TreeMap<Integer, Double> childFreqMap) {
+		this.childFreqMap = childFreqMap;
+	}
+	
+	public TreeMap<Integer, Double> getChildFreqMap() {
+		return this.childFreqMap;
+	}
 	
 	public void setIdx(int idx) {
 		this.idx = idx;
