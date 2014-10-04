@@ -35,9 +35,11 @@ public class MethodStackRecorder {
 	
 	private InstNode curControlInst = null;
 	
-	//private HashSet<InstNode> curControlInsts = new HashSet<InstNode>(); 
-	
 	private Map<Integer, InstNode> localVarRecorder = new HashMap<Integer, InstNode>();
+	
+	private Map<String, InstNode> fieldRecorder = new HashMap<String, InstNode>();
+	
+	private Map<Integer, String> methodMap = new HashMap<Integer, String>();
 	
 	private List<InstNode> path = new ArrayList<InstNode>();
 	
@@ -46,6 +48,10 @@ public class MethodStackRecorder {
 	/*public String genInstHead(OpcodeObj oo, String label) {
 		return label + " " + this.getInstIdx(label) + " " + oo.getOpcode() + " " + oo.getInstruction();
 	}*/
+	
+	private void updateMethodMap(int idx, String methodRep) {
+		this.methodMap.put(idx, methodRep);
+	}
 		
 	private void updatePath(InstNode fullInst) {
 		this.path.add(fullInst);
@@ -84,6 +90,13 @@ public class MethodStackRecorder {
 		
 		if (BytecodeCategory.controlCategory().contains(opcat)) {
 			this.updateControlInst(fullInst);
+		} else if (BytecodeCategory.readFieldCategory().contains(opcat)) {
+			//Add infor for field: owner + name + desc
+			InstNode parent = this.fieldRecorder.get(addInfo);
+			if (parent != null)
+				this.updateCachedMap(parent, fullInst, false);
+		} else if (BytecodeCategory.writeFieldCategory().contains(opcat)) {
+			this.fieldRecorder.put(addInfo, fullInst);
 		}
 		
 		int inputSize = oo.getInList().size();
@@ -141,7 +154,7 @@ public class MethodStackRecorder {
 				this.updateCachedMap(parentInst, fullInst, false);
 			
 				this.localVarRecorder.put(localVarIdx, fullInst);
-		}else if (BytecodeCategory.readCategory().contains(opcat)) {
+		} else if (BytecodeCategory.readCategory().contains(opcat)) {
 			//Search local var recorder;
 			InstNode parentInst = this.localVarRecorder.get(localVarIdx);
 			if (parentInst != null)
@@ -190,13 +203,14 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleMethod(int opcode, int instIdx, String owner, String name, String desc) {
-		String addInfo = owner + " " + name + " " + desc;
+		//String addInfo = owner + "." + name + "." + desc;
+		String addInfo = StringUtil.genKey(owner, name, desc);
 		InstNode fullInst = this.pool.searchAndGet(instIdx, opcode, addInfo);
-		//String methodKey = StringUtil.genKey(owner, name, desc);
 		System.out.println("Method full inst: " + fullInst);
 		
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
+		this.updateMethodMap(instIdx, addInfo);
 		
 		Type methodType = Type.getMethodType(desc);
 		//+1 for object reference, if instance method
@@ -346,6 +360,7 @@ public class MethodStackRecorder {
 			lastSecondInst = this.path.get(this.path.size() - 2);
 		}
 		gt.setLastSecondInst(lastSecondInst);
+		gt.setPath(this.path);
 		
 		System.out.println("Instruction dependency:");
 		

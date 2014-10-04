@@ -8,7 +8,7 @@ import edu.columbia.psl.cc.pojo.InstNode;
 
 public interface MIBSimilarity<T> {
 	
-	public double calculateSimilarity(T metric1, T metric2);
+	public double calculateSimilarity(T templateCostTable, T testCostTable);
 	
 	public T constructCostTable(String methodName, InstPool depMap);
 

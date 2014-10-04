@@ -12,7 +12,28 @@ import edu.columbia.psl.cc.analysis.LevenshteinDistance;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.StaticRep;
 
-public class StaticBytecodeCatAnalyzer implements Analyzer{
+public class StaticBytecodeCatAnalyzer implements Analyzer<StaticRep>{
+	
+	private HashMap<String, StaticRep> templates;
+	
+	private HashMap<String, StaticRep> tests;
+	
+	public void setTemplates(HashMap<String, StaticRep> templates) {
+		this.templates = templates;
+	}
+	
+	@Override
+	public HashMap<String, StaticRep> getTemplates() {
+		return this.templates;
+	}
+	
+	public void setTests(HashMap<String, StaticRep> tests) {
+		this.tests = tests;
+	}
+	
+	public HashMap<String, StaticRep> getTests() {
+		return this.tests;
+	}
 	
 	public HashMap<String, StaticRep> loadStaticMap(File dir) {
 		HashMap<String, StaticRep> ret = new HashMap<String, StaticRep>();
@@ -41,31 +62,15 @@ public class StaticBytecodeCatAnalyzer implements Analyzer{
 	@Override
 	public void analyzeTemplate() {
 		// TODO Auto-generated method stub
-		File labelDir = new File(MIBConfiguration.getLabelmapDir());
-		HashMap<String, StaticRep> allReps = this.loadStaticMap(labelDir);
-		
-		HashMap<String, String> templateReps = new HashMap<String, String>();
-		HashMap<String, String> testReps = new HashMap<String, String>();
-		
-		for (String name: allReps.keySet()) {
-			StaticRep sr = allReps.get(name);
-			
-			if (sr.isTemplate()) {
-				templateReps.put(name, sr.getOpCatString());
-			} else {
-				testReps.put(name, sr.getOpCatString());
-			}
-		}
 		
 		LevenshteinDistance dist = new LevenshteinDistance();
-		for (String tempName: templateReps.keySet()) {
-			String tempRep = templateReps.get(tempName);
-			for (String testName: testReps.keySet()) {
-				String testRep = testReps.get(testName);
-				System.out.println(tempName + " vs " + testName + " " + dist.calculateSimilarity(tempRep, testRep));
+		for (String tempName: this.templates.keySet()) {
+			StaticRep tempRep = this.templates.get(tempName);
+			for (String testName: this.tests.keySet()) {
+				StaticRep testRep = tests.get(testName);
+				System.out.println(tempName + " vs " + testName + " " + dist.calculateSimilarity(tempRep.getOpCatString(), testRep.getOpCatString()));
 				
 			}
 		}
 	}
-
 }

@@ -24,23 +24,29 @@ public class StringUtil {
 		}
 	}
 	
-	public static String parseDesc(String desc) {
+	public static String[] parseDesc(String desc) {
 		int idx = desc.lastIndexOf(pattern);
 		
 		if (idx == -1) {
 			System.err.println("Incorrect desc: " + desc);
 			return null;
 		}
-		String in = cleanPunc(desc.substring(0, idx + 1));
-		String out = cleanPunc(desc.substring(idx + 1, desc.length()));
+		//String in = cleanPunc(desc.substring(0, idx + 1));
+		//String out = cleanPunc(desc.substring(idx + 1, desc.length()));
+		//return in + "~" + out;
 		
-		return in + "~" + out;
+		String in = desc.substring(0, idx + 1);
+		String out = desc.substring(idx + 1, desc.length());
+		String[] ret = new String[]{in, out};
+		return ret;
 	}
 	
 	public static String genKey(String className, String methodName, String methodDesc) {
-		String key = StringUtil.cleanPunc(className, "_") 
-				+ "~" + StringUtil.cleanPunc(methodName, "_") 
-				+ "~" + StringUtil.parseDesc(methodDesc);
+		String[] parsedDesc = StringUtil.parseDesc(methodDesc);
+		String key = StringUtil.cleanPunc(className, ".") 
+				+ ":" + methodName 
+				+ ":" + parsedDesc[0] 
+				+ ":" + parsedDesc[1];
 		return key;
 	}
 	

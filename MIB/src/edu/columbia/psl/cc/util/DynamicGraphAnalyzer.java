@@ -17,31 +17,13 @@ import edu.columbia.psl.cc.pojo.CostObj;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 
-public class DynamicGraphAnalyzer implements Analyzer {
+public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 	
 	private MIBSimilarity scorer;
 	
-	public static <T> HashMap<String, T> loadTemplate(File dir, TypeToken<T> typeToken) {
-		HashMap<String, T> ret = new HashMap<String, T>();
-		if (!dir.isDirectory()) {
-			T temp = GsonManager.readJsonGeneric(dir, typeToken);
-			ret.put(dir.getName(), temp);
-		} else {
-			FilenameFilter filter = new FilenameFilter() {
-				@Override
-				public boolean accept(File dir, String name) {
-					return name.toLowerCase().endsWith(".json");
-				}
-			};
-			
-			for (File f: dir.listFiles(filter)) {
-				String name = f.getName().replace(".json", "");
-				T value = GsonManager.readJsonGeneric(f, typeToken);
-				ret.put(name, value);
-			}
-		}
-		return ret;
-	}
+	private HashMap<String, GraphTemplate> templates;
+	
+	private HashMap<String, GraphTemplate> tests;
 	
 	public static TreeMap<InstNode, TreeSet<InstNode>> mergeDataControlMap(GraphTemplate gt) {
 		/*TreeMap<InstNode, TreeSet<InstNode>> merged = gt.getDataGraph();
@@ -80,6 +62,22 @@ public class DynamicGraphAnalyzer implements Analyzer {
 		}
 	}
 	
+	public void setTemplates(HashMap<String, GraphTemplate> templates) {
+		this.templates = templates;
+	}
+	
+	public HashMap<String, GraphTemplate> getTemplates() {
+		return this.templates;
+	}
+	
+	public void setTests(HashMap<String, GraphTemplate> tests) {
+		this.tests = tests;
+	}
+	
+	public HashMap<String, GraphTemplate> getTests() {
+		return this.tests;
+	}
+	
 	public void setAnalyzer(MIBSimilarity scorer) {
 		this.scorer = scorer;
 	}
@@ -115,24 +113,17 @@ public class DynamicGraphAnalyzer implements Analyzer {
 		expandDepMap(nodeInfo, targetMap);
 	}
 	
-	public <T> void analyzeTemplate() {
-		File templateDir = new File(MIBConfiguration.getTemplateDir());
-		File testDir = new File(MIBConfiguration.getTestDir());
-		
-		TypeToken<GraphTemplate> typeToken = new TypeToken<GraphTemplate>(){};
-		HashMap<String, GraphTemplate> templateGraphs = loadTemplate(templateDir, typeToken);
-		HashMap<String, GraphTemplate> testGraphs = loadTemplate(testDir, typeToken);
-		
-		MIBSimilarity scorer = new ShortestPathKernel();
+	public void analyzeTemplate() {		
+		MIBSimilarity<CostObj[][]> scorer = new ShortestPathKernel();
 		//MIBSimilarity scorer = new SVDKernel();
 		//Score kernel
-		for (String templateName: templateGraphs.keySet()) {
-			GraphTemplate tempGraph = templateGraphs.get(templateName);
-			T templateCostTable = (T)scorer.constructCostTable(templateName, tempGraph.getInstPool());
+		for (String templateName: this.templates.keySet()) {
+			GraphTemplate tempGraph = this.templates.get(templateName);
+			CostObj[][] templateCostTable = scorer.constructCostTable(templateName, tempGraph.getInstPool());
 			
-			for (String testName: testGraphs.keySet()) {
-				GraphTemplate testGraph = testGraphs.get(testName);
-				T testCostTable = (T)scorer.constructCostTable(testName, testGraph.getInstPool());
+			for (String testName: this.tests.keySet()) {
+				GraphTemplate testGraph = this.tests.get(testName);
+				CostObj[][] testCostTable = scorer.constructCostTable(testName, testGraph.getInstPool());
 				double graphScore = scorer.calculateSimilarity(templateCostTable, testCostTable);
 				
 				System.out.println(templateName + " vs " + testName + " " + graphScore);

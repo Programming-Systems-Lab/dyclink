@@ -1,0 +1,4 @@
+0 21 iload 1
+1 21 iload 2
+2 96 iadd 
+3 172 ireturn 

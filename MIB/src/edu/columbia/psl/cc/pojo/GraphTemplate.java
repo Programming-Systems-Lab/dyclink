@@ -1,9 +1,6 @@
 package edu.columbia.psl.cc.pojo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.List;
 
 import edu.columbia.psl.cc.datastruct.InstPool;
 
@@ -15,7 +12,17 @@ public class GraphTemplate {
 		
 	private InstNode lastSecondInst;
 	
+	private List<InstNode> path;
+	
 	private InstPool pool;
+	
+	public void setPath(List<InstNode> path) {
+		this.path = path;
+	}
+	
+	public List<InstNode> getPath() {
+		return this.path;
+	}
 	
 	public void setInstPool(InstPool pool) {
 		this.pool = pool;

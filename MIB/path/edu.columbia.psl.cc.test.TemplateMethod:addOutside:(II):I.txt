@@ -1,0 +1,7 @@
+0 25 aload 0
+1 21 iload 1
+2 21 iload 2
+3 182 invokevirtual edu.columbia.psl.cc.test.TemplateMethod:add:(II):I
+4 54 istore 4
+5 21 iload 4
+6 172 ireturn 

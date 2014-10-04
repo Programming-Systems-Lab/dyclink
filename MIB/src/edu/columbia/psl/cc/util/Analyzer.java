@@ -1,6 +1,18 @@
 package edu.columbia.psl.cc.util;
 
-public interface Analyzer {
+import java.util.HashMap;
+
+import edu.columbia.psl.cc.pojo.StaticRep;
+
+public interface Analyzer<T> {
 	
-	public <T> void analyzeTemplate();
+	public void analyzeTemplate();
+	
+	public void setTemplates(HashMap<String, T> templates);
+	
+	public HashMap<String, T> getTemplates();
+	
+	public void setTests(HashMap<String, T> templates);
+	
+	public HashMap<String, T> getTests();
 }

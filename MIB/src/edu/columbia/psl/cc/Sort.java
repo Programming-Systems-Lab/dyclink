@@ -1,6 +1,7 @@
 package edu.columbia.psl.cc;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import edu.columbia.psl.cc.annot.analyzeClass;
 import edu.columbia.psl.cc.annot.extractTemplate;
@@ -102,9 +103,23 @@ public class Sort {
 		System.out.println(Arrays.toString(ar));
 	}
 	
+	public int[] randomGenArray() {
+		Random r = new Random();
+		//Generate array length between 1 to 20
+		int arrLength = r.nextInt(20) + 1;
+		int[] ret = new int[arrLength];
+		
+		Random numR = new Random();
+		for (int i = 0; i < ret.length; i++) {
+			ret[i] = numR.nextInt();
+		}
+		return ret;
+	}
+	
 	public static void main(String[] args) {
 		Sort s = new Sort();
-		int[] ar = {5, 7, 1, 4, 3, 6, 17, 8};
+		//int[] ar = {5, 7, 1, 4, 3, 6, 17, 8};
+		int[] ar = s.randomGenArray();
 		int[] copy1 = new int[ar.length];
 		int[] copy2 = new int[ar.length];
 		int[] copy3 = new int[ar.length];
@@ -125,5 +140,8 @@ public class Sort {
 		s.showArray(copy4);
 		s.quickSort(copy5, 0, copy5.length - 1);
 		s.showArray(copy5);
+		
+		System.out.println("Original array");
+		s.showArray(ar);
 	}
 }

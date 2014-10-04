@@ -11,13 +11,21 @@ import edu.columbia.psl.cc.annot.testTemplate;
 import edu.columbia.psl.cc.util.MethodStackRecorder;
 
 @analyzeClass
-public class TemplateMethod {
+public class TemplateMethod extends TemplateParent{
 	
 	private static int sVar;
 	
 	private int iVar;
 	
 	Object lock1 = new Object();
+	
+	@extractTemplate
+	public int fieldTest() {
+		this.iVar = 5;
+		int ret = this.iVar + sVar;
+		int b= this.iVar + 7;
+		return ret;
+	}
 	
 	//@extractTemplate
 	public void dummy(int a, int b) {
@@ -134,6 +142,7 @@ public class TemplateMethod {
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
 		System.out.println("TempalteMethod: " + tm.addOutside(3, 5));
+		System.out.println(tm.fieldTest());
 		//tm.testField(5);
 		//tm.testContinuousAnd(128);
 		//tm.dummyInvoke();
@@ -231,7 +240,8 @@ public class TemplateMethod {
 	} 
 	
 	public int instanceMethod(int a, int[] b) {
-		int ret = a + this.iVar + b[0];
+		int ret = a + this.iVar + sVar + this.pVar + super.sVar;
+		this.iVar = 5;
 		switch(a) {
 			case 0:
 				b[0] = 0;

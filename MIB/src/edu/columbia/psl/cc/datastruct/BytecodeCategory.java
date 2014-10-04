@@ -148,6 +148,18 @@ public class BytecodeCategory {
 		return ret;
 	}
 	
+	public static HashSet<Integer> writeFieldCategory() {
+		HashSet<Integer> ret = new HashSet<Integer>();
+		ret.add(15);
+		return ret;
+	}
+	
+	public static HashSet<Integer> readFieldCategory() {
+		HashSet<Integer> ret = new HashSet<Integer>();
+		ret.add(14);
+		return ret;
+	}
+	
 	public static HashSet<Integer> controlCategory() {
 		HashSet<Integer> ret = new HashSet<Integer>();
 		ret.add(13);
