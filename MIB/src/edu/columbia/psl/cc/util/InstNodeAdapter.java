@@ -29,6 +29,7 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 	public InstNode deserialize(JsonElement json, Type typeOfT,
 			JsonDeserializationContext context) throws JsonParseException {
 		JsonObject object = json.getAsJsonObject();
+		String methodKey = object.get("fromMethod").getAsString();
 		int idx = object.get("idx").getAsInt();
 		int opcode = object.get("op").getAsInt();
 		String addInfo = object.get("addInfo").getAsString();
@@ -51,7 +52,8 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		//TypeToken<TreeMap<Integer, Double>> childToken = new TypeToken<TreeMap<Integer, Double>>(){};
 		//TypeToken<ArrayList<Integer>> parentToken = new TypeToken<ArrayList<Integer>>(){};
 		
-		InstNode inst = this.pool.searchAndGet(idx, opcode, addInfo);
+		InstNode inst = this.pool.searchAndGet(methodKey, idx, opcode, addInfo);
+		inst.setFromMethod(methodKey);
 		inst.setParentList(parentList);
 		inst.setChildFreqMap(childFreqMap);
 		//inst.setChildFreqMap((TreeMap<Integer, Double>)context.deserialize(object.get("childFreqpMap"), childToken.getType()));
@@ -63,7 +65,8 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 	public JsonElement serialize(InstNode inst, Type typeOfSrc,
 			JsonSerializationContext context) {
 		JsonObject result = new JsonObject();
-		result.addProperty("idx", inst.getIdx());
+		result.addProperty("fromMethod", inst.getFromMethod())
+;		result.addProperty("idx", inst.getIdx());
 		result.addProperty("op", inst.getOp().getOpcode());
 		//For debuggin purpose, or we only need opcode
 		result.addProperty("inst", inst.getOp().getInstruction());

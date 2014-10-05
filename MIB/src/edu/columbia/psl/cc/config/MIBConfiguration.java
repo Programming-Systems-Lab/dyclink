@@ -26,7 +26,7 @@ public class MIBConfiguration {
 	
 	private static String srGraphDump = "dumpGraph";
 	
-	private static String srGraphDumpDesc = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V";
+	private static String srGraphDumpDesc = "(Z)V";
 	
 	private static String templateDir = "./template";
 	

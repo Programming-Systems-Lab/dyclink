@@ -13,6 +13,7 @@ import edu.columbia.psl.cc.analysis.MIBSimilarity;
 import edu.columbia.psl.cc.analysis.SVDKernel;
 import edu.columbia.psl.cc.analysis.ShortestPathKernel;
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.CostObj;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
@@ -113,12 +114,60 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		expandDepMap(nodeInfo, targetMap);
 	}
 	
+	private void mergeGraphs(GraphTemplate parent, GraphTemplate child, int childIdx) {
+		InstNode methodNode = parent.getInstPool().searchAndGet(parent.getMethodKey(), childIdx);
+		
+		int methodArgs = child.getMethodArgSize();
+		int methodRet = child.getMethodReturnSize();
+		
+		//Search start insts in child
+		InstNode[] starts = new InstNode[methodArgs];
+		int count = 0;
+		for (InstNode inst: child.getPath()) {
+			if (BytecodeCategory.readCategory().contains(inst.getOp().getCatId()) &&
+					count <= methodArgs) {
+				starts[count++] = inst;
+			}
+		}
+		
+		InstNode[] parents = null;
+		if (methodArgs < methodNode.getParentList().size()) {
+			//Instance method
+			parents = new InstNode[methodNode.getParentList().size() - 1];
+			for (int i = methodNode.getParentList().size() - 2, j = 0; i >=0; i--, j++) {
+				parents[j] = parent.getInstPool().searchAndGet(parent.getMethodKey(), methodNode.getParentList().get(i));
+			}
+		} else if (methodArgs == methodNode.getParentList().size()) {
+			//Class method
+			parents = new InstNode[methodNode.getParentList().size()];
+			for (int i = methodNode.getParentList().size() - 1, j = 0; i >= 0; i--, j++) {
+				parents[j] = parent.getInstPool().searchAndGet(parent.getMethodKey(), methodNode.getParentList().get(i));
+			}
+		} else {
+			System.err.println("Invalid method description or recording: " + methodNode);
+		}
+	}
+	
+	private void collectAndMergeChildGraphs(GraphTemplate parentGraph) {
+		HashMap<Integer, GraphTemplate> extMethodMap = GraphUtil.collectChildGraphs(parentGraph);
+		
+		for (Integer methodInstIdx: extMethodMap.keySet()) {
+			//Copy the parent graph
+			GraphTemplate copyParent = new GraphTemplate(parentGraph);
+			GraphTemplate childGraph = extMethodMap.get(methodInstIdx);
+			System.out.println("Copy parent: " + copyParent.getMethodKey());
+			System.out.println("Child graph: " + childGraph.getLastSecondInst());
+			//Merge
+		}
+	}
+	
 	public void analyzeTemplate() {		
 		MIBSimilarity<CostObj[][]> scorer = new ShortestPathKernel();
 		//MIBSimilarity scorer = new SVDKernel();
 		//Score kernel
 		for (String templateName: this.templates.keySet()) {
 			GraphTemplate tempGraph = this.templates.get(templateName);
+			this.collectAndMergeChildGraphs(tempGraph);
 			CostObj[][] templateCostTable = scorer.constructCostTable(templateName, tempGraph.getInstPool());
 			
 			for (String testName: this.tests.keySet()) {

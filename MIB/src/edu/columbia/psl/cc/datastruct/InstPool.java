@@ -10,10 +10,21 @@ public class InstPool extends TreeSet<InstNode> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	public InstPool() {
+		
+	}
+	
+	public InstPool(InstPool contents) {
+		for (InstNode c: contents) {
+			this.searchAndGet(c.getFromMethod(), c.getIdx(), c.getOp().getOpcode(), c.getAddInfo());
+		}
+	}
 
-	public InstNode searchAndGet(int idx, int opcode, String addInfo) {
+	public InstNode searchAndGet(String methodKey, int idx, int opcode, String addInfo) {
 		for (InstNode inst: this) {
-			if (inst.getIdx() == idx && 
+			if (inst.getFromMethod().equals(methodKey) && 
+					inst.getIdx() == idx && 
 					inst.getOp().getOpcode() == opcode && 
 					inst.getAddInfo().equals(addInfo))
 				return inst;
@@ -21,6 +32,7 @@ public class InstPool extends TreeSet<InstNode> {
 		
 		//Create new 
 		InstNode probe = new InstNode();
+		probe.setFromMethod(methodKey);
 		probe.setIdx(idx);
 		probe.setOp(BytecodeCategory.getOpcodeObj(opcode));
 		probe.setAddInfo(addInfo);
@@ -28,9 +40,9 @@ public class InstPool extends TreeSet<InstNode> {
 		return probe;
 	}
 	
-	public InstNode searchAndGet(int idx) {
+	public InstNode searchAndGet(String methodKey, int idx) {
 		for (InstNode inst: this) {
-			if (inst.getIdx() == idx)
+			if (inst.getFromMethod().equals(methodKey) && inst.getIdx() == idx)
 				return inst;
 		}
 		

@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
@@ -15,8 +16,11 @@ import java.util.TreeSet;
 import org.apache.commons.math3.util.MathUtils;
 import org.apache.commons.math3.util.Precision;
 
+import com.google.gson.reflect.TypeToken;
+
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
+import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.datastruct.VarPairPool;
 import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.CostObj;
@@ -62,6 +66,21 @@ public class GraphUtil {
 			}
 		}
 	}*/
+	
+	public static HashMap<Integer, GraphTemplate> collectChildGraphs(GraphTemplate parentGraph) {
+		String tempDir = MIBConfiguration.getTemplateDir();
+		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
+		
+		HashMap<Integer, GraphTemplate> childGraphLib = new HashMap<Integer, GraphTemplate>();
+		for (Integer methodIdx: parentGraph.getExtMethods()) {
+			InstNode methodInst = parentGraph.getInstPool().searchAndGet(parentGraph.getMethodKey(), methodIdx);
+			
+			String filePath = tempDir + "/" + methodInst.getAddInfo() + ".json";
+			GraphTemplate childGraph = TemplateLoader.loadTemplateFile(filePath, graphToken);
+			childGraphLib.put(methodIdx, childGraph);
+		}
+		return childGraphLib;
+	}
 	
 	public static double roundValue(double value) {
 		return Precision.round(value, MIBConfiguration.getPrecisionDigit());

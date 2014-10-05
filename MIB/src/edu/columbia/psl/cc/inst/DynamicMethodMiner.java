@@ -225,7 +225,13 @@ public class DynamicMethodMiner extends AdviceAdapter {
 			System.out.println("Method Stack Recorder name: " + methodStackRecorder);
 			this.mv.visitTypeInsn(Opcodes.NEW, methodStackRecorder);
 			this.mv.visitInsn(Opcodes.DUP);
-			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, methodStackRecorder, "<init>", "()V");
+			this.mv.visitLdcInsn(this.className);
+			this.mv.visitLdcInsn(this.myName);
+			this.mv.visitLdcInsn(this.methodDesc);
+			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, 
+					methodStackRecorder, 
+					"<init>", 
+					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
 			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
 		}
 	}
@@ -282,9 +288,6 @@ public class DynamicMethodMiner extends AdviceAdapter {
 			} else {
 				this.handleOpcode(opcode);
 				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
-				this.mv.visitLdcInsn(this.className);
-				this.mv.visitLdcInsn(this.myName);
-				this.mv.visitLdcInsn(this.desc);
 				if (this.isTemplate) {
 					this.mv.visitInsn(Opcodes.ICONST_1);
 				} else {

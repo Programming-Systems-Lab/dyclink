@@ -1,0 +1,393 @@
+{
+  "methodKey": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+  "methodArgSize": 0,
+  "methodReturnSize": 1,
+  "extMethods": [],
+  "lastSecondInst": {
+    "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+    "idx": 13,
+    "op": 21,
+    "inst": "iload",
+    "addInfo": "2",
+    "parentList": [
+      7
+    ],
+    "childFreqMap": {
+      "14": 1.0
+    }
+  },
+  "path": [
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 0,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "parentList": [],
+      "childFreqMap": {
+        "2": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 1,
+      "op": 8,
+      "inst": "iconst_5",
+      "addInfo": "",
+      "parentList": [],
+      "childFreqMap": {
+        "2": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 2,
+      "op": 181,
+      "inst": "putfield",
+      "addInfo": "edu/columbia/psl/cc/test/TemplateMethod.iVar.I",
+      "parentList": [
+        1,
+        0
+      ],
+      "childFreqMap": {
+        "4": 1.0,
+        "9": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 3,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "parentList": [],
+      "childFreqMap": {
+        "4": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 4,
+      "op": 180,
+      "inst": "getfield",
+      "addInfo": "edu/columbia/psl/cc/test/TemplateMethod.iVar.I",
+      "parentList": [
+        2,
+        3
+      ],
+      "childFreqMap": {
+        "6": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 5,
+      "op": 178,
+      "inst": "getstatic",
+      "addInfo": "edu/columbia/psl/cc/test/TemplateMethod.sVar.I",
+      "parentList": [],
+      "childFreqMap": {
+        "6": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 6,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "parentList": [
+        5,
+        4
+      ],
+      "childFreqMap": {
+        "7": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 7,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "2",
+      "parentList": [
+        6
+      ],
+      "childFreqMap": {
+        "13": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 8,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "parentList": [],
+      "childFreqMap": {
+        "9": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 9,
+      "op": 180,
+      "inst": "getfield",
+      "addInfo": "edu/columbia/psl/cc/test/TemplateMethod.iVar.I",
+      "parentList": [
+        2,
+        8
+      ],
+      "childFreqMap": {
+        "11": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 10,
+      "op": 16,
+      "inst": "bipush",
+      "addInfo": "7",
+      "parentList": [],
+      "childFreqMap": {
+        "11": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 11,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "parentList": [
+        10,
+        9
+      ],
+      "childFreqMap": {
+        "12": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 12,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "3",
+      "parentList": [
+        11
+      ],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 13,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "2",
+      "parentList": [
+        7
+      ],
+      "childFreqMap": {
+        "14": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 14,
+      "op": 172,
+      "inst": "ireturn",
+      "addInfo": "",
+      "parentList": [
+        13
+      ],
+      "childFreqMap": {}
+    }
+  ],
+  "pool": [
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 0,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "parentList": [],
+      "childFreqMap": {
+        "2": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 1,
+      "op": 8,
+      "inst": "iconst_5",
+      "addInfo": "",
+      "parentList": [],
+      "childFreqMap": {
+        "2": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 2,
+      "op": 181,
+      "inst": "putfield",
+      "addInfo": "edu/columbia/psl/cc/test/TemplateMethod.iVar.I",
+      "parentList": [
+        1,
+        0
+      ],
+      "childFreqMap": {
+        "4": 1.0,
+        "9": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 3,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "parentList": [],
+      "childFreqMap": {
+        "4": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 4,
+      "op": 180,
+      "inst": "getfield",
+      "addInfo": "edu/columbia/psl/cc/test/TemplateMethod.iVar.I",
+      "parentList": [
+        2,
+        3
+      ],
+      "childFreqMap": {
+        "6": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 5,
+      "op": 178,
+      "inst": "getstatic",
+      "addInfo": "edu/columbia/psl/cc/test/TemplateMethod.sVar.I",
+      "parentList": [],
+      "childFreqMap": {
+        "6": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 6,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "parentList": [
+        5,
+        4
+      ],
+      "childFreqMap": {
+        "7": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 7,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "2",
+      "parentList": [
+        6
+      ],
+      "childFreqMap": {
+        "13": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 8,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "parentList": [],
+      "childFreqMap": {
+        "9": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 9,
+      "op": 180,
+      "inst": "getfield",
+      "addInfo": "edu/columbia/psl/cc/test/TemplateMethod.iVar.I",
+      "parentList": [
+        2,
+        8
+      ],
+      "childFreqMap": {
+        "11": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 10,
+      "op": 16,
+      "inst": "bipush",
+      "addInfo": "7",
+      "parentList": [],
+      "childFreqMap": {
+        "11": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 11,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "parentList": [
+        10,
+        9
+      ],
+      "childFreqMap": {
+        "12": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 12,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "3",
+      "parentList": [
+        11
+      ],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 13,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "2",
+      "parentList": [
+        7
+      ],
+      "childFreqMap": {
+        "14": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I",
+      "idx": 14,
+      "op": 172,
+      "inst": "ireturn",
+      "addInfo": "",
+      "parentList": [
+        13
+      ],
+      "childFreqMap": {}
+    }
+  ]
+}

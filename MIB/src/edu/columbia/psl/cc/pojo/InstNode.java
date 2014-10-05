@@ -14,7 +14,7 @@ public class InstNode implements Comparable<InstNode>{
 	
 	private String addInfo = "";
 	
-	private String fromMethod;
+	private String fromMethod = "";
 	
 	private int linenumber;
 	
@@ -81,7 +81,7 @@ public class InstNode implements Comparable<InstNode>{
 		this.fromMethod = fromMethod;
 	}
 	
-	public String getFromMehtod() {
+	public String getFromMethod() {
 		return this.fromMethod;
 	}
 	
@@ -132,7 +132,7 @@ public class InstNode implements Comparable<InstNode>{
 	
 	@Override
 	public String toString() {
-		return this.idx + " " + this.op.getOpcode() + " " + this.op.getInstruction() + " " + this.getAddInfo();
+		return this.fromMethod + " " + this.idx + " " + this.op.getOpcode() + " " + this.op.getInstruction() + " " + this.getAddInfo();
 	}
 	
 	@Override
@@ -155,8 +155,11 @@ public class InstNode implements Comparable<InstNode>{
 
 	@Override
 	public int compareTo(InstNode other) {
-		// TODO Auto-generated method stub
-		return (this.getIdx() > other.getIdx())?1:((this.getIdx() < other.getIdx()))?-1:0;
+		int methodCompare = this.getFromMethod().compareTo(other.getFromMethod());
+		if (methodCompare != 0)
+			return methodCompare;
+		else
+			return (this.getIdx() > other.getIdx())?1:((this.getIdx() < other.getIdx()))?-1:0;
 	}
 
 }

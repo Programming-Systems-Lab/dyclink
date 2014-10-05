@@ -30,6 +30,14 @@ import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.pojo.StaticRep;
 
 public class MethodStackRecorder {
+	
+	private String className;
+	
+	private String methodName;
+	
+	private String methodDesc;
+	
+	private String methodKey;
 		
 	private Stack<InstNode> stackSimulator = new Stack<InstNode>();
 	
@@ -39,18 +47,25 @@ public class MethodStackRecorder {
 	
 	private Map<String, InstNode> fieldRecorder = new HashMap<String, InstNode>();
 	
-	private Map<Integer, String> methodMap = new HashMap<Integer, String>();
+	private List<Integer> extMethods = new ArrayList<Integer>();
 	
 	private List<InstNode> path = new ArrayList<InstNode>();
 	
 	private InstPool pool = new InstPool();
 	
+	public MethodStackRecorder(String className, String methodName, String methodDesc) {
+		this.className = className;
+		this.methodName = methodName;
+		this.methodDesc = methodDesc;
+		this.methodKey = StringUtil.genKey(className, methodName, methodDesc);
+	}
+	
 	/*public String genInstHead(OpcodeObj oo, String label) {
 		return label + " " + this.getInstIdx(label) + " " + oo.getOpcode() + " " + oo.getInstruction();
 	}*/
 	
-	private void updateMethodMap(int idx, String methodRep) {
-		this.methodMap.put(idx, methodRep);
+	private void updateExtMethods(int idx) {
+		this.extMethods.add(idx);
 	}
 		
 	private void updatePath(InstNode fullInst) {
@@ -83,7 +98,7 @@ public class MethodStackRecorder {
 	public void handleOpcode(int opcode, int instIdx, String addInfo) {
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
-		InstNode fullInst = this.pool.searchAndGet(instIdx, opcode, addInfo);
+		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
 		
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
@@ -121,9 +136,9 @@ public class MethodStackRecorder {
 		
 		InstNode fullInst = null;
 		if (localVarIdx >= 0) {
-			fullInst = this.pool.searchAndGet(instIdx, opcode, String.valueOf(localVarIdx));
+			fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, String.valueOf(localVarIdx));
 		} else {
-			fullInst = this.pool.searchAndGet(instIdx, opcode, "");
+			fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, "");
 		}
 		
 		int opcat = fullInst.getOp().getCatId();
@@ -188,7 +203,7 @@ public class MethodStackRecorder {
 	
 	public void handleMultiNewArray(String desc, int dim, int instIdx) {
 		String addInfo = desc + " " + dim;
-		InstNode fullInst = this.pool.searchAndGet(instIdx, Opcodes.MULTIANEWARRAY, addInfo);
+		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, Opcodes.MULTIANEWARRAY, addInfo);
 		
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
@@ -205,12 +220,12 @@ public class MethodStackRecorder {
 	public void handleMethod(int opcode, int instIdx, String owner, String name, String desc) {
 		//String addInfo = owner + "." + name + "." + desc;
 		String addInfo = StringUtil.genKey(owner, name, desc);
-		InstNode fullInst = this.pool.searchAndGet(instIdx, opcode, addInfo);
+		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
 		System.out.println("Method full inst: " + fullInst);
 		
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
-		this.updateMethodMap(instIdx, addInfo);
+		this.updateExtMethods(instIdx);
 		
 		Type methodType = Type.getMethodType(desc);
 		//+1 for object reference, if instance method
@@ -333,27 +348,20 @@ public class MethodStackRecorder {
 		}
 	}
 	
-	public void dumpGraph(String owner, String myName, String myDesc, boolean isTemplate) {
-		//Load static map first
-		String staticMapKey = MIBConfiguration.getLabelmapDir() + "/" + StringUtil.genKey(owner, myName, myDesc) + "_map.json";
-		TypeToken<StaticRep> staticType = new TypeToken<StaticRep>(){};
-		File staticFile = new File(staticMapKey);
-		StaticRep staticRep = GsonManager.readJsonGeneric(staticFile, staticType);
-		HashMap<String, Integer> labelMap = staticRep.getLabelMap();
-		System.out.println("MethodStackRecorder: catString: " + staticRep.getOpCatString());
-		System.out.println("MethodStackRecorder: catFreq: " + Arrays.toString(staticRep.getOpCatFreq()));
-		
+	public void dumpGraph(boolean isTemplate) {		
 		//For serilization
 		GraphTemplate gt = new GraphTemplate();
 		
-		Type methodType = Type.getMethodType(myDesc);
+		Type methodType = Type.getMethodType(this.methodDesc);
 		int argSize = methodType.getArgumentTypes().length;
 		int returnSize = 1;
 		if (methodType.getReturnType().getDescriptor().equals("V")) {
 			returnSize = 0;
 		}
+		gt.setMethodKey(this.methodKey);
 		gt.setMethodArgSize(argSize);
 		gt.setMethodReturnSize(returnSize);
+		gt.setExtMethods(this.extMethods);
 		
 		InstNode lastSecondInst = null;
 		if (this.path.size() > 1) {
@@ -371,7 +379,7 @@ public class MethodStackRecorder {
 			System.out.println("Parent: " + curInst.toString());
 			TreeMap<Integer, Double> children = curInst.getChildFreqMap();
 			for (Integer c: children.navigableKeySet()) {
-				System.out.println("  Child: " + this.pool.searchAndGet(c) + " Freq: " + children.get(c));
+				System.out.println("  Child: " + this.pool.searchAndGet(this.methodKey, c) + " Freq: " + children.get(c));
 			}
 			depCount += children.size();
 		}
@@ -379,15 +387,14 @@ public class MethodStackRecorder {
 		
 		gt.setInstPool(this.pool);
 		
-		String key = StringUtil.genKey(owner, myName, myDesc);
 		TypeToken<GraphTemplate> typeToken = new TypeToken<GraphTemplate>(){};
 		
 		if (isTemplate) {
-			GsonManager.writeJsonGeneric(gt, key, typeToken, 0);
+			GsonManager.writeJsonGeneric(gt, this.methodKey, typeToken, 0);
 		} else {
-			GsonManager.writeJsonGeneric(gt, key, typeToken, 1);
+			GsonManager.writeJsonGeneric(gt, this.methodKey, typeToken, 1);
 		}
-		GsonManager.writePath(key, this.path);
+		GsonManager.writePath(this.methodKey, this.path);
 	}
 
 }

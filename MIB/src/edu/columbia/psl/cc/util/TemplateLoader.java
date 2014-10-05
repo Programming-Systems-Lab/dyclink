@@ -29,5 +29,15 @@ public class TemplateLoader {
 		}
 		return ret;
 	}
+	
+	public static <T> T loadTemplateFile(File tempF, TypeToken<T> typeToken) {
+		T value = GsonManager.readJsonGeneric(tempF, typeToken);
+		return value;
+	}
+	
+	public static <T> T loadTemplateFile(String fileName, TypeToken<T> typeToken) {
+		File f = new File(fileName);
+		return loadTemplateFile(f, typeToken);
+	}
 
 }

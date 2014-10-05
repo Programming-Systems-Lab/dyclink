@@ -1,16 +1,16 @@
-head,0 25 aload 0,1 8 iconst_5 ,2 181 putfield edu/columbia/psl/cc/test/TemplateMethod.iVar.I,3 25 aload 0,4 180 getfield edu/columbia/psl/cc/test/TemplateMethod.iVar.I,5 178 getstatic edu/columbia/psl/cc/test/TemplateMethod.sVar.I,6 96 iadd ,7 54 istore 2,8 25 aload 0,9 180 getfield edu/columbia/psl/cc/test/TemplateMethod.iVar.I,10 16 bipush 7,11 96 iadd ,12 54 istore 3,13 21 iload 2,14 172 ireturn 
-0 25 aload 0,0.0,100.0,1.0,100.0,2.0,100.0,3.0,4.0,100.0,2.0,100.0,3.0,4.0,5.0,6.0
-1 8 iconst_5 ,100.0,0.0,1.0,100.0,2.0,100.0,3.0,4.0,100.0,2.0,100.0,3.0,4.0,5.0,6.0
-2 181 putfield edu/columbia/psl/cc/test/TemplateMethod.iVar.I,100.0,100.0,0.0,100.0,1.0,100.0,2.0,3.0,100.0,1.0,100.0,2.0,3.0,4.0,5.0
-3 25 aload 0,100.0,100.0,100.0,0.0,1.0,100.0,2.0,3.0,100.0,100.0,100.0,100.0,100.0,4.0,5.0
-4 180 getfield edu/columbia/psl/cc/test/TemplateMethod.iVar.I,100.0,100.0,100.0,100.0,0.0,100.0,1.0,2.0,100.0,100.0,100.0,100.0,100.0,3.0,4.0
-5 178 getstatic edu/columbia/psl/cc/test/TemplateMethod.sVar.I,100.0,100.0,100.0,100.0,100.0,0.0,1.0,2.0,100.0,100.0,100.0,100.0,100.0,3.0,4.0
-6 96 iadd ,100.0,100.0,100.0,100.0,100.0,100.0,0.0,1.0,100.0,100.0,100.0,100.0,100.0,2.0,3.0
-7 54 istore 2,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0,100.0,100.0,100.0,100.0,100.0,1.0,2.0
-8 25 aload 0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0,1.0,100.0,2.0,3.0,100.0,100.0
-9 180 getfield edu/columbia/psl/cc/test/TemplateMethod.iVar.I,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0,100.0,1.0,2.0,100.0,100.0
-10 16 bipush 7,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0,1.0,2.0,100.0,100.0
-11 96 iadd ,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0,1.0,100.0,100.0
-12 54 istore 3,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0,100.0,100.0
-13 21 iload 2,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0,1.0
-14 172 ireturn ,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0
+head,edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 0 25 aload 0,edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 1 8 iconst_5 ,edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 2 181 putfield edu/columbia/psl/cc/test/TemplateMethod.iVar.I,edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 3 25 aload 0,edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 4 180 getfield edu/columbia/psl/cc/test/TemplateMethod.iVar.I,edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 5 178 getstatic edu/columbia/psl/cc/test/TemplateMethod.sVar.I,edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 6 96 iadd ,edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 7 54 istore 2,edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 8 25 aload 0,edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 9 180 getfield edu/columbia/psl/cc/test/TemplateMethod.iVar.I,edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 10 16 bipush 7,edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 11 96 iadd ,edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 12 54 istore 3,edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 13 21 iload 2,edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 14 172 ireturn 
+edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 0 25 aload 0,0.0,100.0,1.0,100.0,2.0,100.0,3.0,4.0,100.0,2.0,100.0,3.0,4.0,5.0,6.0
+edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 1 8 iconst_5 ,100.0,0.0,1.0,100.0,2.0,100.0,3.0,4.0,100.0,2.0,100.0,3.0,4.0,5.0,6.0
+edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 2 181 putfield edu/columbia/psl/cc/test/TemplateMethod.iVar.I,100.0,100.0,0.0,100.0,1.0,100.0,2.0,3.0,100.0,1.0,100.0,2.0,3.0,4.0,5.0
+edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 3 25 aload 0,100.0,100.0,100.0,0.0,1.0,100.0,2.0,3.0,100.0,100.0,100.0,100.0,100.0,4.0,5.0
+edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 4 180 getfield edu/columbia/psl/cc/test/TemplateMethod.iVar.I,100.0,100.0,100.0,100.0,0.0,100.0,1.0,2.0,100.0,100.0,100.0,100.0,100.0,3.0,4.0
+edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 5 178 getstatic edu/columbia/psl/cc/test/TemplateMethod.sVar.I,100.0,100.0,100.0,100.0,100.0,0.0,1.0,2.0,100.0,100.0,100.0,100.0,100.0,3.0,4.0
+edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 6 96 iadd ,100.0,100.0,100.0,100.0,100.0,100.0,0.0,1.0,100.0,100.0,100.0,100.0,100.0,2.0,3.0
+edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 7 54 istore 2,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0,100.0,100.0,100.0,100.0,100.0,1.0,2.0
+edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 8 25 aload 0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0,1.0,100.0,2.0,3.0,100.0,100.0
+edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 9 180 getfield edu/columbia/psl/cc/test/TemplateMethod.iVar.I,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0,100.0,1.0,2.0,100.0,100.0
+edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 10 16 bipush 7,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0,1.0,2.0,100.0,100.0
+edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 11 96 iadd ,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0,1.0,100.0,100.0
+edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 12 54 istore 3,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0,100.0,100.0
+edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 13 21 iload 2,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0,1.0
+edu.columbia.psl.cc.test.TemplateMethod:fieldTest:():I 14 172 ireturn ,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,0.0

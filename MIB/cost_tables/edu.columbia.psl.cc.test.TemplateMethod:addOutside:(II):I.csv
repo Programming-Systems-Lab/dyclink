@@ -1,8 +1,8 @@
-head,0 25 aload 0,1 21 iload 1,2 21 iload 2,3 182 invokevirtual edu.columbia.psl.cc.test.TemplateMethod:add:(II):I,4 54 istore 4,5 21 iload 4,6 172 ireturn 
-0 25 aload 0,0.0,100.0,100.0,1.0,2.0,3.0,4.0
-1 21 iload 1,100.0,0.0,100.0,1.0,2.0,3.0,4.0
-2 21 iload 2,100.0,100.0,0.0,1.0,2.0,3.0,4.0
-3 182 invokevirtual edu.columbia.psl.cc.test.TemplateMethod:add:(II):I,100.0,100.0,100.0,0.0,1.0,2.0,3.0
-4 54 istore 4,100.0,100.0,100.0,100.0,0.0,1.0,2.0
-5 21 iload 4,100.0,100.0,100.0,100.0,100.0,0.0,1.0
-6 172 ireturn ,100.0,100.0,100.0,100.0,100.0,100.0,0.0
+head,edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I 0 25 aload 0,edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I 1 21 iload 1,edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I 2 21 iload 2,edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I 3 182 invokevirtual edu.columbia.psl.cc.test.TemplateMethod:add:(II):I,edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I 4 54 istore 4,edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I 5 21 iload 4,edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I 6 172 ireturn 
+edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I 0 25 aload 0,0.0,100.0,100.0,1.0,2.0,3.0,4.0
+edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I 1 21 iload 1,100.0,0.0,100.0,1.0,2.0,3.0,4.0
+edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I 2 21 iload 2,100.0,100.0,0.0,1.0,2.0,3.0,4.0
+edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I 3 182 invokevirtual edu.columbia.psl.cc.test.TemplateMethod:add:(II):I,100.0,100.0,100.0,0.0,1.0,2.0,3.0
+edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I 4 54 istore 4,100.0,100.0,100.0,100.0,0.0,1.0,2.0
+edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I 5 21 iload 4,100.0,100.0,100.0,100.0,100.0,0.0,1.0
+edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I 6 172 ireturn ,100.0,100.0,100.0,100.0,100.0,100.0,0.0

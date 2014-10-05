@@ -19,6 +19,16 @@ public class TemplateMethod extends TemplateParent{
 	
 	Object lock1 = new Object();
 	
+	private String test;
+	
+	public TemplateMethod() {
+		
+	}
+	
+	public TemplateMethod(String test1, String test2, String test3) {
+		this.test = test1;
+	}
+	
 	@extractTemplate
 	public int fieldTest() {
 		this.iVar = 5;
@@ -143,6 +153,8 @@ public class TemplateMethod extends TemplateParent{
 		TemplateMethod tm = new TemplateMethod();
 		System.out.println("TempalteMethod: " + tm.addOutside(3, 5));
 		System.out.println(tm.fieldTest());
+		
+		//TemplateMethod tm2 = new TemplateMethod("test1", "test2", "test3");
 		//tm.testField(5);
 		//tm.testContinuousAnd(128);
 		//tm.dummyInvoke();
@@ -256,6 +268,7 @@ public class TemplateMethod extends TemplateParent{
 		}
 		Object[] objArray = new Object[5];
 		Object[][][] multiple = new Object[3][4][5];
+		multiple[1][2] = new Object[5];
 		Object obj = new Object();
 		return ret;
 	}
