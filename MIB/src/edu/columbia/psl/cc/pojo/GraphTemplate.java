@@ -3,6 +3,7 @@ package edu.columbia.psl.cc.pojo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.columbia.psl.cc.datastruct.InstPool;
 
@@ -31,11 +32,19 @@ public class GraphTemplate {
 		this.methodArgSize = copy.getMethodArgSize();
 		this.methodReturnSize = copy.getMethodReturnSize();
 		this.extMethods = new ArrayList<Integer>(copy.getExtMethods());
-		this.lastSecondInst = copy.getLastSecondInst();
-		this.path = new ArrayList<InstNode>(copy.getPath());
-		this.pool = new InstPool(copy.getInstPool());
+		this.pool = new InstPool();
+		this.path = new ArrayList<InstNode>();
+		for (InstNode inst: copy.getInstPool()) {
+			InstNode copyInst = new InstNode(inst);
+			this.pool.add(copyInst);
+		}
+		for (int i = 0; i < copy.getPath().size(); i++) {
+			InstNode pathNode = copy.getPath().get(i);
+			this.path.add(this.pool.searchAndGet(pathNode.getFromMethod(), pathNode.getIdx()));
+		}
+		this.lastSecondInst = this.pool.searchAndGet(copy.getLastSecondInst().getFromMethod(), copy.getLastSecondInst().getIdx());
 	}
-	
+		
 	public void setMethodKey(String methodKey) {
 		this.methodKey = methodKey;
 	}
@@ -90,6 +99,16 @@ public class GraphTemplate {
 	
 	public InstNode getLastSecondInst() {
 		return this.lastSecondInst;
+	}
+	
+	public void showGraph() {
+		for (InstNode inst: this.pool) {
+			System.out.println("Parent inst: " + inst);
+			
+			for (String cInst: inst.getChildFreqMap().navigableKeySet()) {
+				System.out.println(" " + cInst + " " + inst.getChildFreqMap().get(cInst));
+			}
+		}
 	}
 
 }

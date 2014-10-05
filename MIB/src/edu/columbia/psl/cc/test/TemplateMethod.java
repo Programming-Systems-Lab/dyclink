@@ -29,7 +29,7 @@ public class TemplateMethod extends TemplateParent{
 		this.test = test1;
 	}
 	
-	@extractTemplate
+	//@extractTemplate
 	public int fieldTest() {
 		this.iVar = 5;
 		int ret = this.iVar + sVar;
@@ -123,7 +123,7 @@ public class TemplateMethod extends TemplateParent{
 		}
 	}
 	
-	@extractTemplate
+	//@extractTemplate
 	public void dummyFor(int[] a) {
 		int k = 100000;
 		int j = 5;
@@ -152,7 +152,7 @@ public class TemplateMethod extends TemplateParent{
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
 		System.out.println("TempalteMethod: " + tm.addOutside(3, 5));
-		System.out.println(tm.fieldTest());
+		System.out.println("TestMethod: " + tm.addInside(3, 5));
 		
 		//TemplateMethod tm2 = new TemplateMethod("test1", "test2", "test3");
 		//tm.testField(5);
@@ -182,11 +182,10 @@ public class TemplateMethod extends TemplateParent{
 		return i1 + i2;
 	}
 	
-	//@extractTemplate
+	@testTemplate
 	public int addInside(int a, int b) {
 		//int a = this.iVar + sVar;
 		int c = a + b;
-		this.empty(0, 5);
 		return c;
 	}
 	

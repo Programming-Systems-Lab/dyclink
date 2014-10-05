@@ -50,6 +50,14 @@ public class StringUtil {
 		return key;
 	}
 	
+	public static String genIdxKey(String fromMethod, int idx) {
+		return fromMethod + "-" + idx;
+	}
+	
+	public static String[] parseIdxKey(String idxKey) {
+		return idxKey.split("-");
+	}
+	
 	public static String parseElement(String inst, int idx) {
 		String[] instElements = inst.split(" ");
 		String label = instElements[idx];

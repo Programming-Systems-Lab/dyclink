@@ -1,0 +1,169 @@
+{
+  "methodKey": "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I",
+  "methodArgSize": 2,
+  "methodReturnSize": 1,
+  "extMethods": [],
+  "lastSecondInst": {
+    "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I",
+    "idx": 4,
+    "op": 21,
+    "inst": "iload",
+    "addInfo": "4",
+    "parentList": [
+      "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-3"
+    ],
+    "childFreqMap": {
+      "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-5": 1.0
+    }
+  },
+  "path": [
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I",
+      "idx": 0,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "1",
+      "parentList": [],
+      "childFreqMap": {
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-2": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I",
+      "idx": 1,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "2",
+      "parentList": [],
+      "childFreqMap": {
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-2": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I",
+      "idx": 2,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "parentList": [
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-1",
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-0"
+      ],
+      "childFreqMap": {
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-3": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I",
+      "idx": 3,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "4",
+      "parentList": [
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-2"
+      ],
+      "childFreqMap": {
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-4": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I",
+      "idx": 4,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "parentList": [
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-3"
+      ],
+      "childFreqMap": {
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I",
+      "idx": 5,
+      "op": 172,
+      "inst": "ireturn",
+      "addInfo": "",
+      "parentList": [
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-4"
+      ],
+      "childFreqMap": {}
+    }
+  ],
+  "pool": [
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I",
+      "idx": 0,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "1",
+      "parentList": [],
+      "childFreqMap": {
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-2": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I",
+      "idx": 1,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "2",
+      "parentList": [],
+      "childFreqMap": {
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-2": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I",
+      "idx": 2,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "parentList": [
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-1",
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-0"
+      ],
+      "childFreqMap": {
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-3": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I",
+      "idx": 3,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "4",
+      "parentList": [
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-2"
+      ],
+      "childFreqMap": {
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-4": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I",
+      "idx": 4,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "parentList": [
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-3"
+      ],
+      "childFreqMap": {
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I",
+      "idx": 5,
+      "op": 172,
+      "inst": "ireturn",
+      "addInfo": "",
+      "parentList": [
+        "edu.columbia.psl.cc.test.TemplateMethod:addInside:(II):I-4"
+      ],
+      "childFreqMap": {}
+    }
+  ]
+}

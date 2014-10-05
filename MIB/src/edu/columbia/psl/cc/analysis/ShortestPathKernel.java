@@ -135,6 +135,7 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 				
 				CostObj co = new CostObj();
 				InstNode inst2 = allNodes.get(j);
+				String inst2Key = StringUtil.genIdxKey(inst2.getFromMethod(), inst2.getIdx());
 			
 				String endLabel = inst2.getOp().getInstruction();
 				co.addLabel(startLabel);
@@ -143,12 +144,12 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 				if (i == j) {
 					co.setCost(0);
 					costTable[i][j] = co;
-				} else if (!inst1.getChildFreqMap().containsKey(inst2.getIdx())) {
+				} else if (!inst1.getChildFreqMap().containsKey(inst2Key)) {
 					co.setCost(MIBConfiguration.getCostLimit());
 					costTable[i][j] = co;
 					//costTable[i][j] = limit;
 				} else {
-					double rawCost = (double)1/inst1.getChildFreqMap().get(inst2.getIdx());
+					double rawCost = (double)1/inst1.getChildFreqMap().get(inst2Key);
 					double cost = GraphUtil.roundValue(rawCost);
 					co.setCost(cost);
 					costTable[i][j] = co;

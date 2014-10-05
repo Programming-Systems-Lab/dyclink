@@ -35,18 +35,17 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		String addInfo = object.get("addInfo").getAsString();
 		
 		JsonArray parentObj = object.get("parentList").getAsJsonArray();
-		ArrayList<Integer> parentList = new ArrayList<Integer>();
+		ArrayList<String> parentList = new ArrayList<String>();
 		for (int i = 0; i < parentObj.size(); i++) {
-			parentList.add(parentObj.get(i).getAsInt());
+			parentList.add(parentObj.get(i).getAsString());
 		}
 		
 		JsonObject childObj = object.get("childFreqMap").getAsJsonObject();
-		TreeMap<Integer, Double> childFreqMap = new TreeMap<Integer, Double>();
+		TreeMap<String, Double> childFreqMap = new TreeMap<String, Double>();
 		
 		for (Entry<String, JsonElement> entry: childObj.entrySet()) {
-			int instIdx = Integer.valueOf(entry.getKey());
 			double instFreq = entry.getValue().getAsDouble();
-			childFreqMap.put(instIdx, instFreq);
+			childFreqMap.put(entry.getKey(), instFreq);
 		}
 		
 		//TypeToken<TreeMap<Integer, Double>> childToken = new TypeToken<TreeMap<Integer, Double>>(){};
@@ -72,10 +71,10 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		result.addProperty("inst", inst.getOp().getInstruction());
 		result.addProperty("addInfo", inst.getAddInfo());
 		
-		TypeToken<ArrayList<Integer>> listType = new TypeToken<ArrayList<Integer>>(){};
+		TypeToken<ArrayList<String>> listType = new TypeToken<ArrayList<String>>(){};
 		result.add("parentList", context.serialize(inst.getParentList(), listType.getType()));
 		
-		TypeToken<TreeMap<Integer, Double>> mapType = new TypeToken<TreeMap<Integer, Double>>(){};
+		TypeToken<TreeMap<String, Double>> mapType = new TypeToken<TreeMap<String, Double>>(){};
 		result.add("childFreqMap", context.serialize(inst.getChildFreqMap(), mapType.getType()));
 		
 		return result;

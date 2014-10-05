@@ -46,8 +46,17 @@ public class InstPool extends TreeSet<InstNode> {
 				return inst;
 		}
 		
-		System.err.println("Cannot find inst by idx: " + idx);
+		System.err.println("Cannot find inst by method key and idx: " +  methodKey + " " + idx);
 		return null;
+	}
+	
+	public void searchAndRemove(String methodKey, int idx) {
+		for (InstNode inst: this) {
+			if (inst.getFromMethod().equals(methodKey) && inst.getIdx() == idx) {
+				this.remove(inst);
+				return ;
+			}
+		}
 	}
 
 }

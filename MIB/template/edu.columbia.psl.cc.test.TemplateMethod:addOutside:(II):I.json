@@ -12,10 +12,10 @@
     "inst": "iload",
     "addInfo": "4",
     "parentList": [
-      4
+      "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-4"
     ],
     "childFreqMap": {
-      "6": 1.0
+      "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-6": 1.0
     }
   },
   "path": [
@@ -27,7 +27,7 @@
       "addInfo": "0",
       "parentList": [],
       "childFreqMap": {
-        "3": 1.0
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-3": 1.0
       }
     },
     {
@@ -38,7 +38,7 @@
       "addInfo": "1",
       "parentList": [],
       "childFreqMap": {
-        "3": 1.0
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-3": 1.0
       }
     },
     {
@@ -49,7 +49,7 @@
       "addInfo": "2",
       "parentList": [],
       "childFreqMap": {
-        "3": 1.0
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-3": 1.0
       }
     },
     {
@@ -59,12 +59,12 @@
       "inst": "invokevirtual",
       "addInfo": "edu.columbia.psl.cc.test.TemplateMethod:add:(II):I",
       "parentList": [
-        2,
-        1,
-        0
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-2",
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-1",
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-0"
       ],
       "childFreqMap": {
-        "4": 1.0
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-4": 1.0
       }
     },
     {
@@ -74,10 +74,10 @@
       "inst": "istore",
       "addInfo": "4",
       "parentList": [
-        3
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-3"
       ],
       "childFreqMap": {
-        "5": 1.0
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-5": 1.0
       }
     },
     {
@@ -87,10 +87,10 @@
       "inst": "iload",
       "addInfo": "4",
       "parentList": [
-        4
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-4"
       ],
       "childFreqMap": {
-        "6": 1.0
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-6": 1.0
       }
     },
     {
@@ -100,7 +100,7 @@
       "inst": "ireturn",
       "addInfo": "",
       "parentList": [
-        5
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-5"
       ],
       "childFreqMap": {}
     }
@@ -114,7 +114,7 @@
       "addInfo": "0",
       "parentList": [],
       "childFreqMap": {
-        "3": 1.0
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-3": 1.0
       }
     },
     {
@@ -125,7 +125,7 @@
       "addInfo": "1",
       "parentList": [],
       "childFreqMap": {
-        "3": 1.0
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-3": 1.0
       }
     },
     {
@@ -136,7 +136,7 @@
       "addInfo": "2",
       "parentList": [],
       "childFreqMap": {
-        "3": 1.0
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-3": 1.0
       }
     },
     {
@@ -146,12 +146,12 @@
       "inst": "invokevirtual",
       "addInfo": "edu.columbia.psl.cc.test.TemplateMethod:add:(II):I",
       "parentList": [
-        2,
-        1,
-        0
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-2",
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-1",
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-0"
       ],
       "childFreqMap": {
-        "4": 1.0
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-4": 1.0
       }
     },
     {
@@ -161,10 +161,10 @@
       "inst": "istore",
       "addInfo": "4",
       "parentList": [
-        3
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-3"
       ],
       "childFreqMap": {
-        "5": 1.0
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-5": 1.0
       }
     },
     {
@@ -174,10 +174,10 @@
       "inst": "iload",
       "addInfo": "4",
       "parentList": [
-        4
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-4"
       ],
       "childFreqMap": {
-        "6": 1.0
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-6": 1.0
       }
     },
     {
@@ -187,7 +187,7 @@
       "inst": "ireturn",
       "addInfo": "",
       "parentList": [
-        5
+        "edu.columbia.psl.cc.test.TemplateMethod:addOutside:(II):I-5"
       ],
       "childFreqMap": {}
     }

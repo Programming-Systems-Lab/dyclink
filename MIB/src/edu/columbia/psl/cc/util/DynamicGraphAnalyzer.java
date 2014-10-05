@@ -2,8 +2,10 @@ package edu.columbia.psl.cc.util;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -116,49 +118,107 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 	
 	private void mergeGraphs(GraphTemplate parent, GraphTemplate child, int childIdx) {
 		InstNode methodNode = parent.getInstPool().searchAndGet(parent.getMethodKey(), childIdx);
+		String methodIdxKey = StringUtil.genIdxKey(methodNode.getFromMethod(), methodNode.getIdx());
 		
 		int methodArgs = child.getMethodArgSize();
 		int methodRet = child.getMethodReturnSize();
 		
 		//Search start insts in child
-		InstNode[] starts = new InstNode[methodArgs];
+		InstNode[] childStarts = new InstNode[methodArgs];
 		int count = 0;
+		System.out.println("Check child path size: " + child.getPath().size());
 		for (InstNode inst: child.getPath()) {
 			if (BytecodeCategory.readCategory().contains(inst.getOp().getCatId()) &&
 					count <= methodArgs) {
-				starts[count++] = inst;
+				childStarts[count++] = inst;
 			}
 		}
 		
 		InstNode[] parents = null;
-		if (methodArgs < methodNode.getParentList().size()) {
-			//Instance method
-			parents = new InstNode[methodNode.getParentList().size() - 1];
-			for (int i = methodNode.getParentList().size() - 2, j = 0; i >=0; i--, j++) {
-				parents[j] = parent.getInstPool().searchAndGet(parent.getMethodKey(), methodNode.getParentList().get(i));
-			}
-		} else if (methodArgs == methodNode.getParentList().size()) {
-			//Class method
-			parents = new InstNode[methodNode.getParentList().size()];
-			for (int i = methodNode.getParentList().size() - 1, j = 0; i >= 0; i--, j++) {
-				parents[j] = parent.getInstPool().searchAndGet(parent.getMethodKey(), methodNode.getParentList().get(i));
-			}
-		} else {
+		if (methodArgs > methodNode.getParentList().size()) {
 			System.err.println("Invalid method description or recording: " + methodNode);
+			return ;
 		}
+		
+		if (methodArgs < methodNode.getParentList().size()) {
+			//Instance method, remove aload
+			String toRemove = methodNode.getParentList().get(methodNode.getParentList().size() - 1);
+			String[] toRemoveInfo = StringUtil.parseIdxKey(toRemove);
+			parent.getInstPool().searchAndRemove(toRemoveInfo[0], Integer.valueOf(toRemoveInfo[1]));
+			methodNode.getParentList().remove(toRemove);
+		} 
+		
+		parents = new InstNode[methodNode.getParentList().size()];
+		for (int i = methodNode.getParentList().size() - 1, j = 0; i >= 0; i--, j++) {
+			String mParentNode = methodNode.getParentList().get(i);
+			String[] mParentInfo = StringUtil.parseIdxKey(mParentNode);
+			parents[j] = parent.getInstPool().searchAndGet(mParentInfo[0], Integer.valueOf(mParentInfo[1]));
+		} 
+		
+		//Merge. parent inst will be replaced by child inst
+		for (InstNode p: parents) {
+			ArrayList<String> pList = p.getParentList();
+			String pKey = StringUtil.genIdxKey(p.getFromMethod(), p.getIdx());
+			
+			for (InstNode c: childStarts) {
+				System.out.println("Check child start: " + c);
+				//parent.getInstPool().searchAndGet(c.getFromMethod(), c.getIdx(), c.getOp().getOpcode(), c.getAddInfo());
+				parent.getInstPool().add(c);
+				String cKey = StringUtil.genIdxKey(c.getFromMethod(), c.getIdx());
+				
+				for (String pp: pList) {
+					String[] ppInfo = StringUtil.parseIdxKey(pp);
+					InstNode ppNode = parent.getInstPool().searchAndGet(ppInfo[0], Integer.valueOf(ppInfo[1]));
+					double freq = ppNode.getChildFreqMap().get(pKey);
+					ppNode.getChildFreqMap().remove(pKey);
+					ppNode.getChildFreqMap().put(cKey, freq);
+				}
+			}
+			parent.getInstPool().remove(p);
+		}
+		
+		//Update children of method inst
+		InstNode lastSecond = child.getLastSecondInst();
+		parent.getInstPool().add(lastSecond);
+		if (lastSecond != null) {
+			String lastSecondKey = StringUtil.genIdxKey(lastSecond.getFromMethod(), lastSecond.getIdx());
+			parent.getInstPool().add(lastSecond);
+			
+			for (String childKey: methodNode.getChildFreqMap().keySet()) {
+				String[] childInfo = StringUtil.parseIdxKey(childKey);
+				InstNode childInst = parent.getInstPool().searchAndGet(childInfo[0], Integer.valueOf(childInfo[1]));
+				double freq = methodNode.getChildFreqMap().get(childKey);
+				
+				lastSecond.getChildFreqMap().clear();
+				lastSecond.getChildFreqMap().put(childKey, freq);
+				
+				childInst.getParentList().remove(methodIdxKey);
+				childInst.getParentList().add(lastSecondKey);
+			}
+		}
+		parent.getInstPool().remove(methodNode);
 	}
 	
-	private void collectAndMergeChildGraphs(GraphTemplate parentGraph) {
+	private List<GraphTemplate> collectAndMergeChildGraphs(GraphTemplate parentGraph) {
 		HashMap<Integer, GraphTemplate> extMethodMap = GraphUtil.collectChildGraphs(parentGraph);
+		List<GraphTemplate> ret = new ArrayList<GraphTemplate>();
 		
 		for (Integer methodInstIdx: extMethodMap.keySet()) {
 			//Copy the parent graph
 			GraphTemplate copyParent = new GraphTemplate(parentGraph);
-			GraphTemplate childGraph = extMethodMap.get(methodInstIdx);
-			System.out.println("Copy parent: " + copyParent.getMethodKey());
-			System.out.println("Child graph: " + childGraph.getLastSecondInst());
+			System.out.println("Show copy parent graph: ");
+			copyParent.showGraph();
+			
+			GraphTemplate copyChild = new GraphTemplate(extMethodMap.get(methodInstIdx));
+			System.out.println("Show copy child graph: ");
+			copyChild.showGraph();
+			
 			//Merge
+			this.mergeGraphs(copyParent, copyChild, methodInstIdx);
+			ret.add(copyParent);
 		}
+		
+		return ret;
 	}
 	
 	public void analyzeTemplate() {		
@@ -167,15 +227,31 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		//Score kernel
 		for (String templateName: this.templates.keySet()) {
 			GraphTemplate tempGraph = this.templates.get(templateName);
-			this.collectAndMergeChildGraphs(tempGraph);
+			System.out.println("Original temp graph: ");
+			tempGraph.showGraph();
 			CostObj[][] templateCostTable = scorer.constructCostTable(templateName, tempGraph.getInstPool());
+			
+			List<GraphTemplate> grownGraphs = this.collectAndMergeChildGraphs(tempGraph);
+			HashMap<String, CostObj[][]> growCosts = new HashMap<String, CostObj[][]>();
+			int growCount = 0;
+			for (GraphTemplate gGraph: grownGraphs) {
+				System.out.println("Grown graph: ");
+				gGraph.showGraph();
+				String growName = templateName + growCount++;
+				CostObj[][] growCostTable = scorer.constructCostTable(growName, gGraph.getInstPool());
+				growCosts.put(growName, growCostTable);
+			}
 			
 			for (String testName: this.tests.keySet()) {
 				GraphTemplate testGraph = this.tests.get(testName);
 				CostObj[][] testCostTable = scorer.constructCostTable(testName, testGraph.getInstPool());
 				double graphScore = scorer.calculateSimilarity(templateCostTable, testCostTable);
-				
 				System.out.println(templateName + " vs " + testName + " " + graphScore);
+				
+				for (String growName: growCosts.keySet()) {
+					double growScore = scorer.calculateSimilarity(growCosts.get(growName), testCostTable);
+					System.out.println(growName + " vs " + testName + " " + growScore);
+				}
 			}
 		}
 	}

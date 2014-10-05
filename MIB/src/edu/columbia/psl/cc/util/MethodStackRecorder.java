@@ -74,11 +74,11 @@ public class MethodStackRecorder {
 	
 	private void updateCachedMap(InstNode parent, InstNode child, boolean isControl) {
 		if (isControl) {
-			parent.increChild(child.getIdx(), MIBConfiguration.getControlWeight());
-			child.registerParent(parent.getIdx());
+			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getControlWeight());
+			child.registerParent(parent.getFromMethod(), parent.getIdx());
 		} else {
-			parent.increChild(child.getIdx(), MIBConfiguration.getDataWeight());
-			child.registerParent(parent.getIdx());		
+			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getDataWeight());
+			child.registerParent(parent.getFromMethod(), parent.getIdx());		
 		}
 		//System.out.println("Update map: " + this.dataDep);
 	}
@@ -376,11 +376,12 @@ public class MethodStackRecorder {
 		Iterator<InstNode> instIterator = this.pool.iterator();
 		while (instIterator.hasNext()) {
 			InstNode curInst = instIterator.next();
-			System.out.println("Parent: " + curInst.toString());
-			TreeMap<Integer, Double> children = curInst.getChildFreqMap();
-			for (Integer c: children.navigableKeySet()) {
-				System.out.println("  Child: " + this.pool.searchAndGet(this.methodKey, c) + " Freq: " + children.get(c));
-			}
+			//System.out.println("Parent: " + curInst.toString());
+			TreeMap<String, Double> children = curInst.getChildFreqMap();
+			/*for (String c: children.navigableKeySet()) {
+				String[] parsedKey = StringUtil.parseIdxKey(c);
+				System.out.println("  Child: " + this.pool.searchAndGet(parsedKey[0], Integer.valueOf(parsedKey[1])) + " Freq: " + children.get(c));
+			}*/
 			depCount += children.size();
 		}
 		System.out.println("Total dependency count: " + depCount);

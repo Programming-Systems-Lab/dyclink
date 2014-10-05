@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 
+import edu.columbia.psl.cc.util.StringUtil;
+
 public class InstNode implements Comparable<InstNode>{
 	
 	private Var var;
@@ -18,38 +20,54 @@ public class InstNode implements Comparable<InstNode>{
 	
 	private int linenumber;
 	
-	private ArrayList<Integer> parentList = new ArrayList<Integer>();
+	private ArrayList<String> parentList = new ArrayList<String>();
 	
-	//For freq map, the key is the inst idx, and the value is the frequency
-	private TreeMap<Integer, Double> childFreqMap = new TreeMap<Integer, Double>();
+	//For freq map, the key is the inst method + idx, and the value is the frequency
+	private TreeMap<String, Double> childFreqMap = new TreeMap<String, Double>();
 	
-	public void registerParent(int parentIdx) {
-		if (!this.parentList.contains(parentIdx))
-			this.parentList.add(parentIdx);
+	public InstNode() {
+		
 	}
 	
-	public void setParentList(ArrayList<Integer> parentList) {
-		this.parentList = parentList;
+	public InstNode(InstNode copy) {
+		this.idx = copy.getIdx();
+		this.op = copy.getOp();
+		this.addInfo = copy.getAddInfo();
+		this.fromMethod = copy.getFromMethod();
+		this.parentList = new ArrayList<String>(copy.getParentList());
+		this.childFreqMap = new TreeMap<String, Double>(copy.getChildFreqMap());
 	}
 	
-	public ArrayList<Integer> getParentList() {
-		return this.parentList;
-	}
-	
-	public void increChild(int childIdx, double amount) {
-		if (this.childFreqMap.containsKey(childIdx)) {
-			double count = this.childFreqMap.get(childIdx) + amount;
-			this.childFreqMap.put(childIdx, count);
-		} else {
-			this.childFreqMap.put(childIdx, amount);
+	public void registerParent(String fromMethod, int parentIdx) {
+		String idxKey = StringUtil.genIdxKey(fromMethod, parentIdx);
+		if (!this.parentList.contains(idxKey)) {
+			this.parentList.add(idxKey);
 		}
 	}
 	
-	public void setChildFreqMap(TreeMap<Integer, Double> childFreqMap) {
+	public void setParentList(ArrayList<String> parentList) {
+		this.parentList = parentList;
+	}
+	
+	public ArrayList<String> getParentList() {
+		return this.parentList;
+	}
+	
+	public void increChild(String fromMethod, int childIdx, double amount) {
+		String idxKey = StringUtil.genIdxKey(fromMethod, childIdx);
+		if (this.childFreqMap.containsKey(idxKey)) {
+			double count = this.childFreqMap.get(idxKey) + amount;
+			this.childFreqMap.put(idxKey, count);
+		} else {
+			this.childFreqMap.put(idxKey, amount);
+		}
+	}
+	
+	public void setChildFreqMap(TreeMap<String, Double> childFreqMap) {
 		this.childFreqMap = childFreqMap;
 	}
 	
-	public TreeMap<Integer, Double> getChildFreqMap() {
+	public TreeMap<String, Double> getChildFreqMap() {
 		return this.childFreqMap;
 	}
 	
