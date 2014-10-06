@@ -166,9 +166,14 @@ public class BytecodeCategory {
 		return ret;
 	}
 	
+	/**
+	 * Include dup and swap
+	 * @return
+	 */
 	public static HashSet<Integer> dupCategory() {
 		HashSet<Integer> ret = new HashSet<Integer>();
 		ret.add(6);
+		ret.add(7);
 		return ret;
 	}
 	

@@ -98,6 +98,16 @@ public class MethodStackRecorder {
 		//this.curControlInsts.add(fullInst);
 	}
 	
+	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {
+		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
+		
+		this.updateControlRelation(fullInst);
+		this.updatePath(fullInst);
+		
+		this.updateStackSimulator(times, fullInst);
+		this.showStackSimulator();
+	}
+	
 	public void handleOpcode(int opcode, int instIdx, String addInfo) {
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
@@ -164,7 +174,8 @@ public class MethodStackRecorder {
 					this.localVarRecorder.put(localVarIdx, fullInst);
 				
 				this.updateCachedMap(lastInst, fullInst, false);
-				this.safePop();
+				for (int i = 0; i < fullInst.getOp().getInList().size(); i++)
+					this.safePop();
 			}
 		} else if (opcode == Opcodes.IINC) {
 			InstNode parentInst = this.localVarRecorder.get(localVarIdx);
@@ -232,7 +243,17 @@ public class MethodStackRecorder {
 		
 		Type methodType = Type.getMethodType(desc);
 		//+1 for object reference, if instance method
-		int argSize = methodType.getArgumentTypes().length;
+		Type[] args = methodType.getArgumentTypes();
+		int argSize = 0;
+		for (int i = 0; i < args.length; i++) {
+			Type t = args[i];
+			if (t.getDescriptor().equals("D") || t.getDescriptor().equals("L")) {
+				argSize += 2;
+			} else {
+				argSize += 1;
+			}
+		}
+		
 		if (!BytecodeCategory.staticMethod().contains(opcode)) {
 			argSize++;
 		}
@@ -245,7 +266,11 @@ public class MethodStackRecorder {
 		}
 		
 		if (!returnType.equals("V")) {
-			this.updateStackSimulator(1, fullInst);
+			if (returnType.equals("D") || returnType.equals("L")) {
+				this.updateStackSimulator(2, fullInst);
+			} else {
+				this.updateStackSimulator(1, fullInst);
+			}
 		}
 		this.showStackSimulator();
 	}
@@ -319,6 +344,12 @@ public class MethodStackRecorder {
 	 				this.stackSimulator.push(stackBuf.pop());
 	 			}
 	 			break ;
+			case 95:
+				dupInst = this.stackSimulator.get(this.stackSimulator.size() - 1);
+				dupInst2 = this.stackSimulator.get(this.stackSimulator.size() - 2);
+				this.stackSimulator.push(dupInst);
+				this.stackSimulator.push(dupInst2);
+				break ;
 		}
 	}
 	

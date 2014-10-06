@@ -59,7 +59,7 @@ public class StringUtil {
 	public static String genKey(String className, String methodName, String methodDesc) {
 		String[] parsedDesc = StringUtil.parseDesc(methodDesc);
 		String key = StringUtil.cleanPunc(className, ".") 
-				+ ":" + methodName 
+				+ ":" + StringUtil.cleanPunc(methodName) 
 				+ ":" + parsedDesc[0] 
 				+ ":" + parsedDesc[1];
 		return key;

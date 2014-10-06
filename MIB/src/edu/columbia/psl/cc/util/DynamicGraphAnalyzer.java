@@ -231,29 +231,29 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 	}
 	
 	public void analyzeTemplate() {		
-		MIBSimilarity<CostObj[][]> scorer = new ShortestPathKernel();
-		//MIBSimilarity scorer = new SVDKernel();
+		//MIBSimilarity<CostObj[][]> scorer = new ShortestPathKernel();
+		MIBSimilarity<double[][]> scorer = new SVDKernel();
 		//Score kernel
 		for (String templateName: this.templates.keySet()) {
 			GraphTemplate tempGraph = this.templates.get(templateName);
 			System.out.println("Original temp graph: ");
 			tempGraph.showGraph();
-			CostObj[][] templateCostTable = scorer.constructCostTable(templateName, tempGraph.getInstPool());
+			double[][] templateCostTable = scorer.constructCostTable(templateName, tempGraph.getInstPool());
 			
 			List<GrownGraph> grownGraphs = this.collectAndMergeChildGraphs(tempGraph);
-			HashMap<GrownGraph, CostObj[][]> growCosts = new HashMap<GrownGraph, CostObj[][]>();
+			HashMap<GrownGraph, double[][]> growCosts = new HashMap<GrownGraph, double[][]>();
 			int growCount = 0;
 			for (GrownGraph gGraph: grownGraphs) {
 				System.out.println("Grown graph: ");
 				gGraph.showGraph();
 				String growName = templateName + growCount++;
-				CostObj[][] growCostTable = scorer.constructCostTable(growName, gGraph.getInstPool());
+				double[][] growCostTable = scorer.constructCostTable(growName, gGraph.getInstPool());
 				growCosts.put(gGraph, growCostTable);
 			}
 			
 			for (String testName: this.tests.keySet()) {
 				GraphTemplate testGraph = this.tests.get(testName);
-				CostObj[][] testCostTable = scorer.constructCostTable(testName, testGraph.getInstPool());
+				double[][] testCostTable = scorer.constructCostTable(testName, testGraph.getInstPool());
 				double graphScore = scorer.calculateSimilarity(templateCostTable, testCostTable);
 				System.out.println(templateName + " vs " + testName + " " + graphScore);
 				

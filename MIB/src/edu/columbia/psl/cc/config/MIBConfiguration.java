@@ -16,6 +16,10 @@ public class MIBConfiguration {
 	
 	private static String srHCDescString = "(IILjava/lang/String;)V";
 	
+	private static String srHandleLdc = "handleLdc";
+	
+	private static String srHandleLdcDesc = "(IIILjava/lang/String;)V";
+	
 	private static String srHandleMultiArray = "handleMultiNewArray";
 	
 	private static String srHandleMultiArrayDesc = "(Ljava/lang/String;II)V";
@@ -120,6 +124,14 @@ public class MIBConfiguration {
 	
 	public static String getSrGraphDumpDesc() {
 		return srGraphDumpDesc;
+	}
+	
+	public static String getSrHandleLdc() {
+		return srHandleLdc;
+	}
+	
+	public static String getSrHandleLdcDesc() {
+		return srHandleLdcDesc;
 	}
 
 }

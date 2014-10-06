@@ -43,6 +43,10 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	private static String srHCDescString = MIBConfiguration.getSrHCDescString();
 	
+	private static String srHandleLdc = MIBConfiguration.getSrHandleLdc();
+	
+	private static String srHandleLdcDesc = MIBConfiguration.getSrHandleLdcDesc();
+	
 	private static String srHandleMultiArray = MIBConfiguration.getSrHandleMultiArray();
 	
 	private static String srHandleMultiArrayDesc = MIBConfiguration.getSrHandleMultiArrayDesc();
@@ -201,6 +205,15 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleCommon, srHCDescString);
 	}
 	
+	private void handleLdc(int opcode, int times, String addInfo) {
+		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+		this.convertConst(opcode);
+		this.convertConst(this.getIndex());
+		this.convertConst(times);
+		this.mv.visitLdcInsn(addInfo);
+		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleLdc, srHandleLdcDesc);
+	}
+	
 	private void handleMultiNewArray(String desc, int dim) {
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.mv.visitLdcInsn(desc);
@@ -222,6 +235,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		
 	@Override
 	public void onMethodEnter() {
+		System.out.println("Method enter: " + this.annotGuard());
 		if (this.annotGuard()) {
 			//Create the method stack recorder
 			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
@@ -239,22 +253,26 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		}
 	}
 	
-	/*@Override
+	@Override
 	public void visitCode() {
 		this.mv.visitCode();
-		if (this.annotGuard()) {
+		if (this.annotGuard() && this.localMsrId < 0) {
+			System.out.println("Visti code, method enter is not visited: " + this.annotGuard());
 			//Create the method stack recorder
-			Label startLabel = new Label();
-			this.mv.visitLabel(startLabel);
-			System.out.println("Create new label: " + startLabel);
 			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
 			System.out.println("Method Stack Recorder name: " + methodStackRecorder);
 			this.mv.visitTypeInsn(Opcodes.NEW, methodStackRecorder);
 			this.mv.visitInsn(Opcodes.DUP);
-			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, methodStackRecorder, "<init>", "()V");
+			this.mv.visitLdcInsn(this.className);
+			this.mv.visitLdcInsn(this.myName);
+			this.mv.visitLdcInsn(this.methodDesc);
+			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, 
+					methodStackRecorder, 
+					"<init>", 
+					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
 			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
 		}
-	}*/
+	}
 	
 	@Override
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
@@ -374,7 +392,11 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	@Override
 	public void visitLdcInsn(Object cst) {
 		if (this.annotGuard()) {
-			this.handleOpcode(Opcodes.LDC, cst.toString());
+			if (cst instanceof Double || cst instanceof Float) {
+				this.handleLdc(Opcodes.LDC, 2, cst.toString());
+			} else {
+				this.handleLdc(Opcodes.LDC, 1, cst.toString());
+			}
 			
 			this.updateMethodRep(Opcodes.LDC);
 		}

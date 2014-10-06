@@ -19,6 +19,7 @@ import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.CostObj;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.util.GraphUtil;
+import edu.columbia.psl.cc.util.StringUtil;
 
 public class SVDKernel implements MIBSimilarity<double[][]>{
 
@@ -86,7 +87,7 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 	public double[][] constructCostTable(String methodName,
 			InstPool pool) {
 		// List here is just for facilitate dumping cost table. Should remove after
-		System.out.println("Check inst pool: " + pool);
+		//System.out.println("Check inst pool: " + pool);
 		ArrayList<InstNode> allNodes = new ArrayList<InstNode>(pool);
 		double[][] ret = new double[allNodes.size()][allNodes.size()];
 		
@@ -94,8 +95,9 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 			InstNode i1 = allNodes.get(i);
 			for (int j = 0; j < allNodes.size(); j++) {
 				InstNode i2 = allNodes.get(j);
-				if (i1.getChildFreqMap().containsKey(i2.getIdx())) {
-					double rawVal = (double)1/i1.getChildFreqMap().get(i2.getIdx());
+				String inst2Key = StringUtil.genIdxKey(i2.getFromMethod(), i2.getIdx());
+				if (i1.getChildFreqMap().containsKey(inst2Key)) {
+					double rawVal = (double)1/i1.getChildFreqMap().get(inst2Key);
 					double roundVal = GraphUtil.roundValue(rawVal);
 					ret[i][j] = roundVal;
 				} else {

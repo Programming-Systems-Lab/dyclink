@@ -6,7 +6,7 @@ import java.lang.annotation.Target;
 import java.lang.annotation.ElementType;
 
 @Retention(value = RetentionPolicy.RUNTIME)
-@Target(value = ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 
 public @interface testTemplate {
 	
