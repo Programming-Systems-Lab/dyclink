@@ -18,6 +18,7 @@ import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.CostObj;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
+import edu.columbia.psl.cc.pojo.GrownGraph;
 import edu.columbia.psl.cc.pojo.InstNode;
 
 public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
@@ -116,12 +117,20 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		expandDepMap(nodeInfo, targetMap);
 	}
 	
-	private void mergeGraphs(GraphTemplate parent, GraphTemplate child, int childIdx) {
+	private void mergeHead(GraphTemplate parent, GraphTemplate child, int childIdx) {
 		InstNode methodNode = parent.getInstPool().searchAndGet(parent.getMethodKey(), childIdx);
-		String methodIdxKey = StringUtil.genIdxKey(methodNode.getFromMethod(), methodNode.getIdx());
 		
 		int methodArgs = child.getMethodArgSize();
-		int methodRet = child.getMethodReturnSize();
+		if (methodArgs < methodNode.getParentList().size()) {
+			//Instance method, remove aload
+			String toRemove = methodNode.getParentList().get(methodNode.getParentList().size() - 1);
+			String[] toRemoveInfo = StringUtil.parseIdxKey(toRemove);
+			parent.getInstPool().searchAndRemove(toRemoveInfo[0], Integer.valueOf(toRemoveInfo[1]));
+			methodNode.getParentList().remove(toRemove);
+		} 
+		
+		if (methodArgs == 0)
+			return ;
 		
 		//Search start insts in child
 		InstNode[] childStarts = new InstNode[methodArgs];
@@ -133,39 +142,30 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 				childStarts[count++] = inst;
 			}
 		}
-		
+				
 		InstNode[] parents = null;
 		if (methodArgs > methodNode.getParentList().size()) {
 			System.err.println("Invalid method description or recording: " + methodNode);
 			return ;
 		}
-		
-		if (methodArgs < methodNode.getParentList().size()) {
-			//Instance method, remove aload
-			String toRemove = methodNode.getParentList().get(methodNode.getParentList().size() - 1);
-			String[] toRemoveInfo = StringUtil.parseIdxKey(toRemove);
-			parent.getInstPool().searchAndRemove(toRemoveInfo[0], Integer.valueOf(toRemoveInfo[1]));
-			methodNode.getParentList().remove(toRemove);
-		} 
-		
+				
 		parents = new InstNode[methodNode.getParentList().size()];
 		for (int i = methodNode.getParentList().size() - 1, j = 0; i >= 0; i--, j++) {
 			String mParentNode = methodNode.getParentList().get(i);
 			String[] mParentInfo = StringUtil.parseIdxKey(mParentNode);
 			parents[j] = parent.getInstPool().searchAndGet(mParentInfo[0], Integer.valueOf(mParentInfo[1]));
 		} 
-		
+				
 		//Merge. parent inst will be replaced by child inst
 		for (InstNode p: parents) {
 			ArrayList<String> pList = p.getParentList();
 			String pKey = StringUtil.genIdxKey(p.getFromMethod(), p.getIdx());
-			
+					
 			for (InstNode c: childStarts) {
-				System.out.println("Check child start: " + c);
 				//parent.getInstPool().searchAndGet(c.getFromMethod(), c.getIdx(), c.getOp().getOpcode(), c.getAddInfo());
 				parent.getInstPool().add(c);
 				String cKey = StringUtil.genIdxKey(c.getFromMethod(), c.getIdx());
-				
+						
 				for (String pp: pList) {
 					String[] ppInfo = StringUtil.parseIdxKey(pp);
 					InstNode ppNode = parent.getInstPool().searchAndGet(ppInfo[0], Integer.valueOf(ppInfo[1]));
@@ -176,6 +176,13 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			}
 			parent.getInstPool().remove(p);
 		}
+	}
+	
+	private void mergeGraphs(GraphTemplate parent, GraphTemplate child, int childIdx) {
+		this.mergeHead(parent, child, childIdx);
+		
+		InstNode methodNode = parent.getInstPool().searchAndGet(parent.getMethodKey(), childIdx);
+		String methodIdxKey = StringUtil.genIdxKey(methodNode.getFromMethod(), methodNode.getIdx());
 		
 		//Update children of method inst
 		InstNode lastSecond = child.getLastSecondInst();
@@ -199,22 +206,24 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		parent.getInstPool().remove(methodNode);
 	}
 	
-	private List<GraphTemplate> collectAndMergeChildGraphs(GraphTemplate parentGraph) {
+	private List<GrownGraph> collectAndMergeChildGraphs(GraphTemplate parentGraph) {
 		HashMap<Integer, GraphTemplate> extMethodMap = GraphUtil.collectChildGraphs(parentGraph);
-		List<GraphTemplate> ret = new ArrayList<GraphTemplate>();
+		List<GrownGraph> ret = new ArrayList<GrownGraph>();
 		
 		for (Integer methodInstIdx: extMethodMap.keySet()) {
 			//Copy the parent graph
-			GraphTemplate copyParent = new GraphTemplate(parentGraph);
+			GrownGraph copyParent = new GrownGraph(parentGraph);
 			System.out.println("Show copy parent graph: ");
 			copyParent.showGraph();
 			
+			//Should recursive, temporarily not
 			GraphTemplate copyChild = new GraphTemplate(extMethodMap.get(methodInstIdx));
 			System.out.println("Show copy child graph: ");
 			copyChild.showGraph();
 			
 			//Merge
 			this.mergeGraphs(copyParent, copyChild, methodInstIdx);
+			copyParent.updateKeyMethods(methodInstIdx, copyParent.getExtMethods().get(methodInstIdx));
 			ret.add(copyParent);
 		}
 		
@@ -231,15 +240,15 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			tempGraph.showGraph();
 			CostObj[][] templateCostTable = scorer.constructCostTable(templateName, tempGraph.getInstPool());
 			
-			List<GraphTemplate> grownGraphs = this.collectAndMergeChildGraphs(tempGraph);
-			HashMap<String, CostObj[][]> growCosts = new HashMap<String, CostObj[][]>();
+			List<GrownGraph> grownGraphs = this.collectAndMergeChildGraphs(tempGraph);
+			HashMap<GrownGraph, CostObj[][]> growCosts = new HashMap<GrownGraph, CostObj[][]>();
 			int growCount = 0;
-			for (GraphTemplate gGraph: grownGraphs) {
+			for (GrownGraph gGraph: grownGraphs) {
 				System.out.println("Grown graph: ");
 				gGraph.showGraph();
 				String growName = templateName + growCount++;
 				CostObj[][] growCostTable = scorer.constructCostTable(growName, gGraph.getInstPool());
-				growCosts.put(growName, growCostTable);
+				growCosts.put(gGraph, growCostTable);
 			}
 			
 			for (String testName: this.tests.keySet()) {
@@ -248,9 +257,10 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 				double graphScore = scorer.calculateSimilarity(templateCostTable, testCostTable);
 				System.out.println(templateName + " vs " + testName + " " + graphScore);
 				
-				for (String growName: growCosts.keySet()) {
-					double growScore = scorer.calculateSimilarity(growCosts.get(growName), testCostTable);
-					System.out.println(growName + " vs " + testName + " " + growScore);
+				for (GrownGraph growGraph: growCosts.keySet()) {
+					double growScore = scorer.calculateSimilarity(growCosts.get(growGraph), testCostTable);
+					String growId = templateName + growGraph.getKeyLines();
+					System.out.println(growId + " vs " + testName + " " + growScore);
 				}
 			}
 		}

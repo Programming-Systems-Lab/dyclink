@@ -22,7 +22,7 @@ public class MIBConfiguration {
 	
 	private static String srHandleMethod = "handleMethod";
 	
-	private static String srHandleMethodDesc = "(IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
+	private static String srHandleMethodDesc = "(IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
 	
 	private static String srGraphDump = "dumpGraph";
 	

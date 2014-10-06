@@ -1,6 +1,7 @@
 package edu.columbia.psl.cc.pojo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,7 +16,7 @@ public class GraphTemplate {
 	
 	private int methodReturnSize;
 	
-	private List<Integer> extMethods;
+	private Map<Integer, Integer> extMethods;
 		
 	private InstNode lastSecondInst;
 	
@@ -31,7 +32,7 @@ public class GraphTemplate {
 		this.methodKey = copy.getMethodKey();
 		this.methodArgSize = copy.getMethodArgSize();
 		this.methodReturnSize = copy.getMethodReturnSize();
-		this.extMethods = new ArrayList<Integer>(copy.getExtMethods());
+		this.extMethods = new HashMap<Integer, Integer>(copy.getExtMethods());
 		this.pool = new InstPool();
 		this.path = new ArrayList<InstNode>();
 		for (InstNode inst: copy.getInstPool()) {
@@ -53,11 +54,11 @@ public class GraphTemplate {
 		return this.methodKey;
 	}
 	
-	public void setExtMethods(List<Integer> extMethods) {
+	public void setExtMethods(Map<Integer, Integer> extMethods) {
 		this.extMethods = extMethods;
 	}
 	
-	public List<Integer> getExtMethods() {
+	public Map<Integer, Integer> getExtMethods() {
 		return this.extMethods;
 	}
 	

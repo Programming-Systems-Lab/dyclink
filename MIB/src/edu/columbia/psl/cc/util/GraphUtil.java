@@ -72,12 +72,13 @@ public class GraphUtil {
 		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 		
 		HashMap<Integer, GraphTemplate> childGraphLib = new HashMap<Integer, GraphTemplate>();
-		for (Integer methodIdx: parentGraph.getExtMethods()) {
+		for (Integer methodIdx: parentGraph.getExtMethods().keySet()) {
 			InstNode methodInst = parentGraph.getInstPool().searchAndGet(parentGraph.getMethodKey(), methodIdx);
 			
 			String filePath = tempDir + "/" + methodInst.getAddInfo() + ".json";
 			GraphTemplate childGraph = TemplateLoader.loadTemplateFile(filePath, graphToken);
-			childGraphLib.put(methodIdx, childGraph);
+			if (childGraph != null)
+				childGraphLib.put(methodIdx, childGraph);
 		}
 		return childGraphLib;
 	}

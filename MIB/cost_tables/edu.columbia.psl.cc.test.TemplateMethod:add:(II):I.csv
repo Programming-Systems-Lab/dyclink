@@ -1,5 +1,0 @@
-head,edu.columbia.psl.cc.test.TemplateMethod:add:(II):I 0 21 iload 1,edu.columbia.psl.cc.test.TemplateMethod:add:(II):I 1 21 iload 2,edu.columbia.psl.cc.test.TemplateMethod:add:(II):I 2 96 iadd ,edu.columbia.psl.cc.test.TemplateMethod:add:(II):I 3 172 ireturn 
-edu.columbia.psl.cc.test.TemplateMethod:add:(II):I 0 21 iload 1,0.0,100.0,1.0,2.0
-edu.columbia.psl.cc.test.TemplateMethod:add:(II):I 1 21 iload 2,100.0,0.0,1.0,2.0
-edu.columbia.psl.cc.test.TemplateMethod:add:(II):I 2 96 iadd ,100.0,100.0,0.0,1.0
-edu.columbia.psl.cc.test.TemplateMethod:add:(II):I 3 172 ireturn ,100.0,100.0,100.0,0.0

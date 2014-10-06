@@ -37,7 +37,12 @@ public class TemplateLoader {
 	
 	public static <T> T loadTemplateFile(String fileName, TypeToken<T> typeToken) {
 		File f = new File(fileName);
-		return loadTemplateFile(f, typeToken);
+		if (f.exists())
+			return loadTemplateFile(f, typeToken);
+		else {
+			System.out.println("File not exist: " + f.getName());
+			return null;
+		}
 	}
 
 }

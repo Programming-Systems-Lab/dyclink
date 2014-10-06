@@ -2,6 +2,8 @@ package edu.columbia.psl.cc.util;
 
 import java.util.HashMap;
 
+import org.objectweb.asm.Type;
+
 public class StringUtil {
 	
 	private static String pattern = ")";
@@ -35,9 +37,22 @@ public class StringUtil {
 		//String out = cleanPunc(desc.substring(idx + 1, desc.length()));
 		//return in + "~" + out;
 		
-		String in = desc.substring(0, idx + 1);
-		String out = desc.substring(idx + 1, desc.length());
-		String[] ret = new String[]{in, out};
+		//String in = desc.substring(0, idx + 1);
+		//String out = desc.substring(idx + 1, desc.length());
+		
+		String in = desc.substring(1, idx);
+		String[] rawIn = in.split(";");
+		StringBuilder sb = new StringBuilder();
+		for (String r: rawIn) {
+			sb.append(cleanPunc(r, ".") + "+");
+		}
+		String retIn = "(" + sb.substring(0, sb.length() - 1) + ")";
+		String retOut = cleanPunc(desc.substring(idx + 1, desc.length()), ".");
+		if (retOut.charAt(retOut.length() - 1) == '.') {
+			retOut = retOut.substring(0, retOut.length() - 1);
+		}
+		
+		String[] ret = new String[]{retIn, retOut};
 		return ret;
 	}
 	

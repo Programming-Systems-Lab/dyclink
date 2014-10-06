@@ -43,11 +43,14 @@ public class MethodStackRecorder {
 	
 	private InstNode curControlInst = null;
 	
+	//Key: local var idx, Val: inst node
 	private Map<Integer, InstNode> localVarRecorder = new HashMap<Integer, InstNode>();
 	
+	//Key: field name, Val: inst node
 	private Map<String, InstNode> fieldRecorder = new HashMap<String, InstNode>();
 	
-	private List<Integer> extMethods = new ArrayList<Integer>();
+	//Key: inst idx, Val: line number
+	private Map<Integer, Integer> extMethods = new HashMap<Integer, Integer>();
 	
 	private List<InstNode> path = new ArrayList<InstNode>();
 	
@@ -64,8 +67,8 @@ public class MethodStackRecorder {
 		return label + " " + this.getInstIdx(label) + " " + oo.getOpcode() + " " + oo.getInstruction();
 	}*/
 	
-	private void updateExtMethods(int idx) {
-		this.extMethods.add(idx);
+	private void updateExtMethods(int idx, int linenum) {
+		this.extMethods.put(idx, linenum);
 	}
 		
 	private void updatePath(InstNode fullInst) {
@@ -217,7 +220,7 @@ public class MethodStackRecorder {
 		this.showStackSimulator();
 	}
 	
-	public void handleMethod(int opcode, int instIdx, String owner, String name, String desc) {
+	public void handleMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc) {
 		//String addInfo = owner + "." + name + "." + desc;
 		String addInfo = StringUtil.genKey(owner, name, desc);
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
@@ -225,7 +228,7 @@ public class MethodStackRecorder {
 		
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
-		this.updateExtMethods(instIdx);
+		this.updateExtMethods(instIdx, linenum);
 		
 		Type methodType = Type.getMethodType(desc);
 		//+1 for object reference, if instance method

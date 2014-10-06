@@ -75,6 +75,8 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	private Label curLabel = null;
 	
+	private int curLineNum = -1;
+	
 	private List<Label> allLabels = new ArrayList<Label>();
 	
 	private int[] repVector = new int[BytecodeCategory.getOpcodeCategory().size()];
@@ -211,6 +213,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.convertConst(opcode);
 		this.convertConst(this.getIndex());
+		this.convertConst(this.curLineNum);
 		this.mv.visitLdcInsn(owner);
 		this.mv.visitLdcInsn(name);
 		this.mv.visitLdcInsn(desc);
@@ -276,6 +279,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	@Override
 	public void visitLineNumber(int line, Label label) {
+		this.curLineNum = line;
 		this.mv.visitLineNumber(line, label);
 	}
 	
