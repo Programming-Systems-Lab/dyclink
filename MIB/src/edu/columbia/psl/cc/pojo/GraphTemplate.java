@@ -2,6 +2,7 @@ package edu.columbia.psl.cc.pojo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -16,13 +17,19 @@ public class GraphTemplate {
 	
 	private int methodReturnSize;
 	
-	private Map<Integer, Integer> extMethods;
-		
-	private InstNode lastSecondInst;
+	//private Map<Integer, Integer> extMethods;
+	
+	private Map<Integer, ExtObj> extMethods;
+	
+	private ExtObj returnInfo;
 	
 	private List<InstNode> path;
 	
 	private InstPool pool;
+	
+	private HashSet<Integer> firstReadLocalVars;
+	
+	private HashSet<Integer> firstReadFields;
 	
 	public GraphTemplate() {
 		
@@ -32,7 +39,10 @@ public class GraphTemplate {
 		this.methodKey = copy.getMethodKey();
 		this.methodArgSize = copy.getMethodArgSize();
 		this.methodReturnSize = copy.getMethodReturnSize();
-		this.extMethods = new HashMap<Integer, Integer>(copy.getExtMethods());
+		this.firstReadFields = new HashSet<Integer>(copy.getFirstReadFields());
+		this.firstReadLocalVars = new HashSet<Integer>(copy.getFirstReadLocalVars());
+		this.extMethods = new HashMap<Integer, ExtObj>();
+		
 		this.pool = new InstPool();
 		this.path = new ArrayList<InstNode>();
 		for (InstNode inst: copy.getInstPool()) {
@@ -43,7 +53,34 @@ public class GraphTemplate {
 			InstNode pathNode = copy.getPath().get(i);
 			this.path.add(this.pool.searchAndGet(pathNode.getFromMethod(), pathNode.getIdx()));
 		}
-		this.lastSecondInst = this.pool.searchAndGet(copy.getLastSecondInst().getFromMethod(), copy.getLastSecondInst().getIdx());
+		
+		for (Integer i: copy.getExtMethods().keySet()) {
+			ExtObj from = copy.getExtMethods().get(i);
+			ExtObj eo = new ExtObj();
+			eo.setLineNumber(from.getLineNumber());
+			for (InstNode localInst: from.getLoadLocalInsts()) {
+				eo.addLoadLocalInst(this.pool.searchAndGet(localInst.getFromMethod(), localInst.getIdx()));
+			}
+			for (InstNode writeFieldInst: from.getWriteFieldInsts()) {
+				eo.addWriteFieldInst(this.pool.searchAndGet(writeFieldInst.getFromMethod(), writeFieldInst.getIdx()));
+			}
+			for (InstNode affFieldInst: from.getAffFieldInsts()) {
+				eo.addAffFieldInst(this.pool.searchAndGet(affFieldInst.getFromMethod(), affFieldInst.getIdx()));
+			}
+			this.extMethods.put(i, eo);
+		}
+		
+		this.returnInfo = new ExtObj();
+		this.returnInfo.setLineNumber(copy.getReturnInfo().getLineNumber());
+		for (InstNode localInst: copy.getReturnInfo().getLoadLocalInsts()) {
+			this.returnInfo.addLoadLocalInst(this.pool.searchAndGet(localInst.getFromMethod(), localInst.getIdx()));
+		}
+		for (InstNode writeFieldInst: copy.getReturnInfo().getWriteFieldInsts()) {
+			this.returnInfo.addWriteFieldInst(this.pool.searchAndGet(writeFieldInst.getFromMethod(), writeFieldInst.getIdx()));
+		}
+		for (InstNode affFieldInst: copy.getReturnInfo().getAffFieldInsts()) {
+			this.returnInfo.addAffFieldInst(this.pool.searchAndGet(affFieldInst.getFromMethod(), affFieldInst.getIdx()));
+		}
 	}
 		
 	public void setMethodKey(String methodKey) {
@@ -54,11 +91,11 @@ public class GraphTemplate {
 		return this.methodKey;
 	}
 	
-	public void setExtMethods(Map<Integer, Integer> extMethods) {
+	public void setExtMethods(Map<Integer, ExtObj> extMethods) {
 		this.extMethods = extMethods;
 	}
 	
-	public Map<Integer, Integer> getExtMethods() {
+	public Map<Integer, ExtObj> getExtMethods() {
 		return this.extMethods;
 	}
 	
@@ -93,13 +130,29 @@ public class GraphTemplate {
 	public int getMethodReturnSize() {
 		return this.methodReturnSize;
 	}
- 		
-	public void setLastSecondInst(InstNode lastSecondInst) {
-		this.lastSecondInst = lastSecondInst;
+	
+	public void setReturnInfo(ExtObj returnInfo) {
+		this.returnInfo = returnInfo;
 	}
 	
-	public InstNode getLastSecondInst() {
-		return this.lastSecondInst;
+	public ExtObj getReturnInfo() {
+		return this.returnInfo;
+	}
+	
+	public void setFirstReadLocalVars(HashSet<Integer> firstReadLocalVars) {
+		this.firstReadLocalVars = firstReadLocalVars;
+	}
+	
+	public HashSet<Integer> getFirstReadLocalVars() {
+		return this.firstReadLocalVars;
+	}
+	
+	public void setFirstReadFields(HashSet<Integer> firstReadFields) {
+		this.firstReadFields = firstReadFields;
+	}
+	
+	public HashSet<Integer> getFirstReadFields() {
+		return this.firstReadFields;
 	}
 	
 	public void showGraph() {

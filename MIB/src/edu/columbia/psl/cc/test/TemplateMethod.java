@@ -148,12 +148,16 @@ public class TemplateMethod extends TemplateParent{
 		double[] d = new double[5];
 		d[0] = i;
 	}
+	
+	public void testDiff(int a, double b) {
+		
+	}
 		
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
 		System.out.println("TempalteMethod: " + tm.addOutside(3, 5));
-		System.out.println("TestMethod: " + tm.addInside(3, 5));
-		
+		//tm.setBoolean(true);
+		//System.out.println("TestMethod: " + tm.addInside(3, 5));
 		//TemplateMethod tm2 = new TemplateMethod("test1", "test2", "test3");
 		//tm.testField(5);
 		//tm.testContinuousAnd(128);
@@ -177,8 +181,13 @@ public class TemplateMethod extends TemplateParent{
 		return c;
 	}
 	
+	public void setBoolean(boolean a) {
+		
+	}
+	
 	@extractTemplate
 	public int add(int i1, int i2) {
+		this.iVar = i1 + 5;
 		return i1 + i2;
 	}
 	
@@ -192,6 +201,7 @@ public class TemplateMethod extends TemplateParent{
 	@extractTemplate
 	public int addOutside(int a, int b) {
 		int c = this.add(a, b);
+		int d = this.iVar;
 		return c;
 	}
 	

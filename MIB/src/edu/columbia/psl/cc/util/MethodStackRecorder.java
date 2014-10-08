@@ -24,13 +24,14 @@ import com.google.gson.reflect.TypeToken;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
+import edu.columbia.psl.cc.pojo.ExtObj;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.pojo.StaticRep;
 
 public class MethodStackRecorder {
-	
+		
 	private String className;
 	
 	private String methodName;
@@ -38,6 +39,12 @@ public class MethodStackRecorder {
 	private String methodDesc;
 	
 	private String methodKey;
+	
+	private boolean staticMethod;
+	
+	private int methodArgSize = 0;
+	
+	private int methodReturnSize = 0;
 		
 	private Stack<InstNode> stackSimulator = new Stack<InstNode>();
 	
@@ -49,26 +56,78 @@ public class MethodStackRecorder {
 	//Key: field name, Val: inst node
 	private Map<String, InstNode> fieldRecorder = new HashMap<String, InstNode>();
 	
-	//Key: inst idx, Val: line number
-	private Map<Integer, Integer> extMethods = new HashMap<Integer, Integer>();
+	//Key: inst idx, Val: line num, write field and load local vars
+	private Map<Integer, ExtObj> extMethods = new HashMap<Integer, ExtObj>();
+	
+	//Record which insts might be affected by input params
+	private HashSet<Integer> firstReadFields = new HashSet<Integer>();
+	
+	private HashSet<Integer> stopReadFields = new HashSet<Integer>();
+	
+	//Record which insts might be affecte by field written by parent method
+	private HashSet<Integer> firstReadLocalVars = new HashSet<Integer>();
+	
+	private HashSet<Integer> shouldRecordReadLocalVars = new HashSet<Integer>();
+	
+	private int curMethod = -1;
+	
+	private ExtObj returnEo = new ExtObj();
 	
 	private List<InstNode> path = new ArrayList<InstNode>();
 	
 	private InstPool pool = new InstPool();
 	
-	public MethodStackRecorder(String className, String methodName, String methodDesc) {
+	public MethodStackRecorder(String className, String methodName, String methodDesc, boolean staticMethod) {
 		this.className = className;
 		this.methodName = methodName;
 		this.methodDesc = methodDesc;
+		this.staticMethod = staticMethod;
+		
 		this.methodKey = StringUtil.genKey(className, methodName, methodDesc);
+		Type methodType = Type.getMethodType(this.methodDesc);
+		this.methodArgSize = methodType.getArgumentTypes().length;
+		if (!methodType.getReturnType().getDescriptor().equals("V")) {
+			this.methodReturnSize = 1;
+		}
+		
+		int count = 0, start = 0;
+		if (!this.staticMethod) {
+			//Start from 0
+			start = 1;
+		}
+		
+		while (count < methodArgSize) {
+			this.shouldRecordReadLocalVars.add(start);
+			start++;
+			count++;
+		}
 	}
 	
-	/*public String genInstHead(OpcodeObj oo, String label) {
-		return label + " " + this.getInstIdx(label) + " " + oo.getOpcode() + " " + oo.getInstruction();
-	}*/
+	private void stopLocalVar(int localVarId) {
+		this.shouldRecordReadLocalVars.remove(localVarId);
+	}
 	
-	private void updateExtMethods(int idx, int linenum) {
-		this.extMethods.put(idx, linenum);
+	private void updateReadLocalVar(InstNode localVarNode) {
+		int localVarId = Integer.valueOf(localVarNode.getAddInfo());
+		if (this.shouldRecordReadLocalVars.contains(localVarId)) {
+			this.firstReadLocalVars.add(localVarNode.getIdx());
+		}
+	}
+	
+	private void stopReadField(String field) {
+		this.stopReadFields.remove(field);
+	}
+	
+	private void updateReadField(InstNode fieldNode) {
+		if (this.stopReadFields.contains(fieldNode.getAddInfo()))
+			return ;
+		
+		this.firstReadFields.add(fieldNode.getIdx());
+	}
+	
+	private void updateExtMethods(int idx, ExtObj eo) {
+		this.extMethods.put(idx, eo);
+		this.curMethod = idx;
 	}
 		
 	private void updatePath(InstNode fullInst) {
@@ -78,10 +137,10 @@ public class MethodStackRecorder {
 	private void updateCachedMap(InstNode parent, InstNode child, boolean isControl) {
 		if (isControl) {
 			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getControlWeight());
-			child.registerParent(parent.getFromMethod(), parent.getIdx());
+			child.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);
 		} else {
 			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getDataWeight());
-			child.registerParent(parent.getFromMethod(), parent.getIdx());		
+			child.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);		
 		}
 		//System.out.println("Update map: " + this.dataDep);
 	}
@@ -123,8 +182,15 @@ public class MethodStackRecorder {
 			InstNode parent = this.fieldRecorder.get(addInfo);
 			if (parent != null)
 				this.updateCachedMap(parent, fullInst, false);
+			
+			if (curMethod >= 0) {
+				this.extMethods.get(curMethod).addAffFieldInst(fullInst);
+			}
+			
+			this.updateReadField(fullInst);
 		} else if (BytecodeCategory.writeFieldCategory().contains(opcat)) {
 			this.fieldRecorder.put(addInfo, fullInst);
+			this.stopReadField(addInfo);
 		}
 		
 		int inputSize = oo.getInList().size();
@@ -177,17 +243,22 @@ public class MethodStackRecorder {
 				for (int i = 0; i < fullInst.getOp().getInList().size(); i++)
 					this.safePop();
 			}
+			this.stopLocalVar(localVarIdx);
 		} else if (opcode == Opcodes.IINC) {
 			InstNode parentInst = this.localVarRecorder.get(localVarIdx);
 			if (parentInst != null)
 				this.updateCachedMap(parentInst, fullInst, false);
 			
-				this.localVarRecorder.put(localVarIdx, fullInst);
+			this.localVarRecorder.put(localVarIdx, fullInst);
+			this.updateReadLocalVar(fullInst);
+			this.stopLocalVar(localVarIdx);
 		} else if (BytecodeCategory.readCategory().contains(opcat)) {
 			//Search local var recorder;
 			InstNode parentInst = this.localVarRecorder.get(localVarIdx);
 			if (parentInst != null)
 				this.updateCachedMap(parentInst, fullInst, false);
+			
+			this.updateReadLocalVar(fullInst);
 		} else if (BytecodeCategory.dupCategory().contains(opcat)) {
 			this.handleDup(opcode);
 			hasUpdate = true;
@@ -237,9 +308,16 @@ public class MethodStackRecorder {
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
 		System.out.println("Method full inst: " + fullInst);
 		
+		ExtObj eo = new ExtObj();
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
-		this.updateExtMethods(instIdx, linenum);
+		
+		eo.setLineNumber(linenum);
+		if (this.fieldRecorder.size() > 0) {
+			for (InstNode inst: this.fieldRecorder.values()) {
+				eo.addWriteFieldInst(inst);
+			}
+		}
 		
 		Type methodType = Type.getMethodType(desc);
 		//+1 for object reference, if instance method
@@ -252,7 +330,9 @@ public class MethodStackRecorder {
 			} else {
 				argSize += 1;
 			}
+			eo.addLoadLocalInst(this.stackSimulator.get(this.stackSimulator.size() - argSize));
 		}
+		this.updateExtMethods(instIdx, eo);
 		
 		if (!BytecodeCategory.staticMethod().contains(opcode)) {
 			argSize++;
@@ -385,23 +465,22 @@ public class MethodStackRecorder {
 	public void dumpGraph(boolean isTemplate) {		
 		//For serilization
 		GraphTemplate gt = new GraphTemplate();
+		if (this.path.size() > 1)
+			this.returnEo.addLoadLocalInst(this.path.get(this.path.size() - 2));
 		
-		Type methodType = Type.getMethodType(this.methodDesc);
-		int argSize = methodType.getArgumentTypes().length;
-		int returnSize = 1;
-		if (methodType.getReturnType().getDescriptor().equals("V")) {
-			returnSize = 0;
+		if (this.fieldRecorder.size() > 0) {
+			for (InstNode inst: this.fieldRecorder.values()) {
+				this.returnEo.addWriteFieldInst(inst);
+			}
 		}
+		
 		gt.setMethodKey(this.methodKey);
-		gt.setMethodArgSize(argSize);
-		gt.setMethodReturnSize(returnSize);
+		gt.setMethodArgSize(this.methodArgSize);
+		gt.setMethodReturnSize(this.methodReturnSize);
 		gt.setExtMethods(this.extMethods);
-		
-		InstNode lastSecondInst = null;
-		if (this.path.size() > 1) {
-			lastSecondInst = this.path.get(this.path.size() - 2);
-		}
-		gt.setLastSecondInst(lastSecondInst);
+		gt.setFirstReadLocalVars(this.firstReadLocalVars);
+		gt.setFirstReadFields(this.firstReadFields);
+		gt.setReturnInfo(this.returnEo);
 		gt.setPath(this.path);
 		
 		System.out.println("Instruction dependency:");

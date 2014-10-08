@@ -69,6 +69,8 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	private String testAnnot;
 	
+	private boolean isStatic;
+	
 	private boolean isTemplate = false;
 	
 	private boolean isTest = false;
@@ -98,6 +100,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		this.desc = desc;
 		this.templateAnnot = templateAnnot;
 		this.testAnnot = testAnnot;
+		this.isStatic = ((access & Opcodes.ACC_STATIC) != 0);
 	}
 	
 	public synchronized int getIndex() {
@@ -245,10 +248,16 @@ public class DynamicMethodMiner extends AdviceAdapter {
 			this.mv.visitLdcInsn(this.className);
 			this.mv.visitLdcInsn(this.myName);
 			this.mv.visitLdcInsn(this.methodDesc);
+			
+			if (this.isStatic)
+				this.mv.visitInsn(Opcodes.ICONST_1);
+			else
+				this.mv.visitInsn(Opcodes.ICONST_0);
+			
 			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, 
 					methodStackRecorder, 
 					"<init>", 
-					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V");
 			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
 		}
 	}
@@ -266,10 +275,16 @@ public class DynamicMethodMiner extends AdviceAdapter {
 			this.mv.visitLdcInsn(this.className);
 			this.mv.visitLdcInsn(this.myName);
 			this.mv.visitLdcInsn(this.methodDesc);
+			
+			if (this.isStatic)
+				this.mv.visitInsn(Opcodes.ICONST_1);
+			else
+				this.mv.visitInsn(Opcodes.ICONST_0);
+			
 			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, 
 					methodStackRecorder, 
 					"<init>", 
-					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V");
 			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
 		}
 	}

@@ -34,10 +34,16 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		int opcode = object.get("op").getAsInt();
 		String addInfo = object.get("addInfo").getAsString();
 		
-		JsonArray parentObj = object.get("parentList").getAsJsonArray();
-		ArrayList<String> parentList = new ArrayList<String>();
-		for (int i = 0; i < parentObj.size(); i++) {
-			parentList.add(parentObj.get(i).getAsString());
+		JsonArray dataParentObj = object.get("dataParentList").getAsJsonArray();
+		ArrayList<String> dataParentList = new ArrayList<String>();
+		for (int i = 0; i < dataParentObj.size(); i++) {
+			dataParentList.add(dataParentObj.get(i).getAsString());
+		}
+		
+		JsonArray controlParentObj = object.get("controlParentList").getAsJsonArray();
+		ArrayList<String> controlParentList = new ArrayList<String>();
+		for (int i = 0; i < controlParentObj.size(); i++) {
+			controlParentList.add(controlParentObj.get(i).getAsString());
 		}
 		
 		JsonObject childObj = object.get("childFreqMap").getAsJsonObject();
@@ -53,7 +59,8 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		
 		InstNode inst = this.pool.searchAndGet(methodKey, idx, opcode, addInfo);
 		inst.setFromMethod(methodKey);
-		inst.setParentList(parentList);
+		inst.setDataParentList(dataParentList);
+		inst.setControlParentList(controlParentList);
 		inst.setChildFreqMap(childFreqMap);
 		//inst.setChildFreqMap((TreeMap<Integer, Double>)context.deserialize(object.get("childFreqpMap"), childToken.getType()));
 		//inst.setParentList((ArrayList<Integer>)context.deserialize(object.get("parentList"), parentToken.getType()));
@@ -72,7 +79,8 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		result.addProperty("addInfo", inst.getAddInfo());
 		
 		TypeToken<ArrayList<String>> listType = new TypeToken<ArrayList<String>>(){};
-		result.add("parentList", context.serialize(inst.getParentList(), listType.getType()));
+		result.add("dataParentList", context.serialize(inst.getDataParentList(), listType.getType()));
+		result.add("controlParentList", context.serialize(inst.getControlParentList(), listType.getType()));
 		
 		TypeToken<TreeMap<String, Double>> mapType = new TypeToken<TreeMap<String, Double>>(){};
 		result.add("childFreqMap", context.serialize(inst.getChildFreqMap(), mapType.getType()));

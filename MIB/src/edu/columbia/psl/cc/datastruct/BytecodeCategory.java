@@ -184,4 +184,14 @@ public class BytecodeCategory {
 		return ret;
 	}
 	
+	public static HashSet<Integer> returnOps() {
+		HashSet<Integer> ret = new HashSet<Integer>();
+		for (int i = 172; i <= 177; i++) {
+			ret.add(i);
+		}
+		return ret;
+	}
+	
+	
+	
 }

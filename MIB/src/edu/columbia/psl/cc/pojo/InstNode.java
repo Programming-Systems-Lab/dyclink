@@ -20,7 +20,9 @@ public class InstNode implements Comparable<InstNode>{
 	
 	private int linenumber;
 	
-	private ArrayList<String> parentList = new ArrayList<String>();
+	private ArrayList<String> dataParentList = new ArrayList<String>();
+	
+	private ArrayList<String> controlParentList = new ArrayList<String>();
 	
 	//For freq map, the key is the inst method + idx, and the value is the frequency
 	private TreeMap<String, Double> childFreqMap = new TreeMap<String, Double>();
@@ -34,23 +36,34 @@ public class InstNode implements Comparable<InstNode>{
 		this.op = copy.getOp();
 		this.addInfo = copy.getAddInfo();
 		this.fromMethod = copy.getFromMethod();
-		this.parentList = new ArrayList<String>(copy.getParentList());
+		this.dataParentList = new ArrayList<String>(copy.getDataParentList());
+		this.controlParentList = new ArrayList<String>(copy.getControlParentList());
 		this.childFreqMap = new TreeMap<String, Double>(copy.getChildFreqMap());
 	}
 	
-	public void registerParent(String fromMethod, int parentIdx) {
+	public void registerParent(String fromMethod, int parentIdx, boolean isControl) {
 		String idxKey = StringUtil.genIdxKey(fromMethod, parentIdx);
-		if (!this.parentList.contains(idxKey)) {
-			this.parentList.add(idxKey);
+		if (!isControl && !this.dataParentList.contains(idxKey)) {
+			this.dataParentList.add(idxKey);
+		} else if (isControl && !this.controlParentList.contains(idxKey)){
+			this.controlParentList.add(idxKey);
 		}
 	}
 	
-	public void setParentList(ArrayList<String> parentList) {
-		this.parentList = parentList;
+	public void setDataParentList(ArrayList<String> dataParentList) {
+		this.dataParentList = dataParentList;
 	}
 	
-	public ArrayList<String> getParentList() {
-		return this.parentList;
+	public ArrayList<String> getDataParentList() {
+		return this.dataParentList;
+	}
+	
+	public void setControlParentList(ArrayList<String> controlParentList) {
+		this.controlParentList = controlParentList;
+	}
+	
+	public ArrayList<String> getControlParentList() {
+		return this.controlParentList;
 	}
 	
 	public void increChild(String fromMethod, int childIdx, double amount) {

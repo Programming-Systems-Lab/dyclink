@@ -16,7 +16,9 @@ import edu.columbia.psl.cc.analysis.SVDKernel;
 import edu.columbia.psl.cc.analysis.ShortestPathKernel;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
+import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.CostObj;
+import edu.columbia.psl.cc.pojo.ExtObj;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.GrownGraph;
 import edu.columbia.psl.cc.pojo.InstNode;
@@ -86,18 +88,6 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		this.scorer = scorer;
 	}
 	
-	public HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>> preprocessGraph(HashMap<String, GraphTemplate> graphs) {
-		HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>> ret = new HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>>();
-		for (String mkey: graphs.keySet()) {
-			GraphTemplate graph = graphs.get(mkey);
-			System.out.println("Check method: " + mkey);
-			//System.out.println("Invoke method lookup: " + graph.getInvokeMethodLookup());
-			System.out.println("Last 2nd inst: " + graph.getLastSecondInst());
-			ret.put(mkey, mergeDataControlMap(graph));
-		}
-		return ret;
-	}
-	
 	public void summarizeGraphs(HashMap<String, TreeMap<InstNode, TreeSet<InstNode>>> targetMap) {
 		HashMap<String, HashSet<InstNode>> nodeInfo = new HashMap<String, HashSet<InstNode>>();
 		for (String name: targetMap.keySet()) {
@@ -117,90 +107,87 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		expandDepMap(nodeInfo, targetMap);
 	}
 	
-	private void mergeHead(GraphTemplate parent, GraphTemplate child, int childIdx) {
-		InstNode methodNode = parent.getInstPool().searchAndGet(parent.getMethodKey(), childIdx);
-		
-		int methodArgs = child.getMethodArgSize();
-		if (methodArgs < methodNode.getParentList().size()) {
-			//Instance method, remove aload
-			String toRemove = methodNode.getParentList().get(methodNode.getParentList().size() - 1);
-			String[] toRemoveInfo = StringUtil.parseIdxKey(toRemove);
-			parent.getInstPool().searchAndRemove(toRemoveInfo[0], Integer.valueOf(toRemoveInfo[1]));
-			methodNode.getParentList().remove(toRemove);
-		} 
-		
-		if (methodArgs == 0)
-			return ;
-		
-		//Search start insts in child
-		InstNode[] childStarts = new InstNode[methodArgs];
-		int count = 0;
-		System.out.println("Check child path size: " + child.getPath().size());
-		for (InstNode inst: child.getPath()) {
-			if (BytecodeCategory.readCategory().contains(inst.getOp().getCatId()) &&
-					count <= methodArgs) {
-				childStarts[count++] = inst;
+	private static void updateGrandPa(GraphTemplate parent, GraphTemplate child, List<String> grandPas, String loadVarKey) {
+		for (String gp: grandPas) {
+			String[] searchIdx = StringUtil.parseIdxKey(gp);
+			InstNode dgNode = parent.getInstPool().searchAndGet(searchIdx[0], Integer.valueOf(searchIdx[1]));
+			double freq = dgNode.getChildFreqMap().get(loadVarKey);
+			for (Integer i: child.getFirstReadLocalVars()) {
+				InstNode readNode = child.getInstPool().searchAndGet(child.getMethodKey(), i);
+				String readNodeKey = StringUtil.genIdxKey(readNode.getFromMethod(), i);
+				dgNode.getChildFreqMap().put(readNodeKey, freq);
 			}
+			dgNode.getChildFreqMap().remove(loadVarKey);
 		}
-				
-		InstNode[] parents = null;
-		if (methodArgs > methodNode.getParentList().size()) {
-			System.err.println("Invalid method description or recording: " + methodNode);
-			return ;
-		}
-				
-		parents = new InstNode[methodNode.getParentList().size()];
-		for (int i = methodNode.getParentList().size() - 1, j = 0; i >= 0; i--, j++) {
-			String mParentNode = methodNode.getParentList().get(i);
-			String[] mParentInfo = StringUtil.parseIdxKey(mParentNode);
-			parents[j] = parent.getInstPool().searchAndGet(mParentInfo[0], Integer.valueOf(mParentInfo[1]));
-		} 
-				
-		//Merge. parent inst will be replaced by child inst
-		for (InstNode p: parents) {
-			ArrayList<String> pList = p.getParentList();
-			String pKey = StringUtil.genIdxKey(p.getFromMethod(), p.getIdx());
-					
-			for (InstNode c: childStarts) {
-				//parent.getInstPool().searchAndGet(c.getFromMethod(), c.getIdx(), c.getOp().getOpcode(), c.getAddInfo());
-				parent.getInstPool().add(c);
-				String cKey = StringUtil.genIdxKey(c.getFromMethod(), c.getIdx());
-						
-				for (String pp: pList) {
-					String[] ppInfo = StringUtil.parseIdxKey(pp);
-					InstNode ppNode = parent.getInstPool().searchAndGet(ppInfo[0], Integer.valueOf(ppInfo[1]));
-					double freq = ppNode.getChildFreqMap().get(pKey);
-					ppNode.getChildFreqMap().remove(pKey);
-					ppNode.getChildFreqMap().put(cKey, freq);
-				}
-			}
-			parent.getInstPool().remove(p);
+	}
+	
+	private void mergeHead(GraphTemplate parent, GraphTemplate child, int methodIdx) {
+		//InstNode methodNode = parent.getInstPool().searchAndGet(parent.getMethodKey(), methodIdx);
+		ExtObj parentEo = parent.getExtMethods().get(methodIdx);
+		
+		for (InstNode loadVarNode: parentEo.getLoadLocalInsts()) {
+			String loadVarKey = StringUtil.genIdxKey(loadVarNode.getFromMethod(), loadVarNode.getIdx());
+			List<String> dataGrandPa = loadVarNode.getDataParentList();
+			updateGrandPa(parent, child, dataGrandPa, loadVarKey);
+			
+			List<String> controlGrandPa = loadVarNode.getControlParentList();
+			updateGrandPa(parent, child, controlGrandPa, loadVarKey);
+			
+			parent.getInstPool().searchAndRemove(loadVarNode.getFromMethod(), loadVarNode.getIdx());
 		}
 	}
 	
 	private void mergeGraphs(GraphTemplate parent, GraphTemplate child, int childIdx) {
+		InstPool parentPool = parent.getInstPool();
+		for (InstNode childInst: child.getInstPool()) {
+			if (BytecodeCategory.returnOps().contains(childInst.getOp().getOpcode()))
+				continue ;
+			
+			parentPool.add(childInst);
+		}
+		
 		this.mergeHead(parent, child, childIdx);
 		
 		InstNode methodNode = parent.getInstPool().searchAndGet(parent.getMethodKey(), childIdx);
-		String methodIdxKey = StringUtil.genIdxKey(methodNode.getFromMethod(), methodNode.getIdx());
+		String methodKey = StringUtil.genIdxKey(methodNode.getFromMethod(), methodNode.getIdx());
+		if (!BytecodeCategory.staticMethod().contains(methodNode.getOp().getOpcode())) {
+			//If method is instance level, remove the aload instruction from pool
+			String aloadId = methodNode.getDataParentList().get(methodNode.getDataParentList().size() - 1);
+			String[] parsed = StringUtil.parseIdxKey(aloadId);
+			parent.getInstPool().searchAndRemove(parsed[0], Integer.valueOf(parsed[1]));
+		}
 		
 		//Update children of method inst
-		InstNode lastSecond = child.getLastSecondInst();
-		parent.getInstPool().add(lastSecond);
-		if (lastSecond != null) {
+		ExtObj returnEo = child.getReturnInfo();
+		if (returnEo.getLoadLocalInsts().size() > 0) {
+			//Should only be 1
+			InstNode lastSecond = returnEo.getLoadLocalInsts().get(0);
 			String lastSecondKey = StringUtil.genIdxKey(lastSecond.getFromMethod(), lastSecond.getIdx());
-			parent.getInstPool().add(lastSecond);
+			lastSecond.getChildFreqMap().clear();
 			
 			for (String childKey: methodNode.getChildFreqMap().keySet()) {
 				String[] childInfo = StringUtil.parseIdxKey(childKey);
 				InstNode childInst = parent.getInstPool().searchAndGet(childInfo[0], Integer.valueOf(childInfo[1]));
 				double freq = methodNode.getChildFreqMap().get(childKey);
 				
-				lastSecond.getChildFreqMap().clear();
 				lastSecond.getChildFreqMap().put(childKey, freq);
-				
-				childInst.getParentList().remove(methodIdxKey);
-				childInst.getParentList().add(lastSecondKey);
+				childInst.getDataParentList().remove(methodKey);
+				childInst.getDataParentList().add(lastSecondKey);
+			}
+		}
+		
+		if (returnEo.getWriteFieldInsts().size() > 0) {
+			ExtObj methodExtObj = parent.getExtMethods().get(childIdx);
+			for (InstNode writeInst: returnEo.getWriteFieldInsts()) {
+				for (InstNode affected: methodExtObj.getAffFieldInsts()) {
+					if (affected.getAddInfo().equals(writeInst.getAddInfo())) {
+						affected.registerParent(writeInst.getFromMethod(), writeInst.getIdx(), false);
+						writeInst.getChildFreqMap().put(StringUtil.genIdxKey(affected.getFromMethod(), affected.getIdx()), MIBConfiguration.getDataWeight());
+						
+						if (parent.getFirstReadFields().contains(affected.getIdx()))
+							parent.getFirstReadFields().remove(affected.getIdx());
+					}
+				}
 			}
 		}
 		parent.getInstPool().remove(methodNode);
@@ -223,7 +210,7 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			
 			//Merge
 			this.mergeGraphs(copyParent, copyChild, methodInstIdx);
-			copyParent.updateKeyMethods(methodInstIdx, copyParent.getExtMethods().get(methodInstIdx));
+			copyParent.updateKeyMethods(methodInstIdx, copyParent.getExtMethods().get(methodInstIdx).getLineNumber());
 			ret.add(copyParent);
 		}
 		
