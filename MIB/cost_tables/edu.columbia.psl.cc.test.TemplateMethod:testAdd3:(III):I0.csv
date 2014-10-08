@@ -1,0 +1,7 @@
+head,edu.columbia.psl.cc.test.TemplateMethod:add3:(III):I 2 96 iadd ,edu.columbia.psl.cc.test.TemplateMethod:add3:(III):I 4 96 iadd ,edu.columbia.psl.cc.test.TemplateMethod:testAdd3:(III):I 1 21 iload 2,edu.columbia.psl.cc.test.TemplateMethod:testAdd3:(III):I 2 21 iload 3,edu.columbia.psl.cc.test.TemplateMethod:testAdd3:(III):I 3 21 iload 1,edu.columbia.psl.cc.test.TemplateMethod:testAdd3:(III):I 5 172 ireturn 
+edu.columbia.psl.cc.test.TemplateMethod:add3:(III):I 2 96 iadd ,0.0,1.0,0.0,0.0,0.0,0.0
+edu.columbia.psl.cc.test.TemplateMethod:add3:(III):I 4 96 iadd ,0.0,0.0,0.0,0.0,0.0,1.0
+edu.columbia.psl.cc.test.TemplateMethod:testAdd3:(III):I 1 21 iload 2,0.0,0.0,0.0,0.0,0.0,0.0
+edu.columbia.psl.cc.test.TemplateMethod:testAdd3:(III):I 2 21 iload 3,0.0,0.0,0.0,0.0,0.0,0.0
+edu.columbia.psl.cc.test.TemplateMethod:testAdd3:(III):I 3 21 iload 1,0.0,0.0,0.0,0.0,0.0,0.0
+edu.columbia.psl.cc.test.TemplateMethod:testAdd3:(III):I 5 172 ireturn ,0.0,0.0,0.0,0.0,0.0,0.0

@@ -1,5 +1,6 @@
 package edu.columbia.psl.cc.pojo;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.TreeSet;
@@ -12,7 +13,7 @@ public class ExtObj {
 	private TreeSet<InstNode> writeFieldInsts = new TreeSet<InstNode>();
 	
 	//Which read-local vars affect the associated method
-	private LinkedList<InstNode> loadLocalInsts = new LinkedList<InstNode>();
+	private ArrayList<InstNode> loadLocalInsts = new ArrayList<InstNode>();
 	
 	//Which fields affected by the associated method
 	private TreeSet<InstNode> affFieldInsts = new TreeSet<InstNode>();
@@ -37,11 +38,11 @@ public class ExtObj {
 		return this.writeFieldInsts;
 	}
 	
-	public void setLoadLocalInsts(LinkedList<InstNode> writeLocalInsts) {
+	public void setLoadLocalInsts(ArrayList<InstNode> writeLocalInsts) {
 		this.loadLocalInsts = writeLocalInsts;
 	}
 	
-	public LinkedList<InstNode> getLoadLocalInsts() {
+	public ArrayList<InstNode> getLoadLocalInsts() {
 		return this.loadLocalInsts;
 	}
 	
@@ -58,7 +59,7 @@ public class ExtObj {
 	}
 	
 	public void addLoadLocalInst(InstNode localInst) {
-		this.loadLocalInsts.addFirst(localInst);
+		this.loadLocalInsts.add(localInst);
 	}
 	
 	public void addAffFieldInst(InstNode affFieldInst) {

@@ -1,5 +1,6 @@
 package edu.columbia.psl.cc.test;
 
+import java.util.ArrayList;
 import java.util.Stack;
 
 import org.objectweb.asm.Label;
@@ -17,7 +18,7 @@ public class TemplateMethod extends TemplateParent{
 	
 	private int iVar;
 	
-	Object lock1 = new Object();
+	ArrayList<Integer> fakeList = new ArrayList<Integer>();
 	
 	private String test;
 	
@@ -27,6 +28,12 @@ public class TemplateMethod extends TemplateParent{
 	
 	public TemplateMethod(String test1, String test2, String test3) {
 		this.test = test1;
+	}
+	
+	public void tryFakeList() {
+		YAMethod ym = new YAMethod();
+		fakeList.add(5);
+		ym.addSomething(fakeList);
 	}
 	
 	//@extractTemplate
@@ -156,6 +163,7 @@ public class TemplateMethod extends TemplateParent{
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
 		System.out.println("TempalteMethod: " + tm.addOutside(3, 5));
+		//tm.testAdd3(1, 2, 3);
 		//tm.setBoolean(true);
 		//System.out.println("TestMethod: " + tm.addInside(3, 5));
 		//TemplateMethod tm2 = new TemplateMethod("test1", "test2", "test3");
@@ -183,6 +191,16 @@ public class TemplateMethod extends TemplateParent{
 	
 	public void setBoolean(boolean a) {
 		
+	}
+	
+	//@extractTemplate
+	public int add3(int i1, int i2, int i3) {
+		return i1 + i2 + i3;
+	}
+	
+	//@extractTemplate
+	public int testAdd3(int i1, int i2, int i3) {
+		return add3(i2, i3, i1);
 	}
 	
 	@extractTemplate

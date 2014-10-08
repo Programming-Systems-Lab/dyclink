@@ -2,6 +2,7 @@
   "methodKey": "edu.columbia.psl.cc.test.TemplateMethod:add:(II):I",
   "methodArgSize": 2,
   "methodReturnSize": 1,
+  "staticMethod": false,
   "extMethods": {},
   "returnInfo": {
     "lineNumber": 0,

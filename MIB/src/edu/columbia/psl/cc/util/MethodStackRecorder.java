@@ -477,6 +477,7 @@ public class MethodStackRecorder {
 		gt.setMethodKey(this.methodKey);
 		gt.setMethodArgSize(this.methodArgSize);
 		gt.setMethodReturnSize(this.methodReturnSize);
+		gt.setStaticMethod(this.staticMethod);
 		gt.setExtMethods(this.extMethods);
 		gt.setFirstReadLocalVars(this.firstReadLocalVars);
 		gt.setFirstReadFields(this.firstReadFields);

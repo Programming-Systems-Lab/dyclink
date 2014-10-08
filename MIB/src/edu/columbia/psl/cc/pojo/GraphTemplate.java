@@ -17,6 +17,8 @@ public class GraphTemplate {
 	
 	private int methodReturnSize;
 	
+	private boolean staticMethod;
+	
 	//private Map<Integer, Integer> extMethods;
 	
 	private Map<Integer, ExtObj> extMethods;
@@ -39,6 +41,7 @@ public class GraphTemplate {
 		this.methodKey = copy.getMethodKey();
 		this.methodArgSize = copy.getMethodArgSize();
 		this.methodReturnSize = copy.getMethodReturnSize();
+		this.staticMethod = copy.isStaticMethod();
 		this.firstReadFields = new HashSet<Integer>(copy.getFirstReadFields());
 		this.firstReadLocalVars = new HashSet<Integer>(copy.getFirstReadLocalVars());
 		this.extMethods = new HashMap<Integer, ExtObj>();
@@ -129,6 +132,14 @@ public class GraphTemplate {
 	
 	public int getMethodReturnSize() {
 		return this.methodReturnSize;
+	}
+	
+	public void setStaticMethod(boolean staticMethod) {
+		this.staticMethod = staticMethod;
+	}
+	
+	public boolean isStaticMethod() {
+		return this.staticMethod;
 	}
 	
 	public void setReturnInfo(ExtObj returnInfo) {
