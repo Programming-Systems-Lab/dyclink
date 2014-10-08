@@ -1,0 +1,25 @@
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 0 21 iload 1
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 1 21 iload 2
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 2 96 iadd 
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 3 54 istore 4
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 4 18 ldc 
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 5 58 astore 5
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 6 21 iload 4
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 7 8 iconst_5 
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 8 164 if_icmple L198249052
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 9 25 aload 0
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 10 182 invokevirtual edu.columbia.psl.cc.test.TemplateMethod:fakeString:():Ljava.lang.String
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 11 58 astore 5
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 12 167 goto L1742296210
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 15 8 iconst_5 
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 16 188 newarray 10
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 17 58 astore 6
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 18 25 aload 0
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 19 25 aload 6
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 20 182 invokevirtual edu.columbia.psl.cc.test.TemplateMethod:increArray:([I):V
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 21 25 aload 0
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 22 25 aload 6
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 23 182 invokevirtual edu.columbia.psl.cc.test.TemplateMethod:sumArray:([I):I
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 24 54 istore 7
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 25 21 iload 7
+edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I 26 172 ireturn 

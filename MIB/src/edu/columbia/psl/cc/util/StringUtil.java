@@ -1,6 +1,7 @@
 package edu.columbia.psl.cc.util;
 
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 import org.objectweb.asm.Type;
 
@@ -8,12 +9,15 @@ public class StringUtil {
 	
 	private static String pattern = ")";
 	
+	private static final Pattern shouldRemove = Pattern.compile("[](){},.;!?<>\\/%]");
+	
 	public static String genRelation(String s1, String s2) {
 		return s1 + "->" + s2;
 	}
 	
 	public static String cleanPuncHelper(String oriString, String newVal) {
-		String ret = oriString.replaceAll("\\W", newVal);
+		//String ret = oriString.replaceAll("\\W", newVal);
+		String ret = shouldRemove.matcher(oriString).replaceAll(newVal);
 		return ret;
 	}
 	

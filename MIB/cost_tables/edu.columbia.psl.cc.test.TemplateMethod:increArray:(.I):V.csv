@@ -1,0 +1,14 @@
+head,edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 0 3 iconst_0 ,edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 1 54 istore 3,edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 2 167 goto L1798675483,edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 3 25 aload 1,edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 4 21 iload 3,edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 5 8 iconst_5 ,edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 6 79 iastore ,edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 7 132 iinc 3,edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 8 21 iload 3,edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 9 25 aload 1,edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 10 190 arraylength ,edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 11 161 if_icmplt L211543962,edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 12 177 return 
+edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 0 3 iconst_0 ,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 1 54 istore 3,0.0,0.0,0.0,0.0,1.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0
+edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 2 167 goto L1798675483,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0
+edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 3 25 aload 1,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.0,0.0,0.0,0.0,0.0,0.0
+edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 4 21 iload 3,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.0,0.0,0.0,0.0,0.0,0.0
+edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 5 8 iconst_5 ,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.0,0.0,0.0,0.0,0.0,0.0
+edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 6 79 iastore ,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 7 132 iinc 3,0.0,0.0,0.0,0.0,0.25,0.0,0.0,0.25,0.2,0.0,0.0,0.0,0.0
+edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 8 21 iload 3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.167,0.0
+edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 9 25 aload 1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.167,0.0,0.0
+edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 10 190 arraylength ,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.167,0.0
+edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 11 161 if_icmplt L211543962,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,1.0
+edu.columbia.psl.cc.test.TemplateMethod:increArray:(.I):V 12 177 return ,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0

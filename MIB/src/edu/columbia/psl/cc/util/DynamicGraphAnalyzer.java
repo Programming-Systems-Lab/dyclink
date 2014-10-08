@@ -5,6 +5,7 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -23,6 +24,7 @@ import edu.columbia.psl.cc.pojo.ExtObj;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.GrownGraph;
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.visual.GraphVisualizer;
 
 public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 	
@@ -108,17 +110,19 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		expandDepMap(nodeInfo, targetMap);
 	}
 	
-	private static void updateGrandPa(GraphTemplate parent, GraphTemplate child, List<String> grandPas, String loadVarKey) {
-		for (String gp: grandPas) {
-			String[] searchIdx = StringUtil.parseIdxKey(gp);
-			InstNode dgNode = parent.getInstPool().searchAndGet(searchIdx[0], Integer.valueOf(searchIdx[1]));
-			double freq = dgNode.getChildFreqMap().get(loadVarKey);
-			for (Integer i: child.getFirstReadLocalVars()) {
-				InstNode readNode = child.getInstPool().searchAndGet(child.getMethodKey(), i);
-				String readNodeKey = StringUtil.genIdxKey(readNode.getFromMethod(), i);
-				dgNode.getChildFreqMap().put(readNodeKey, freq);
-			}
-			dgNode.getChildFreqMap().remove(loadVarKey);
+	private void parentRemove(InstNode inst, InstPool pool, String instKey) {
+		//Remove data parent if any
+		for (String dp: inst.getDataParentList()) {
+			String[] dParsed = StringUtil.parseIdxKey(dp);
+			InstNode dpInst = pool.searchAndGet(dParsed[0], Integer.valueOf(dParsed[1]));
+			dpInst.getChildFreqMap().remove(instKey);
+		}
+		
+		//Remove control parent if any
+		for (String cp: inst.getControlParentList()) {
+			String[] cParsed = StringUtil.parseIdxKey(cp);
+			InstNode cpInst = pool.searchAndGet(cParsed[0], Integer.valueOf(cParsed[1]));
+			cpInst.getChildFreqMap().remove(instKey);
 		}
 	}
 	
@@ -130,12 +134,14 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		//Update children for input params in child graph
 		for (Integer firstRead: child.getFirstReadLocalVars()) {
 			InstNode fInst = child.getInstPool().searchAndGet(child.getMethodKey(), firstRead);
+			String fInstKey = StringUtil.genIdxKey(fInst.getFromMethod(), fInst.getIdx());
 			int varId = Integer.valueOf(fInst.getAddInfo());
 			
 			if (!child.isStaticMethod()) {
 				varId--;
 			}
 			
+			//load local insts in parent method is reversed-ordered
 			InstNode parentLoad = parentEo.getLoadLocalInsts().get(parentEo.getLoadLocalInsts().size() - varId - 1);
 			double freq = parentLoad.getChildFreqMap().get(methodKey);
 			for (String fcID: fInst.getChildFreqMap().keySet()) {
@@ -143,12 +149,28 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 				InstNode fcInst = child.getInstPool().searchAndGet(parsed[0], Integer.valueOf(parsed[1]));
 				parentLoad.increChild(fcInst.getFromMethod(), fcInst.getIdx(), fInst.getChildFreqMap().get(fcID));
 				
-				fcInst.getDataParentList().remove(StringUtil.genIdxKey(fInst.getFromMethod(), fInst.getIdx()));
+				fcInst.getDataParentList().remove(fInstKey);
 				fcInst.registerParent(parentLoad.getFromMethod(), parentLoad.getIdx(), false);
 			}
 			
 			//Remvoe the load insts in child because of duplicates
+			this.parentRemove(fInst, child.getInstPool(), fInstKey);
+			
 			parent.getInstPool().remove(fInst);
+			child.getInstPool().remove(fInst);
+		}
+		
+		//Propagate control parent from method node
+		for (String cp: methodNode.getControlParentList()) {
+			String[] cpIdx = StringUtil.parseIdxKey(cp);
+			InstNode cpNode = parent.getInstPool().searchAndGet(cpIdx[0], Integer.valueOf(cpIdx[1]));
+			
+			double propFreq = cpNode.getChildFreqMap().get(methodKey);
+			for (InstNode childInst: child.getInstPool()) {
+				String childInstKey = StringUtil.genIdxKey(childInst.getFromMethod(), childInst.getIdx());
+				cpNode.getChildFreqMap().put(childInstKey, propFreq);
+			}
+			cpNode.getChildFreqMap().remove(methodKey);
 		}
 		
 		for (InstNode parentLoad: parentEo.getLoadLocalInsts()) {
@@ -158,12 +180,19 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 	
 	private void mergeGraphs(GraphTemplate parent, GraphTemplate child, int childIdx) {
 		InstPool parentPool = parent.getInstPool();
-		for (InstNode childInst: child.getInstPool()) {
-			if (BytecodeCategory.returnOps().contains(childInst.getOp().getOpcode()))
+		Iterator<InstNode> poolIt = child.getInstPool().iterator();
+		InstNode returnInst = null;
+		while (poolIt.hasNext()) {
+			InstNode childInst = poolIt.next();
+			if (BytecodeCategory.returnOps().contains(childInst.getOp().getOpcode())) {
+				returnInst = childInst;
 				continue ;
-			
+			}
 			parentPool.add(childInst);
 		}
+		String returnInstKey = StringUtil.genIdxKey(returnInst.getFromMethod(), returnInst.getIdx());
+		this.parentRemove(returnInst, child.getInstPool(), returnInstKey);
+		child.getInstPool().remove(returnInst);
 		
 		this.mergeHead(parent, child, childIdx);
 		
@@ -173,7 +202,10 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			//If method is instance level, remove the aload instruction from pool
 			String aloadId = methodNode.getDataParentList().get(methodNode.getDataParentList().size() - 1);
 			String[] parsed = StringUtil.parseIdxKey(aloadId);
-			parent.getInstPool().searchAndRemove(parsed[0], Integer.valueOf(parsed[1]));
+			InstNode loadInst = parent.getInstPool().searchAndGet(parsed[0], Integer.valueOf(parsed[1]));
+			
+			this.parentRemove(loadInst, parent.getInstPool(), aloadId);
+			parent.getInstPool().remove(loadInst);
 		}
 		
 		//Update children of method inst
@@ -244,6 +276,8 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			GraphTemplate tempGraph = this.templates.get(templateName);
 			System.out.println("Original temp graph: ");
 			tempGraph.showGraph();
+			//GraphVisualizer gv = new GraphVisualizer(tempGraph, tempGraph.getMethodKey());
+			//gv.convertToVisualGraph();
 			double[][] templateCostTable = scorer.constructCostTable(templateName, tempGraph.getInstPool());
 			
 			List<GrownGraph> grownGraphs = this.collectAndMergeChildGraphs(tempGraph);
@@ -253,6 +287,8 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 				System.out.println("Grown graph: ");
 				gGraph.showGraph();
 				String growName = templateName + growCount++;
+				//GraphVisualizer gv2 = new GraphVisualizer(gGraph, growName);
+				//gv2.convertToVisualGraph();
 				double[][] growCostTable = scorer.constructCostTable(growName, gGraph.getInstPool());
 				growCosts.put(gGraph, growCostTable);
 			}

@@ -119,15 +119,62 @@ public class TemplateMethod extends TemplateParent{
 		a[i] = j;
 	}
 	
-	//@extractTemplate
-	public void dummy4(int a, int b) {
+	@extractTemplate
+	public String fakeString() {
+		return "ret > 5";
+	}
+	
+	@extractTemplate
+	public void increArray(int[] input) {
+		for (int i = 0; i < input.length; i++) {
+			input[i] = 5;
+		}
+	}
+	
+	@extractTemplate
+	public int sumArray(int[] input) {
+		int sum = 0;
+		for (Integer i: input) {
+			sum += i;
+		}
+		return sum;
+	}
+	
+	@extractTemplate
+	public int invoke3Methods(int a, int b) {
 		int c = a + b;
 		String ret = "";
 		if (c > 5) {
-			ret = "ret > 5"; 
+			ret = fakeString(); 
 		} else {
 			ret = "ret <= 5";
 		}
+		
+		int[] target = new int[5];
+		this.increArray(target);
+		int sum = this.sumArray(target);
+		return sum;
+	}
+	
+	public int all3Methods(int a, int b) {
+		int c = a + b;
+		String ret = "";
+		if (c > 5) {
+			ret = "ret > 5";
+		} else {
+			ret = "ret <= 5";
+		}
+		
+		int[] target = new int[5];
+		for (int i = 0; i < target.length; i++) {
+			target[i] = 5;
+		}
+		
+		int sum = 0;
+		for (int j = 0; j < target.length; j++) {
+			sum += target[j];
+		}
+		return sum;
 	}
 	
 	//@extractTemplate
@@ -162,7 +209,8 @@ public class TemplateMethod extends TemplateParent{
 		
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
-		System.out.println("TempalteMethod: " + tm.addOutside(3, 5));
+		System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
+		//System.out.println("TempalteMethod: " + tm.addOutside(3, 5));
 		//tm.testAdd3(1, 2, 3);
 		//tm.setBoolean(true);
 		//System.out.println("TestMethod: " + tm.addInside(3, 5));
@@ -203,20 +251,20 @@ public class TemplateMethod extends TemplateParent{
 		return add3(i2, i3, i1);
 	}
 	
-	@extractTemplate
+	//@extractTemplate
 	public int add(int i1, int i2) {
 		this.iVar = i1 + 5;
 		return i1 + i2;
 	}
 	
-	@testTemplate
+	//@testTemplate
 	public int addInside(int a, int b) {
 		//int a = this.iVar + sVar;
 		int c = a + b;
 		return c;
 	}
 	
-	@extractTemplate
+	//@extractTemplate
 	public int addOutside(int a, int b) {
 		int c = this.add(a, b);
 		int d = this.iVar;
