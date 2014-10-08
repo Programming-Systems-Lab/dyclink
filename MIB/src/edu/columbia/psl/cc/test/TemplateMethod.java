@@ -156,6 +156,7 @@ public class TemplateMethod extends TemplateParent{
 		return sum;
 	}
 	
+	@testTemplate
 	public int all3Methods(int a, int b) {
 		int c = a + b;
 		String ret = "";
