@@ -5,7 +5,7 @@
   "staticMethod": false,
   "extMethods": {
     "20": {
-      "lineNumber": 154,
+      "lineNumber": 163,
       "writeFieldInsts": [],
       "loadLocalInsts": [
         {
@@ -28,7 +28,7 @@
       "affFieldInsts": []
     },
     "23": {
-      "lineNumber": 155,
+      "lineNumber": 164,
       "writeFieldInsts": [],
       "loadLocalInsts": [
         {
@@ -51,7 +51,7 @@
       "affFieldInsts": []
     },
     "10": {
-      "lineNumber": 148,
+      "lineNumber": 157,
       "writeFieldInsts": [],
       "loadLocalInsts": [],
       "affFieldInsts": []
@@ -189,7 +189,7 @@
       "idx": 8,
       "op": 164,
       "inst": "if_icmple",
-      "addInfo": "L198249052",
+      "addInfo": "L1215960438",
       "dataParentList": [
         "edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I-7",
         "edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I-6"
@@ -251,7 +251,7 @@
       "idx": 12,
       "op": 167,
       "inst": "goto",
-      "addInfo": "L1742296210",
+      "addInfo": "L1141180808",
       "dataParentList": [],
       "controlParentList": [
         "edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I-8"
@@ -566,7 +566,7 @@
       "idx": 8,
       "op": 164,
       "inst": "if_icmple",
-      "addInfo": "L198249052",
+      "addInfo": "L1215960438",
       "dataParentList": [
         "edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I-7",
         "edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I-6"
@@ -628,7 +628,7 @@
       "idx": 12,
       "op": 167,
       "inst": "goto",
-      "addInfo": "L1742296210",
+      "addInfo": "L1141180808",
       "dataParentList": [],
       "controlParentList": [
         "edu.columbia.psl.cc.test.TemplateMethod:invoke3Methods:(II):I-8"

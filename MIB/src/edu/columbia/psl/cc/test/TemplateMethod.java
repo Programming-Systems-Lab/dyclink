@@ -30,6 +30,19 @@ public class TemplateMethod extends TemplateParent{
 		this.test = test1;
 	}
 	
+	public void doubleIf(double input) {
+		int ret = 0;
+		if (input > 0) {
+			ret = 1;
+		} else {
+			ret = 0;
+		}
+	}
+	
+	public void multiArray() {
+		int[][] newArray = new int[3][4];
+	}
+	
 	public void tryFakeList() {
 		YAMethod ym = new YAMethod();
 		fakeList.add(5);
@@ -211,6 +224,7 @@ public class TemplateMethod extends TemplateParent{
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
 		System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
+		System.out.println("TestMethod: " + tm.all3Methods(3, 5));
 		//System.out.println("TempalteMethod: " + tm.addOutside(3, 5));
 		//tm.testAdd3(1, 2, 3);
 		//tm.setBoolean(true);

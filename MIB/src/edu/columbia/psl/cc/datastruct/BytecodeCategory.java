@@ -114,6 +114,10 @@ public class BytecodeCategory {
 		}
 	}
 	
+	public static HashMap<Integer, OpcodeObj> getOpcodeTable() {
+		return opcodeTable; 
+	}
+	
 	public static OpcodeObj getOpcodeObj(int opcode) {
 		return opcodeTable.get(opcode);
 	}

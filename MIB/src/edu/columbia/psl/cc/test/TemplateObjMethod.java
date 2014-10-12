@@ -1,5 +1,7 @@
 package edu.columbia.psl.cc.test;
 
+import java.util.Arrays;
+
 import edu.columbia.psl.cc.annot.analyzeClass;
 import edu.columbia.psl.cc.annot.extractTemplate;
 import edu.columbia.psl.cc.annot.testTemplate;
@@ -29,5 +31,10 @@ public class TemplateObjMethod {
 		String s4 = s3 + s2;
 		String s5 = s4 + "!!!";
 		return s5;
+	}
+	
+	public static void main(String[] args) {
+		int[][] test = {{1, 2}, {3, 4}};
+		System.out.println(Arrays.toString(test));
 	}
 }

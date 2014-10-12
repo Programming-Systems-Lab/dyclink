@@ -62,7 +62,7 @@ public class MethodStackRecorder {
 	//Record which insts might be affected by input params
 	private HashSet<Integer> firstReadFields = new HashSet<Integer>();
 	
-	private HashSet<Integer> stopReadFields = new HashSet<Integer>();
+	private HashSet<String> stopReadFields = new HashSet<String>();
 	
 	//Record which insts might be affecte by field written by parent method
 	private HashSet<Integer> firstReadLocalVars = new HashSet<Integer>();
@@ -115,7 +115,7 @@ public class MethodStackRecorder {
 	}
 	
 	private void stopReadField(String field) {
-		this.stopReadFields.remove(field);
+		this.stopReadFields.add(field);
 	}
 	
 	private void updateReadField(InstNode fieldNode) {

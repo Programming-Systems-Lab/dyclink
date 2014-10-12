@@ -160,6 +160,17 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			child.getInstPool().remove(fInst);
 		}
 		
+		//Construct relations between read/write field insts between parent and child insts
+		for (InstNode pFieldInst: parentEo.getWriteFieldInsts()) {
+			for (Integer fieldInstId: child.getFirstReadFields()) {
+				InstNode fieldInst = child.getInstPool().searchAndGet(child.getMethodKey(), fieldInstId);
+				
+				if (pFieldInst.getAddInfo().equals(fieldInst.getAddInfo())) {
+					pFieldInst.increChild(child.getMethodKey(), fieldInstId, MIBConfiguration.getDataWeight());
+				}
+			}
+		}
+		
 		//Propagate control parent from method node
 		for (String cp: methodNode.getControlParentList()) {
 			String[] cpIdx = StringUtil.parseIdxKey(cp);
@@ -265,6 +276,15 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			ret.add(copyParent);
 		}
 		
+		//Merge all
+		GrownGraph copyParent = new GrownGraph(parentGraph);
+		for (Integer methodInstIdx: extMethodMap.keySet()) {
+			GraphTemplate copyChild = new GraphTemplate(extMethodMap.get(methodInstIdx));
+			this.mergeGraphs(copyParent, copyChild, methodInstIdx);
+			copyParent.updateKeyMethods(methodInstIdx, copyParent.getExtMethods().get(methodInstIdx).getLineNumber());
+		}
+		ret.add(copyParent);
+		
 		return ret;
 	}
 	
@@ -276,8 +296,8 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			GraphTemplate tempGraph = this.templates.get(templateName);
 			System.out.println("Original temp graph: ");
 			tempGraph.showGraph();
-			//GraphVisualizer gv = new GraphVisualizer(tempGraph, tempGraph.getMethodKey());
-			//gv.convertToVisualGraph();
+			GraphVisualizer gv = new GraphVisualizer(tempGraph, tempGraph.getMethodKey());
+			gv.convertToVisualGraph();
 			double[][] templateCostTable = scorer.constructCostTable(templateName, tempGraph.getInstPool());
 			
 			List<GrownGraph> grownGraphs = this.collectAndMergeChildGraphs(tempGraph);
@@ -287,8 +307,8 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 				System.out.println("Grown graph: ");
 				gGraph.showGraph();
 				String growName = templateName + growCount++;
-				//GraphVisualizer gv2 = new GraphVisualizer(gGraph, growName);
-				//gv2.convertToVisualGraph();
+				GraphVisualizer gv2 = new GraphVisualizer(gGraph, growName);
+				gv2.convertToVisualGraph();
 				double[][] growCostTable = scorer.constructCostTable(growName, gGraph.getInstPool());
 				growCosts.put(gGraph, growCostTable);
 			}

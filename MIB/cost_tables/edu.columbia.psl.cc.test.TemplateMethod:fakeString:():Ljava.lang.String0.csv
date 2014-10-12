@@ -1,0 +1,3 @@
+head,edu.columbia.psl.cc.test.TemplateMethod:fakeString:():Ljava.lang.String 0 18 ldc ret > 5,edu.columbia.psl.cc.test.TemplateMethod:fakeString:():Ljava.lang.String 1 176 areturn 
+edu.columbia.psl.cc.test.TemplateMethod:fakeString:():Ljava.lang.String 0 18 ldc ret > 5,0.0,1.0
+edu.columbia.psl.cc.test.TemplateMethod:fakeString:():Ljava.lang.String 1 176 areturn ,0.0,0.0
