@@ -16,6 +16,10 @@ public class MIBConfiguration {
 	
 	private static String srHCDescString = "(IILjava/lang/String;)V";
 	
+	private static String srHandleField = "handleField";
+	
+	private static String srHandleFieldDesc = "(IILjava/lang/String;I)V";
+	
 	private static String srHandleLdc = "handleLdc";
 	
 	private static String srHandleLdcDesc = "(IIILjava/lang/String;)V";
@@ -39,6 +43,12 @@ public class MIBConfiguration {
 	private static String pathDir = "./path";
 	
 	private static String labelmapDir = "./labelmap";
+	
+	private static String __mib_id_gen = "__MIB_ID_GEN";
+	
+	private static String __mib_id_gen_method = "__getMIBIDGen";
+	
+	private static String __mib_id = "__MIB_ID";
 	
 	private static double controlWeight = 1.0;
 	
@@ -132,6 +142,26 @@ public class MIBConfiguration {
 	
 	public static String getSrHandleLdcDesc() {
 		return srHandleLdcDesc;
+	}
+	
+	public static String getSrHandleField() {
+		return srHandleField;
+	}
+	
+	public static String getSrHandleFieldDesc() {
+		return srHandleFieldDesc;
+	}
+	
+	public static String getMIBIDGen() {
+		return __mib_id_gen;
+	}
+	
+	public static String getMIBIDGenMethod() {
+		return __mib_id_gen_method;
+	}
+	
+	public static String getMIBID() {
+		return __mib_id;
 	}
 
 }

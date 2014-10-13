@@ -4,8 +4,10 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.columbia.psl.cc.analysis.LevenshteinDistance;
+import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.util.StringUtil;
@@ -17,6 +19,8 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.LocalVariablesSorter;
+
+import com.sun.xml.internal.ws.org.objectweb.asm.Type;
 
 public class ClassMiner extends ClassVisitor{
 	
@@ -35,6 +39,10 @@ public class ClassMiner extends ClassVisitor{
 	private HashMap<String, HashMap<Integer, ArrayList<OpcodeObj>>> totalRecords = new HashMap<String, HashMap<Integer, ArrayList<OpcodeObj>>>();
 	
 	private HashMap<String, ArrayList<OpcodeObj>> totalSequence = new HashMap<String, ArrayList<OpcodeObj>>();
+	
+	private boolean isInterface;
+	
+	private boolean constructVisit = false;
 		
 	public ClassMiner(ClassVisitor cv, String owner, String classAnnot, String templateAnnot, String testAnnot) {
 		super(Opcodes.ASM4, cv);
@@ -48,6 +56,14 @@ public class ClassMiner extends ClassVisitor{
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		System.out.println(name + " extends " + superName + "{");
 		this.cv.visit(version, access, name, signature, superName, interfaces);
+		this.isInterface = (access & Opcodes.ACC_INTERFACE) != 0;
+		if (!isInterface) {
+			this.cv.visitField(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, 
+					MIBConfiguration.getMIBIDGen(), "I", null, 1);
+			this.cv.visitField(Opcodes.ACC_PUBLIC, MIBConfiguration.getMIBID(), "I", null, null);
+		} else {
+			System.out.println("Not instrument interface: " + name);
+		}
 	}
 	
 	@Override
@@ -61,18 +77,19 @@ public class ClassMiner extends ClassVisitor{
 		
 	@Override
 	public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-		if (this.isAnnot) {
-			return this.cv.visitField(access, name, desc, signature, value);
-		} else {
-			return this.cv.visitField(access, name, desc, signature, value);
-		}
+		return this.cv.visitField(access, name, desc, signature, value);
 	}
 	
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = this.cv.visitMethod(access, name, desc, signature, exceptions);
-		if (this.isAnnot) {
-			//mv = new MethodMiner(mv, this.owner, this.templateAnnot, this.testAnnot, name, desc);
+		if (this.isAnnot && !isInterface) {
+			if (name.equals("<init>")) {
+				constructVisit = true;
+				System.out.println("Constructor visit code");
+				mv.visitCode();
+			}
+			
 			DynamicMethodMiner dmm = new DynamicMethodMiner(mv, this.owner, access, name, desc, this.templateAnnot, this.testAnnot);
 			LocalVariablesSorter lvs = new LocalVariablesSorter(access, desc, dmm);
 			
@@ -95,30 +112,25 @@ public class ClassMiner extends ClassVisitor{
 	public void visitEnd() {
 		System.out.println("}");
 		
-		/*System.out.println("Results: ");
-		for (String key: this.totalRepVectors.keySet()) {
-			System.out.println("Key: " + key);
-			System.out.println("Vector: " + Arrays.toString(this.totalRepVectors.get(key)));
-			//System.out.println("Record: " + this.totalRecords.get(key));
-			System.out.println("Sequence: ");
-			StringBuilder sb = new StringBuilder();
-			StringBuilder sb2 = new StringBuilder();
-			for (OpcodeObj oo: this.totalSequence.get(key)) {
-				sb.append(oo.getCatId() + ",");
-				sb2.append((char)(oo.getCatId() + 97));
-			}
-			String seqInId = sb.toString().substring(0, sb.length() - 1);
-			String seqInChar = sb2.toString();
-			System.out.println(seqInId);
-			System.out.println(seqInChar);
+		if (this.isAnnot && !this.isInterface) {
+			//Create the static id generator
+			MethodVisitor mv = this.cv.visitMethod(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC + Opcodes.ACC_SYNCHRONIZED, 
+					MIBConfiguration.getMIBIDGenMethod(), "()I", null, null);
+			mv = new MIBIDGenVisitor(mv, this.owner);
+			mv.visitCode();
+			mv.visitMaxs(0, 0);
+			mv.visitEnd();
 			
-			if (key.startsWith("test")) {
-				this.simCalculator.addData(key, seqInChar, false);
-			} else {
-				this.simCalculator.addData(key, seqInChar, true);
+			//Create constructor if there is no constructor
+			if (!constructVisit) {
+				MethodVisitor constMV = this.cv.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+				constMV = new MIBConstructVisitor(constMV, this.owner);
+				constMV.visitCode();
+				constMV.visitMaxs(0, 0);
+				constMV.visitEnd();
 			}
 		}
-		this.simCalculator.generateResult();*/
+		
 		this.cv.visitEnd();
 	}
 	

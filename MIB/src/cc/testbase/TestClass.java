@@ -1,4 +1,4 @@
-package edu.columbia.psl.cc.test;
+package cc.testbase;
 
 import java.util.Arrays;
 

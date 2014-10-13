@@ -47,6 +47,10 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	private static String srHandleLdcDesc = MIBConfiguration.getSrHandleLdcDesc();
 	
+	private static String srHandleField = MIBConfiguration.getSrHandleField();
+	
+	private static String srHandleFieldDesc = MIBConfiguration.getSrHandleFieldDesc();
+	
 	private static String srHandleMultiArray = MIBConfiguration.getSrHandleMultiArray();
 	
 	private static String srHandleMultiArrayDesc = MIBConfiguration.getSrHandleMultiArrayDesc();
@@ -208,6 +212,20 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleCommon, srHCDescString);
 	}
 	
+	private void handleField(int opcode, String addInfo) {
+		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+		this.convertConst(opcode);
+		this.convertConst(this.getIndex());
+		this.mv.visitLdcInsn(addInfo);
+		this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+		if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC) {
+			this.mv.visitInsn(Opcodes.ICONST_0);
+		} else {
+			this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, MIBConfiguration.getMIBID(), "I");
+		}
+		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleField, srHandleFieldDesc);
+	}
+	
 	private void handleLdc(int opcode, int times, String addInfo) {
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.convertConst(opcode);
@@ -238,7 +256,12 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		
 	@Override
 	public void onMethodEnter() {
-		System.out.println("Method enter: " + this.annotGuard());
+		System.out.println("Method enter: " + this.myName + " " + this.annotGuard());
+		if (this.myName.equals("<init>")) {
+			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, this.className, MIBConfiguration.getMIBIDGenMethod(), "()I");
+			this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMIBID(), "I");
+		}
 		if (this.annotGuard()) {
 			//Create the method stack recorder
 			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
@@ -265,8 +288,14 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	@Override
 	public void visitCode() {
 		this.mv.visitCode();
+		if (this.myName.equals("<init>")) {
+			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, this.className, MIBConfiguration.getMIBIDGenMethod(), "()I");
+			this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMIBID(), "I");
+		}
+		
 		if (this.annotGuard() && this.localMsrId < 0) {
-			System.out.println("Visti code, method enter is not visited: " + this.annotGuard());
+			System.out.println("Visit code, method enter is not visited: " + this.annotGuard());
 			//Create the method stack recorder
 			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
 			System.out.println("Method Stack Recorder name: " + methodStackRecorder);
@@ -375,7 +404,8 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 		if (this.annotGuard()) {
 			String fullField = owner + "." + name + "." + desc;
-			this.handleOpcode(opcode, fullField);
+			//this.handleOpcode(opcode, fullField);
+			this.handleField(opcode, fullField);
 			
 			this.updateMethodRep(opcode);
 		}

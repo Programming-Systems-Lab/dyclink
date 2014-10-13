@@ -1,4 +1,4 @@
-package edu.columbia.psl.cc.test;
+package cc.testbase;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -10,15 +10,23 @@ import edu.columbia.psl.cc.annot.testTemplate;
 @analyzeClass
 public class TemplateObjMethod {
 	
-	private static AtomicInteger _mib_id = new AtomicInteger();
+	public static int __mib_id_gen = 1;
 	
-	private int mib_id = _mib_id.getAndIncrement();
+	public int __mib_id;
 	
+	public Object testObj;
+	
+	public static synchronized int __gen_mib_id() {
+		return __mib_id_gen++;
+	}
+	
+	@extractTemplate
 	public TemplateObjMethod() {
-		mib_id = _mib_id.getAndIncrement();
+		//__mib_id = __gen_mib_id();
+		testObj = new Object();
+		int a = __mib_id;
 	}
 		
-	@extractTemplate
 	public Integer sequenceObjTemplate(Integer a, Integer b, Integer c) {
 		Integer d = a + 19;
 		Integer e = d + b;
@@ -26,7 +34,6 @@ public class TemplateObjMethod {
 		return obj;
 	}
 	
-	@extractTemplate
 	public Double parallelObjTemplate(Double a, Double b, Double c) {
 		Double d = a + b;
 		Double e = c + 3;
@@ -34,7 +41,6 @@ public class TemplateObjMethod {
 		return f;
 	}
 	
-	@testTemplate
 	public String testObjSequence(String s1, String s2) {
 		String s3 = s1 + " columbia";
 		String s4 = s3 + s2;
@@ -58,10 +64,10 @@ public class TemplateObjMethod {
 		int aHash = System.identityHashCode(a);
 		a.getName();
 		int bHash = System.identityHashCode(b);
-		System.out.println("a jvm hash: " + aHash);
-		System.out.println("b jvm hash: " + bHash);
+		System.out.println("a jvm hash: " + Integer.toHexString(aHash));
+		System.out.println("b jvm hash: " + Integer.toHexString(bHash));
 		
-		Object obj = new Object();
+		TemplateObjMethod tom = new TemplateObjMethod();
 	}
 	
 	public static class Student {
@@ -72,7 +78,7 @@ public class TemplateObjMethod {
 			return name;
 		}
 		
-		@Override
+		/*@Override
 		public String toString() {
 			return this.id + " " + this.name;
 		}
@@ -92,6 +98,6 @@ public class TemplateObjMethod {
 		@Override
 		public int hashCode() {
 			return this.toString().hashCode();
-		}
+		}*/
 	}
 }

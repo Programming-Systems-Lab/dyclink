@@ -1,0 +1,11 @@
+edu.columbia.psl.cc.test.TemplateObjMethod:init:():V 0 25 aload 0
+edu.columbia.psl.cc.test.TemplateObjMethod:init:():V 1 183 invokespecial java.lang.Object:init:():V
+edu.columbia.psl.cc.test.TemplateObjMethod:init:():V 2 25 aload 0
+edu.columbia.psl.cc.test.TemplateObjMethod:init:():V 3 187 new java/lang/Object
+edu.columbia.psl.cc.test.TemplateObjMethod:init:():V 4 89 dup 
+edu.columbia.psl.cc.test.TemplateObjMethod:init:():V 5 183 invokespecial java.lang.Object:init:():V
+edu.columbia.psl.cc.test.TemplateObjMethod:init:():V 6 181 putfield edu/columbia/psl/cc/test/TemplateObjMethod.testObj.Ljava/lang/Object;1
+edu.columbia.psl.cc.test.TemplateObjMethod:init:():V 7 25 aload 0
+edu.columbia.psl.cc.test.TemplateObjMethod:init:():V 8 180 getfield edu/columbia/psl/cc/test/TemplateObjMethod.__mib_id.I1
+edu.columbia.psl.cc.test.TemplateObjMethod:init:():V 9 54 istore 2
+edu.columbia.psl.cc.test.TemplateObjMethod:init:():V 10 177 return 

@@ -1,0 +1,11 @@
+cc.testbase.TemplateObjMethod:init:():V 0 25 aload 0
+cc.testbase.TemplateObjMethod:init:():V 1 183 invokespecial java.lang.Object:init:():V
+cc.testbase.TemplateObjMethod:init:():V 2 25 aload 0
+cc.testbase.TemplateObjMethod:init:():V 3 187 new java/lang/Object
+cc.testbase.TemplateObjMethod:init:():V 4 89 dup 
+cc.testbase.TemplateObjMethod:init:():V 5 183 invokespecial java.lang.Object:init:():V
+cc.testbase.TemplateObjMethod:init:():V 6 181 putfield cc/testbase/TemplateObjMethod.testObj.Ljava/lang/Object;1
+cc.testbase.TemplateObjMethod:init:():V 7 25 aload 0
+cc.testbase.TemplateObjMethod:init:():V 8 180 getfield cc/testbase/TemplateObjMethod.__mib_id.I1
+cc.testbase.TemplateObjMethod:init:():V 9 54 istore 2
+cc.testbase.TemplateObjMethod:init:():V 10 177 return 

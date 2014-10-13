@@ -33,7 +33,7 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 		// TODO Auto-generated method stub
 		
 		String name = className.replace("/", ".");
-		if (!name.startsWith("java") && !name.startsWith("sun")) {
+		if (!name.startsWith("java") && !name.startsWith("sun") && !name.startsWith("edu.columbia.psl.cc")) {
 			//Start the instrumentation here;
 			try {
 				ClassReader cr = new ClassReader(name);
