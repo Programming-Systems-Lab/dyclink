@@ -252,14 +252,25 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 				}
 			}
 		}
+		
 		parent.getInstPool().remove(methodNode);
 	}
 	
+	/**
+	 * Now merge all ext methods in one graph.
+	 * Or we need separate grown graph for each ext methods?
+	 * This will result in too many graphs to analyze
+	 * @param parentGraph
+	 * @return
+	 */
 	private List<GrownGraph> collectAndMergeChildGraphs(GraphTemplate parentGraph) {
 		HashMap<Integer, GraphTemplate> extMethodMap = GraphUtil.collectChildGraphs(parentGraph);
+		if (extMethodMap.size() == 0)
+			return null;
+		
 		List<GrownGraph> ret = new ArrayList<GrownGraph>();
 		
-		for (Integer methodInstIdx: extMethodMap.keySet()) {
+		/*for (Integer methodInstIdx: extMethodMap.keySet()) {
 			//Copy the parent graph
 			GrownGraph copyParent = new GrownGraph(parentGraph);
 			System.out.println("Show copy parent graph: ");
@@ -274,13 +285,44 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			this.mergeGraphs(copyParent, copyChild, methodInstIdx);
 			copyParent.updateKeyMethods(methodInstIdx, copyParent.getExtMethods().get(methodInstIdx).getLineNumber());
 			ret.add(copyParent);
-		}
+		}*/
 		
 		//Merge all
 		GrownGraph copyParent = new GrownGraph(parentGraph);
+		System.out.println("SHow copy parent graph: ");
+		copyParent.showGraph();
+		ExtObj lastRet = null;
 		for (Integer methodInstIdx: extMethodMap.keySet()) {
 			GraphTemplate copyChild = new GraphTemplate(extMethodMap.get(methodInstIdx));
+			if (lastRet != null && lastRet.getWriteFieldInsts().size() > 0) {
+				//Merge write inst that may affect the current method
+				TreeSet<InstNode> curWriteInst = copyParent.getExtMethods().get(methodInstIdx).getWriteFieldInsts();
+				TreeSet<InstNode> legacyWrite = lastRet.getWriteFieldInsts();
+				TreeSet<InstNode> additional = new TreeSet<InstNode>();
+				for (InstNode legInst: legacyWrite) {
+					boolean shouldAdd = true;
+					for (InstNode curInst: curWriteInst) {
+						if (curInst.getAddInfo().equals(legInst.getAddInfo()))
+							shouldAdd = false;
+					}
+					if (shouldAdd)
+						additional.add(legInst);
+				}
+				curWriteInst.addAll(additional);
+			}
+			
+			lastRet = copyChild.getReturnInfo();;
+			if (copyChild.getExtMethods().size() > 0) {
+				List<GrownGraph> recurChildren = this.collectAndMergeChildGraphs(copyChild);
+				
+				if (recurChildren != null && recurChildren.size() > 0) {
+					copyChild = recurChildren.get(0);
+				}
+			}
+			
 			this.mergeGraphs(copyParent, copyChild, methodInstIdx);
+			System.out.println("Merge result now: ");
+			copyParent.showGraph();
 			copyParent.updateKeyMethods(methodInstIdx, copyParent.getExtMethods().get(methodInstIdx).getLineNumber());
 		}
 		ret.add(copyParent);
@@ -303,14 +345,16 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			List<GrownGraph> grownGraphs = this.collectAndMergeChildGraphs(tempGraph);
 			HashMap<GrownGraph, double[][]> growCosts = new HashMap<GrownGraph, double[][]>();
 			int growCount = 0;
-			for (GrownGraph gGraph: grownGraphs) {
-				System.out.println("Grown graph: ");
-				gGraph.showGraph();
-				String growName = templateName + growCount++;
-				GraphVisualizer gv2 = new GraphVisualizer(gGraph, growName);
-				gv2.convertToVisualGraph();
-				double[][] growCostTable = scorer.constructCostTable(growName, gGraph.getInstPool());
-				growCosts.put(gGraph, growCostTable);
+			if (grownGraphs != null && grownGraphs.size() > 0) {
+				for (GrownGraph gGraph: grownGraphs) {
+					gGraph.showGraph();
+					String growName = templateName + growCount++;
+					System.out.println("Grown graph: " + growName);
+					GraphVisualizer gv2 = new GraphVisualizer(gGraph, growName);
+					gv2.convertToVisualGraph();
+					double[][] growCostTable = scorer.constructCostTable(growName, gGraph.getInstPool());
+					growCosts.put(gGraph, growCostTable);
+				}
 			}
 			
 			for (String testName: this.tests.keySet()) {
