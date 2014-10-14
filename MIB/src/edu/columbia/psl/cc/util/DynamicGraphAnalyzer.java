@@ -126,10 +126,9 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		}
 	}
 	
-	private void mergeHead(GraphTemplate parent, GraphTemplate child, int methodIdx) {
-		InstNode methodNode = parent.getInstPool().searchAndGet(parent.getMethodKey(), methodIdx);
+	private void mergeHead(GraphTemplate parent, GraphTemplate child, ExtObj methodEo) {
+		InstNode methodNode = parent.getInstPool().searchAndGet(parent.getMethodKey(), methodEo.getInstIdx());
 		String methodKey = StringUtil.genIdxKey(methodNode.getFromMethod(), methodNode.getIdx());
-		ExtObj parentEo = parent.getExtMethods().get(methodIdx);
 		
 		//Update children for input params in child graph
 		for (Integer firstRead: child.getFirstReadLocalVars()) {
@@ -142,7 +141,7 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			}
 			
 			//load local insts in parent method is reversed-ordered
-			InstNode parentLoad = parentEo.getLoadLocalInsts().get(parentEo.getLoadLocalInsts().size() - varId - 1);
+			InstNode parentLoad = methodEo.getLoadLocalInsts().get(methodEo.getLoadLocalInsts().size() - varId - 1);
 			double freq = parentLoad.getChildFreqMap().get(methodKey);
 			for (String fcID: fInst.getChildFreqMap().keySet()) {
 				String[] parsed = StringUtil.parseIdxKey(fcID);
@@ -161,12 +160,15 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		}
 		
 		//Construct relations between read/write field insts between parent and child insts
-		for (InstNode pFieldInst: parentEo.getWriteFieldInsts()) {
+		System.out.println("Parent eo write: " + methodEo.getWriteFieldInsts());
+		System.out.println("Child read insts: " + child.getFirstReadFields());
+		for (InstNode pFieldInst: methodEo.getWriteFieldInsts()) {
 			for (Integer fieldInstId: child.getFirstReadFields()) {
 				InstNode fieldInst = child.getInstPool().searchAndGet(child.getMethodKey(), fieldInstId);
 				
 				if (pFieldInst.getAddInfo().equals(fieldInst.getAddInfo())) {
 					pFieldInst.increChild(child.getMethodKey(), fieldInstId, MIBConfiguration.getDataWeight());
+					fieldInst.registerParent(pFieldInst.getFromMethod(), pFieldInst.getIdx(), false);
 				}
 			}
 		}
@@ -184,12 +186,12 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			cpNode.getChildFreqMap().remove(methodKey);
 		}
 		
-		for (InstNode parentLoad: parentEo.getLoadLocalInsts()) {
+		for (InstNode parentLoad: methodEo.getLoadLocalInsts()) {
 			parentLoad.getChildFreqMap().remove(methodKey);
 		}
 	}
 	
-	private void mergeGraphs(GraphTemplate parent, GraphTemplate child, int childIdx) {
+	private void mergeGraphs(GraphTemplate parent, GraphTemplate child, ExtObj methodEo) {
 		InstPool parentPool = parent.getInstPool();
 		Iterator<InstNode> poolIt = child.getInstPool().iterator();
 		InstNode returnInst = null;
@@ -205,9 +207,9 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		this.parentRemove(returnInst, child.getInstPool(), returnInstKey);
 		child.getInstPool().remove(returnInst);
 		
-		this.mergeHead(parent, child, childIdx);
+		this.mergeHead(parent, child, methodEo);
 		
-		InstNode methodNode = parent.getInstPool().searchAndGet(parent.getMethodKey(), childIdx);
+		InstNode methodNode = parent.getInstPool().searchAndGet(parent.getMethodKey(), methodEo.getInstIdx());
 		String methodKey = StringUtil.genIdxKey(methodNode.getFromMethod(), methodNode.getIdx());
 		if (!parent.isStaticMethod()) {
 			//If method is instance level, remove the aload instruction from pool
@@ -239,9 +241,8 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		}
 		
 		if (returnEo.getWriteFieldInsts().size() > 0) {
-			ExtObj methodExtObj = parent.getExtMethods().get(childIdx);
 			for (InstNode writeInst: returnEo.getWriteFieldInsts()) {
-				for (InstNode affected: methodExtObj.getAffFieldInsts()) {
+				for (InstNode affected: methodEo.getAffFieldInsts()) {
 					if (affected.getAddInfo().equals(writeInst.getAddInfo())) {
 						affected.registerParent(writeInst.getFromMethod(), writeInst.getIdx(), false);
 						writeInst.getChildFreqMap().put(StringUtil.genIdxKey(affected.getFromMethod(), affected.getIdx()), MIBConfiguration.getDataWeight());
@@ -292,11 +293,23 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		System.out.println("SHow copy parent graph: ");
 		copyParent.showGraph();
 		ExtObj lastRet = null;
-		for (Integer methodInstIdx: extMethodMap.keySet()) {
+		ExtObj lastExt = null;
+		
+		//Need to follow the original call sequence of methods
+		for (ExtObj methodEo: copyParent.getExtMethods()) {
+			int methodInstIdx = methodEo.getInstIdx();
+			if (extMethodMap.get(methodInstIdx) == null)
+				continue ;
+			
 			GraphTemplate copyChild = new GraphTemplate(extMethodMap.get(methodInstIdx));
-			if (lastRet != null && lastRet.getWriteFieldInsts().size() > 0) {
+			System.out.println("Current child: " + copyChild.getMethodKey());
+			
+			if ((lastRet != null && lastRet.getWriteFieldInsts().size() > 0) 
+					|| (lastExt != null && lastExt.getWriteFieldInsts().size() > 0)) {
+				System.out.println("Last ret: " + lastRet.getWriteFieldInsts().size());
+				System.out.println("Last ext: " + lastExt.getWriteFieldInsts().size());
 				//Merge write inst that may affect the current method
-				TreeSet<InstNode> curWriteInst = copyParent.getExtMethods().get(methodInstIdx).getWriteFieldInsts();
+				TreeSet<InstNode> curWriteInst = methodEo.getWriteFieldInsts();
 				TreeSet<InstNode> legacyWrite = lastRet.getWriteFieldInsts();
 				TreeSet<InstNode> additional = new TreeSet<InstNode>();
 				for (InstNode legInst: legacyWrite) {
@@ -308,10 +321,24 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 					if (shouldAdd)
 						additional.add(legInst);
 				}
+				
+				for (InstNode lastExtInst: lastExt.getWriteFieldInsts()) {
+					boolean shouldAdd = true;
+					for (InstNode curInst: curWriteInst) {
+						if (curInst.getAddInfo().equals(lastExtInst.getAddInfo()))
+							shouldAdd = false;
+					}
+					if (shouldAdd)
+						additional.add(lastExtInst);
+				}
+				
+				System.out.println("Check additional add: " + additional);
 				curWriteInst.addAll(additional);
+				System.out.println("Check cur write inst: " + curWriteInst);
 			}
 			
-			lastRet = copyChild.getReturnInfo();;
+			lastExt = methodEo;
+			lastRet = copyChild.getReturnInfo();
 			if (copyChild.getExtMethods().size() > 0) {
 				List<GrownGraph> recurChildren = this.collectAndMergeChildGraphs(copyChild);
 				
@@ -320,10 +347,10 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 				}
 			}
 			
-			this.mergeGraphs(copyParent, copyChild, methodInstIdx);
+			this.mergeGraphs(copyParent, copyChild, methodEo);
 			System.out.println("Merge result now: ");
 			copyParent.showGraph();
-			copyParent.updateKeyMethods(methodInstIdx, copyParent.getExtMethods().get(methodInstIdx).getLineNumber());
+			copyParent.updateKeyMethods(methodInstIdx, methodEo.getLineNumber());
 		}
 		ret.add(copyParent);
 		
@@ -338,8 +365,8 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			GraphTemplate tempGraph = this.templates.get(templateName);
 			System.out.println("Original temp graph: ");
 			tempGraph.showGraph();
-			GraphVisualizer gv = new GraphVisualizer(tempGraph, tempGraph.getMethodKey());
-			gv.convertToVisualGraph();
+			//GraphVisualizer gv = new GraphVisualizer(tempGraph, tempGraph.getMethodKey());
+			//gv.convertToVisualGraph();
 			double[][] templateCostTable = scorer.constructCostTable(templateName, tempGraph.getInstPool());
 			
 			List<GrownGraph> grownGraphs = this.collectAndMergeChildGraphs(tempGraph);
@@ -350,10 +377,12 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 					gGraph.showGraph();
 					String growName = templateName + growCount++;
 					System.out.println("Grown graph: " + growName);
-					GraphVisualizer gv2 = new GraphVisualizer(gGraph, growName);
-					gv2.convertToVisualGraph();
+					//GraphVisualizer gv2 = new GraphVisualizer(gGraph, growName);
+					//gv2.convertToVisualGraph();
 					double[][] growCostTable = scorer.constructCostTable(growName, gGraph.getInstPool());
 					growCosts.put(gGraph, growCostTable);
+					TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
+					GsonManager.writeJsonGeneric(gGraph, growName, graphToken, 0);
 				}
 			}
 			

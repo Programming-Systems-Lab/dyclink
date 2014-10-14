@@ -7,6 +7,8 @@ import java.util.TreeSet;
 
 public class ExtObj {
 	
+	private int instIdx;
+	
 	private int lineNumber;
 	
 	//Which field-writings affect the associated method
@@ -20,6 +22,14 @@ public class ExtObj {
 	
 	public ExtObj() {
 		
+	}
+	
+	public void setInstIdx(int instIdx) {
+		this.instIdx = instIdx;
+	}
+	
+	public int getInstIdx() {
+		return this.instIdx;
 	}
 	
 	public void setLineNumber(int lineNumber) {

@@ -20,8 +20,7 @@ public class GraphTemplate {
 	private boolean staticMethod;
 	
 	//private Map<Integer, Integer> extMethods;
-	
-	private Map<Integer, ExtObj> extMethods;
+	private List<ExtObj> extMethods;
 	
 	private ExtObj returnInfo;
 	
@@ -44,7 +43,7 @@ public class GraphTemplate {
 		this.staticMethod = copy.isStaticMethod();
 		this.firstReadFields = new HashSet<Integer>(copy.getFirstReadFields());
 		this.firstReadLocalVars = new HashSet<Integer>(copy.getFirstReadLocalVars());
-		this.extMethods = new HashMap<Integer, ExtObj>();
+		this.extMethods = new ArrayList<ExtObj>();
 		
 		this.pool = new InstPool();
 		this.path = new ArrayList<InstNode>();
@@ -57,9 +56,9 @@ public class GraphTemplate {
 			this.path.add(this.pool.searchAndGet(pathNode.getFromMethod(), pathNode.getIdx()));
 		}
 		
-		for (Integer i: copy.getExtMethods().keySet()) {
-			ExtObj from = copy.getExtMethods().get(i);
+		for (ExtObj from: copy.getExtMethods()) {
 			ExtObj eo = new ExtObj();
+			eo.setInstIdx(from.getInstIdx());
 			eo.setLineNumber(from.getLineNumber());
 			for (InstNode localInst: from.getLoadLocalInsts()) {
 				eo.addLoadLocalInst(this.pool.searchAndGet(localInst.getFromMethod(), localInst.getIdx()));
@@ -70,7 +69,7 @@ public class GraphTemplate {
 			for (InstNode affFieldInst: from.getAffFieldInsts()) {
 				eo.addAffFieldInst(this.pool.searchAndGet(affFieldInst.getFromMethod(), affFieldInst.getIdx()));
 			}
-			this.extMethods.put(i, eo);
+			this.extMethods.add(eo);
 		}
 		
 		this.returnInfo = new ExtObj();
@@ -94,11 +93,11 @@ public class GraphTemplate {
 		return this.methodKey;
 	}
 	
-	public void setExtMethods(Map<Integer, ExtObj> extMethods) {
+	public void setExtMethods(List<ExtObj> extMethods) {
 		this.extMethods = extMethods;
 	}
 	
-	public Map<Integer, ExtObj> getExtMethods() {
+	public List<ExtObj> getExtMethods() {
 		return this.extMethods;
 	}
 	

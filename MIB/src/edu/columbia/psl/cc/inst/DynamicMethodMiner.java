@@ -217,10 +217,10 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		this.convertConst(opcode);
 		this.convertConst(this.getIndex());
 		this.mv.visitLdcInsn(addInfo);
-		this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 		if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC) {
 			this.mv.visitInsn(Opcodes.ICONST_0);
 		} else {
+			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 			this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, MIBConfiguration.getMIBID(), "I");
 		}
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleField, srHandleFieldDesc);

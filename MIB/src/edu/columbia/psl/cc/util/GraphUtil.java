@@ -24,6 +24,7 @@ import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.datastruct.VarPairPool;
 import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.CostObj;
+import edu.columbia.psl.cc.pojo.ExtObj;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
@@ -72,7 +73,8 @@ public class GraphUtil {
 		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 		
 		HashMap<Integer, GraphTemplate> childGraphLib = new HashMap<Integer, GraphTemplate>();
-		for (Integer methodIdx: parentGraph.getExtMethods().keySet()) {
+		for (ExtObj eo: parentGraph.getExtMethods()) {
+			int methodIdx = eo.getInstIdx();
 			InstNode methodInst = parentGraph.getInstPool().searchAndGet(parentGraph.getMethodKey(), methodIdx);
 			
 			String filePath = tempDir + "/" + methodInst.getAddInfo() + ".json";

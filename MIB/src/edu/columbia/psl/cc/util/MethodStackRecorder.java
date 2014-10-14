@@ -56,8 +56,8 @@ public class MethodStackRecorder {
 	//Key: field name, Val: inst node
 	private Map<String, InstNode> fieldRecorder = new HashMap<String, InstNode>();
 	
-	//Key: inst idx, Val: line num, write field and load local vars
-	private Map<Integer, ExtObj> extMethods = new HashMap<Integer, ExtObj>();
+	//Val: line num, write field and load local vars
+	private List<ExtObj> extMethods = new ArrayList<ExtObj>();
 	
 	//Record which insts might be affected by input params
 	private HashSet<Integer> firstReadFields = new HashSet<Integer>();
@@ -68,8 +68,6 @@ public class MethodStackRecorder {
 	private HashSet<Integer> firstReadLocalVars = new HashSet<Integer>();
 	
 	private HashSet<Integer> shouldRecordReadLocalVars = new HashSet<Integer>();
-	
-	private int curMethod = -1;
 	
 	private ExtObj returnEo = new ExtObj();
 	
@@ -125,9 +123,8 @@ public class MethodStackRecorder {
 		this.firstReadFields.add(fieldNode.getIdx());
 	}
 	
-	private void updateExtMethods(int idx, ExtObj eo) {
-		this.extMethods.put(idx, eo);
-		this.curMethod = idx;
+	private void updateExtMethods(ExtObj eo) {
+		this.extMethods.add(eo);
 	}
 		
 	private void updatePath(InstNode fullInst) {
@@ -181,9 +178,10 @@ public class MethodStackRecorder {
 			if (parent != null)
 				this.updateCachedMap(parent, fullInst, false);
 			
-			if (curMethod >= 0) {
-				this.extMethods.get(curMethod).addAffFieldInst(fullInst);
+			if (this.extMethods.size() > 0) {
+				this.extMethods.get(this.extMethods.size() - 1).addAffFieldInst(fullInst);
 			}
+			
 			this.updateReadField(fullInst);
 		} else if (BytecodeCategory.writeFieldCategory().contains(opcat)) {
 			this.fieldRecorder.put(addInfo, fullInst);
@@ -218,8 +216,8 @@ public class MethodStackRecorder {
 			if (parent != null)
 				this.updateCachedMap(parent, fullInst, false);
 			
-			if (curMethod >= 0) {
-				this.extMethods.get(curMethod).addAffFieldInst(fullInst);
+			if (this.extMethods.size() > 0) {
+				this.extMethods.get(this.extMethods.size() - 1).addAffFieldInst(fullInst);
 			}
 			
 			this.updateReadField(fullInst);
@@ -348,6 +346,7 @@ public class MethodStackRecorder {
 		this.updatePath(fullInst);
 		
 		eo.setLineNumber(linenum);
+		eo.setInstIdx(instIdx);
 		if (this.fieldRecorder.size() > 0) {
 			for (InstNode inst: this.fieldRecorder.values()) {
 				eo.addWriteFieldInst(inst);
@@ -367,7 +366,7 @@ public class MethodStackRecorder {
 			}
 			eo.addLoadLocalInst(this.stackSimulator.get(this.stackSimulator.size() - argSize));
 		}
-		this.updateExtMethods(instIdx, eo);
+		this.updateExtMethods(eo);
 		
 		if (!BytecodeCategory.staticMethod().contains(opcode)) {
 			argSize++;
