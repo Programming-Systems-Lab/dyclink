@@ -89,5 +89,21 @@ public class StringUtil {
 		String newInst = oriInst.replace(opLabel, npLabel);
 		return newInst;
 	}
+	
+	public String aggregateLoad(Object...info) {
+		StringBuilder sb = new StringBuilder();
+		for (Object i: info) {
+			sb.append(i + ":");
+		}
+		return sb.substring(0, sb.length() - 1);
+	}
+	
+	public String separateLoad(String[] infoArray) {
+		StringBuilder sb = new StringBuilder();
+		for (String s: infoArray) {
+			sb.append(s + " ");
+		}
+		return sb.substring(0, sb.length() - 1);
+	}
 
 }

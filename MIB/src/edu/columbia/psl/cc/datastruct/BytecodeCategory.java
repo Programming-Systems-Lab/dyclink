@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
@@ -196,6 +197,22 @@ public class BytecodeCategory {
 		return ret;
 	}
 	
+	public static HashSet<Integer> asmPrimitiveSort() {
+		HashSet<Integer> ret = new HashSet<Integer>();
+		ret.add(Type.BOOLEAN);
+		ret.add(Type.BYTE);
+		ret.add(Type.CHAR);
+		ret.add(Type.DOUBLE);
+		ret.add(Type.FLOAT);
+		ret.add(Type.INT);
+		ret.add(Type.LONG);
+		ret.add(Type.SHORT);
+		ret.add(Type.VOID);
+		return ret;
+	}
 	
+	public static Integer asmObjSort() {
+		return Type.OBJECT;
+	}
 	
 }

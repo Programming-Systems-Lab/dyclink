@@ -1,6 +1,7 @@
 package edu.columbia.psl.cc.util;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -72,6 +73,11 @@ public class MethodStackRecorder {
 	private ExtObj returnEo = new ExtObj();
 	
 	private List<InstNode> path = new ArrayList<InstNode>();
+	
+	//Key: local var ID, Value: object ID, -1 for un-instrumented obj
+	private Map<Integer, Integer> varObjMap = new HashMap<Integer, Integer>();
+	
+	public Object objOnStack = null;
 	
 	private InstPool pool = new InstPool();
 	
@@ -196,13 +202,25 @@ public class MethodStackRecorder {
 				this.updateCachedMap(tmpInst, fullInst, false);
 			}
 		}
-		this.updateStackSimulator(fullInst);
+		this.updateStackSimulator(fullInst, 0);
 		this.showStackSimulator();
 	}
 	
 	public void handleOpcode(int opcode, int instIdx, String addInfo) {
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
+		int objId = parseObjId(this.objOnStack);
+		
+		int typeSort = -1;
+		if (opcode == Opcodes.GETFIELD || opcode == Opcodes.GETSTATIC 
+				|| opcode == Opcodes.PUTFIELD || opcode == Opcodes.PUTSTATIC) {
+			String[] recover = addInfo.split("\\.");
+			typeSort = Type.getType(recover[2]).getSort();
+		}
+		
+		if (objId > 0) {
+			addInfo = addInfo + objId;
+		}
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
 		
 		this.updateControlRelation(fullInst);
@@ -211,22 +229,40 @@ public class MethodStackRecorder {
 		if (BytecodeCategory.controlCategory().contains(opcat)) {
 			this.updateControlInst(fullInst);
 		} else if (BytecodeCategory.readFieldCategory().contains(opcat)) {
-			//Add infor for field: owner + name + desc
-			InstNode parent = this.fieldRecorder.get(addInfo);
-			if (parent != null)
-				this.updateCachedMap(parent, fullInst, false);
-			
-			if (this.extMethods.size() > 0) {
-				this.extMethods.get(this.extMethods.size() - 1).addAffFieldInst(fullInst);
+			//Add infor for field: owner + name + desc + objId
+			//Only record static or the instrumented object
+			if (opcode == Opcodes.GETSTATIC || objId > 0) {
+				InstNode parent = this.fieldRecorder.get(addInfo);
+				if (parent != null)
+					this.updateCachedMap(parent, fullInst, false);
+				
+				if (this.extMethods.size() > 0) {
+					this.extMethods.get(this.extMethods.size() - 1).addAffFieldInst(fullInst);
+				}
+				
+				this.updateReadField(fullInst);
 			}
-			
-			this.updateReadField(fullInst);
 		} else if (BytecodeCategory.writeFieldCategory().contains(opcat)) {
-			this.fieldRecorder.put(addInfo, fullInst);
-			this.stopReadField(addInfo);
+			if (opcode == Opcodes.PUTSTATIC || objId > 0) {
+				this.fieldRecorder.put(addInfo, fullInst);
+				this.stopReadField(addInfo);
+			}
 		}
 		
-		int inputSize = oo.getInList().size();
+		int addInput = 0, addOutput = 0;
+		if (opcode == Opcodes.PUTFIELD || opcode == Opcodes.PUTSTATIC) {
+			System.out.println("Add info: " + addInfo);
+			System.out.println("Type sort: " + typeSort + Type.DOUBLE);
+			if (typeSort == Type.DOUBLE || typeSort == Type.LONG) {
+				addInput++;
+			}
+		} else if (opcode == Opcodes.GETFIELD || opcode == Opcodes.GETSTATIC) {
+			if (typeSort == Type.DOUBLE || typeSort == Type.LONG) {
+				addOutput++;
+			}
+		}
+		
+		int inputSize = oo.getInList().size() + addInput;
 		if (inputSize > 0) {
 			for (int i = 0; i < inputSize; i++) {
 				//Should not return null here
@@ -234,7 +270,7 @@ public class MethodStackRecorder {
 				this.updateCachedMap(tmpInst, fullInst, false);
 			}
 		}
-		this.updateStackSimulator(fullInst);
+		this.updateStackSimulator(fullInst, addOutput);
 		this.showStackSimulator();
 	}
 	
@@ -254,6 +290,14 @@ public class MethodStackRecorder {
 		}
 		
 		int opcat = fullInst.getOp().getCatId();
+		
+		if (opcode == Opcodes.ALOAD) {
+			int objId = parseObjId(this.objOnStack);
+			if (objId > 0)
+				fullInst.setRelatedObj(this.objOnStack);
+			
+			this.objOnStack = null;
+		}
 		
 		InstNode lastInst = null;
 		if (!stackSimulator.isEmpty()) {
@@ -315,7 +359,7 @@ public class MethodStackRecorder {
 		}
 		
 		if (!hasUpdate) 
-			this.updateStackSimulator(fullInst);
+			this.updateStackSimulator(fullInst, 0);
 		this.showStackSimulator();
 	}
 	
@@ -331,7 +375,7 @@ public class MethodStackRecorder {
 			InstNode tmpInst = this.safePop();
 			this.updateCachedMap(tmpInst, fullInst, false);
 		}
-		this.updateStackSimulator(fullInst);
+		this.updateStackSimulator(fullInst, 0);
 		this.showStackSimulator();
 	}
 	
@@ -467,8 +511,23 @@ public class MethodStackRecorder {
 		}
 	}
 	
-	private void updateStackSimulator(InstNode fullInst) {
-		int outputSize = fullInst.getOp().getOutList().size();
+	public static int parseObjId(Object value) {
+		if (value == null)
+			return - 1;
+		
+		Class<?> valueClass = value.getClass();
+		try {
+			Field idField = valueClass.getField(MIBConfiguration.getMIBID());
+			int objId = idField.getInt(value);
+			return objId;
+		} catch (Exception ex) {
+			System.out.println("Warning: object " + valueClass + " is not MIB-instrumented");
+			return -1;
+		}
+	}
+	
+	private void updateStackSimulator(InstNode fullInst, int addOutput) {
+		int outputSize = fullInst.getOp().getOutList().size() + addOutput;
 		this.updateStackSimulator(outputSize, fullInst);
 	}
 	

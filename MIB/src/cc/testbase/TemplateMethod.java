@@ -18,6 +18,8 @@ public class TemplateMethod extends TemplateParent{
 	
 	private int iVar;
 	
+	private double iDouble;
+	
 	ArrayList<Integer> fakeList = new ArrayList<Integer>();
 	
 	private String test;
@@ -169,9 +171,13 @@ public class TemplateMethod extends TemplateParent{
 		return sum;
 	}
 	
-	@testTemplate
+	@extractTemplate
 	public int all3Methods(int a, int b) {
-		int c = a + b;
+		this.iVar = 5;
+		this.iDouble = 8;
+		//TemplateMethod tm2 = new TemplateMethod();
+		//tm2.iVar = 8;
+		double c = iDouble + a + b + this.iVar;
 		String ret = "";
 		if (c > 5) {
 			ret = "ret > 5";
@@ -223,8 +229,9 @@ public class TemplateMethod extends TemplateParent{
 		
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
-		System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
+		//System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
 		System.out.println("TestMethod: " + tm.all3Methods(3, 5));
+		System.out.println("cc/testbase/TemplateMethod.iVar.I".split("\\.").length);
 		//System.out.println("TempalteMethod: " + tm.addOutside(3, 5));
 		//tm.testAdd3(1, 2, 3);
 		//tm.setBoolean(true);

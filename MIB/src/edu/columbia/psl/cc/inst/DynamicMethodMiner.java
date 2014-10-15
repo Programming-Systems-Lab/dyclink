@@ -96,6 +96,8 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	private ArrayList<OpcodeObj> sequence = new ArrayList<OpcodeObj>();
 	
 	private AtomicInteger indexer = new AtomicInteger();
+	
+	private ArrayList<String> recentLoads = new ArrayList<String>();
 	 
 	public DynamicMethodMiner(MethodVisitor mv, String className, int access, String myName, String desc, String templateAnnot, String testAnnot) {
 		super(Opcodes.ASM4, mv, access, myName, desc);
@@ -383,6 +385,15 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	@Override
 	public void visitVarInsn(int opcode, int var) {
 		if (this.annotGuard()) {
+			if (opcode == Opcodes.ALOAD) {
+				//Store it in MethodStackRecorder
+				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+				this.mv.visitVarInsn(Opcodes.ALOAD, var);
+				this.mv.visitFieldInsn(Opcodes.PUTFIELD, 
+						methodStackRecorder, 
+						MIBConfiguration.getObjOnStack(), 
+						MIBConfiguration.getObjOnStackDesc());
+			}
 			this.handleOpcode(opcode, var);
 			
 			this.updateMethodRep(opcode);
@@ -403,9 +414,48 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 		if (this.annotGuard()) {
+			if (opcode == Opcodes.GETFIELD) {
+				this.mv.visitInsn(Opcodes.DUP);
+				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+				this.mv.visitInsn(Opcodes.SWAP);
+				this.mv.visitFieldInsn(Opcodes.PUTFIELD, 
+						methodStackRecorder, 
+						MIBConfiguration.getObjOnStack(), 
+						MIBConfiguration.getObjOnStackDesc());
+			} else if (opcode == Opcodes.PUTFIELD) {
+				int typeSort = Type.getType(desc).getSort();
+				if (typeSort == Type.DOUBLE || typeSort == Type.LONG) {
+					//val is two word: ref, val, val (top)
+					this.mv.visitInsn(Opcodes.DUP2_X1); //val, val, ref, val, val (top)
+					this.mv.visitInsn(Opcodes.POP2); //val, val, ref
+					this.mv.visitInsn(Opcodes.DUP); //val, val, ref, ref
+					this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId); //val, val, ref, ref, my ref
+					this.mv.visitInsn(Opcodes.SWAP); //val, val, ref, my ref, ref
+					this.mv.visitFieldInsn(Opcodes.PUTFIELD, 
+							methodStackRecorder, 
+							MIBConfiguration.getObjOnStack(), 
+							MIBConfiguration.getObjOnStackDesc()); //val, val, ref
+					this.mv.visitInsn(Opcodes.DUP_X2); // ref, val, val, ref
+					this.mv.visitInsn(Opcodes.POP); // ref, val, val
+				} else {
+					//ref, val (top)
+					this.mv.visitInsn(Opcodes.DUP_X1); //val, ref, val
+					this.mv.visitInsn(Opcodes.POP); //val, ref,
+					this.mv.visitInsn(Opcodes.DUP); //val, ref, ref
+					this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId); //val, ref, ref, myRef
+					this.mv.visitInsn(Opcodes.SWAP); //val, ref, myRef, ref
+					this.mv.visitFieldInsn(Opcodes.PUTFIELD, 
+							methodStackRecorder, 
+							MIBConfiguration.getObjOnStack(), 
+							MIBConfiguration.getObjOnStackDesc()); //val, ref
+					this.mv.visitInsn(Opcodes.DUP_X1);
+					this.mv.visitInsn(Opcodes.POP);
+				}
+			} 
+			
 			String fullField = owner + "." + name + "." + desc;
-			//this.handleOpcode(opcode, fullField);
-			this.handleField(opcode, fullField);
+			this.handleOpcode(opcode, fullField);
+			//this.handleField(opcode, fullField);
 			
 			this.updateMethodRep(opcode);
 		}

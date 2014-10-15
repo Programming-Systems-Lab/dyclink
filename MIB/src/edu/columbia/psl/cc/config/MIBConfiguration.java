@@ -1,5 +1,7 @@
 package edu.columbia.psl.cc.config;
 
+import org.objectweb.asm.Type;
+
 public class MIBConfiguration {
 
 	private static String opTablePath = "opcodes/opcode_cats.csv";
@@ -49,6 +51,14 @@ public class MIBConfiguration {
 	private static String __mib_id_gen_method = "__getMIBIDGen";
 	
 	private static String __mib_id = "__MIB_ID";
+	
+	private static String recordObjMap = "recordObjId";
+	
+	private static String recordObjDesc = "(ILjava/lang/Object;)V";
+	
+	private static String objOnStack = "objOnStack";
+	
+	private static String objOnStackDesc = Type.getDescriptor(Object.class);
 	
 	private static double controlWeight = 1.0;
 	
@@ -162,6 +172,22 @@ public class MIBConfiguration {
 	
 	public static String getMIBID() {
 		return __mib_id;
+	}
+	
+	public static String getRecordObjMap() {
+		return recordObjMap;
+	}
+	
+	public static String getRecordObjDesc() {
+		return recordObjDesc;
+	}
+	
+	public static String getObjOnStack() {
+		return objOnStack;
+	}
+	
+	public static String getObjOnStackDesc() {
+		return objOnStackDesc;
 	}
 
 }
