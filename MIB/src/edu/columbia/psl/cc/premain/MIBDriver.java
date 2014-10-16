@@ -55,6 +55,7 @@ public class MIBDriver {
 			Analyzer<GraphTemplate> dynamicAnalyzer = new DynamicGraphAnalyzer();
 			dynamicAnalyzer.setTemplates(templates);
 			dynamicAnalyzer.setTests(tests);
+			dynamicAnalyzer.setAnnotGuard(MIBConfiguration.isAnnotGuard());
 			dynamicAnalyzer.analyzeTemplate();
 			
 			File labelDir = new File(MIBConfiguration.getLabelmapDir());

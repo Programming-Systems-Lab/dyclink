@@ -45,6 +45,8 @@ public class ClassMiner extends ClassVisitor{
 	private boolean isInterface;
 	
 	private boolean constructVisit = false;
+	
+	private boolean annotGuard = true;
 		
 	public ClassMiner(ClassVisitor cv, String owner, String classAnnot, String templateAnnot, String testAnnot) {
 		super(Opcodes.ASM4, cv);
@@ -52,6 +54,17 @@ public class ClassMiner extends ClassVisitor{
 		this.classAnnot = classAnnot;
 		this.templateAnnot = templateAnnot;
 		this.testAnnot = testAnnot;
+	}
+	
+	public void setAnnotGuard(boolean annotGuard) {
+		this.annotGuard = annotGuard;
+	}
+	
+	private boolean shouldInstrument() {
+		if (this.annotGuard)
+			return this.isAnnot && !this.isInterface;
+		else
+			return !this.isInterface;
 	}
 	
 	@Override
@@ -85,14 +98,14 @@ public class ClassMiner extends ClassVisitor{
 	@Override
 	public MethodVisitor visitMethod(int access, final String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = this.cv.visitMethod(access, name, desc, signature, exceptions);
-		if (this.isAnnot && !isInterface) {
+		if (this.shouldInstrument()) {
 			if (name.equals("<init>")) {
 				constructVisit = true;
 				System.out.println("Constructor visit code");
 				//mv.visitCode();
 			}
 			
-			DynamicMethodMiner dmm =  new DynamicMethodMiner(mv, this.owner, access, name, desc, this.templateAnnot, this.testAnnot);
+			DynamicMethodMiner dmm =  new DynamicMethodMiner(mv, this.owner, access, name, desc, this.templateAnnot, this.testAnnot, this.annotGuard);
 			LocalVariablesSorter lvs = new LocalVariablesSorter(access, desc, dmm);
 			/*AdviceAdapter aa = new AdviceAdapter(Opcodes.ASM4, dmm, access, name, desc) {
 				@Override
@@ -124,7 +137,7 @@ public class ClassMiner extends ClassVisitor{
 	public void visitEnd() {
 		System.out.println("}");
 		
-		if (this.isAnnot && !this.isInterface) {
+		if (this.shouldInstrument()) {
 			//Create the static id generator
 			MethodVisitor mv = this.cv.visitMethod(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC + Opcodes.ACC_SYNCHRONIZED, 
 					MIBConfiguration.getMIBIDGenMethod(), "()I", null, null);

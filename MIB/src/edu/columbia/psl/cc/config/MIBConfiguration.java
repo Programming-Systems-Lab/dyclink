@@ -46,6 +46,8 @@ public class MIBConfiguration {
 	
 	private static String labelmapDir = "./labelmap";
 	
+	private static String resultDir = "./results";
+	
 	private static String __mib_id_gen = "__MIB_ID_GEN";
 	
 	private static String __mib_id_gen_method = "__getMIBIDGen";
@@ -65,6 +67,8 @@ public class MIBConfiguration {
 	private static double dataWeight = 1.0;
 	
 	private static int precisionDigit = 3;
+	
+	private static boolean annotGuard = true;
 	
 	public static int getPrecisionDigit() {
 		return precisionDigit;
@@ -100,6 +104,10 @@ public class MIBConfiguration {
 	
 	public static String getLabelmapDir() {
 		return labelmapDir;
+	}
+	
+	public static String getResultDir() {
+		return resultDir;
 	}
 	
 	public static String getOpTablePath() {
@@ -188,6 +196,10 @@ public class MIBConfiguration {
 	
 	public static String getObjOnStackDesc() {
 		return objOnStackDesc;
+	}
+	
+	public static boolean isAnnotGuard() {
+		return annotGuard;
 	}
 
 }

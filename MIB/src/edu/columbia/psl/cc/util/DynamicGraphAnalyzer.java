@@ -3,6 +3,7 @@ package edu.columbia.psl.cc.util;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,6 +34,8 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 	private HashMap<String, GraphTemplate> templates;
 	
 	private HashMap<String, GraphTemplate> tests;
+	
+	private boolean annotGuard;
 	
 	public static TreeMap<InstNode, TreeSet<InstNode>> mergeDataControlMap(GraphTemplate gt) {
 		/*TreeMap<InstNode, TreeSet<InstNode>> merged = gt.getDataGraph();
@@ -69,6 +72,10 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 				depMap.put(fakeName, null);
 			}
 		}
+	}
+	
+	public void setAnnotGuard(boolean annotGuard) {
+		this.annotGuard = annotGuard;
 	}
 	
 	public void setTemplates(HashMap<String, GraphTemplate> templates) {
@@ -264,33 +271,16 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 	 * @param parentGraph
 	 * @return
 	 */
-	private List<GrownGraph> collectAndMergeChildGraphs(GraphTemplate parentGraph) {
+	private GrownGraph collectAndMergeChildGraphs(GraphTemplate parentGraph) {
 		HashMap<Integer, GraphTemplate> extMethodMap = GraphUtil.collectChildGraphs(parentGraph);
 		if (extMethodMap.size() == 0)
 			return null;
 		
 		List<GrownGraph> ret = new ArrayList<GrownGraph>();
-		
-		/*for (Integer methodInstIdx: extMethodMap.keySet()) {
-			//Copy the parent graph
-			GrownGraph copyParent = new GrownGraph(parentGraph);
-			System.out.println("Show copy parent graph: ");
-			copyParent.showGraph();
-			
-			//Should recursive, temporarily not
-			GraphTemplate copyChild = new GraphTemplate(extMethodMap.get(methodInstIdx));
-			System.out.println("Show copy child graph: ");
-			copyChild.showGraph();
-			
-			//Merge
-			this.mergeGraphs(copyParent, copyChild, methodInstIdx);
-			copyParent.updateKeyMethods(methodInstIdx, copyParent.getExtMethods().get(methodInstIdx).getLineNumber());
-			ret.add(copyParent);
-		}*/
-		
+				
 		//Merge all
 		GrownGraph copyParent = new GrownGraph(parentGraph);
-		System.out.println("SHow copy parent graph: ");
+		System.out.println("Show copy parent graph: ");
 		copyParent.showGraph();
 		ExtObj lastRet = null;
 		ExtObj lastExt = null;
@@ -340,11 +330,11 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			lastExt = methodEo;
 			lastRet = copyChild.getReturnInfo();
 			if (copyChild.getExtMethods().size() > 0) {
-				List<GrownGraph> recurChildren = this.collectAndMergeChildGraphs(copyChild);
+				//List<GrownGraph> recurChildren = this.collectAndMergeChildGraphs(copyChild);
+				GrownGraph recurChildren = this.collectAndMergeChildGraphs(copyChild);
 				
-				if (recurChildren != null && recurChildren.size() > 0) {
-					copyChild = recurChildren.get(0);
-				}
+				if (recurChildren != null)
+					copyChild = recurChildren;
 			}
 			
 			this.mergeGraphs(copyParent, copyChild, methodEo);
@@ -352,53 +342,98 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			copyParent.showGraph();
 			copyParent.updateKeyMethods(methodInstIdx, methodEo.getLineNumber());
 		}
-		ret.add(copyParent);
+		//ret.add(copyParent);
+		//return ret;
 		
-		return ret;
+		return copyParent;
 	}
 	
+	/**
+	 * If annot guard, compare the single test with all other templates
+	 * Each template might have original graph and grown graph
+	 * If no annot guard, compare all templates
+	 * For each template, only compare the grown graph
+	 */
 	public void analyzeTemplate() {		
 		//MIBSimilarity<CostObj[][]> scorer = new ShortestPathKernel();
 		MIBSimilarity<double[][]> scorer = new SVDKernel();
+		StringBuilder sb = new StringBuilder();
+		
 		//Score kernel
+		HashMap<String, double[][]> cachedGrown = new HashMap<String, double[][]>();
 		for (String templateName: this.templates.keySet()) {
 			GraphTemplate tempGraph = this.templates.get(templateName);
 			System.out.println("Original temp graph: ");
 			tempGraph.showGraph();
 			//GraphVisualizer gv = new GraphVisualizer(tempGraph, tempGraph.getMethodKey());
 			//gv.convertToVisualGraph();
-			double[][] templateCostTable = scorer.constructCostTable(templateName, tempGraph.getInstPool());
-			
-			List<GrownGraph> grownGraphs = this.collectAndMergeChildGraphs(tempGraph);
-			HashMap<GrownGraph, double[][]> growCosts = new HashMap<GrownGraph, double[][]>();
-			int growCount = 0;
-			if (grownGraphs != null && grownGraphs.size() > 0) {
-				for (GrownGraph gGraph: grownGraphs) {
-					gGraph.showGraph();
-					String growName = templateName + growCount++;
-					System.out.println("Grown graph: " + growName);
-					//GraphVisualizer gv2 = new GraphVisualizer(gGraph, growName);
-					//gv2.convertToVisualGraph();
-					double[][] growCostTable = scorer.constructCostTable(growName, gGraph.getInstPool());
-					growCosts.put(gGraph, growCostTable);
-					TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
-					GsonManager.writeJsonGeneric(gGraph, growName, graphToken, 0);
-				}
+			double[][] templateCostTable = null;
+			if (cachedGrown.containsKey(templateName)) {
+				templateCostTable = cachedGrown.get(templateName);
+			} else {
+				templateCostTable = scorer.constructCostTable(templateName, tempGraph.getInstPool());
+				cachedGrown.put(templateName, templateCostTable);
 			}
 			
-			for (String testName: this.tests.keySet()) {
-				GraphTemplate testGraph = this.tests.get(testName);
-				double[][] testCostTable = scorer.constructCostTable(testName, testGraph.getInstPool());
-				double graphScore = scorer.calculateSimilarity(templateCostTable, testCostTable);
-				System.out.println(templateName + " vs " + testName + " " + graphScore);
-				
-				for (GrownGraph growGraph: growCosts.keySet()) {
-					double growScore = scorer.calculateSimilarity(growCosts.get(growGraph), testCostTable);
-					String growId = templateName + growGraph.getKeyLines();
-					System.out.println(growId + " vs " + testName + " " + growScore);
+			//List<GrownGraph> grownGraphs = this.collectAndMergeChildGraphs(tempGraph);
+			GrownGraph grownGraph = this.collectAndMergeChildGraphs(tempGraph);
+			HashMap<GrownGraph, double[][]> growCosts = new HashMap<GrownGraph, double[][]>();
+			int growCount = 0;
+			if (grownGraph != null) {
+				//Now only one grown graph
+				grownGraph.showGraph();
+				String growName = templateName + growCount++;
+				System.out.println("Grown graph: " + growName);
+				//GraphVisualizer gv2 = new GraphVisualizer(gGraph, growName);
+				//gv2.convertToVisualGraph();
+				double[][] growCostTable = scorer.constructCostTable(growName, grownGraph.getInstPool());
+				growCosts.put(grownGraph, growCostTable);
+				TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
+				GsonManager.writeJsonGeneric(grownGraph, growName, graphToken, 0);
+				cachedGrown.put(templateName, growCostTable);
+			} else {
+				cachedGrown.put(templateName, templateCostTable);
+			}
+			
+			if (this.annotGuard) {
+				for (String testName: this.tests.keySet()) {
+					GraphTemplate testGraph = this.tests.get(testName);
+					double[][] testCostTable = scorer.constructCostTable(testName, testGraph.getInstPool());
+					double graphScore = scorer.calculateSimilarity(templateCostTable, testCostTable);
+					String oriOutput = templateName + " vs " + testName + " " + graphScore;
+					sb.append(oriOutput + "\n");
+					System.out.println(oriOutput);
+					
+					for (GrownGraph growGraph: growCosts.keySet()) {
+						double growScore = scorer.calculateSimilarity(growCosts.get(growGraph), testCostTable);
+						String growId = templateName + growGraph.getKeyLines();
+						String grownOutput = growId + " vs " + testName + " " + growScore;
+						sb.append(grownOutput + "\n");
+						System.out.println(grownOutput);
+					}
 				}
 			}
 		}
+		
+		if (!this.annotGuard) {
+			List<String> sortedName = new ArrayList<String>(cachedGrown.keySet());
+			Collections.sort(sortedName);
+			for (int i = 0; i < sortedName.size(); i++) {
+				String temp1 = sortedName.get(i);
+				double[][] costTable1 = cachedGrown.get(temp1);
+				for (int j = i; j < sortedName.size(); j++) {
+					String temp2 = sortedName.get(j);
+					double[][] costTable2 = cachedGrown.get(temp2);
+					
+					double simScore = scorer.calculateSimilarity(costTable1, costTable2);
+					String output = temp1 + " vs. " + temp2 + " " + simScore;
+					sb.append(output + "\n");
+					System.out.println(output);
+				}
+			}
+		}
+		
+		GsonManager.writeResult(sb);
 	}
 
 	/**

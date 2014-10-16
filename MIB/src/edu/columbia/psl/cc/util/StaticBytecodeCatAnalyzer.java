@@ -18,6 +18,10 @@ public class StaticBytecodeCatAnalyzer implements Analyzer<StaticRep>{
 	
 	private HashMap<String, StaticRep> tests;
 	
+	public void setAnnotGuard(boolean annotGuard) {
+		
+	}
+	
 	public void setTemplates(HashMap<String, StaticRep> templates) {
 		this.templates = templates;
 	}

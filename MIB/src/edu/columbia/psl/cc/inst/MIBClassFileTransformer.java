@@ -15,6 +15,7 @@ import org.objectweb.asm.util.CheckClassAdapter;
 import edu.columbia.psl.cc.annot.analyzeClass;
 import edu.columbia.psl.cc.annot.extractTemplate;
 import edu.columbia.psl.cc.annot.testTemplate;
+import edu.columbia.psl.cc.config.MIBConfiguration;
 
 public class MIBClassFileTransformer implements ClassFileTransformer {
 	
@@ -40,6 +41,7 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 				ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
 				ClassMiner cm = new ClassMiner(new CheckClassAdapter(cw, false), 
 						name.replace(".", "/"), classAnnot, templateAnnot, testAnnot);
+				cm.setAnnotGuard(MIBConfiguration.isAnnotGuard());
 				cr.accept(cm, ClassReader.EXPAND_FRAMES);
 				
 				File f = new File("debug/");

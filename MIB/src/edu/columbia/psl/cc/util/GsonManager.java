@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.Date;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -25,6 +26,8 @@ public class GsonManager {
 	private static String pathDir = MIBConfiguration.getPathDir();
 	
 	private static String labelmapDir = MIBConfiguration.getLabelmapDir();
+	
+	private static String resultDir = MIBConfiguration.getResultDir();
 	
 	public static void writePath(String fileName, List<InstNode> path) {
 		StringBuilder sb = new StringBuilder();
@@ -158,6 +161,23 @@ public class GsonManager {
 		if (hasToDelete) {
 			cleanHelper(tempDir.getAbsolutePath());
 			cleanHelper(teDir.getAbsolutePath());
+		}
+	}
+	
+	public static void writeResult(StringBuilder sb) {
+		Date now = new Date();
+		String name = resultDir + "/result" + now.getTime() + ".txt"; 
+		File result = new File(name);
+		
+		try {
+			if (!result.exists())
+				result.createNewFile();
+			
+			BufferedWriter bw = new BufferedWriter(new FileWriter(result));
+			bw.write(sb.toString());
+			bw.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 

@@ -10,9 +10,12 @@ public interface Analyzer<T> {
 	
 	public void setTemplates(HashMap<String, T> templates);
 	
+	public void setAnnotGuard(boolean annotGuard);
+	
 	public HashMap<String, T> getTemplates();
 	
 	public void setTests(HashMap<String, T> templates);
 	
 	public HashMap<String, T> getTests();
 }
+
