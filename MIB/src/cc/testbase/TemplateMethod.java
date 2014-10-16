@@ -218,13 +218,21 @@ public class TemplateMethod extends TemplateParent{
 	
 	//@extractTemplate
 	public void unidentified() {
-		double i = 5;
+		int i = 4;
 		double[] d = new double[5];
-		d[0] = i;
+		d[i] = 3;
+		
+		double a = d[i] + 5;
 	}
 	
-	public void testDiff(int a, double b) {
-		
+	public double testDiff(int a, double b) {
+		double c = 0;
+		try {
+			c = a + b;
+		} finally {
+			c--;
+		}
+		return c;
 	}
 		
 	public static void main(String[] args) {
@@ -232,6 +240,10 @@ public class TemplateMethod extends TemplateParent{
 		//System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
 		System.out.println("TestMethod: " + tm.all3Methods(3, 5));
 		System.out.println("cc/testbase/TemplateMethod.iVar.I".split("\\.").length);
+		System.out.println(Type.INT);
+		System.out.println(Type.INT_TYPE.getSort());
+		System.out.println(Type.getType("I").getSort());
+		System.out.println(Type.getType("Ljava/lang/Integer;").getSort());
 		//System.out.println("TempalteMethod: " + tm.addOutside(3, 5));
 		//tm.testAdd3(1, 2, 3);
 		//tm.setBoolean(true);

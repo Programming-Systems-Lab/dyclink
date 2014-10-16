@@ -10,6 +10,7 @@ import edu.columbia.psl.cc.analysis.LevenshteinDistance;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
+import edu.columbia.psl.cc.util.MethodStackRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -18,6 +19,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Type;
@@ -81,17 +83,27 @@ public class ClassMiner extends ClassVisitor{
 	}
 	
 	@Override
-	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+	public MethodVisitor visitMethod(int access, final String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = this.cv.visitMethod(access, name, desc, signature, exceptions);
 		if (this.isAnnot && !isInterface) {
 			if (name.equals("<init>")) {
 				constructVisit = true;
 				System.out.println("Constructor visit code");
-				mv.visitCode();
+				//mv.visitCode();
 			}
 			
-			DynamicMethodMiner dmm = new DynamicMethodMiner(mv, this.owner, access, name, desc, this.templateAnnot, this.testAnnot);
+			DynamicMethodMiner dmm =  new DynamicMethodMiner(mv, this.owner, access, name, desc, this.templateAnnot, this.testAnnot);
 			LocalVariablesSorter lvs = new LocalVariablesSorter(access, desc, dmm);
+			/*AdviceAdapter aa = new AdviceAdapter(Opcodes.ASM4, dmm, access, name, desc) {
+				@Override
+				public void onMethodEnter() {
+					System.out.println("Method name in onMethodEnter: " + name);
+					//this.mv.visitCode();
+					//super.onMethodEnter();
+				}
+			};
+			dmm.setAdviceAdapter(aa);
+			return dmm.getAdviceAdapter();*/
 			
 			//See the comment from https://github.com/pmahoney/asm-bug/blob/master/src/main/java/Main.java
 			/*try {

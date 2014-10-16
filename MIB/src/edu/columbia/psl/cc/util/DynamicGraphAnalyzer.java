@@ -365,8 +365,8 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			GraphTemplate tempGraph = this.templates.get(templateName);
 			System.out.println("Original temp graph: ");
 			tempGraph.showGraph();
-			GraphVisualizer gv = new GraphVisualizer(tempGraph, tempGraph.getMethodKey());
-			gv.convertToVisualGraph();
+			//GraphVisualizer gv = new GraphVisualizer(tempGraph, tempGraph.getMethodKey());
+			//gv.convertToVisualGraph();
 			double[][] templateCostTable = scorer.constructCostTable(templateName, tempGraph.getInstPool());
 			
 			List<GrownGraph> grownGraphs = this.collectAndMergeChildGraphs(tempGraph);
@@ -377,8 +377,8 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 					gGraph.showGraph();
 					String growName = templateName + growCount++;
 					System.out.println("Grown graph: " + growName);
-					GraphVisualizer gv2 = new GraphVisualizer(gGraph, growName);
-					gv2.convertToVisualGraph();
+					//GraphVisualizer gv2 = new GraphVisualizer(gGraph, growName);
+					//gv2.convertToVisualGraph();
 					double[][] growCostTable = scorer.constructCostTable(growName, gGraph.getInstPool());
 					growCosts.put(gGraph, growCostTable);
 					TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};

@@ -33,7 +33,7 @@ import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.MethodStackRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
-public class DynamicMethodMiner extends AdviceAdapter {
+public class DynamicMethodMiner extends MethodVisitor {
 	
 	private static String methodStackRecorder = Type.getInternalName(MethodStackRecorder.class);
 	
@@ -80,6 +80,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	private boolean isTest = false;
 	
 	private LocalVariablesSorter lvs;
+	//private AdviceAdapter lvs;
 	
 	private int localMsrId = -1;
 	
@@ -98,15 +99,21 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	private AtomicInteger indexer = new AtomicInteger();
 	
 	private ArrayList<String> recentLoads = new ArrayList<String>();
+	
+	private boolean constructor = false;
+	
+	private boolean superVisited = false;
 	 
 	public DynamicMethodMiner(MethodVisitor mv, String className, int access, String myName, String desc, String templateAnnot, String testAnnot) {
-		super(Opcodes.ASM4, mv, access, myName, desc);
+		//super(Opcodes.ASM4, mv, access, myName, desc);
+		super(Opcodes.ASM4, mv);
 		this.className = className;
 		this.myName = myName;
 		this.desc = desc;
 		this.templateAnnot = templateAnnot;
 		this.testAnnot = testAnnot;
 		this.isStatic = ((access & Opcodes.ACC_STATIC) != 0);
+		this.constructor = myName.equals("<init>");
 	}
 	
 	public synchronized int getIndex() {
@@ -131,8 +138,16 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		return this.lvs;
 	}
 	
-	private boolean annotGuard() {
-		return (this.isTemplate || this.isTest);
+	/*public void setAdviceAdapter(AdviceAdapter lvs) {
+		this.lvs = lvs;
+	}
+	
+	public AdviceAdapter getAdviceAdapter() {
+		return this.lvs;
+	}*/
+	
+	public boolean annotGuard() {
+		return this.isTemplate || this.isTest;
 	}
 	
 	private boolean isReturn(int opcode) {
@@ -193,7 +208,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		}
 	}
 		
-	private void handleOpcode(int opcode, int...addInfo) {
+	private void handleOpcode(int opcode, int...addInfo) {		
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.convertConst(opcode);
 		this.convertConst(this.getIndex());
@@ -206,29 +221,15 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleCommon, srHCDesc);
 	}
 	
-	private void handleOpcode(int opcode, String addInfo) {
+	private void handleOpcode(int opcode, String addInfo) {		
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.convertConst(opcode);
 		this.convertConst(this.getIndex());
 		this.mv.visitLdcInsn(addInfo);
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleCommon, srHCDescString);
 	}
-	
-	private void handleField(int opcode, String addInfo) {
-		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
-		this.convertConst(opcode);
-		this.convertConst(this.getIndex());
-		this.mv.visitLdcInsn(addInfo);
-		if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC) {
-			this.mv.visitInsn(Opcodes.ICONST_0);
-		} else {
-			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
-			this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, MIBConfiguration.getMIBID(), "I");
-		}
-		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleField, srHandleFieldDesc);
-	}
-	
-	private void handleLdc(int opcode, int times, String addInfo) {
+		
+	private void handleLdc(int opcode, int times, String addInfo) {		
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.convertConst(opcode);
 		this.convertConst(this.getIndex());
@@ -237,7 +238,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleLdc, srHandleLdcDesc);
 	}
 	
-	private void handleMultiNewArray(String desc, int dim) {
+	private void handleMultiNewArray(String desc, int dim) {		
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.mv.visitLdcInsn(desc);
 		this.convertConst(dim);
@@ -245,7 +246,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleMultiArray, srHandleMultiArrayDesc);
 	}
 	
-	public void handleMethod(int opcode, String owner, String name, String desc) {
+	public void handleMethod(int opcode, String owner, String name, String desc) {		
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.convertConst(opcode);
 		this.convertConst(this.getIndex());
@@ -255,15 +256,13 @@ public class DynamicMethodMiner extends AdviceAdapter {
 		this.mv.visitLdcInsn(desc);
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleMethod, srHandleMethodDesc);
 	}
+	
+	public void initConstructor() {
+		System.out.println("Initialize constructor: " + this.myName + " " + this.annotGuard());
+		this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+		this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, this.className, MIBConfiguration.getMIBIDGenMethod(), "()I");
+		this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMIBID(), "I");
 		
-	@Override
-	public void onMethodEnter() {
-		System.out.println("Method enter: " + this.myName + " " + this.annotGuard());
-		if (this.myName.equals("<init>")) {
-			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
-			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, this.className, MIBConfiguration.getMIBIDGenMethod(), "()I");
-			this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMIBID(), "I");
-		}
 		if (this.annotGuard()) {
 			//Create the method stack recorder
 			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
@@ -272,7 +271,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 			this.mv.visitInsn(Opcodes.DUP);
 			this.mv.visitLdcInsn(this.className);
 			this.mv.visitLdcInsn(this.myName);
-			this.mv.visitLdcInsn(this.methodDesc);
+			this.mv.visitLdcInsn(this.desc);
 			
 			if (this.isStatic)
 				this.mv.visitInsn(Opcodes.ICONST_1);
@@ -290,14 +289,13 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	@Override
 	public void visitCode() {
 		this.mv.visitCode();
-		if (this.myName.equals("<init>")) {
-			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
-			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, this.className, MIBConfiguration.getMIBIDGenMethod(), "()I");
-			this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMIBID(), "I");
+		if (this.constructor && !this.superVisited) {
+			//For some reasons, AdviceAdapter does not work. Do it by myself
+			return ; 
 		}
 		
-		if (this.annotGuard() && this.localMsrId < 0) {
-			System.out.println("Visit code, method enter is not visited: " + this.annotGuard());
+		if (this.annotGuard() && this.localMsrId < 0) {			
+			System.out.println("Visit code: " + this.myName + " " + this.annotGuard());
 			//Create the method stack recorder
 			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
 			System.out.println("Method Stack Recorder name: " + methodStackRecorder);
@@ -305,7 +303,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 			this.mv.visitInsn(Opcodes.DUP);
 			this.mv.visitLdcInsn(this.className);
 			this.mv.visitLdcInsn(this.myName);
-			this.mv.visitLdcInsn(this.methodDesc);
+			this.mv.visitLdcInsn(this.desc);
 			
 			if (this.isStatic)
 				this.mv.visitInsn(Opcodes.ICONST_1);
@@ -349,7 +347,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	@Override
 	public void visitInsn(int opcode) {
-		if (this.annotGuard()) {
+		if (this.annotGuard() && !this.constructor) {
 			if (!isReturn(opcode)) {
 				this.handleOpcode(opcode);
 				this.mv.visitInsn(opcode);
@@ -374,7 +372,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	@Override
 	public void visitIntInsn(int opcode, int operand) {
-		if (this.annotGuard()) {
+		if (this.annotGuard() && !this.constructor) {
 			this.handleOpcode(opcode, operand);
 			
 			this.updateMethodRep(opcode);
@@ -384,7 +382,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	@Override
 	public void visitVarInsn(int opcode, int var) {
-		if (this.annotGuard()) {
+		if (this.annotGuard() && !this.constructor) {
 			if (opcode == Opcodes.ALOAD) {
 				//Store it in MethodStackRecorder
 				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
@@ -403,7 +401,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	@Override
 	public void visitTypeInsn(int opcode, String type) {
-		if (this.annotGuard()) {
+		if (this.annotGuard() && !this.constructor) {
 			this.handleOpcode(opcode, type);
 			
 			this.updateMethodRep(opcode);
@@ -413,7 +411,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-		if (this.annotGuard()) {
+		if (this.annotGuard() && !this.constructor) {
 			if (opcode == Opcodes.GETFIELD) {
 				this.mv.visitInsn(Opcodes.DUP);
 				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
@@ -448,8 +446,8 @@ public class DynamicMethodMiner extends AdviceAdapter {
 							methodStackRecorder, 
 							MIBConfiguration.getObjOnStack(), 
 							MIBConfiguration.getObjOnStackDesc()); //val, ref
-					this.mv.visitInsn(Opcodes.DUP_X1);
-					this.mv.visitInsn(Opcodes.POP);
+					this.mv.visitInsn(Opcodes.DUP_X1); // ref, val, ref
+					this.mv.visitInsn(Opcodes.POP); //ref, val
 				}
 			} 
 			
@@ -464,18 +462,24 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-		if (this.annotGuard()) {
-			//Definitely need a special handler for method
+		if (this.annotGuard() && !this.constructor) {
 			this.handleMethod(opcode, owner, name, desc);
 			
 			this.updateMethodRep(opcode);
 		}
 		this.mv.visitMethodInsn(opcode, owner, name, desc);
+		
+		//If the INVOKESPECIAL is visited, start instrument constructor
+		if (this.constructor && opcode == Opcodes.INVOKESPECIAL && !this.superVisited) {
+			this.initConstructor();
+			this.superVisited = true;
+			this.constructor = false;
+		}
 	}
 	
 	@Override
 	public void visitJumpInsn(int opcode, Label label) {
-		if (this.annotGuard()) {
+		if (this.annotGuard() && !this.constructor) {
 			String labelString = label.toString();
 			this.handleOpcode(opcode, labelString);
 			
@@ -486,7 +490,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	@Override
 	public void visitLdcInsn(Object cst) {
-		if (this.annotGuard()) {
+		if (this.annotGuard() && !this.constructor) {
 			if (cst instanceof Double || cst instanceof Float) {
 				this.handleLdc(Opcodes.LDC, 2, cst.toString());
 			} else {
@@ -500,7 +504,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	@Override
 	public void visitIincInsn(int var, int increment) {
-		if (this.annotGuard()) {
+		if (this.annotGuard() && !this.constructor) {
 			this.handleOpcode(Opcodes.IINC, var);
 			
 			this.updateMethodRep(Opcodes.IINC);
@@ -510,7 +514,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	@Override
 	public void visitTableSwitchInsn(int min, int max, Label dflt, Label...labels) {
-		if (this.annotGuard()) {
+		if (this.annotGuard() && !this.constructor) {
 			String labelString = dflt.toString();
 			this.handleOpcode(Opcodes.TABLESWITCH, labelString);
 			
@@ -521,7 +525,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	@Override
 	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
-		if (this.annotGuard()) {
+		if (this.annotGuard() && !this.constructor) {
 			String labelString = dflt.toString();
 			this.handleOpcode(Opcodes.LOOKUPSWITCH, labelString);
 			
@@ -532,7 +536,7 @@ public class DynamicMethodMiner extends AdviceAdapter {
 	
 	@Override
 	public void visitMultiANewArrayInsn(String desc, int dims) {
-		if (this.annotGuard()) {
+		if (this.annotGuard() && !this.constructor) {
 			this.handleMultiNewArray(desc, dims);
 			
 			this.updateMethodRep(Opcodes.MULTIANEWARRAY);

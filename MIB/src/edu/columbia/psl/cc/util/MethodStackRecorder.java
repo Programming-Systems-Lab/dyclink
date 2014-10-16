@@ -170,42 +170,6 @@ public class MethodStackRecorder {
 		this.showStackSimulator();
 	}
 	
-	public void handleField(int opcode, int instIdx, String addInfo, int objId) {
-		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
-		int opcat = oo.getCatId();
-		addInfo = addInfo + objId;
-		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
-		
-		this.updateControlRelation(fullInst);
-		this.updatePath(fullInst);
-		
-		if (BytecodeCategory.readFieldCategory().contains(opcat)) {
-			InstNode parent = this.fieldRecorder.get(addInfo);
-			if (parent != null)
-				this.updateCachedMap(parent, fullInst, false);
-			
-			if (this.extMethods.size() > 0) {
-				this.extMethods.get(this.extMethods.size() - 1).addAffFieldInst(fullInst);
-			}
-			
-			this.updateReadField(fullInst);
-		} else if (BytecodeCategory.writeFieldCategory().contains(opcat)) {
-			this.fieldRecorder.put(addInfo, fullInst);
-			this.stopReadField(addInfo);
-		}
-		
-		int inputSize = oo.getInList().size();
-		if (inputSize > 0) {
-			for (int i = 0; i < inputSize; i++) {
-				//Should not return null here
-				InstNode tmpInst = this.safePop();
-				this.updateCachedMap(tmpInst, fullInst, false);
-			}
-		}
-		this.updateStackSimulator(fullInst, 0);
-		this.showStackSimulator();
-	}
-	
 	public void handleOpcode(int opcode, int instIdx, String addInfo) {
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
@@ -221,6 +185,7 @@ public class MethodStackRecorder {
 		if (objId > 0) {
 			addInfo = addInfo + objId;
 		}
+		
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
 		
 		this.updateControlRelation(fullInst);
