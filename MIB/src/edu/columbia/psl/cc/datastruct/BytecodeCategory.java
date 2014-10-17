@@ -197,6 +197,14 @@ public class BytecodeCategory {
 		return ret;
 	}
 	
+	public static HashSet<Integer> objMethodOps() {
+		HashSet<Integer> ret = new HashSet<Integer>();
+		ret.add(182);
+		ret.add(183);
+		ret.add(185);
+		return ret;
+	}
+	
 	public static HashSet<Integer> asmPrimitiveSort() {
 		HashSet<Integer> ret = new HashSet<Integer>();
 		ret.add(Type.BOOLEAN);

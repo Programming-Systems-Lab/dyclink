@@ -31,6 +31,7 @@ import edu.columbia.psl.cc.pojo.SwitchNode;
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.MethodStackRecorder;
+import edu.columbia.psl.cc.util.ObjectIdAllocater;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class DynamicMethodMiner extends MethodVisitor {
@@ -270,7 +271,8 @@ public class DynamicMethodMiner extends MethodVisitor {
 	public void initConstructor() {
 		System.out.println("Initialize constructor: " + this.myName + " " + this.shouldInstrument());
 		this.mv.visitVarInsn(Opcodes.ALOAD, 0);
-		this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, this.className, MIBConfiguration.getMIBIDGenMethod(), "()I");
+		//this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, this.className, MIBConfiguration.getMIBIDGenMethod(), "()I");
+		this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ObjectIdAllocater.class), "getIndex", "()I");
 		this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMIBID(), "I");
 		
 		if (this.shouldInstrument()) {

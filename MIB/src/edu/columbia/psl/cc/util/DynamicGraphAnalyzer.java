@@ -218,13 +218,14 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		
 		InstNode methodNode = parent.getInstPool().searchAndGet(parent.getMethodKey(), methodEo.getInstIdx());
 		String methodKey = StringUtil.genIdxKey(methodNode.getFromMethod(), methodNode.getIdx());
-		if (!parent.isStaticMethod()) {
+		if (BytecodeCategory.objMethodOps().contains(methodNode.getOp().getOpcode())) {
 			//If method is instance level, remove the aload instruction from pool
 			String aloadId = methodNode.getDataParentList().get(methodNode.getDataParentList().size() - 1);
 			String[] parsed = StringUtil.parseIdxKey(aloadId);
 			InstNode loadInst = parent.getInstPool().searchAndGet(parsed[0], Integer.valueOf(parsed[1]));
 			
 			this.parentRemove(loadInst, parent.getInstPool(), aloadId);
+			System.out.println("MIB Debug: remove load inst from " + parent.getMethodKey() + " " + loadInst);
 			parent.getInstPool().remove(loadInst);
 		}
 		
@@ -261,6 +262,7 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			}
 		}
 		
+		System.out.println("MIB Debug: remove inst from " + parent.getMethodKey() + " " + methodNode);
 		parent.getInstPool().remove(methodNode);
 	}
 	
@@ -286,11 +288,15 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		ExtObj lastExt = null;
 		
 		//Need to follow the original call sequence of methods
+		//For method in the loop, jsut merge it for the first time
+		HashSet<Integer> visitedMethods = new HashSet<Integer>();
 		for (ExtObj methodEo: copyParent.getExtMethods()) {
 			int methodInstIdx = methodEo.getInstIdx();
-			if (extMethodMap.get(methodInstIdx) == null)
+			if (extMethodMap.get(methodInstIdx) == null 
+					|| visitedMethods.contains(methodInstIdx))
 				continue ;
 			
+			visitedMethods.add(methodInstIdx);
 			GraphTemplate copyChild = new GraphTemplate(extMethodMap.get(methodInstIdx));
 			System.out.println("Current child: " + copyChild.getMethodKey());
 			

@@ -68,7 +68,7 @@ public class MIBConfiguration {
 	
 	private static int precisionDigit = 3;
 	
-	private static boolean annotGuard = true;
+	private static boolean annotGuard = false;
 	
 	public static int getPrecisionDigit() {
 		return precisionDigit;

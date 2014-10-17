@@ -348,7 +348,6 @@ public class MethodStackRecorder {
 		//String addInfo = owner + "." + name + "." + desc;
 		String addInfo = StringUtil.genKey(owner, name, desc);
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
-		System.out.println("Method full inst: " + fullInst);
 		
 		ExtObj eo = new ExtObj();
 		this.updateControlRelation(fullInst);

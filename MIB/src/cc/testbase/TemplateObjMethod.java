@@ -8,6 +8,7 @@ import org.objectweb.asm.Type;
 import edu.columbia.psl.cc.annot.analyzeClass;
 import edu.columbia.psl.cc.annot.extractTemplate;
 import edu.columbia.psl.cc.annot.testTemplate;
+import edu.columbia.psl.cc.util.ObjectIdAllocater;
 
 @analyzeClass
 public class TemplateObjMethod {
@@ -26,7 +27,7 @@ public class TemplateObjMethod {
 	public TemplateObjMethod() {
 		//__mib_id = __gen_mib_id();
 		testObj = new Object();
-		int a = __mib_id;
+		__mib_id = ObjectIdAllocater.getIndex();
 	}
 	
 	public void acceptObject(Object obj) {
@@ -77,6 +78,12 @@ public class TemplateObjMethod {
 		String s4 = s3 + s2;
 		String s5 = s4 + "!!!";
 		return s5;
+	}
+	
+	public String testReturnMethod() {
+		String s1 = "abc";
+		String s2 = "def";
+		return this.testObjSequence(s1, s2);
 	}
 	
 	public static void main(String[] args) {
