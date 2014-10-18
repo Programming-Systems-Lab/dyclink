@@ -2,6 +2,7 @@ package edu.columbia.psl.cc.util;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,6 +33,8 @@ import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.pojo.StaticRep;
 
 public class MethodStackRecorder {
+	
+	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 		
 	private String className;
 	
@@ -161,6 +164,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {
+		System.out.println("Handling now: " + opcode + " " + instIdx + " " + addInfo);
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
 		
 		this.updateControlRelation(fullInst);
@@ -170,34 +174,35 @@ public class MethodStackRecorder {
 		this.showStackSimulator();
 	}
 	
-	public void handleOpcode(int opcode, int instIdx, String addInfo) {
+	public void handleField(int opcode, int instIdx, String owner, String name, String desc) {
+		System.out.println("Handling now: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
 		int objId = parseObjId(this.objOnStack);
 		
-		int typeSort = -1;
-		if (opcode == Opcodes.GETFIELD || opcode == Opcodes.GETSTATIC 
-				|| opcode == Opcodes.PUTFIELD || opcode == Opcodes.PUTSTATIC) {
-			String[] recover = addInfo.split("\\.");
-			typeSort = Type.getType(recover[2]).getSort();
-		}
+		//Search the real owner of the field
+		Class<?> targetClass = ClassInfoCollector.retrieveCorrectClassByField(owner, name);
+		System.out.println("Target class: " + targetClass);
+		System.out.println(name);
+		System.out.println(desc);
+		String fieldKey = targetClass.getName() + "." + name + "." + desc;
+		int typeSort = Type.getType(desc).getSort();
 		
 		if (objId > 0) {
-			addInfo = addInfo + objId;
+			fieldKey += objId;
+		} else {
+			System.out.println("Warning: Cannot generate obj id for: " + this.objOnStack);
 		}
 		
-		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
-		
+		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, fieldKey);
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
 		
-		if (BytecodeCategory.controlCategory().contains(opcat)) {
-			this.updateControlInst(fullInst);
-		} else if (BytecodeCategory.readFieldCategory().contains(opcat)) {
-			//Add infor for field: owner + name + desc + objId
+		if (BytecodeCategory.readFieldCategory().contains(opcat)) {
+			//Add info for field: owner + name + desc + objId
 			//Only record static or the instrumented object
 			if (opcode == Opcodes.GETSTATIC || objId > 0) {
-				InstNode parent = this.fieldRecorder.get(addInfo);
+				InstNode parent = this.fieldRecorder.get(fieldKey);
 				if (parent != null)
 					this.updateCachedMap(parent, fullInst, false);
 				
@@ -209,14 +214,14 @@ public class MethodStackRecorder {
 			}
 		} else if (BytecodeCategory.writeFieldCategory().contains(opcat)) {
 			if (opcode == Opcodes.PUTSTATIC || objId > 0) {
-				this.fieldRecorder.put(addInfo, fullInst);
-				this.stopReadField(addInfo);
+				this.fieldRecorder.put(fieldKey, fullInst);
+				this.stopReadField(fieldKey);
 			}
 		}
 		
 		int addInput = 0, addOutput = 0;
 		if (opcode == Opcodes.PUTFIELD || opcode == Opcodes.PUTSTATIC) {
-			System.out.println("Add info: " + addInfo);
+			System.out.println("Add info: " + fieldKey);
 			System.out.println("Type sort: " + typeSort + Type.DOUBLE);
 			if (typeSort == Type.DOUBLE || typeSort == Type.LONG) {
 				addInput++;
@@ -236,6 +241,31 @@ public class MethodStackRecorder {
 			}
 		}
 		this.updateStackSimulator(fullInst, addOutput);
+		this.showStackSimulator();
+	}
+	
+	public void handleOpcode(int opcode, int instIdx, String addInfo) {
+		System.out.println("Handling now: " + opcode + " " + instIdx + " " + addInfo);
+		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
+		int opcat = oo.getCatId();
+		
+		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
+		this.updateControlRelation(fullInst);
+		this.updatePath(fullInst);
+		
+		if (BytecodeCategory.controlCategory().contains(opcat)) {
+			this.updateControlInst(fullInst);
+		}
+		
+		int inputSize = oo.getInList().size();
+		if (inputSize > 0) {
+			for (int i = 0; i < inputSize; i++) {
+				//Should not return null here
+				InstNode tmpInst = this.safePop();
+				this.updateCachedMap(tmpInst, fullInst, false);
+			}
+		}
+		this.updateStackSimulator(fullInst, 0);
 		this.showStackSimulator();
 	}
 	
@@ -329,6 +359,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleMultiNewArray(String desc, int dim, int instIdx) {
+		System.out.println("Handling now: " + desc + " " + dim + " " + instIdx);
 		String addInfo = desc + " " + dim;
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, Opcodes.MULTIANEWARRAY, addInfo);
 		
@@ -344,22 +375,10 @@ public class MethodStackRecorder {
 		this.showStackSimulator();
 	}
 	
-	public void handleMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc) {
-		//String addInfo = owner + "." + name + "." + desc;
-		String addInfo = StringUtil.genKey(owner, name, desc);
-		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
+	private void handleUninstrumentedMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc, InstNode fullInst, ExtObj eo) {
+		System.out.println("Handling uninstrumented method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		
-		ExtObj eo = new ExtObj();
 		this.updateControlRelation(fullInst);
-		this.updatePath(fullInst);
-		
-		eo.setLineNumber(linenum);
-		eo.setInstIdx(instIdx);
-		if (this.fieldRecorder.size() > 0) {
-			for (InstNode inst: this.fieldRecorder.values()) {
-				eo.addWriteFieldInst(inst);
-			}
-		}
 		
 		Type methodType = Type.getMethodType(desc);
 		//+1 for object reference, if instance method
@@ -395,6 +414,149 @@ public class MethodStackRecorder {
 			}
 		}
 		this.showStackSimulator();
+	}
+	
+	public void handleMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc) {
+		//String addInfo = owner + "." + name + "." + desc;
+		//String addInfo = StringUtil.genKey(owner, name, desc);
+		//InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
+		
+		System.out.println("Handling now: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+		try {
+			//Load the correct graph
+			Class<?> correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc);
+			System.out.println("Method owner: " + correctClass.getName());
+			String searchKey = StringUtil.genKey(correctClass.getName(), name, desc);
+			InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, searchKey);
+			
+			ExtObj eo = new ExtObj();
+			//Don't update, because we will remove inst before leaving the method
+			//this.updateControlRelation(fullInst);
+			this.updatePath(fullInst);
+			
+			eo.setLineNumber(linenum);
+			eo.setInstIdx(instIdx);
+			this.updateExtMethods(eo);
+			
+			String filePath = MIBConfiguration.getTemplateDir() + "/" + searchKey + ".json";
+			GraphTemplate childGraph = TemplateLoader.loadTemplateFile(filePath, graphToken);
+			
+			//This means that the callee method is from jvm, keep the method inst in graph
+			if (childGraph == null) {
+				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst, eo);
+				return ;
+			}
+			
+			//Integrate two pools and update dependencies
+			InstPool childPool = childGraph.getInstPool();
+			GraphUtil.removeReturnInst(childPool);
+			
+			//Search correct inst on inst, update local data dep dependency
+			Type methodType = Type.getMethodType(desc);
+			Type[] args = methodType.getArgumentTypes();
+			int argSize = 0;
+			
+			if (args.length > 0) {
+				int startIdx = 0;
+				if (!BytecodeCategory.staticMethod().contains(opcode)) {
+					startIdx = 1;
+				}
+				int endIdx = startIdx + args.length - 1;
+				HashMap<Integer, InstNode> parentFromCaller = new HashMap<Integer, InstNode>();
+				for (int i = args.length - 1; i >= 0 ;i--) {
+					Type t = args[i];
+					InstNode targetNode = null;
+					if (t.getDescriptor().equals("D") || t.getDescriptor().equals("L")) {
+						this.safePop();
+						targetNode = this.safePop();
+						argSize += 2;
+					} else {
+						targetNode = this.safePop();
+						argSize += 1;
+					}
+					parentFromCaller.put(endIdx--, targetNode);
+				}
+				GraphUtil.dataDepFromParentToChild(parentFromCaller, 
+						childPool, 
+						childGraph.getFirstReadLocalVars(), 
+						childGraph.getMethodKey());
+			}
+			System.out.println("Arg size: " + argSize);
+			
+			if (!BytecodeCategory.staticMethod().contains(opcode)) {
+				//Pop the obj reference on stack
+				this.safePop();
+			}
+			
+			//Update control dep 
+			if (this.curControlInst != null) {
+				GraphUtil.controlDepFromParentToChild(this.curControlInst, childPool);
+			}
+			
+			//Update field data dep
+			if (this.fieldRecorder.size() > 0) {
+				GraphUtil.fieldDataDepFromParentToChild(this.fieldRecorder, 
+						childPool, 
+						childGraph.getFirstReadFields(), 
+						childGraph.getMethodKey());
+				
+				for (InstNode inst: this.fieldRecorder.values()) {
+					eo.addWriteFieldInst(inst);
+				}
+			}
+			
+			String returnType = methodType.getReturnType().getDescriptor();
+			if (!returnType.equals("V")) {
+				List<InstNode> childPath = childGraph.getPath();
+				if (returnType.equals("D") || returnType.equals("L")) {
+					if (childPath.size() > 1)
+						this.updateStackSimulator(2, childPath.get(childPath.size() - 2));
+				} else {
+					this.updateStackSimulator(1, childPath.get(childPath.size() - 2));
+				}
+			}
+			this.showStackSimulator();
+			this.pool.remove(fullInst);
+			
+			GraphUtil.unionInstPools(this.pool, childPool);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		/*Type methodType = Type.getMethodType(desc);
+		//+1 for object reference, if instance method
+		Type[] args = methodType.getArgumentTypes();
+		int argSize = 0;
+		for (int i = 0; i < args.length; i++) {
+			Type t = args[i];
+			if (t.getDescriptor().equals("D") || t.getDescriptor().equals("L")) {
+				argSize += 2;
+			} else {
+				argSize += 1;
+			}
+			eo.addLoadLocalInst(this.stackSimulator.get(this.stackSimulator.size() - argSize));
+		}
+		this.updateExtMethods(eo);
+		
+		if (!BytecodeCategory.staticMethod().contains(opcode)) {
+			argSize++;
+		}
+		System.out.println("Arg size: " + argSize);
+		String returnType = methodType.getReturnType().getDescriptor();
+		for (int i = 0; i < argSize; i++) {
+			InstNode tmpInst = this.safePop();
+			this.updateCachedMap(tmpInst, fullInst, false);
+			//this.updateInvokeMethod(methodKey, tmpInst);
+		}
+		
+		if (!returnType.equals("V")) {
+			if (returnType.equals("D") || returnType.equals("L")) {
+				this.updateStackSimulator(2, fullInst);
+			} else {
+				this.updateStackSimulator(1, fullInst);
+			}
+		}
+		this.showStackSimulator();*/
 	}
 	
 	public void handleDup(int opcode) {
@@ -496,7 +658,7 @@ public class MethodStackRecorder {
 	}
 	
 	private void updateStackSimulator(int times, InstNode fullInst) {
-		System.out.println("Stack push: " + fullInst);
+		System.out.println("Stack push: " + fullInst + " " + times);
 		for (int i = 0; i < times; i++) {
 			this.stackSimulator.push(fullInst);
 		}

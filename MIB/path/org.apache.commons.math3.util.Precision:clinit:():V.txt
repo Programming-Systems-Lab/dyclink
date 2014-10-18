@@ -1,0 +1,7 @@
+org.apache.commons.math3.util.Precision:clinit:():V 0 18 ldc 4368491638549381120
+org.apache.commons.math3.util.Precision:clinit:():V 1 184 invokestatic java.lang.Double:longBitsToDouble:(J):D
+org.apache.commons.math3.util.Precision:clinit:():V 2 179 putstatic org.apache.commons.math3.util.Precision.EPSILON.D
+org.apache.commons.math3.util.Precision:clinit:():V 3 18 ldc 4503599627370496
+org.apache.commons.math3.util.Precision:clinit:():V 4 184 invokestatic java.lang.Double:longBitsToDouble:(J):D
+org.apache.commons.math3.util.Precision:clinit:():V 5 179 putstatic org.apache.commons.math3.util.Precision.SAFE_MIN.D
+org.apache.commons.math3.util.Precision:clinit:():V 6 177 return 

@@ -231,13 +231,23 @@ public class DynamicMethodMiner extends MethodVisitor {
 		}
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleCommon, srHCDesc);
 	}
-	
+		
 	private void handleOpcode(int opcode, String addInfo) {		
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.convertConst(opcode);
 		this.convertConst(this.getIndex());
 		this.mv.visitLdcInsn(addInfo);
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleCommon, srHCDescString);
+	}
+	
+	private void handleField(int opcode, String owner, String name, String desc) {
+		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+		this.convertConst(opcode);
+		this.convertConst(this.getIndex());
+		this.mv.visitLdcInsn(owner);
+		this.mv.visitLdcInsn(name);
+		this.mv.visitLdcInsn(desc);
+		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleField, srHandleFieldDesc);
 	}
 		
 	private void handleLdc(int opcode, int times, String addInfo) {		
@@ -270,10 +280,10 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	public void initConstructor() {
 		System.out.println("Initialize constructor: " + this.myName + " " + this.shouldInstrument());
-		this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+		/*this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 		//this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, this.className, MIBConfiguration.getMIBIDGenMethod(), "()I");
 		this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ObjectIdAllocater.class), "getIndex", "()I");
-		this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMIBID(), "I");
+		this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMIBID(), "I");*/
 		
 		if (this.shouldInstrument()) {
 			//Create the method stack recorder
@@ -303,6 +313,10 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.mv.visitCode();
 		if (this.constructor && !this.superVisited) {
 			//For some reasons, AdviceAdapter does not work. Do it by myself
+			//Give obj id before visit super class
+			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ObjectIdAllocater.class), "getIndex", "()I");
+			this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMIBID(), "I");
 			return ; 
 		}
 		
@@ -463,9 +477,10 @@ public class DynamicMethodMiner extends MethodVisitor {
 				}
 			} 
 			
-			String fullField = owner + "." + name + "." + desc;
-			this.handleOpcode(opcode, fullField);
+			//String fullField = owner + "." + name + "." + desc;
+			//this.handleOpcode(opcode, fullField);
 			//this.handleField(opcode, fullField);
+			this.handleField(opcode, owner, name, desc);
 			
 			this.updateMethodRep(opcode);
 		}
@@ -474,12 +489,14 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+		//For merging the graph on the fly, need to visit method before recording them
+		this.mv.visitMethodInsn(opcode, owner, name, desc);
+		//System.out.println("Method should instrument: " + opcode + " " + owner + " " + name + " " + this.shouldInstrument() + " " + this.constructor);
 		if (this.shouldInstrument() && !this.constructor) {
 			this.handleMethod(opcode, owner, name, desc);
 			
 			this.updateMethodRep(opcode);
 		}
-		this.mv.visitMethodInsn(opcode, owner, name, desc);
 		
 		//If the INVOKESPECIAL is visited, start instrument constructor
 		if (this.constructor && opcode == Opcodes.INVOKESPECIAL && !this.superVisited) {

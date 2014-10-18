@@ -1,0 +1,5 @@
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 0 187 new cc/testbase/TemplateMethod
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 1 89 dup 
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 2 183 invokespecial cc.testbase.TemplateMethod:init:():V
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 3 58 astore 2
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 4 177 return 

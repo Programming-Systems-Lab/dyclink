@@ -365,8 +365,35 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		MIBSimilarity<double[][]> scorer = new SVDKernel();
 		StringBuilder sb = new StringBuilder();
 		
+		HashMap<String, double[][]> cachedMap = new HashMap<String, double[][]>();
+		for (String key1: this.templates.keySet()) {
+			GraphTemplate graph1 = this.templates.get(key1);
+			double[][] templateCostTable = null;
+			if (cachedMap.containsKey(key1)) {
+				templateCostTable = cachedMap.get(key1);
+			} else {
+				templateCostTable = scorer.constructCostTable(key1, graph1.getInstPool());
+			}
+			
+			for (String key2: this.templates.keySet()) {
+				GraphTemplate graph2 = this.templates.get(key2);
+				double[][] templateCostTable2 = null;
+				if (cachedMap.containsKey(key2)) {
+					templateCostTable2 = cachedMap.get(key2);
+				} else {
+					templateCostTable2 = scorer.constructCostTable(key2, graph2.getInstPool());
+				}
+				
+				double simScore = scorer.calculateSimilarity(templateCostTable, templateCostTable2);
+				String output = key1 + " vs. " + key2 + " " + simScore;
+				sb.append(output + "\n");
+				System.out.println(output);
+			}
+		}
+		GsonManager.writeResult(sb);
+		
 		//Score kernel
-		HashMap<String, double[][]> cachedGrown = new HashMap<String, double[][]>();
+		/*HashMap<String, double[][]> cachedGrown = new HashMap<String, double[][]>();		
 		for (String templateName: this.templates.keySet()) {
 			GraphTemplate tempGraph = this.templates.get(templateName);
 			System.out.println("Original temp graph: ");
@@ -439,7 +466,7 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			}
 		}
 		
-		GsonManager.writeResult(sb);
+		GsonManager.writeResult(sb);*/
 	}
 
 	/**

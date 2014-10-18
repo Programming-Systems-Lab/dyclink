@@ -38,7 +38,9 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 				&& !name.startsWith("sun") 
 				&& !name.startsWith("edu.columbia.psl.cc") 
 				&& !name.startsWith("com.google.gson") 
-				&& !name.startsWith("cc.testbase")) {
+				&& !name.startsWith("com.apple.java")
+				&& !name.startsWith("org.objectweb.asm")
+				&& !name.startsWith("org.apache.commons.math3")) {
 			//Start the instrumentation here;
 			try {
 				ClassReader cr = new ClassReader(name);

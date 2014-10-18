@@ -8,7 +8,9 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -33,40 +35,89 @@ import edu.columbia.psl.cc.pojo.VarPair;
 
 public class GraphUtil {
 	
-	/*public InstNode parseInstNode(String rawInst, String methodName) {
-		String label = StringUtil.parseElement(rawInst, 0);
-		int opcode = Integer.valueOf(StringUtil.parseElement(rawInst, 2));
-		OpcodeObj opObj = BytecodeCategory.getOpcodeObj(opcode);
+	private static void parentRemove(InstNode inst, InstPool pool, String instKey) {
+		//Remove data parent if any
+		for (String dp: inst.getDataParentList()) {
+			String[] dParsed = StringUtil.parseIdxKey(dp);
+			InstNode dpInst = pool.searchAndGet(dParsed[0], Integer.valueOf(dParsed[1]));
+			dpInst.getChildFreqMap().remove(instKey);
+		}
 		
-		InstNode inst = new InstNode();
-		inst.setOp(opObj);
-		inst.setThisMethodName(methodName);
-		inst.setRawInst(rawInst);
-		
-		return inst;
+		//Remove control parent if any
+		for (String cp: inst.getControlParentList()) {
+			String[] cParsed = StringUtil.parseIdxKey(cp);
+			InstNode cpInst = pool.searchAndGet(cParsed[0], Integer.valueOf(cParsed[1]));
+			cpInst.getChildFreqMap().remove(instKey);
+		}
 	}
-	
-	public void instantizetGraph(GraphTemplate graphTemplate) {
-		TreeMap<String, TreeSet<String>> rawGraph = graphTemplate.getDataGraph();
-	}
-	
-	public void unrollGraph(GraphTemplate graph, HashMap<String, GraphTemplate> graphLib) {
-		HashMap<String, ArrayList<String>> invokeMethodLookup = graph.getInvokeMethodLookup();
 		
-		List<GraphTemplate> childGraphs = new ArrayList<GraphTemplate>();
-		
-		//Find children graph
-		for (String mkey: invokeMethodLookup.keySet()) {
-			ArrayList<String> parentInsts = invokeMethodLookup.get(mkey);
+	public static void dataDepFromParentToChild(Map<Integer, InstNode> parentMap, InstPool childPool, HashSet<Integer> firstReadLocalVars, String childMethod) {
+		for (Integer f: firstReadLocalVars) {
+			InstNode fInst = childPool.searchAndGet(childMethod, f);
 			
-			GraphTemplate childGraph = graphLib.get(mkey);
-			int startIdx = parentInsts.size() - childGraph.getMethodArgSize();
+			int idx = Integer.valueOf(fInst.getAddInfo());
+			InstNode parentNode = null;
+			if (parentMap.containsKey(idx)) {
+				parentNode = parentMap.get(idx);
+				parentNode.getChildFreqMap().putAll(fInst.getChildFreqMap());
+			}
 			
-			for (int i = startIdx; startIdx < parentInsts.size(); i++) {
-				String parentInst = parentInsts.get(i);
+			for (String c: fInst.getChildFreqMap().keySet()) {
+				String[] keySet = StringUtil.parseIdxKey(c);
+				int cIdx= Integer.valueOf(keySet[1]);
+				InstNode cNode = childPool.searchAndGet(keySet[0], cIdx);
+				cNode.getDataParentList().remove(StringUtil.genIdxKey(fInst.getFromMethod(), fInst.getIdx()));
+				
+				if (parentNode != null) {
+					cNode.registerParent(parentNode.getFromMethod(), parentNode.getIdx(), false);
+				}
 			}
 		}
-	}*/
+	}
+	
+	public static void fieldDataDepFromParentToChild(Map<String, InstNode> parentMap, InstPool childPool, HashSet<Integer> firstReadFields, String childMethod) {
+		for (Integer f: firstReadFields){
+			InstNode fInst = childPool.searchAndGet(childMethod, f);
+			
+			if (parentMap.containsKey(fInst.getAddInfo())) {
+				InstNode parentNode = parentMap.get(fInst.getAddInfo());
+				
+				parentNode.increChild(fInst.getFromMethod(), fInst.getIdx(), MIBConfiguration.getDataWeight());
+				fInst.registerParent(parentNode.getFromMethod(), 
+						parentNode.getIdx(), 
+						false);
+			}
+		}
+	}
+	
+	public static void controlDepFromParentToChild(InstNode controlFromParent, InstPool childPool) {
+		for (InstNode cNode: childPool) {
+			controlFromParent.increChild(cNode.getFromMethod(), cNode.getIdx(), MIBConfiguration.getControlWeight());
+			cNode.registerParent(controlFromParent.getFromMethod(), controlFromParent.getIdx(), true);
+		}
+	}
+	
+	public static void removeReturnInst(InstPool pool) {
+		Iterator<InstNode> poolIt = pool.iterator();
+		InstNode returnInst = null;
+		while (poolIt.hasNext()) {
+			InstNode inst = poolIt.next();
+			if (BytecodeCategory.returnOps().contains(inst.getOp().getOpcode())) {
+				returnInst = inst;
+			}
+		}
+		String returnInstKey = StringUtil.genIdxKey(returnInst.getFromMethod(), returnInst.getIdx());
+		parentRemove(returnInst, pool, returnInstKey);
+		pool.remove(returnInst);
+	}
+	
+	public static void unionInstPools(InstPool parentPool, InstPool childPool) {
+		Iterator<InstNode> poolIt = childPool.iterator();
+		while (poolIt.hasNext()) {
+			InstNode childInst = poolIt.next();
+			parentPool.add(childInst);
+		}
+	}
 	
 	public static HashMap<Integer, GraphTemplate> collectChildGraphs(GraphTemplate parentGraph) {
 		String tempDir = MIBConfiguration.getTemplateDir();

@@ -58,7 +58,7 @@ public class MIBDriver {
 			dynamicAnalyzer.setAnnotGuard(MIBConfiguration.isAnnotGuard());
 			dynamicAnalyzer.analyzeTemplate();
 			
-			File labelDir = new File(MIBConfiguration.getLabelmapDir());
+			/*File labelDir = new File(MIBConfiguration.getLabelmapDir());
 			TypeToken<StaticRep> staticToken = new TypeToken<StaticRep>(){};
 			HashMap<String, StaticRep> allReps = TemplateLoader.loadTemplate(labelDir, staticToken);
 			
@@ -79,7 +79,7 @@ public class MIBDriver {
 			Analyzer<StaticRep> staticAnalyzer = new StaticBytecodeCatAnalyzer();
 			staticAnalyzer.setTemplates(templateReps);
 			staticAnalyzer.setTests(testReps);
-			staticAnalyzer.analyzeTemplate();
+			staticAnalyzer.analyzeTemplate();*/
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

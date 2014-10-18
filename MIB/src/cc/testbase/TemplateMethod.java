@@ -55,7 +55,7 @@ public class TemplateMethod extends TemplateParent{
 	public int fieldTest() {
 		this.iVar = 5;
 		int ret = this.iVar + sVar;
-		int b= this.iVar + 7;
+		ret = this.iVar + this.pVar;
 		return ret;
 	}
 	
@@ -238,12 +238,14 @@ public class TemplateMethod extends TemplateParent{
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
 		//System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
-		System.out.println("TestMethod: " + tm.all3Methods(3, 5));
+		/*System.out.println("TestMethod: " + tm.all3Methods(3, 5));
 		System.out.println("cc/testbase/TemplateMethod.iVar.I".split("\\.").length);
 		System.out.println(Type.INT);
 		System.out.println(Type.INT_TYPE.getSort());
 		System.out.println(Type.getType("I").getSort());
-		System.out.println(Type.getType("Ljava/lang/Integer;").getSort());
+		System.out.println(Type.getType("Ljava/lang/Integer;").getSort());*/
+		//System.out.println("-------Check result--------" + tm.fieldTest());
+		//System.out.println("-------Check result--------" + tm.parentAdd(3, 5));
 		//System.out.println("TempalteMethod: " + tm.addOutside(3, 5));
 		//tm.testAdd3(1, 2, 3);
 		//tm.setBoolean(true);

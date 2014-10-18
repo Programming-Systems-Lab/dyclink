@@ -1,0 +1,8 @@
+org.apache.commons.math3.util.CompositeFormat:getDefaultNumberFormat:(Ljava.util.Locale):Ljava.text.NumberFormat 0 25 aload 0
+org.apache.commons.math3.util.CompositeFormat:getDefaultNumberFormat:(Ljava.util.Locale):Ljava.text.NumberFormat 1 184 invokestatic java.text.NumberFormat:getInstance:(Ljava.util.Locale):Ljava.text.NumberFormat
+org.apache.commons.math3.util.CompositeFormat:getDefaultNumberFormat:(Ljava.util.Locale):Ljava.text.NumberFormat 2 58 astore 2
+org.apache.commons.math3.util.CompositeFormat:getDefaultNumberFormat:(Ljava.util.Locale):Ljava.text.NumberFormat 3 25 aload 2
+org.apache.commons.math3.util.CompositeFormat:getDefaultNumberFormat:(Ljava.util.Locale):Ljava.text.NumberFormat 4 16 bipush 10
+org.apache.commons.math3.util.CompositeFormat:getDefaultNumberFormat:(Ljava.util.Locale):Ljava.text.NumberFormat 5 182 invokevirtual java.text.NumberFormat:setMaximumFractionDigits:(I):V
+org.apache.commons.math3.util.CompositeFormat:getDefaultNumberFormat:(Ljava.util.Locale):Ljava.text.NumberFormat 6 25 aload 2
+org.apache.commons.math3.util.CompositeFormat:getDefaultNumberFormat:(Ljava.util.Locale):Ljava.text.NumberFormat 7 176 areturn 

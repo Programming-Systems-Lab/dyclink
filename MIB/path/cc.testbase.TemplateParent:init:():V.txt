@@ -1,0 +1,7 @@
+cc.testbase.TemplateParent:init:():V 0 25 aload 0
+cc.testbase.TemplateParent:init:():V 1 3 iconst_0 
+cc.testbase.TemplateParent:init:():V 2 181 putfield cc.testbase.TemplateParent.sVar.I1
+cc.testbase.TemplateParent:init:():V 3 25 aload 0
+cc.testbase.TemplateParent:init:():V 4 3 iconst_0 
+cc.testbase.TemplateParent:init:():V 5 181 putfield cc.testbase.TemplateParent.pVar.I1
+cc.testbase.TemplateParent:init:():V 6 177 return 

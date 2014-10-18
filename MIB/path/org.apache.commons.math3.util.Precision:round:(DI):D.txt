@@ -1,0 +1,5 @@
+org.apache.commons.math3.util.Precision:round:(DI):D 0 24 dload 0
+org.apache.commons.math3.util.Precision:round:(DI):D 1 21 iload 2
+org.apache.commons.math3.util.Precision:round:(DI):D 2 7 iconst_4 
+org.apache.commons.math3.util.Precision:round:(DI):D 3 184 invokestatic org.apache.commons.math3.util.Precision:round:(DII):D
+org.apache.commons.math3.util.Precision:round:(DI):D 4 175 dreturn 

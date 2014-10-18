@@ -20,7 +20,7 @@ public class MIBConfiguration {
 	
 	private static String srHandleField = "handleField";
 	
-	private static String srHandleFieldDesc = "(IILjava/lang/String;I)V";
+	private static String srHandleFieldDesc = "(IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
 	
 	private static String srHandleLdc = "handleLdc";
 	
