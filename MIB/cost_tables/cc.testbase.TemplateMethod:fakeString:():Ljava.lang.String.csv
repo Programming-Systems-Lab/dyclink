@@ -1,0 +1,3 @@
+head,cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String 0 18 ldc ret > 5,cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String 1 176 areturn 
+cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String 0 18 ldc ret > 5,0.0,1.0
+cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String 1 176 areturn ,0.0,0.0

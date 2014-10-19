@@ -237,7 +237,7 @@ public class TemplateMethod extends TemplateParent{
 		
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
-		//System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
+		System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
 		/*System.out.println("TestMethod: " + tm.all3Methods(3, 5));
 		System.out.println("cc/testbase/TemplateMethod.iVar.I".split("\\.").length);
 		System.out.println(Type.INT);

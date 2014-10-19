@@ -35,7 +35,7 @@ import edu.columbia.psl.cc.pojo.VarPair;
 
 public class GraphUtil {
 	
-	private static void parentRemove(InstNode inst, InstPool pool, String instKey) {
+	public static void parentRemove(InstNode inst, InstPool pool, String instKey) {
 		//Remove data parent if any
 		for (String dp: inst.getDataParentList()) {
 			String[] dParsed = StringUtil.parseIdxKey(dp);
@@ -52,25 +52,99 @@ public class GraphUtil {
 	}
 		
 	public static void dataDepFromParentToChild(Map<Integer, InstNode> parentMap, InstPool childPool, HashSet<Integer> firstReadLocalVars, String childMethod) {
+		/*HashMap<Integer, List<InstNode>> childSummary = new HashMap<Integer, List<InstNode>>();
+		for (Integer f: firstReadLocalVars) {
+			InstNode fInst = childPool.searchAndGet(childMethod, f);
+			int idx =Integer.valueOf(fInst.getAddInfo());
+			
+			if (childSummary.containsKey(idx)) {
+				childSummary.get(idx).add(fInst);
+			} else {
+				List<InstNode> insts = new ArrayList<InstNode>();
+				insts.add(fInst);
+				childSummary.put(idx, insts);
+			}
+		}
+		
+		for (Integer varKey: childSummary.keySet()) {
+			List<InstNode> childInsts = childSummary.get(varKey);
+			InstNode parentNode = parentMap.get(varKey);
+			
+			if (parentNode != null) {
+				if (childInsts.size() == 1) {
+					InstNode fInst = childInsts.get(0);
+					parentNode.getChildFreqMap().putAll(fInst.getChildFreqMap());
+					String fInstKey = StringUtil.genIdxKey(fInst.getFromMethod(), fInst.getIdx());
+					
+					for (String c: fInst.getChildFreqMap().keySet()) {
+						String[] keySet = StringUtil.parseIdxKey(c);
+						int cIdx= Integer.valueOf(keySet[1]);
+						InstNode cNode = childPool.searchAndGet(keySet[0], cIdx);
+						cNode.getDataParentList().remove(fInstKey);
+						
+						if (parentNode != null) {
+							cNode.registerParent(parentNode.getFromMethod(), parentNode.getIdx(), false);
+						}
+					}
+					
+					for (String cont: fInst.getControlParentList()) {
+						String[] keySet = StringUtil.parseIdxKey(cont);
+						int cIdx = Integer.valueOf(keySet[1]);
+						InstNode contNode = childPool.searchAndGet(keySet[0], cIdx);
+						double freq = contNode.getChildFreqMap().get(fInstKey);
+						
+						if (parentNode != null) {
+							contNode.increChild(parentNode.getFromMethod(), parentNode.getIdx(), freq);
+						}
+					}
+					
+					//Remove these first read local vars from child pool, 
+					//if there is corresponding parent in parent pool
+					parentRemove(fInst, childPool, StringUtil.genIdxKey(fInst.getFromMethod(), fInst.getIdx()));
+					childPool.remove(fInst);
+				} else if (childInsts.size() > 0) {
+					int curPId = parentNode.getIdx();
+				}
+			}
+		}*/
+		
 		for (Integer f: firstReadLocalVars) {
 			InstNode fInst = childPool.searchAndGet(childMethod, f);
 			
 			int idx = Integer.valueOf(fInst.getAddInfo());
 			InstNode parentNode = null;
+			//parent inherits children of same node in child method
 			if (parentMap.containsKey(idx)) {
 				parentNode = parentMap.get(idx);
 				parentNode.getChildFreqMap().putAll(fInst.getChildFreqMap());
-			}
-			
-			for (String c: fInst.getChildFreqMap().keySet()) {
-				String[] keySet = StringUtil.parseIdxKey(c);
-				int cIdx= Integer.valueOf(keySet[1]);
-				InstNode cNode = childPool.searchAndGet(keySet[0], cIdx);
-				cNode.getDataParentList().remove(StringUtil.genIdxKey(fInst.getFromMethod(), fInst.getIdx()));
+				String fInstKey = StringUtil.genIdxKey(fInst.getFromMethod(), fInst.getIdx());
 				
-				if (parentNode != null) {
-					cNode.registerParent(parentNode.getFromMethod(), parentNode.getIdx(), false);
+				for (String c: fInst.getChildFreqMap().keySet()) {
+					String[] keySet = StringUtil.parseIdxKey(c);
+					int cIdx= Integer.valueOf(keySet[1]);
+					InstNode cNode = childPool.searchAndGet(keySet[0], cIdx);
+					cNode.getDataParentList().remove(fInstKey);
+					
+					if (parentNode != null) {
+						cNode.registerParent(parentNode.getFromMethod(), parentNode.getIdx(), false);
+					}
 				}
+				
+				for (String cont: fInst.getControlParentList()) {
+					String[] keySet = StringUtil.parseIdxKey(cont);
+					int cIdx = Integer.valueOf(keySet[1]);
+					InstNode contNode = childPool.searchAndGet(keySet[0], cIdx);
+					double freq = contNode.getChildFreqMap().get(fInstKey);
+					
+					if (parentNode != null) {
+						contNode.increChild(parentNode.getFromMethod(), parentNode.getIdx(), freq);
+					}
+				}
+				
+				//Remove these first read local vars from child pool, 
+				//if there is corresponding parent in parent pool
+				parentRemove(fInst, childPool, StringUtil.genIdxKey(fInst.getFromMethod(), fInst.getIdx()));
+				childPool.remove(fInst);
 			}
 		}
 	}

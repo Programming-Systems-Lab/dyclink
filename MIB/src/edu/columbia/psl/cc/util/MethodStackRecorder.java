@@ -484,8 +484,11 @@ public class MethodStackRecorder {
 			System.out.println("Arg size: " + argSize);
 			
 			if (!BytecodeCategory.staticMethod().contains(opcode)) {
-				//Pop the obj reference on stack
-				this.safePop();
+				//Pop the obj reference on stack, and remove from pool
+				InstNode loadNode = this.safePop();
+				String loadKey = StringUtil.genIdxKey(loadNode.getFromMethod(), loadNode.getIdx());
+				GraphUtil.parentRemove(loadNode, this.pool, loadKey);
+				this.pool.remove(loadNode);
 			}
 			
 			//Update control dep 
