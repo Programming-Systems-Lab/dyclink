@@ -6,11 +6,11 @@ cc.testbase.TemplateMethod:invoke3Methods:(II):I 4 18 ldc
 cc.testbase.TemplateMethod:invoke3Methods:(II):I 5 58 astore 5
 cc.testbase.TemplateMethod:invoke3Methods:(II):I 6 21 iload 4
 cc.testbase.TemplateMethod:invoke3Methods:(II):I 7 8 iconst_5 
-cc.testbase.TemplateMethod:invoke3Methods:(II):I 8 164 if_icmple L545768040
+cc.testbase.TemplateMethod:invoke3Methods:(II):I 8 164 if_icmple L2112978551
 cc.testbase.TemplateMethod:invoke3Methods:(II):I 9 25 aload 0
 cc.testbase.TemplateMethod:invoke3Methods:(II):I 10 182 invokevirtual cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String
 cc.testbase.TemplateMethod:invoke3Methods:(II):I 11 58 astore 5
-cc.testbase.TemplateMethod:invoke3Methods:(II):I 12 167 goto L1520314875
+cc.testbase.TemplateMethod:invoke3Methods:(II):I 12 167 goto L1759969037
 cc.testbase.TemplateMethod:invoke3Methods:(II):I 15 8 iconst_5 
 cc.testbase.TemplateMethod:invoke3Methods:(II):I 16 188 newarray 10
 cc.testbase.TemplateMethod:invoke3Methods:(II):I 17 58 astore 6

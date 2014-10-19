@@ -19,6 +19,7 @@ import org.apache.commons.math3.util.MathUtils;
 import org.apache.commons.math3.util.Precision;
 
 import com.google.gson.reflect.TypeToken;
+import com.sun.xml.internal.ws.util.StringUtils;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
@@ -50,9 +51,50 @@ public class GraphUtil {
 			cpInst.getChildFreqMap().remove(instKey);
 		}
 	}
+	
+	public static void transplantCalleeDepToCaller(InstNode parentNode, 
+			InstPool parentPool, 
+			InstNode childNode, 
+			InstPool childPool) {
+		String fInstKey = StringUtil.genIdxKey(childNode.getFromMethod(), childNode.getIdx());
 		
-	public static void dataDepFromParentToChild(Map<Integer, InstNode> parentMap, InstPool childPool, HashSet<Integer> firstReadLocalVars, String childMethod) {
-		/*HashMap<Integer, List<InstNode>> childSummary = new HashMap<Integer, List<InstNode>>();
+		for (String c: childNode.getChildFreqMap().keySet()) {
+			double freq = childNode.getChildFreqMap().get(c);
+			String[] keySet = StringUtil.parseIdxKey(c);
+			int cIdx= Integer.valueOf(keySet[1]);
+			parentNode.increChild(keySet[0], cIdx, freq);
+			
+			InstNode cNode = childPool.searchAndGet(keySet[0], cIdx);
+			cNode.getDataParentList().remove(fInstKey);
+			
+			if (parentNode != null) {
+				cNode.registerParent(parentNode.getFromMethod(), parentNode.getIdx(), false);
+			}
+		}
+		
+		for (String cont: childNode.getControlParentList()) {
+			String[] keySet = StringUtil.parseIdxKey(cont);
+			int cIdx = Integer.valueOf(keySet[1]);
+			InstNode contNode = childPool.searchAndGet(keySet[0], cIdx);
+			double freq = contNode.getChildFreqMap().get(fInstKey);
+			
+			if (parentNode != null) {
+				contNode.increChild(parentNode.getFromMethod(), parentNode.getIdx(), freq);
+			}
+		}
+		
+		//Remove these first read local vars from child pool, 
+		//if there is corresponding parent in parent pool
+		parentRemove(childNode, childPool, StringUtil.genIdxKey(childNode.getFromMethod(), childNode.getIdx()));
+		childPool.remove(childNode);
+	}
+		
+	public static void dataDepFromParentToChild(Map<Integer, InstNode> parentMap, 
+			InstPool parentPool,
+			InstPool childPool, 
+			HashSet<Integer> firstReadLocalVars, 
+			String childMethod) {
+		HashMap<Integer, List<InstNode>> childSummary = new HashMap<Integer, List<InstNode>>();
 		for (Integer f: firstReadLocalVars) {
 			InstNode fInst = childPool.searchAndGet(childMethod, f);
 			int idx =Integer.valueOf(fInst.getAddInfo());
@@ -69,46 +111,72 @@ public class GraphUtil {
 		for (Integer varKey: childSummary.keySet()) {
 			List<InstNode> childInsts = childSummary.get(varKey);
 			InstNode parentNode = parentMap.get(varKey);
+			String parentKey = StringUtil.genIdxKey(parentNode.getFromMethod(), parentNode.getIdx());
 			
 			if (parentNode != null) {
 				if (childInsts.size() == 1) {
 					InstNode fInst = childInsts.get(0);
-					parentNode.getChildFreqMap().putAll(fInst.getChildFreqMap());
-					String fInstKey = StringUtil.genIdxKey(fInst.getFromMethod(), fInst.getIdx());
-					
-					for (String c: fInst.getChildFreqMap().keySet()) {
-						String[] keySet = StringUtil.parseIdxKey(c);
-						int cIdx= Integer.valueOf(keySet[1]);
-						InstNode cNode = childPool.searchAndGet(keySet[0], cIdx);
-						cNode.getDataParentList().remove(fInstKey);
-						
-						if (parentNode != null) {
-							cNode.registerParent(parentNode.getFromMethod(), parentNode.getIdx(), false);
-						}
-					}
-					
-					for (String cont: fInst.getControlParentList()) {
-						String[] keySet = StringUtil.parseIdxKey(cont);
-						int cIdx = Integer.valueOf(keySet[1]);
-						InstNode contNode = childPool.searchAndGet(keySet[0], cIdx);
-						double freq = contNode.getChildFreqMap().get(fInstKey);
-						
-						if (parentNode != null) {
-							contNode.increChild(parentNode.getFromMethod(), parentNode.getIdx(), freq);
-						}
-					}
-					
-					//Remove these first read local vars from child pool, 
-					//if there is corresponding parent in parent pool
-					parentRemove(fInst, childPool, StringUtil.genIdxKey(fInst.getFromMethod(), fInst.getIdx()));
-					childPool.remove(fInst);
+					transplantCalleeDepToCaller(parentNode, parentPool, fInst, childPool);
 				} else if (childInsts.size() > 0) {
 					int curPId = parentNode.getIdx();
+					boolean expand = false;
+					
+					List<InstNode> allPPList = new ArrayList<InstNode>();
+					List<InstNode> pChildList = new ArrayList<InstNode>();
+					
+					//Collect grand parent
+					for (String dPParent: parentNode.getDataParentList()) {
+						String[] dPParentKeys = StringUtil.parseIdxKey(dPParent);
+						InstNode ppNode = parentPool.searchAndGet(dPParentKeys[0], 
+								Integer.valueOf(dPParentKeys[1]));
+						allPPList.add(ppNode);
+					}
+					for (String cPParent: parentNode.getControlParentList()) {
+						String[] cPParentKeys = StringUtil.parseIdxKey(cPParent);
+						InstNode cpNode = parentPool.searchAndGet(cPParentKeys[0], 
+								Integer.valueOf(cPParentKeys[1]));
+						allPPList.add(cpNode);
+					}
+					for (String cKey: parentNode.getChildFreqMap().keySet()) {
+						String[] cKeys = StringUtil.parseIdxKey(cKey);
+						InstNode cNode = parentPool.searchAndGet(cKeys[0], 
+								Integer.valueOf(cKeys[1]));
+						pChildList.add(cNode);
+					}
+					
+					for (int i = 0; i < childInsts.size(); i++) {
+						InstNode fInst = childInsts.get(i);
+						InstNode copyParent = new InstNode(parentNode);
+						copyParent.setIdx(curPId);
+						
+						if (i == 0) {
+							parentPool.remove(parentNode);
+						}
+						
+						if (!expand) {
+							curPId *= 1000;
+							expand = true;
+						} else {
+							curPId++;
+						}
+						
+						for (InstNode pp: allPPList) {
+							double freq = pp.getChildFreqMap().get(parentKey);
+							pp.increChild(copyParent.getFromMethod(), copyParent.getIdx(), freq);
+						}
+						
+						for (InstNode c: pChildList) {
+							boolean control = BytecodeCategory.controlCategory().contains(c.getOp().getCatId());
+							c.registerParent(copyParent.getFromMethod(), copyParent.getIdx(), control);
+						}
+						parentPool.add(copyParent);
+						transplantCalleeDepToCaller(copyParent, parentPool, fInst, childPool);
+					}
 				}
 			}
-		}*/
+		}
 		
-		for (Integer f: firstReadLocalVars) {
+		/*for (Integer f: firstReadLocalVars) {
 			InstNode fInst = childPool.searchAndGet(childMethod, f);
 			
 			int idx = Integer.valueOf(fInst.getAddInfo());
@@ -146,7 +214,7 @@ public class GraphUtil {
 				parentRemove(fInst, childPool, StringUtil.genIdxKey(fInst.getFromMethod(), fInst.getIdx()));
 				childPool.remove(fInst);
 			}
-		}
+		}*/
 	}
 	
 	public static void fieldDataDepFromParentToChild(Map<String, InstNode> parentMap, InstPool childPool, HashSet<Integer> firstReadFields, String childMethod) {

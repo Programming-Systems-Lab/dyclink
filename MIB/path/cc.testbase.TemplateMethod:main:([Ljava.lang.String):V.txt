@@ -2,16 +2,27 @@ cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 0 187 new cc/testbase/Tem
 cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 1 89 dup 
 cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 2 183 invokespecial cc.testbase.TemplateMethod:init:():V
 cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 3 58 astore 2
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 4 178 getstatic java.lang.System.out.Ljava/io/PrintStream;
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 5 187 new java/lang/StringBuilder
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 6 89 dup 
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 7 18 ldc TemplateMethod: 
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 8 183 invokespecial java.lang.StringBuilder:init:(Ljava.lang.String):V
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 9 25 aload 2
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 4 8 iconst_5 
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 5 54 istore 3
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 6 6 iconst_3 
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 7 188 newarray 10
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 8 89 dup 
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 9 3 iconst_0 
 cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 10 6 iconst_3 
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 11 8 iconst_5 
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 12 182 invokevirtual cc.testbase.TemplateMethod:invoke3Methods:(II):I
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 13 182 invokevirtual java.lang.StringBuilder:append:(I):Ljava.lang.StringBuilder
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 14 182 invokevirtual java.lang.StringBuilder:toString:():Ljava.lang.String
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 15 182 invokevirtual java.io.PrintStream:println:(Ljava.lang.String):V
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 16 177 return 
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 11 79 iastore 
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 12 89 dup 
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 13 4 iconst_1 
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 14 7 iconst_4 
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 15 79 iastore 
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 16 89 dup 
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 17 5 iconst_2 
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 18 16 bipush 7
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 19 79 iastore 
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 20 58 astore 4
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 21 178 getstatic java.lang.System.out.Ljava/io/PrintStream;
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 22 25 aload 2
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 23 21 iload 3
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 24 25 aload 4
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 25 182 invokevirtual cc.testbase.TemplateMethod:instanceMethod:(I[I):I
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 26 182 invokevirtual java.io.PrintStream:println:(I):V
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 27 177 return 

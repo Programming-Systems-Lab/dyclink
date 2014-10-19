@@ -32,6 +32,20 @@ public class TemplateMethod extends TemplateParent{
 		this.test = test1;
 	}
 	
+	public int add2(int a) {
+		return a + a;
+	}
+	
+	public int testAdd(int a) {
+		int c = a + a;
+		return c;
+	}
+	
+	public int testAdd2(int a) {
+		int c = this.add2(a);
+		return c;
+	}
+	
 	public void doubleIf(double input) {
 		int ret = 0;
 		if (input > 0) {
@@ -149,7 +163,7 @@ public class TemplateMethod extends TemplateParent{
 	@extractTemplate
 	public int sumArray(int[] input) {
 		int sum = 0;
-		for (Integer i: input) {
+		for (int i = 0; i < input.length; i++) {
 			sum += i;
 		}
 		return sum;
@@ -237,7 +251,12 @@ public class TemplateMethod extends TemplateParent{
 		
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
-		System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
+		int a = 5;
+		int[] b = {3, 4, 7};
+		System.out.println(tm.instanceMethod(a, b));
+		//System.out.println("Test add: " + tm.testAdd(2));
+		//System.out.println("Test add2: " + tm.testAdd2(5));
+		//System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
 		/*System.out.println("TestMethod: " + tm.all3Methods(3, 5));
 		System.out.println("cc/testbase/TemplateMethod.iVar.I".split("\\.").length);
 		System.out.println(Type.INT);
@@ -368,19 +387,13 @@ public class TemplateMethod extends TemplateParent{
 		switch(a) {
 			case 0:
 				b[0] = 0;
-				break;
 			case 2:
 				b[0] = 1;
-				break;
 			case 6:
 				b[0] = 6;
 			default:
 				b[0] = 2;
 		}
-		Object[] objArray = new Object[5];
-		Object[][][] multiple = new Object[3][4][5];
-		multiple[1][2] = new Object[5];
-		Object obj = new Object();
 		return ret;
 	}
 	

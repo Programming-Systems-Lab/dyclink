@@ -253,7 +253,9 @@ public class MethodStackRecorder {
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
 		
-		if (BytecodeCategory.controlCategory().contains(opcat)) {
+		if (BytecodeCategory.controlCategory().contains(opcat) 
+				|| opcode == Opcodes.TABLESWITCH 
+				|| opcode == Opcodes.LOOKUPSWITCH) {
 			this.updateControlInst(fullInst);
 		}
 		
@@ -476,7 +478,8 @@ public class MethodStackRecorder {
 					}
 					parentFromCaller.put(endIdx--, targetNode);
 				}
-				GraphUtil.dataDepFromParentToChild(parentFromCaller, 
+				GraphUtil.dataDepFromParentToChild(parentFromCaller,
+						this.pool,
 						childPool, 
 						childGraph.getFirstReadLocalVars(), 
 						childGraph.getMethodKey());
