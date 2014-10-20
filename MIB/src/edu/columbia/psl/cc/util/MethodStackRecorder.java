@@ -78,7 +78,7 @@ public class MethodStackRecorder {
 	
 	private List<InstNode> path = new ArrayList<InstNode>();
 	
-	public Object objOnStack = null;
+	//public Object objOnStack = null;
 	
 	public String curLabel = null;
 	
@@ -163,6 +163,11 @@ public class MethodStackRecorder {
 		//this.curControlInsts.add(fullInst);
 	}
 	
+	public void updateObjOnStack(Object obj) {
+		InstNode latestInst = this.stackSimulator.peek();
+		latestInst.setRelatedObj(obj);
+	}
+	
 	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {
 		System.out.println("Handling now: " + opcode + " " + instIdx + " " + addInfo);
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
@@ -178,20 +183,29 @@ public class MethodStackRecorder {
 		System.out.println("Handling now: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
-		int objId = parseObjId(this.objOnStack);
+		int typeSort = Type.getType(desc).getSort();
+		
+		//int objId = parseObjId(this.objOnStack);
+		int objId = 0;
+		
+		if (opcode == Opcodes.GETFIELD) {
+			objId = parseObjId(this.stackSimulator.peek().getRelatedObj());
+		} else if (opcode == Opcodes.PUTFIELD) {
+			if (typeSort == Opcodes.LONG || typeSort == Opcodes.DOUBLE) {
+				objId = parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 3).getRelatedObj());
+			} else {
+				objId = parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 2).getRelatedObj());
+			}
+		}
 		
 		//Search the real owner of the field
 		Class<?> targetClass = ClassInfoCollector.retrieveCorrectClassByField(owner, name);
-		System.out.println("Target class: " + targetClass);
-		System.out.println(name);
-		System.out.println(desc);
+		System.out.println("Target class: " + targetClass + " " + " " + desc);
+		System.out.println("Object id: " + objId);
 		String fieldKey = targetClass.getName() + "." + name + "." + desc;
-		int typeSort = Type.getType(desc).getSort();
 		
 		if (objId > 0) {
 			fieldKey += objId;
-		} else {
-			System.out.println("Warning: Cannot generate obj id for: " + this.objOnStack);
 		}
 		
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, fieldKey);
@@ -287,14 +301,6 @@ public class MethodStackRecorder {
 		}
 		
 		int opcat = fullInst.getOp().getCatId();
-		
-		if (opcode == Opcodes.ALOAD) {
-			int objId = parseObjId(this.objOnStack);
-			if (objId > 0)
-				fullInst.setRelatedObj(this.objOnStack);
-			
-			this.objOnStack = null;
-		}
 		
 		InstNode lastInst = null;
 		if (!stackSimulator.isEmpty()) {
@@ -425,8 +431,31 @@ public class MethodStackRecorder {
 		
 		System.out.println("Handling now: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		try {
+			Type methodType = Type.getMethodType(desc);
+			Type[] args = methodType.getArgumentTypes();
+			int argSize = 0;
+			for (int i = 0; i < args.length; i++) {
+				if (args[i].getSort() == Type.DOUBLE || args[i].getSort() == Type.LONG) {
+					argSize += 2;
+				} else {
+					argSize++;
+				}
+			}
+			System.out.println("Arg size: " + argSize);
+			
 			//Load the correct graph
-			Class<?> correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc);
+			Class<?> correctClass = null;
+			if (BytecodeCategory.staticMethod().contains(opcode)) {
+				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
+			} else {
+				if (opcode == Opcodes.INVOKESPECIAL) {
+					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name,desc, true);
+				} else {
+					Object objOnStack = this.stackSimulator.get(stackSimulator.size() - argSize - 1).getRelatedObj();
+					System.out.println("Real obj on stack: " + objOnStack.getClass());
+					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(objOnStack.getClass().getName(), name, desc, false);
+				}
+			}
 			System.out.println("Method owner: " + correctClass.getName());
 			String searchKey = StringUtil.genKey(correctClass.getName(), name, desc);
 			InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, searchKey);
@@ -445,19 +474,18 @@ public class MethodStackRecorder {
 			
 			//This means that the callee method is from jvm, keep the method inst in graph
 			if (childGraph == null) {
+				System.out.println("Null graph: " + searchKey);
 				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst, eo);
 				return ;
 			}
+			
+			System.out.println("Child graph: " + childGraph.getMethodKey() + " " + childGraph.getInstPool().size());
 			
 			//Integrate two pools and update dependencies
 			InstPool childPool = childGraph.getInstPool();
 			GraphUtil.removeReturnInst(childPool);
 			
 			//Search correct inst on inst, update local data dep dependency
-			Type methodType = Type.getMethodType(desc);
-			Type[] args = methodType.getArgumentTypes();
-			int argSize = 0;
-			
 			if (args.length > 0) {
 				int startIdx = 0;
 				if (!BytecodeCategory.staticMethod().contains(opcode)) {
@@ -471,10 +499,8 @@ public class MethodStackRecorder {
 					if (t.getDescriptor().equals("D") || t.getDescriptor().equals("L")) {
 						this.safePop();
 						targetNode = this.safePop();
-						argSize += 2;
 					} else {
 						targetNode = this.safePop();
-						argSize += 1;
 					}
 					parentFromCaller.put(endIdx--, targetNode);
 				}
@@ -484,7 +510,6 @@ public class MethodStackRecorder {
 						childGraph.getFirstReadLocalVars(), 
 						childGraph.getMethodKey());
 			}
-			System.out.println("Arg size: " + argSize);
 			
 			if (!BytecodeCategory.staticMethod().contains(opcode)) {
 				//Pop the obj reference on stack, and remove from pool
@@ -496,7 +521,7 @@ public class MethodStackRecorder {
 			
 			//Update control dep 
 			if (this.curControlInst != null) {
-				GraphUtil.controlDepFromParentToChild(this.curControlInst, childPool);
+				GraphUtil.controlDepFromParentToChild(this.curControlInst, childGraph.getPath());
 			}
 			
 			//Update field data dep
@@ -686,12 +711,16 @@ public class MethodStackRecorder {
 			//System.out.println("Check current label: " + this.curLabel);
 			int cCatId = curControlInst.getOp().getCatId();
 			
+			InstNode lastNode = null;
+			if (this.path.size() > 0)
+				lastNode = this.path.get(this.path.size() - 1);
+			
 			if (BytecodeCategory.controlCategory().contains(cCatId)) {
-				if (this.curControlInst.getAddInfo().equals(this.curLabel)) {
-					if (!BytecodeCategory.dupCategory().contains(cCatId))
-						this.updateCachedMap(this.curControlInst, fullInst, true);
-				} else {
-					this.curControlInst = null;
+				if (lastNode != null && lastNode.equals(this.curControlInst)) {
+					if (!this.curControlInst.getAddInfo().equals(this.curLabel)) {
+						this.curControlInst = null;
+						return ;
+					}
 				}
 			} else {
 				//TableSwitch and LookupSwitch
@@ -704,13 +733,14 @@ public class MethodStackRecorder {
 					}
 				}
 				
-				if (found) {
-					if (!BytecodeCategory.dupCategory().contains(cCatId))
-						this.updateCachedMap(this.curControlInst, fullInst, true);
-				} else {
+				if (!found) {
 					this.curControlInst = null;
+					return ;
 				}
 			}
+			
+			if (!BytecodeCategory.dupCategory().contains(fullInst.getOp().getCatId()))
+				this.updateCachedMap(this.curControlInst, fullInst, true);
 		}
 	}
 	

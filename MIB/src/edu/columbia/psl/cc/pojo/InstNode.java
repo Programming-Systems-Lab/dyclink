@@ -27,7 +27,7 @@ public class InstNode implements Comparable<InstNode>{
 	//For freq map, the key is the inst method + idx, and the value is the frequency
 	private TreeMap<String, Double> childFreqMap = new TreeMap<String, Double>();
 	
-	private Object relatedObj;
+	private Object relatedObj = null;
 	
 	public InstNode() {
 		
@@ -133,7 +133,7 @@ public class InstNode implements Comparable<InstNode>{
 	public Object getRelatedObj() {
 		return this.relatedObj;
 	}
-		
+			
 	public void setVar(Var v) {
 		this.var = v;
 	}

@@ -254,19 +254,24 @@ public class TemplateMethod extends TemplateParent{
 		}
 		return c;
 	}
+	
+	private void interestingMethod() {
+        System.out.println("Subclass's interesting method.");
+    }
 		
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
 		int a = 2;
 		int[] b = {3, 4, 7};
-		System.out.println(tm.invokeParent(3, 5));
+		//tm.exampleMethod();
+		//System.out.println(tm.invokeParent(3, 5));
 		//System.out.println(tm.all3Methods(3, 5));
 		//System.out.println(tm.sumArray(b));
 		//System.out.println(tm.simpleIf(1, 2));
-		//System.out.println(tm.instanceMethod(a, b));
+		//System.out.println(tm.instanceMethod(2, b));
 		//System.out.println("Test add: " + tm.testAdd(2));
 		//System.out.println("Test add2: " + tm.testAdd2(5));
-		//System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
+		System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
 		/*System.out.println("TestMethod: " + tm.all3Methods(3, 5));
 		System.out.println("cc/testbase/TemplateMethod.iVar.I".split("\\.").length);
 		System.out.println(Type.INT);
@@ -408,13 +413,10 @@ public class TemplateMethod extends TemplateParent{
 		switch(a) {
 			case 0:
 				b[0] = 0;
-				break ;
 			case 2:
 				b[0] = 1;
-				break ;
 			case 6:
 				b[0] = 6;
-				break ;
 			default:
 				b[0] = 5;
 		}

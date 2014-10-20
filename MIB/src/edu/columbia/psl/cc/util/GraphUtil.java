@@ -17,6 +17,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.math3.util.MathUtils;
 import org.apache.commons.math3.util.Precision;
+import org.objectweb.asm.Opcodes;
 
 import com.google.gson.reflect.TypeToken;
 import com.sun.xml.internal.ws.util.StringUtils;
@@ -192,8 +193,20 @@ public class GraphUtil {
 		}
 	}
 	
-	public static void controlDepFromParentToChild(InstNode controlFromParent, InstPool childPool) {
-		for (InstNode cNode: childPool) {
+	public static void controlDepFromParentToChild(InstNode controlFromParent, List<InstNode> childPath) {
+		HashSet<InstNode> affectedSet = new HashSet<InstNode>();
+		for (InstNode inst: childPath) {
+			affectedSet.add(inst);
+			
+			//Stop at the first control node in child method
+			if (BytecodeCategory.controlCategory().contains(inst.getOp().getCatId()) 
+					|| inst.getOp().getOpcode() == Opcodes.TABLESWITCH 
+					|| inst.getOp().getOpcode() == Opcodes.LOOKUPSWITCH) {
+				break;
+			}
+		}
+		
+		for (InstNode cNode: affectedSet) {
 			controlFromParent.increChild(cNode.getFromMethod(), cNode.getIdx(), MIBConfiguration.getControlWeight());
 			cNode.registerParent(controlFromParent.getFromMethod(), controlFromParent.getIdx(), true);
 		}

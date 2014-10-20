@@ -58,9 +58,9 @@ public class MIBConfiguration {
 	
 	private static String recordObjDesc = "(ILjava/lang/Object;)V";
 	
-	private static String objOnStack = "objOnStack";
+	private static String objOnStack = "updateObjOnStack";
 	
-	private static String objOnStackDesc = Type.getDescriptor(Object.class);
+	private static String objOnStackDesc = "(Ljava/lang/Object;)V";
 	
 	private static double controlWeight = 1.0;
 	

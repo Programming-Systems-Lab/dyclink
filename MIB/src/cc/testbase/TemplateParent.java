@@ -21,6 +21,14 @@ public class TemplateParent {
 		DummySet.setParent(this);
 		return a + b;
 	}
+	
+	private void interestingMethod() {
+        System.out.println("Superclass's interesting method.");
+    }
+
+    void exampleMethod() {
+        interestingMethod();
+    }
 
 	/**
 	 * @param args

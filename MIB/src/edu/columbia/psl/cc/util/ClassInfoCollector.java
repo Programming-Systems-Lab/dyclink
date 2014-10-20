@@ -27,14 +27,15 @@ public class ClassInfoCollector {
 		return null;
 	}
 
-	public static Class<?> retrieveCorrectClassByMethod(String className, String methodName, String methodDescriptor) {
+	public static Class<?> retrieveCorrectClassByMethod(String className, String methodName, String methodDescriptor, boolean direct) {
 		try {
 			className = className.replace("/", ".");
 			Class<?> calledClass = Class.forName(className);
 			
-			//This means that the method is a constructor
-			if (methodName.equals("<init>"))
+			if (direct) {
+				//direct is for <init> and private method of INVOKESPECIAL
 				return calledClass;
+			}
 			
 			while (calledClass != null) {
 				for (Method m: calledClass.getDeclaredMethods()) {
@@ -79,7 +80,7 @@ public class ClassInfoCollector {
 	
 	public static void main(String[] args) {
 		Class clazz = retrieveCorrectClassByField("cc/testbase/TemplateParent", "sVar");
-		Class clazz2 = retrieveCorrectClassByMethod("java/util/ArrayList", "<init>", "()V");
+		Class clazz2 = retrieveCorrectClassByMethod("java/util/ArrayList", "<init>", "()V", true);
 		System.out.println("Check class name: " + clazz.getName());
 		System.out.println("Check clazz2: " + clazz2.getName());
 		
