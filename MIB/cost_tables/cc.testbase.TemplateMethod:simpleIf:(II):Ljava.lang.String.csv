@@ -1,0 +1,14 @@
+head,cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 0 21 iload 1,cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 1 21 iload 2,cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 2 96 iadd ,cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 3 54 istore 4,cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 4 18 ldc ,cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 5 58 astore 5,cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 6 21 iload 4,cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 7 8 iconst_5 ,cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 8 164 if_icmple L1500389297,cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 12 18 ldc c <= 5,cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 13 58 astore 5,cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 14 25 aload 5,cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 15 176 areturn 
+cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 0 21 iload 1,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 1 21 iload 2,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 2 96 iadd ,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 3 54 istore 4,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0
+cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 4 18 ldc ,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 5 58 astore 5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 6 21 iload 4,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 7 8 iconst_5 ,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 8 164 if_icmple L1500389297,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0
+cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 12 18 ldc c <= 5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0
+cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 13 58 astore 5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0
+cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 14 25 aload 5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0
+cc.testbase.TemplateMethod:simpleIf:(II):Ljava.lang.String 15 176 areturn ,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0

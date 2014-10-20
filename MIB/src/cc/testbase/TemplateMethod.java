@@ -251,9 +251,11 @@ public class TemplateMethod extends TemplateParent{
 		
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
-		int a = 5;
+		int a = 2;
 		int[] b = {3, 4, 7};
-		System.out.println(tm.instanceMethod(a, b));
+		System.out.println(tm.sumArray(b));
+		//System.out.println(tm.simpleIf(1, 2));
+		//System.out.println(tm.instanceMethod(a, b));
 		//System.out.println("Test add: " + tm.testAdd(2));
 		//System.out.println("Test add2: " + tm.testAdd2(5));
 		//System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
@@ -356,6 +358,17 @@ public class TemplateMethod extends TemplateParent{
 		boolean f = (c instanceof Object);
 	}
 	
+	public String simpleIf(int a, int b) {
+		int  c = a + b;
+		String ret = "";
+		if (c > 5) {
+			ret = "c > 5";
+		} else {
+			ret = "c <= 5";
+		}
+		return ret;
+	}
+	
 	//@extractTemplate
 	public String ifTemplate(int a, int b, int c) {
 		if (a > b) {
@@ -387,13 +400,17 @@ public class TemplateMethod extends TemplateParent{
 		switch(a) {
 			case 0:
 				b[0] = 0;
+				break ;
 			case 2:
 				b[0] = 1;
+				break ;
 			case 6:
 				b[0] = 6;
+				break ;
 			default:
-				b[0] = 2;
+				b[0] = 5;
 		}
+		System.out.println("Visit end lol");
 		return ret;
 	}
 	

@@ -18,6 +18,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -77,10 +78,9 @@ public class MethodStackRecorder {
 	
 	private List<InstNode> path = new ArrayList<InstNode>();
 	
-	//Key: local var ID, Value: object ID, -1 for un-instrumented obj
-	private Map<Integer, Integer> varObjMap = new HashMap<Integer, Integer>();
-	
 	public Object objOnStack = null;
+	
+	public String curLabel = null;
 	
 	private InstPool pool = new InstPool();
 	
@@ -676,14 +676,37 @@ public class MethodStackRecorder {
 		System.out.println(this.stackSimulator);
 	}
 	
-	private void updateControlRelation(InstNode fullInst) {
-		if (this.curControlInst != null 
-				&& !BytecodeCategory.dupCategory().contains(fullInst.getOp().getCatId())) {
-			//Exclude dup, because they are not contained in data dep either
-			this.updateCachedMap(this.curControlInst, fullInst, true);
-			/*for (InstNode curControlInst: this.curControlInsts) {
-				this.updateCachedMap(curControlInst, fullInst, true);
-			}*/
+	private void updateControlRelation(InstNode fullInst) {		
+		if (this.curControlInst != null) {
+			System.out.println("Check current control inst label: " + curControlInst.getAddInfo());
+			System.out.println("Check current label: " + this.curLabel);
+			int cCatId = curControlInst.getOp().getCatId();
+			
+			if (BytecodeCategory.controlCategory().contains(cCatId)) {
+				if (this.curControlInst.getAddInfo().equals(this.curLabel)) {
+					if (!BytecodeCategory.dupCategory().contains(cCatId))
+						this.updateCachedMap(this.curControlInst, fullInst, true);
+				} else {
+					this.curControlInst = null;
+				}
+			} else {
+				//TableSwitch and LookupSwitch
+				String[] allLabels = curControlInst.getAddInfo().split(",");
+				boolean found = false;
+				for (String l: allLabels) {
+					if (l.equals(this.curLabel)) {
+						found = true;
+						break;
+					}
+				}
+				
+				if (found) {
+					if (!BytecodeCategory.dupCategory().contains(cCatId))
+						this.updateCachedMap(this.curControlInst, fullInst, true);
+				} else {
+					this.curControlInst = null;
+				}
+			}
 		}
 	}
 	

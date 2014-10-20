@@ -2,6 +2,7 @@ package edu.columbia.psl.cc.inst;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -218,6 +219,12 @@ public class DynamicMethodMiner extends MethodVisitor {
 			this.mv.visitInsn(Opcodes.ICONST_5);
 		}
 	}
+	
+	private void handlLabel(Label label) {
+		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+		this.mv.visitLdcInsn(label.toString());
+		this.mv.visitFieldInsn(Opcodes.PUTFIELD, methodStackRecorder, "curLabel", Type.getDescriptor(String.class));
+	}
 		
 	private void handleOpcode(int opcode, int...addInfo) {		
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
@@ -363,6 +370,9 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.curLabel = label;
 		this.allLabels.add(label);
 		this.mv.visitLabel(label);
+		
+		if (this.shouldInstrument() && !this.constructor)
+			this.handlLabel(label);
 	}
 	
 	@Override
@@ -544,8 +554,15 @@ public class DynamicMethodMiner extends MethodVisitor {
 	@Override
 	public void visitTableSwitchInsn(int min, int max, Label dflt, Label...labels) {
 		if (this.shouldInstrument() && !this.constructor) {
-			String labelString = dflt.toString();
-			this.handleOpcode(Opcodes.TABLESWITCH, labelString);
+			StringBuilder sb = new StringBuilder();
+			for (Label l: labels) {
+				sb.append(l.toString() + ",");
+			}
+			//String labelString = dflt.toString();
+			//System.out.println("min max: " + min + " " + max);
+			//System.out.println("default: " + labelString);
+			//System.out.println("all labels: " + sb.toString());
+			this.handleOpcode(Opcodes.TABLESWITCH, sb.substring(0, sb.length() - 1));
 			
 			this.updateMethodRep(Opcodes.TABLESWITCH);
 		}
@@ -555,8 +572,12 @@ public class DynamicMethodMiner extends MethodVisitor {
 	@Override
 	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
 		if (this.shouldInstrument() && !this.constructor) {
-			String labelString = dflt.toString();
-			this.handleOpcode(Opcodes.LOOKUPSWITCH, labelString);
+			//String labelString = dflt.toString();
+			StringBuilder sb = new StringBuilder();
+			for (Label l: labels) {
+				sb.append(l.toString() + ",");
+			}
+			this.handleOpcode(Opcodes.LOOKUPSWITCH, sb.substring(0, sb.length() - 1));
 			
 			this.updateMethodRep(Opcodes.LOOKUPSWITCH);
 		}
