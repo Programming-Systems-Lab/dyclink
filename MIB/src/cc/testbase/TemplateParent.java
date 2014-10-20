@@ -18,7 +18,7 @@ public class TemplateParent {
 	}
 	
 	public int parentAdd(int a, int b) {
-		obj = 5;
+		DummySet.setParent(this);
 		return a + b;
 	}
 

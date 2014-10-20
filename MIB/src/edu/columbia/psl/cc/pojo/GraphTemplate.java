@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.columbia.psl.cc.datastruct.InstPool;
@@ -32,6 +33,8 @@ public class GraphTemplate {
 	
 	private HashSet<Integer> firstReadFields;
 	
+	private Map<String, InstNode> writeFields;
+	
 	public GraphTemplate() {
 		
 	}
@@ -51,9 +54,16 @@ public class GraphTemplate {
 			InstNode copyInst = new InstNode(inst);
 			this.pool.add(copyInst);
 		}
+		
 		for (int i = 0; i < copy.getPath().size(); i++) {
 			InstNode pathNode = copy.getPath().get(i);
 			this.path.add(this.pool.searchAndGet(pathNode.getFromMethod(), pathNode.getIdx()));
+		}
+		
+		for (String field: copy.getWriteFields().keySet()) {
+			InstNode copyNode = copy.getWriteFields().get(field);
+			InstNode fieldNode = this.pool.searchAndGet(copyNode.getFromMethod(), copyNode.getIdx());
+			this.writeFields.put(field, fieldNode);
 		}
 		
 		for (ExtObj from: copy.getExtMethods()) {
@@ -163,6 +173,14 @@ public class GraphTemplate {
 	
 	public HashSet<Integer> getFirstReadFields() {
 		return this.firstReadFields;
+	}
+	
+	public void setWriteFields(Map<String, InstNode> writeFields) {
+		this.writeFields = writeFields;
+	}
+	
+	public Map<String, InstNode> getWriteFields() {
+		return writeFields;
 	}
 	
 	public void showGraph() {

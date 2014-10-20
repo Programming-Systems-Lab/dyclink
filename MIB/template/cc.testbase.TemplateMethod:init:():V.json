@@ -199,5 +199,20 @@
     }
   ],
   "firstReadLocalVars": [],
-  "firstReadFields": []
+  "firstReadFields": [],
+  "writeFields": {
+    "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;1": {
+      "fromMethod": "cc.testbase.TemplateMethod:init:():V",
+      "idx": 4,
+      "op": 181,
+      "inst": "putfield",
+      "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;1",
+      "dataParentList": [
+        "cc.testbase.TemplateMethod:init:():V-1",
+        "cc.testbase.TemplateMethod:init:():V-0"
+      ],
+      "controlParentList": [],
+      "childFreqMap": {}
+    }
+  }
 }

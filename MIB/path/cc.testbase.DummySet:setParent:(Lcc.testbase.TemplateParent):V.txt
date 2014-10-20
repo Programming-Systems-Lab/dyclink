@@ -1,0 +1,4 @@
+cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V 0 25 aload 0
+cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V 1 8 iconst_5 
+cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V 2 181 putfield cc.testbase.TemplateParent.pVar.I1
+cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V 3 177 return 

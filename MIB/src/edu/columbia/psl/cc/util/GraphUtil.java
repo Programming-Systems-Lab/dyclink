@@ -175,46 +175,6 @@ public class GraphUtil {
 				}
 			}
 		}
-		
-		/*for (Integer f: firstReadLocalVars) {
-			InstNode fInst = childPool.searchAndGet(childMethod, f);
-			
-			int idx = Integer.valueOf(fInst.getAddInfo());
-			InstNode parentNode = null;
-			//parent inherits children of same node in child method
-			if (parentMap.containsKey(idx)) {
-				parentNode = parentMap.get(idx);
-				parentNode.getChildFreqMap().putAll(fInst.getChildFreqMap());
-				String fInstKey = StringUtil.genIdxKey(fInst.getFromMethod(), fInst.getIdx());
-				
-				for (String c: fInst.getChildFreqMap().keySet()) {
-					String[] keySet = StringUtil.parseIdxKey(c);
-					int cIdx= Integer.valueOf(keySet[1]);
-					InstNode cNode = childPool.searchAndGet(keySet[0], cIdx);
-					cNode.getDataParentList().remove(fInstKey);
-					
-					if (parentNode != null) {
-						cNode.registerParent(parentNode.getFromMethod(), parentNode.getIdx(), false);
-					}
-				}
-				
-				for (String cont: fInst.getControlParentList()) {
-					String[] keySet = StringUtil.parseIdxKey(cont);
-					int cIdx = Integer.valueOf(keySet[1]);
-					InstNode contNode = childPool.searchAndGet(keySet[0], cIdx);
-					double freq = contNode.getChildFreqMap().get(fInstKey);
-					
-					if (parentNode != null) {
-						contNode.increChild(parentNode.getFromMethod(), parentNode.getIdx(), freq);
-					}
-				}
-				
-				//Remove these first read local vars from child pool, 
-				//if there is corresponding parent in parent pool
-				parentRemove(fInst, childPool, StringUtil.genIdxKey(fInst.getFromMethod(), fInst.getIdx()));
-				childPool.remove(fInst);
-			}
-		}*/
 	}
 	
 	public static void fieldDataDepFromParentToChild(Map<String, InstNode> parentMap, InstPool childPool, HashSet<Integer> firstReadFields, String childMethod) {

@@ -225,5 +225,33 @@
     }
   ],
   "firstReadLocalVars": [],
-  "firstReadFields": []
+  "firstReadFields": [],
+  "writeFields": {
+    "cc.testbase.TemplateParent.sVar.I1": {
+      "fromMethod": "cc.testbase.TemplateParent:init:():V",
+      "idx": 2,
+      "op": 181,
+      "inst": "putfield",
+      "addInfo": "cc.testbase.TemplateParent.sVar.I1",
+      "dataParentList": [
+        "cc.testbase.TemplateParent:init:():V-1",
+        "cc.testbase.TemplateParent:init:():V-0"
+      ],
+      "controlParentList": [],
+      "childFreqMap": {}
+    },
+    "cc.testbase.TemplateParent.pVar.I1": {
+      "fromMethod": "cc.testbase.TemplateParent:init:():V",
+      "idx": 5,
+      "op": 181,
+      "inst": "putfield",
+      "addInfo": "cc.testbase.TemplateParent.pVar.I1",
+      "dataParentList": [
+        "cc.testbase.TemplateParent:init:():V-4",
+        "cc.testbase.TemplateParent:init:():V-3"
+      ],
+      "controlParentList": [],
+      "childFreqMap": {}
+    }
+  }
 }

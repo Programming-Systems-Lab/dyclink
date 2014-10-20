@@ -191,7 +191,7 @@ public class TemplateMethod extends TemplateParent{
 		this.iDouble = 8;
 		//TemplateMethod tm2 = new TemplateMethod();
 		//tm2.iVar = 8;
-		double c = iDouble + a + b + this.iVar;
+		double c = this.iDouble + a + b + this.iVar + sVar + pVar;
 		String ret = "";
 		if (c > 5) {
 			ret = "ret > 5";
@@ -209,6 +209,12 @@ public class TemplateMethod extends TemplateParent{
 			sum += target[j];
 		}
 		return sum;
+	}
+	
+	public int invokeParent(int a, int b) {
+		int i = this.parentAdd(a, b);
+		int ret = i + this.pVar;
+		return ret;
 	}
 	
 	//@extractTemplate
@@ -253,7 +259,9 @@ public class TemplateMethod extends TemplateParent{
 		TemplateMethod tm = new TemplateMethod();
 		int a = 2;
 		int[] b = {3, 4, 7};
-		System.out.println(tm.sumArray(b));
+		System.out.println(tm.invokeParent(3, 5));
+		//System.out.println(tm.all3Methods(3, 5));
+		//System.out.println(tm.sumArray(b));
 		//System.out.println(tm.simpleIf(1, 2));
 		//System.out.println(tm.instanceMethod(a, b));
 		//System.out.println("Test add: " + tm.testAdd(2));

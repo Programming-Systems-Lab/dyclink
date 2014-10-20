@@ -1,0 +1,237 @@
+{
+  "methodKey": "cc.testbase.TemplateParent:parentAdd:(II):I",
+  "methodArgSize": 2,
+  "methodReturnSize": 1,
+  "staticMethod": false,
+  "extMethods": [
+    {
+      "instIdx": 1,
+      "lineNumber": 21,
+      "writeFieldInsts": [],
+      "loadLocalInsts": [],
+      "affFieldInsts": []
+    }
+  ],
+  "returnInfo": {
+    "instIdx": 0,
+    "lineNumber": 0,
+    "writeFieldInsts": [
+      {
+        "fromMethod": "cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V",
+        "idx": 2,
+        "op": 181,
+        "inst": "putfield",
+        "addInfo": "cc.testbase.TemplateParent.pVar.I1",
+        "dataParentList": [
+          "cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V-1",
+          "cc.testbase.TemplateParent:parentAdd:(II):I-0"
+        ],
+        "controlParentList": [],
+        "childFreqMap": {}
+      }
+    ],
+    "loadLocalInsts": [
+      {
+        "fromMethod": "cc.testbase.TemplateParent:parentAdd:(II):I",
+        "idx": 4,
+        "op": 96,
+        "inst": "iadd",
+        "addInfo": "",
+        "dataParentList": [
+          "cc.testbase.TemplateParent:parentAdd:(II):I-3",
+          "cc.testbase.TemplateParent:parentAdd:(II):I-2"
+        ],
+        "controlParentList": [],
+        "childFreqMap": {
+          "cc.testbase.TemplateParent:parentAdd:(II):I-5": 1.0
+        }
+      }
+    ],
+    "affFieldInsts": []
+  },
+  "path": [
+    {
+      "fromMethod": "cc.testbase.TemplateParent:parentAdd:(II):I",
+      "idx": 0,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "dataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V-2": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateParent:parentAdd:(II):I",
+      "idx": 1,
+      "op": 184,
+      "inst": "invokestatic",
+      "addInfo": "cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V",
+      "dataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateParent:parentAdd:(II):I",
+      "idx": 2,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "1",
+      "dataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateParent:parentAdd:(II):I-4": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateParent:parentAdd:(II):I",
+      "idx": 3,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "2",
+      "dataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateParent:parentAdd:(II):I-4": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateParent:parentAdd:(II):I",
+      "idx": 4,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "dataParentList": [
+        "cc.testbase.TemplateParent:parentAdd:(II):I-3",
+        "cc.testbase.TemplateParent:parentAdd:(II):I-2"
+      ],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateParent:parentAdd:(II):I-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateParent:parentAdd:(II):I",
+      "idx": 5,
+      "op": 172,
+      "inst": "ireturn",
+      "addInfo": "",
+      "dataParentList": [
+        "cc.testbase.TemplateParent:parentAdd:(II):I-4"
+      ],
+      "controlParentList": [],
+      "childFreqMap": {}
+    }
+  ],
+  "pool": [
+    {
+      "fromMethod": "cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V",
+      "idx": 1,
+      "op": 8,
+      "inst": "iconst_5",
+      "addInfo": "",
+      "dataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V-2": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V",
+      "idx": 2,
+      "op": 181,
+      "inst": "putfield",
+      "addInfo": "cc.testbase.TemplateParent.pVar.I1",
+      "dataParentList": [
+        "cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V-1",
+        "cc.testbase.TemplateParent:parentAdd:(II):I-0"
+      ],
+      "controlParentList": [],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateParent:parentAdd:(II):I",
+      "idx": 0,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "dataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V-2": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateParent:parentAdd:(II):I",
+      "idx": 2,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "1",
+      "dataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateParent:parentAdd:(II):I-4": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateParent:parentAdd:(II):I",
+      "idx": 3,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "2",
+      "dataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateParent:parentAdd:(II):I-4": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateParent:parentAdd:(II):I",
+      "idx": 4,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "dataParentList": [
+        "cc.testbase.TemplateParent:parentAdd:(II):I-3",
+        "cc.testbase.TemplateParent:parentAdd:(II):I-2"
+      ],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateParent:parentAdd:(II):I-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateParent:parentAdd:(II):I",
+      "idx": 5,
+      "op": 172,
+      "inst": "ireturn",
+      "addInfo": "",
+      "dataParentList": [
+        "cc.testbase.TemplateParent:parentAdd:(II):I-4"
+      ],
+      "controlParentList": [],
+      "childFreqMap": {}
+    }
+  ],
+  "firstReadLocalVars": [
+    2,
+    3
+  ],
+  "firstReadFields": [],
+  "writeFields": {
+    "cc.testbase.TemplateParent.pVar.I1": {
+      "fromMethod": "cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V",
+      "idx": 2,
+      "op": 181,
+      "inst": "putfield",
+      "addInfo": "cc.testbase.TemplateParent.pVar.I1",
+      "dataParentList": [
+        "cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V-1",
+        "cc.testbase.TemplateParent:parentAdd:(II):I-0"
+      ],
+      "controlParentList": [],
+      "childFreqMap": {}
+    }
+  }
+}

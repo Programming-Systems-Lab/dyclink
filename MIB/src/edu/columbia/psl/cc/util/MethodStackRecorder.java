@@ -511,6 +511,10 @@ public class MethodStackRecorder {
 				}
 			}
 			
+			if (childGraph.getWriteFields().size() > 0) {
+				this.fieldRecorder.putAll(childGraph.getWriteFields());
+			}
+			
 			String returnType = methodType.getReturnType().getDescriptor();
 			if (!returnType.equals("V")) {
 				List<InstNode> childPath = childGraph.getPath();
@@ -678,8 +682,8 @@ public class MethodStackRecorder {
 	
 	private void updateControlRelation(InstNode fullInst) {		
 		if (this.curControlInst != null) {
-			System.out.println("Check current control inst label: " + curControlInst.getAddInfo());
-			System.out.println("Check current label: " + this.curLabel);
+			//System.out.println("Check current control inst label: " + curControlInst.getAddInfo());
+			//System.out.println("Check current label: " + this.curLabel);
 			int cCatId = curControlInst.getOp().getCatId();
 			
 			if (BytecodeCategory.controlCategory().contains(cCatId)) {
@@ -729,6 +733,7 @@ public class MethodStackRecorder {
 		gt.setExtMethods(this.extMethods);
 		gt.setFirstReadLocalVars(this.firstReadLocalVars);
 		gt.setFirstReadFields(this.firstReadFields);
+		gt.setWriteFields(this.fieldRecorder);
 		gt.setReturnInfo(this.returnEo);
 		gt.setPath(this.path);
 		
