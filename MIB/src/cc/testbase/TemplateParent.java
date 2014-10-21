@@ -1,5 +1,7 @@
 package cc.testbase;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.math3.linear.RealMatrixFormat;
@@ -15,6 +17,10 @@ public class TemplateParent {
 	
 	public static RealMatrixFormat getInstance(final Locale locale) {
 		return new RealMatrixFormat(CompositeFormat.getDefaultNumberFormat(locale));
+	}
+	
+	public void setList(List list) {
+		
 	}
 	
 	public int parentAdd(int a, int b) {

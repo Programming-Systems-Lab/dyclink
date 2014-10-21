@@ -1,12 +1,22 @@
 package cc.testbase;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.objectweb.asm.Opcodes;
 
-public class TestClass {
+public class TestClass extends TemplateParent {
+	
+	public void setList(ArrayList list) {
+		
+	}
 	
 	public static void main(String[] args) {
+		TestClass tc = new TestClass();
+		ArrayList<String> list = new ArrayList<String>();
+		tc.setList(list);
+		
 		int i = 10;
 		int j = 0;
 		int k = (i ^ 2);

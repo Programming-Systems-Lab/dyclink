@@ -37,10 +37,23 @@ public class ClassInfoCollector {
 				return calledClass;
 			}
 			
+			Type targetMethodType = Type.getMethodType(methodDescriptor);
+			Type[] targetArgs = targetMethodType.getArgumentTypes();
 			while (calledClass != null) {
 				for (Method m: calledClass.getDeclaredMethods()) {
-					if (m.getName().equals(methodName) 
-							&& Type.getMethodDescriptor(m).equals(methodDescriptor)) {
+					if (m.isBridge() || m.isSynthetic())
+						continue ;
+					
+					if (m.getName().equals(methodName)) {
+						Type[] mArgs = Type.getArgumentTypes(m);
+						
+						if (mArgs.length != targetArgs.length)
+							continue;
+						
+						for (int i =0; i < targetArgs.length; i++) {
+							if (!targetArgs[i].equals(mArgs[i]))
+								continue ;
+						} 
 						return calledClass;
 					}
 				}

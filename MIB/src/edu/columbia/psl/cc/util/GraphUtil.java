@@ -98,6 +98,10 @@ public class GraphUtil {
 		HashMap<Integer, List<InstNode>> childSummary = new HashMap<Integer, List<InstNode>>();
 		for (Integer f: firstReadLocalVars) {
 			InstNode fInst = childPool.searchAndGet(childMethod, f);
+			//It's possible that fInst is null, probably an aload for method node, which should be removed
+			if (fInst == null)
+				continue ;
+			
 			int idx =Integer.valueOf(fInst.getAddInfo());
 			
 			if (childSummary.containsKey(idx)) {
@@ -181,6 +185,9 @@ public class GraphUtil {
 	public static void fieldDataDepFromParentToChild(Map<String, InstNode> parentMap, InstPool childPool, HashSet<Integer> firstReadFields, String childMethod) {
 		for (Integer f: firstReadFields){
 			InstNode fInst = childPool.searchAndGet(childMethod, f);
+			//fInst is possible to be null, like alod
+			if (fInst == null)
+				continue ;
 			
 			if (parentMap.containsKey(fInst.getAddInfo())) {
 				InstNode parentNode = parentMap.get(fInst.getAddInfo());

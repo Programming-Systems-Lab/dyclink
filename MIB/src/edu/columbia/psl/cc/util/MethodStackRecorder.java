@@ -511,6 +511,7 @@ public class MethodStackRecorder {
 						childGraph.getMethodKey());
 			}
 			
+			System.out.println("Check opcode before safe pop: " + opcode);
 			if (!BytecodeCategory.staticMethod().contains(opcode)) {
 				//Pop the obj reference on stack, and remove from pool
 				InstNode loadNode = this.safePop();

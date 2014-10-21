@@ -98,7 +98,9 @@ public class ClassMiner extends ClassVisitor{
 	@Override
 	public MethodVisitor visitMethod(int access, final String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = this.cv.visitMethod(access, name, desc, signature, exceptions);
-		if (this.shouldInstrument()) {
+		boolean isSynthetic = ((access & Opcodes.ACC_SYNTHETIC) != 0);
+		boolean isBridge = ((access & Opcodes.ACC_BRIDGE) != 0);
+		if (this.shouldInstrument() && !isSynthetic && !isBridge) {
 			if (name.equals("<init>")) {
 				constructVisit = true;
 				System.out.println("Constructor visit code");
