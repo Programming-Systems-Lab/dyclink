@@ -210,25 +210,38 @@ public class DynamicMethodMiner extends MethodVisitor {
 	}
 	
 	public void convertConst(int cons) {
-		if (cons > 5 && cons < 128) {
-			this.mv.visitIntInsn(Opcodes.BIPUSH, cons);
-		} else if (cons >=128 && cons < 32768) {
-			this.mv.visitIntInsn(Opcodes.SIPUSH, cons);
-		} else if (cons >= 32768) {
-			this.mv.visitLdcInsn(cons);
-		}else if (cons == 0) {
-			this.mv.visitInsn(Opcodes.ICONST_0);
-		} else if (cons == 1) {
-			this.mv.visitInsn(Opcodes.ICONST_1);
-		} else if (cons == 2) {
-			this.mv.visitInsn(Opcodes.ICONST_2);
-		} else if (cons == 3) {
-			this.mv.visitInsn(Opcodes.ICONST_3);
-		} else if (cons == 4) {
-			this.mv.visitInsn(Opcodes.ICONST_4);
-		} else if (cons == 5) {
-			this.mv.visitInsn(Opcodes.ICONST_5);
+		if (cons >= 0) {
+			if (cons > 5 && cons < 128) {
+				this.mv.visitIntInsn(Opcodes.BIPUSH, cons);
+			} else if (cons >=128 && cons < 32768) {
+				this.mv.visitIntInsn(Opcodes.SIPUSH, cons);
+			} else if (cons >= 32768) {
+				this.mv.visitLdcInsn(cons);
+			}else if (cons == 0) {
+				this.mv.visitInsn(Opcodes.ICONST_0);
+			} else if (cons == 1) {
+				this.mv.visitInsn(Opcodes.ICONST_1);
+			} else if (cons == 2) {
+				this.mv.visitInsn(Opcodes.ICONST_2);
+			} else if (cons == 3) {
+				this.mv.visitInsn(Opcodes.ICONST_3);
+			} else if (cons == 4) {
+				this.mv.visitInsn(Opcodes.ICONST_4);
+			} else if (cons == 5) {
+				this.mv.visitInsn(Opcodes.ICONST_5);
+			}
+		} else {
+			if (cons == -1) {
+				this.mv.visitInsn(Opcodes.ICONST_M1);
+			} else if (cons <= -2 && cons > -129) {
+				this.mv.visitIntInsn(Opcodes.BIPUSH, cons);
+			} else if (cons <= -129 && cons > -32769) {
+				this.mv.visitIntInsn(Opcodes.SIPUSH, cons);
+			} else {
+				this.mv.visitLdcInsn(cons);
+			}
 		}
+		
 	}
 	
 	private void handlLabel(Label label) {

@@ -5,8 +5,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.HashMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.MatrixUtils;
@@ -16,12 +19,14 @@ import org.apache.commons.math3.linear.SingularValueDecomposition;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.InstPool;
-import edu.columbia.psl.cc.pojo.CostObj;
+import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class SVDKernel implements MIBSimilarity<double[][]>{
+	
+	private StringBuilder sb = new StringBuilder();
 
 	/**
 	 * @param args
@@ -30,7 +35,7 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 		// TODO Auto-generated method stub
 		double[][] A = {{3, 1, 1}, {-1, 3, 1}};
 		SVDKernel sk = new SVDKernel();
-		double[] s = sk.getSingularVector(A);
+		double[] s = getSingularVector(A);
 		System.out.println(Arrays.toString(s));
 		
 		double[] a1 = {1, 2, 3};
@@ -38,27 +43,20 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 		System.out.println(sk.innerProduct(a1, a2));
 	}
 	
-	public double[] getSingularVector(double[][] matrix) {
+	public static double[] getSingularVector(double[][] matrix) {
 		RealMatrix m = MatrixUtils.createRealMatrix(matrix);
 		SingularValueDecomposition svd = new SingularValueDecomposition(m);
 		double[] sValues = svd.getSingularValues();
 		return sValues;
 	}
 	
-	public double innerProduct(double[] s1, double[] s2) {
+	public static double innerProduct(double[] s1, double[] s2) {
 		RealVector rv1 = new ArrayRealVector(s1);
 		RealVector rv2 = new ArrayRealVector(s2);
 		return rv1.dotProduct(rv2);
 	}
-
-	@Override
-	public double calculateSimilarity(double[][] metric1, double[][] metric2) {
-		double[] s1 = this.getSingularVector(metric1);
-		double[] s2 = this.getSingularVector(metric2);
-		
-		System.out.println("s1 singular vector: " + Arrays.toString(s1));
-		System.out.println("s2 singular vector: " + Arrays.toString(s2));
-		
+	
+	private static double similarityHelper(double[] s1, double[] s2) {
 		int max = s1.length;
 		boolean expandS1 = false;
 		if (s2.length > s1.length) {
@@ -72,15 +70,95 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 			for (int i = s1.length; i < max; i++) {
 				expandedS1[i] = 0;
 			}
-			return this.innerProduct(expandedS1, s2);
+			return innerProduct(expandedS1, s2);
 		} else {
 			double[] expandedS2 = new double[max];
 			System.arraycopy(s2, 0, expandedS2, 0, s2.length);
 			for (int i = s2.length; i < max; i++) {
 				expandedS2[i] = 0;
 			}
-			return this.innerProduct(s1, expandedS2);
+			return innerProduct(s1, expandedS2);
 		}
+	}
+	
+	public void updateResult(String key1, String key2, double similarity) {
+		System.out.println(key1 + " vs. " + key2 + " " + similarity);
+		this.sb.append(key1 + "," + key2 + "," + similarity + "\n");
+	}
+	
+	public String getResult() {
+		return this.sb.toString();
+	}
+	
+	@Override
+	public void calculateSimilarities(HashMap<String, GraphTemplate> gMap1, 
+			HashMap<String, GraphTemplate> gMap2) {
+		HashMap<String, double[][]> cachedMap = new HashMap<String, double[][]>();
+		
+		for (String key1: gMap1.keySet()) {
+			if (cachedMap.containsKey(key1))
+				continue ;
+			
+			double[][] adjMatrix = this.constructCostTable(key1, gMap1.get(key1).getInstPool());
+			cachedMap.put(key1, adjMatrix);
+		}
+		
+		for (String key2: gMap2.keySet()) {
+			if (cachedMap.containsKey(key2))
+				continue ;
+			
+			double[][] adjMatrix = this.constructCostTable(key2, gMap2.get(key2).getInstPool());
+			cachedMap.put(key2, adjMatrix);
+		}
+		
+		//SVD decomposition is the bottleneck, parallelize it
+		HashMap<String, double[]> svdMap = new HashMap<String, double[]>();
+		HashMap<String, Future<double[]>> svdFuture = new HashMap<String, Future<double[]>>();
+		
+		System.out.println("Parallelization setting: " + MIBConfiguration.getParallelFactor());
+		ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getParallelFactor());
+		for (String key: cachedMap.keySet()) {
+			SVDWorker worker = new SVDWorker();
+			worker.methodName = key;
+			worker.adjMatrix = cachedMap.get(key);
+			Future<double[]> submit = executor.submit(worker);
+			svdFuture.put(key, submit);
+		}
+		
+		executor.shutdown();
+		while (!executor.isTerminated());
+		System.out.println("All SVDs are done");
+		
+		for (String key: svdFuture.keySet()) {
+			try {
+				double[] result = svdFuture.get(key).get();
+				svdMap.put(key, result);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+		
+		for (String key1: gMap1.keySet()) {
+			double[] s1 = svdMap.get(key1);
+			
+			for (String key2: gMap2.keySet()) {
+				double[] s2 = svdMap.get(key2);
+				
+				double sim = similarityHelper(s1, s2);
+				this.updateResult(key1, key2, sim);
+			}
+		}
+	}
+
+	@Override
+	public double calculateSimilarity(double[][] metric1, double[][] metric2) {
+		double[] s1 = getSingularVector(metric1);
+		double[] s2 = getSingularVector(metric2);
+		
+		System.out.println("s1 singular vector: " + Arrays.toString(s1));
+		System.out.println("s2 singular vector: " + Arrays.toString(s2));
+		
+		return similarityHelper(s1, s2);
 	}
 	
 	@Override
@@ -125,8 +203,7 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 				sb.append(allNodes.get(k).toString() + ",");
 			}
 		}
-				
-		System.out.println("Check cost table");
+		
 		for (int m = 0; m < ret.length; m++) {
 			StringBuilder rawBuilder = new StringBuilder();
 			rawBuilder.append(allNodes.get(m) + ",");
@@ -150,6 +227,20 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 		}
 		
 		return ret;
+	}
+	
+	public static class SVDWorker implements Callable<double[]> {
+		
+		String methodName;
+		
+		double[][] adjMatrix;
+		
+		@Override
+		public double[] call() throws Exception {
+			double[] ret = SVDKernel.getSingularVector(adjMatrix);
+			System.out.println(methodName + " singular vector: " + Arrays.toString(ret));
+			return ret;
+		}
 	}
 
 }

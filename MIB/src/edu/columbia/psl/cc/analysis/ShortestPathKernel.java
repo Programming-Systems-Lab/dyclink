@@ -17,6 +17,7 @@ import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.CostObj;
+import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.util.GraphUtil;
@@ -38,6 +39,11 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 		System.out.println("Check g1Num: " + g1Num);
 		System.out.println("Check g2Num: " + g2Num);
 		return 0.25 * (Math.pow(g1Num, 2) - g1Num) * (Math.pow(g2Num, 2) - g2Num);  
+	}
+	
+	@Override
+	public String getResult() {
+		return null;
 	}
 	
 	private int kernelMethod(CostObj x1, CostObj x2) {
@@ -293,5 +299,12 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 		//System.out.println("Score kernel: " + spk.scoreShortestPaths(costTable1, costTable2));
 		//System.out.println("Score kernel: " + spk.scoreShortestPaths(costTable2, costTable3));
 		//System.out.println("Score kernel: " + spk.scoreShortestPaths(costTable1, costTable3));
+	}
+
+	@Override
+	public void calculateSimilarities(HashMap<String, GraphTemplate> gMap1,
+			HashMap<String, GraphTemplate> gMap2) {
+		// TODO Auto-generated method stub
+		
 	}
 }

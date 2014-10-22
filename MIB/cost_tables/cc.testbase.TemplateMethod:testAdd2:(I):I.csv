@@ -1,7 +1,0 @@
-head,cc.testbase.TemplateMethod:add2:(I):I 2 96 iadd ,cc.testbase.TemplateMethod:testAdd2:(I):I 1 21 iload 1,cc.testbase.TemplateMethod:testAdd2:(I):I 3 54 istore 3,cc.testbase.TemplateMethod:testAdd2:(I):I 4 21 iload 3,cc.testbase.TemplateMethod:testAdd2:(I):I 5 172 ireturn ,cc.testbase.TemplateMethod:testAdd2:(I):I 1000 21 iload 1
-cc.testbase.TemplateMethod:add2:(I):I 2 96 iadd ,0.0,0.0,1.0,0.0,0.0,0.0
-cc.testbase.TemplateMethod:testAdd2:(I):I 1 21 iload 1,1.0,0.0,0.0,0.0,0.0,0.0
-cc.testbase.TemplateMethod:testAdd2:(I):I 3 54 istore 3,0.0,0.0,0.0,1.0,0.0,0.0
-cc.testbase.TemplateMethod:testAdd2:(I):I 4 21 iload 3,0.0,0.0,0.0,0.0,1.0,0.0
-cc.testbase.TemplateMethod:testAdd2:(I):I 5 172 ireturn ,0.0,0.0,0.0,0.0,0.0,0.0
-cc.testbase.TemplateMethod:testAdd2:(I):I 1000 21 iload 1,0.5,0.0,0.0,0.0,0.0,0.0

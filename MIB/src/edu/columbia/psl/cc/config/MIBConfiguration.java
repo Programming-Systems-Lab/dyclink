@@ -66,7 +66,9 @@ public class MIBConfiguration {
 	
 	private static double dataWeight = 1.0;
 	
-	private static int precisionDigit = 3;
+	private static int precisionDigit = 5;
+	
+	private static int parallelFactor = Runtime.getRuntime().availableProcessors();
 	
 	private static boolean annotGuard = false;
 	
@@ -200,6 +202,10 @@ public class MIBConfiguration {
 	
 	public static boolean isAnnotGuard() {
 		return annotGuard;
+	}
+	
+	public static int getParallelFactor() {
+		return parallelFactor;
 	}
 
 }

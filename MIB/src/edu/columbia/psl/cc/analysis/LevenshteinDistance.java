@@ -6,6 +6,7 @@ import java.util.TreeSet;
 
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.CostObj;
+import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 
 public class LevenshteinDistance implements MIBSimilarity<String>{
@@ -20,6 +21,11 @@ public class LevenshteinDistance implements MIBSimilarity<String>{
 		} else {
 			targetMap.put(name, sequence);
 		}
+	}
+	
+	@Override
+	public String getResult() {
+		return null;
 	}
 	
 	public void generateResult() {
@@ -89,5 +95,12 @@ public class LevenshteinDistance implements MIBSimilarity<String>{
 			InstPool pool) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void calculateSimilarities(HashMap<String, GraphTemplate> gMap1,
+			HashMap<String, GraphTemplate> gMap2) {
+		// TODO Auto-generated method stub
+		
 	}
 }

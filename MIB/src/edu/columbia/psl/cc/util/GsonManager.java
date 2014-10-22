@@ -165,8 +165,12 @@ public class GsonManager {
 	}
 	
 	public static void writeResult(StringBuilder sb) {
+		writeResult(sb.toString());
+	}
+	
+	public static void writeResult(String resultString) {
 		Date now = new Date();
-		String name = resultDir + "/result" + now.getTime() + ".txt"; 
+		String name = resultDir + "/result" + now.getTime() + ".csv"; 
 		File result = new File(name);
 		
 		try {
@@ -174,7 +178,7 @@ public class GsonManager {
 				result.createNewFile();
 			
 			BufferedWriter bw = new BufferedWriter(new FileWriter(result));
-			bw.write(sb.toString());
+			bw.write(resultString);
 			bw.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();

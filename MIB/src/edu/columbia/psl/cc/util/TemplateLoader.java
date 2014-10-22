@@ -7,6 +7,8 @@ import java.util.HashMap;
 import com.google.gson.reflect.TypeToken;
 
 public class TemplateLoader {
+	
+	private static String skipMethod = "main:([Ljava.lang.String)";
 
 	public static <T> HashMap<String, T> loadTemplate(File dir, TypeToken<T> typeToken) {
 		HashMap<String, T> ret = new HashMap<String, T>();
@@ -17,7 +19,7 @@ public class TemplateLoader {
 			FilenameFilter filter = new FilenameFilter() {
 				@Override
 				public boolean accept(File dir, String name) {
-					return name.toLowerCase().endsWith(".json");
+					return name.toLowerCase().endsWith(".json") && !name.contains(skipMethod);
 				}
 			};
 			

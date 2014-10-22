@@ -1,5 +1,0 @@
-head,cc.testbase.TemplateParent:interestingMethod:():V 0 178 getstatic java.lang.System.out.Ljava/io/PrintStream;,cc.testbase.TemplateParent:interestingMethod:():V 1 18 ldc Superclass's interesting method.,cc.testbase.TemplateParent:interestingMethod:():V 2 182 invokevirtual java.io.PrintStream:println:(Ljava.lang.String):V,cc.testbase.TemplateParent:interestingMethod:():V 3 177 return 
-cc.testbase.TemplateParent:interestingMethod:():V 0 178 getstatic java.lang.System.out.Ljava/io/PrintStream;,0.0,0.0,1.0,0.0
-cc.testbase.TemplateParent:interestingMethod:():V 1 18 ldc Superclass's interesting method.,0.0,0.0,1.0,0.0
-cc.testbase.TemplateParent:interestingMethod:():V 2 182 invokevirtual java.io.PrintStream:println:(Ljava.lang.String):V,0.0,0.0,0.0,0.0
-cc.testbase.TemplateParent:interestingMethod:():V 3 177 return ,0.0,0.0,0.0,0.0

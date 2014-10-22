@@ -1,5 +1,6 @@
 package cc.testbase;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -155,6 +156,7 @@ public class TemplateMethod extends TemplateParent{
 	
 	@extractTemplate
 	public void increArray(int[] input) {
+		int b = -32769;
 		for (int i = 0; i < input.length; i++) {
 			input[i] = 5;
 		}

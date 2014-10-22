@@ -1,53 +1,55 @@
-cc.testbase.TemplateMethod:increArray:([I):V 0 3 iconst_0 
+cc.testbase.TemplateMethod:increArray:([I):V 0 18 ldc -32769
 cc.testbase.TemplateMethod:increArray:([I):V 1 54 istore 3
-cc.testbase.TemplateMethod:increArray:([I):V 2 167 goto L1300650792
-cc.testbase.TemplateMethod:increArray:([I):V 8 21 iload 3
-cc.testbase.TemplateMethod:increArray:([I):V 9 25 aload 1
-cc.testbase.TemplateMethod:increArray:([I):V 10 190 arraylength 
-cc.testbase.TemplateMethod:increArray:([I):V 11 161 if_icmplt L801818331
-cc.testbase.TemplateMethod:increArray:([I):V 3 25 aload 1
-cc.testbase.TemplateMethod:increArray:([I):V 4 21 iload 3
-cc.testbase.TemplateMethod:increArray:([I):V 5 8 iconst_5 
-cc.testbase.TemplateMethod:increArray:([I):V 6 79 iastore 
-cc.testbase.TemplateMethod:increArray:([I):V 7 132 iinc 3
-cc.testbase.TemplateMethod:increArray:([I):V 8 21 iload 3
-cc.testbase.TemplateMethod:increArray:([I):V 9 25 aload 1
-cc.testbase.TemplateMethod:increArray:([I):V 10 190 arraylength 
-cc.testbase.TemplateMethod:increArray:([I):V 11 161 if_icmplt L801818331
-cc.testbase.TemplateMethod:increArray:([I):V 3 25 aload 1
-cc.testbase.TemplateMethod:increArray:([I):V 4 21 iload 3
-cc.testbase.TemplateMethod:increArray:([I):V 5 8 iconst_5 
-cc.testbase.TemplateMethod:increArray:([I):V 6 79 iastore 
-cc.testbase.TemplateMethod:increArray:([I):V 7 132 iinc 3
-cc.testbase.TemplateMethod:increArray:([I):V 8 21 iload 3
-cc.testbase.TemplateMethod:increArray:([I):V 9 25 aload 1
-cc.testbase.TemplateMethod:increArray:([I):V 10 190 arraylength 
-cc.testbase.TemplateMethod:increArray:([I):V 11 161 if_icmplt L801818331
-cc.testbase.TemplateMethod:increArray:([I):V 3 25 aload 1
-cc.testbase.TemplateMethod:increArray:([I):V 4 21 iload 3
-cc.testbase.TemplateMethod:increArray:([I):V 5 8 iconst_5 
-cc.testbase.TemplateMethod:increArray:([I):V 6 79 iastore 
-cc.testbase.TemplateMethod:increArray:([I):V 7 132 iinc 3
-cc.testbase.TemplateMethod:increArray:([I):V 8 21 iload 3
-cc.testbase.TemplateMethod:increArray:([I):V 9 25 aload 1
-cc.testbase.TemplateMethod:increArray:([I):V 10 190 arraylength 
-cc.testbase.TemplateMethod:increArray:([I):V 11 161 if_icmplt L801818331
-cc.testbase.TemplateMethod:increArray:([I):V 3 25 aload 1
-cc.testbase.TemplateMethod:increArray:([I):V 4 21 iload 3
-cc.testbase.TemplateMethod:increArray:([I):V 5 8 iconst_5 
-cc.testbase.TemplateMethod:increArray:([I):V 6 79 iastore 
-cc.testbase.TemplateMethod:increArray:([I):V 7 132 iinc 3
-cc.testbase.TemplateMethod:increArray:([I):V 8 21 iload 3
-cc.testbase.TemplateMethod:increArray:([I):V 9 25 aload 1
-cc.testbase.TemplateMethod:increArray:([I):V 10 190 arraylength 
-cc.testbase.TemplateMethod:increArray:([I):V 11 161 if_icmplt L801818331
-cc.testbase.TemplateMethod:increArray:([I):V 3 25 aload 1
-cc.testbase.TemplateMethod:increArray:([I):V 4 21 iload 3
-cc.testbase.TemplateMethod:increArray:([I):V 5 8 iconst_5 
-cc.testbase.TemplateMethod:increArray:([I):V 6 79 iastore 
-cc.testbase.TemplateMethod:increArray:([I):V 7 132 iinc 3
-cc.testbase.TemplateMethod:increArray:([I):V 8 21 iload 3
-cc.testbase.TemplateMethod:increArray:([I):V 9 25 aload 1
-cc.testbase.TemplateMethod:increArray:([I):V 10 190 arraylength 
-cc.testbase.TemplateMethod:increArray:([I):V 11 161 if_icmplt L801818331
-cc.testbase.TemplateMethod:increArray:([I):V 12 177 return 
+cc.testbase.TemplateMethod:increArray:([I):V 2 3 iconst_0 
+cc.testbase.TemplateMethod:increArray:([I):V 3 54 istore 4
+cc.testbase.TemplateMethod:increArray:([I):V 4 167 goto L700804192
+cc.testbase.TemplateMethod:increArray:([I):V 10 21 iload 4
+cc.testbase.TemplateMethod:increArray:([I):V 11 25 aload 1
+cc.testbase.TemplateMethod:increArray:([I):V 12 190 arraylength 
+cc.testbase.TemplateMethod:increArray:([I):V 13 161 if_icmplt L1615734796
+cc.testbase.TemplateMethod:increArray:([I):V 5 25 aload 1
+cc.testbase.TemplateMethod:increArray:([I):V 6 21 iload 4
+cc.testbase.TemplateMethod:increArray:([I):V 7 8 iconst_5 
+cc.testbase.TemplateMethod:increArray:([I):V 8 79 iastore 
+cc.testbase.TemplateMethod:increArray:([I):V 9 132 iinc 4
+cc.testbase.TemplateMethod:increArray:([I):V 10 21 iload 4
+cc.testbase.TemplateMethod:increArray:([I):V 11 25 aload 1
+cc.testbase.TemplateMethod:increArray:([I):V 12 190 arraylength 
+cc.testbase.TemplateMethod:increArray:([I):V 13 161 if_icmplt L1615734796
+cc.testbase.TemplateMethod:increArray:([I):V 5 25 aload 1
+cc.testbase.TemplateMethod:increArray:([I):V 6 21 iload 4
+cc.testbase.TemplateMethod:increArray:([I):V 7 8 iconst_5 
+cc.testbase.TemplateMethod:increArray:([I):V 8 79 iastore 
+cc.testbase.TemplateMethod:increArray:([I):V 9 132 iinc 4
+cc.testbase.TemplateMethod:increArray:([I):V 10 21 iload 4
+cc.testbase.TemplateMethod:increArray:([I):V 11 25 aload 1
+cc.testbase.TemplateMethod:increArray:([I):V 12 190 arraylength 
+cc.testbase.TemplateMethod:increArray:([I):V 13 161 if_icmplt L1615734796
+cc.testbase.TemplateMethod:increArray:([I):V 5 25 aload 1
+cc.testbase.TemplateMethod:increArray:([I):V 6 21 iload 4
+cc.testbase.TemplateMethod:increArray:([I):V 7 8 iconst_5 
+cc.testbase.TemplateMethod:increArray:([I):V 8 79 iastore 
+cc.testbase.TemplateMethod:increArray:([I):V 9 132 iinc 4
+cc.testbase.TemplateMethod:increArray:([I):V 10 21 iload 4
+cc.testbase.TemplateMethod:increArray:([I):V 11 25 aload 1
+cc.testbase.TemplateMethod:increArray:([I):V 12 190 arraylength 
+cc.testbase.TemplateMethod:increArray:([I):V 13 161 if_icmplt L1615734796
+cc.testbase.TemplateMethod:increArray:([I):V 5 25 aload 1
+cc.testbase.TemplateMethod:increArray:([I):V 6 21 iload 4
+cc.testbase.TemplateMethod:increArray:([I):V 7 8 iconst_5 
+cc.testbase.TemplateMethod:increArray:([I):V 8 79 iastore 
+cc.testbase.TemplateMethod:increArray:([I):V 9 132 iinc 4
+cc.testbase.TemplateMethod:increArray:([I):V 10 21 iload 4
+cc.testbase.TemplateMethod:increArray:([I):V 11 25 aload 1
+cc.testbase.TemplateMethod:increArray:([I):V 12 190 arraylength 
+cc.testbase.TemplateMethod:increArray:([I):V 13 161 if_icmplt L1615734796
+cc.testbase.TemplateMethod:increArray:([I):V 5 25 aload 1
+cc.testbase.TemplateMethod:increArray:([I):V 6 21 iload 4
+cc.testbase.TemplateMethod:increArray:([I):V 7 8 iconst_5 
+cc.testbase.TemplateMethod:increArray:([I):V 8 79 iastore 
+cc.testbase.TemplateMethod:increArray:([I):V 9 132 iinc 4
+cc.testbase.TemplateMethod:increArray:([I):V 10 21 iload 4
+cc.testbase.TemplateMethod:increArray:([I):V 11 25 aload 1
+cc.testbase.TemplateMethod:increArray:([I):V 12 190 arraylength 
+cc.testbase.TemplateMethod:increArray:([I):V 13 161 if_icmplt L1615734796
+cc.testbase.TemplateMethod:increArray:([I):V 14 177 return 

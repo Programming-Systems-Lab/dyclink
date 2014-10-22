@@ -27,7 +27,7 @@ public class MIBDriver {
 	 */
 	public static void main(String[] args) {
 		//Clean directory
-		GsonManager.cleanDirs();
+		//GsonManager.cleanDirs();
 		
 		String className = args[0];
 		String[] newArgs = new String[args.length - 1];
@@ -48,7 +48,7 @@ public class MIBDriver {
 			File testDir = new File(MIBConfiguration.getTestDir());
 			TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 			HashMap<String, GraphTemplate> templates = TemplateLoader.loadTemplate(templateDir, graphToken);
-			HashMap<String, GraphTemplate> tests = TemplateLoader.loadTemplate(testDir, graphToken); 
+			HashMap<String, GraphTemplate> tests = TemplateLoader.loadTemplate(testDir, graphToken);
 			
 			//Put the analysis here temporarily
 			System.out.println("Dynamic Graph Analysis");
