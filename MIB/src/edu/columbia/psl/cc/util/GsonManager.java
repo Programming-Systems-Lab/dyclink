@@ -16,18 +16,9 @@ import com.google.gson.stream.JsonWriter;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.Var;
+import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class GsonManager {
-	
-	private static String templateDir = MIBConfiguration.getTemplateDir();
-	
-	private static String testDir = MIBConfiguration.getTestDir();
-	
-	private static String pathDir = MIBConfiguration.getPathDir();
-	
-	private static String labelmapDir = MIBConfiguration.getLabelmapDir();
-	
-	private static String resultDir = MIBConfiguration.getResultDir();
 	
 	public static void writePath(String fileName, List<InstNode> path) {
 		StringBuilder sb = new StringBuilder();
@@ -36,7 +27,7 @@ public class GsonManager {
 		}
 		
 		try {
-			File f = new File(pathDir + "/" + fileName + ".txt");
+			File f = new File(MIBConfiguration.getInstance().getPathDir() + "/" + fileName + ".txt");
 			if (f.exists())
 				f.delete();
 			
@@ -57,9 +48,9 @@ public class GsonManager {
 		try {
 			File f;
 			if (isTemplate) {
-				f = new File(templateDir + "/" + fileName + ".json");
+				f = new File(MIBConfiguration.getInstance().getTemplateDir() + "/" + fileName + ".json");
 			} else {
-				f = new File(testDir + "/" + fileName + ".json");
+				f = new File(MIBConfiguration.getInstance().getTestDir() + "/" + fileName + ".json");
 			}
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
 			bw.write(toWrite);
@@ -101,11 +92,11 @@ public class GsonManager {
 		try {
 			File f;
 			if (dirIdx == 0) {
-				f = new File(templateDir + "/" + fileName + ".json");
+				f = new File(MIBConfiguration.getInstance().getTemplateDir() + "/" + fileName + ".json");
 			} else if (dirIdx == 1) {
-				f = new File(testDir + "/" + fileName + ".json");
+				f = new File(MIBConfiguration.getInstance().getTestDir() + "/" + fileName + ".json");
 			} else {
-				f = new File(labelmapDir + "/" + fileName + ".json");
+				f = new File(MIBConfiguration.getInstance().getLabelmapDir() + "/" + fileName + ".json");
 			}
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
 			bw.write(toWrite);
@@ -142,26 +133,24 @@ public class GsonManager {
 		}
 	}
 	
-	public static void cleanDirs() {
-		File tempDir = new File(templateDir);
-		File teDir = new File(testDir);
-		boolean hasToDelete = true;
-		if (!tempDir.isDirectory()) {
-			tempDir.delete();
-			tempDir.mkdir();
-			hasToDelete = false;
+	public static void cleanDir(File dir) {
+		if (!dir.isDirectory()) {
+			dir.delete();
+			dir.mkdir();
+		} else {
+			cleanHelper(dir.getAbsolutePath());
 		}
+	}
+	
+	public static void cleanDirs(boolean cleanTemp, boolean cleanTest) {
+		File tempDir = new File(MIBConfiguration.getInstance().getTemplateDir());
+		File teDir = new File(MIBConfiguration.getInstance().getTestDir());
 		
-		if (!teDir.isDirectory()) {
-			teDir.delete();
-			teDir.mkdir();
-			hasToDelete = false;
-		}
+		if (cleanTemp)
+			cleanDir(tempDir);
 		
-		if (hasToDelete) {
-			cleanHelper(tempDir.getAbsolutePath());
-			cleanHelper(teDir.getAbsolutePath());
-		}
+		if (cleanTest)
+			cleanDir(teDir);
 	}
 	
 	public static void writeResult(StringBuilder sb) {
@@ -170,7 +159,7 @@ public class GsonManager {
 	
 	public static void writeResult(String resultString) {
 		Date now = new Date();
-		String name = resultDir + "/result" + now.getTime() + ".csv"; 
+		String name = MIBConfiguration.getInstance().getResultDir() + "/result" + now.getTime() + ".csv"; 
 		File result = new File(name);
 		
 		try {

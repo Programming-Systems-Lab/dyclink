@@ -1,0 +1,20 @@
+{
+    "opTablePath": "opcodes/opcode_cats.csv",
+    "opCodeCatId": "opcodes/opcode_ids.csv",
+    "costTableDir": "./cost_tables/",
+    "costLimit": 100,
+    "templateDir": "./template",
+    "testDir": "./test",
+    "pathDir": "./path",
+    "labelmapDir": "./labelmap",
+    "resultDir": "./results",
+    "debugDir": "./debug",
+    "controlWeight": 1.0,
+    "dataWeight" : 1.0,
+    "precisionDigit" : 5,
+    "parallelFactor" : 8,
+    "annotGuard" : false,
+    "cleanTemplate": true,
+    "cleanTest": true,
+    "debug": false
+}

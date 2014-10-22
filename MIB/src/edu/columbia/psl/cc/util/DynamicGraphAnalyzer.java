@@ -1,18 +1,12 @@
 package edu.columbia.psl.cc.util;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
-import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.analysis.MIBSimilarity;
 import edu.columbia.psl.cc.analysis.SVDKernel;
@@ -25,10 +19,11 @@ import edu.columbia.psl.cc.pojo.ExtObj;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.GrownGraph;
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.premain.MIBDriver;
 import edu.columbia.psl.cc.visual.GraphVisualizer;
 
 public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
-	
+		
 	private MIBSimilarity scorer;
 	
 	private HashMap<String, GraphTemplate> templates;
@@ -174,7 +169,7 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 				InstNode fieldInst = child.getInstPool().searchAndGet(child.getMethodKey(), fieldInstId);
 				
 				if (pFieldInst.getAddInfo().equals(fieldInst.getAddInfo())) {
-					pFieldInst.increChild(child.getMethodKey(), fieldInstId, MIBConfiguration.getDataWeight());
+					pFieldInst.increChild(child.getMethodKey(), fieldInstId, MIBConfiguration.getInstance().getDataWeight());
 					fieldInst.registerParent(pFieldInst.getFromMethod(), pFieldInst.getIdx(), false);
 				}
 			}
@@ -253,7 +248,9 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 				for (InstNode affected: methodEo.getAffFieldInsts()) {
 					if (affected.getAddInfo().equals(writeInst.getAddInfo())) {
 						affected.registerParent(writeInst.getFromMethod(), writeInst.getIdx(), false);
-						writeInst.getChildFreqMap().put(StringUtil.genIdxKey(affected.getFromMethod(), affected.getIdx()), MIBConfiguration.getDataWeight());
+						writeInst.getChildFreqMap().put(StringUtil.genIdxKey(affected.getFromMethod(), 
+								affected.getIdx()), 
+								MIBConfiguration.getInstance().getDataWeight());
 						
 						if (parent.getFirstReadFields().contains(affected.getIdx()))
 							parent.getFirstReadFields().remove(affected.getIdx());

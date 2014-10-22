@@ -13,11 +13,12 @@ import org.objectweb.asm.Type;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
+import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class BytecodeCategory {
 	
 	//private static String opTablePath = "opcodes/opcode_table.txt";
-	
+		
 	private static HashMap<Integer, String> opcodeCategory = new HashMap<Integer, String>();
 	
 	private static HashMap<Integer, OpcodeObj> opcodeTable = new HashMap<Integer, OpcodeObj>();
@@ -30,7 +31,7 @@ public class BytecodeCategory {
 	}
 	
 	private static void loadOpcodeCategory() {		
-		File f = new File(MIBConfiguration.getOpCodeCatId());
+		File f = new File(MIBConfiguration.getInstance().getOpCodeCatId());
 		
 		if (!f.exists()) {
 			System.err.println("Opcode category ID table does not exist");
@@ -70,7 +71,7 @@ public class BytecodeCategory {
 	}
 	
 	private static void loadOpcodeTable() {
-		File f = new File(MIBConfiguration.getOpTablePath());
+		File f = new File(MIBConfiguration.getInstance().getOpTablePath());
 		if (!f.exists()) {
 			System.err.println("Find no opcode table information");
 			return ;

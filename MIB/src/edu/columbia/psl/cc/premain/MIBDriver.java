@@ -21,13 +21,16 @@ import edu.columbia.psl.cc.util.TemplateLoader;
 
 public class MIBDriver {
 	
-
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		MIBConfiguration mConfig = MIBConfiguration.getInstance();
+		System.out.println("MIB Configuration");
+		System.out.println(MIBConfiguration.getInstance());
+		
 		//Clean directory
-		//GsonManager.cleanDirs();
+		GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());
 		
 		String className = args[0];
 		String[] newArgs = new String[args.length - 1];
@@ -44,8 +47,8 @@ public class MIBDriver {
 			mainMethod.invoke(null, (Object)newArgs);
 			
 			//Load templates for each analysis
-			File templateDir = new File(MIBConfiguration.getTemplateDir());
-			File testDir = new File(MIBConfiguration.getTestDir());
+			File templateDir = new File(mConfig.getTemplateDir());
+			File testDir = new File(mConfig.getTestDir());
 			TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 			HashMap<String, GraphTemplate> templates = TemplateLoader.loadTemplate(templateDir, graphToken);
 			HashMap<String, GraphTemplate> tests = TemplateLoader.loadTemplate(testDir, graphToken);
@@ -55,7 +58,7 @@ public class MIBDriver {
 			Analyzer<GraphTemplate> dynamicAnalyzer = new DynamicGraphAnalyzer();
 			dynamicAnalyzer.setTemplates(templates);
 			dynamicAnalyzer.setTests(tests);
-			dynamicAnalyzer.setAnnotGuard(MIBConfiguration.isAnnotGuard());
+			dynamicAnalyzer.setAnnotGuard(mConfig.isAnnotGuard());
 			dynamicAnalyzer.analyzeTemplate();
 			
 			/*File labelDir = new File(MIBConfiguration.getLabelmapDir());

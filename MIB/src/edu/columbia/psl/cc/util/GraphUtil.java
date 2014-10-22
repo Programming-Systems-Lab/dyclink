@@ -34,6 +34,7 @@ import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.pojo.VarPair;
+import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class GraphUtil {
 	
@@ -192,7 +193,9 @@ public class GraphUtil {
 			if (parentMap.containsKey(fInst.getAddInfo())) {
 				InstNode parentNode = parentMap.get(fInst.getAddInfo());
 				
-				parentNode.increChild(fInst.getFromMethod(), fInst.getIdx(), MIBConfiguration.getDataWeight());
+				parentNode.increChild(fInst.getFromMethod(), 
+						fInst.getIdx(), 
+						MIBConfiguration.getInstance().getDataWeight());
 				fInst.registerParent(parentNode.getFromMethod(), 
 						parentNode.getIdx(), 
 						false);
@@ -214,7 +217,9 @@ public class GraphUtil {
 		}
 		
 		for (InstNode cNode: affectedSet) {
-			controlFromParent.increChild(cNode.getFromMethod(), cNode.getIdx(), MIBConfiguration.getControlWeight());
+			controlFromParent.increChild(cNode.getFromMethod(), 
+					cNode.getIdx(), 
+					MIBConfiguration.getInstance().getControlWeight());
 			cNode.registerParent(controlFromParent.getFromMethod(), controlFromParent.getIdx(), true);
 		}
 	}
@@ -242,7 +247,7 @@ public class GraphUtil {
 	}
 	
 	public static HashMap<Integer, GraphTemplate> collectChildGraphs(GraphTemplate parentGraph) {
-		String tempDir = MIBConfiguration.getTemplateDir();
+		String tempDir = MIBConfiguration.getInstance().getTemplateDir();
 		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 		
 		HashMap<Integer, GraphTemplate> childGraphLib = new HashMap<Integer, GraphTemplate>();
@@ -259,7 +264,7 @@ public class GraphUtil {
 	}
 	
 	public static double roundValue(double value) {
-		return Precision.round(value, MIBConfiguration.getPrecisionDigit());
+		return Precision.round(value, MIBConfiguration.getInstance().getPrecisionDigit());
 	}
 		
 	private static void summarizeVarPairChildren(VarPairPool vpp, VarPair vp) {

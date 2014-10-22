@@ -18,11 +18,11 @@ public class MIBIDGenVisitor extends  MethodVisitor{
 	public void visitCode() {
 		this.mv.visitCode();
 		
-		this.mv.visitFieldInsn(Opcodes.GETSTATIC, this.owner, MIBConfiguration.getMIBIDGen(), "I");
+		this.mv.visitFieldInsn(Opcodes.GETSTATIC, this.owner, MIBConfiguration.getMibIdGen(), "I");
 		this.mv.visitInsn(Opcodes.DUP);
 		this.mv.visitInsn(Opcodes.ICONST_1);
 		this.mv.visitInsn(Opcodes.IADD);
-		this.mv.visitFieldInsn(Opcodes.PUTSTATIC, this.owner, MIBConfiguration.getMIBIDGen(), "I");
+		this.mv.visitFieldInsn(Opcodes.PUTSTATIC, this.owner, MIBConfiguration.getMibIdGen(), "I");
 		this.mv.visitInsn(Opcodes.IRETURN);
 	}
 

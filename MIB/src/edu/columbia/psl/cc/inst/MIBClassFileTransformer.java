@@ -16,6 +16,7 @@ import edu.columbia.psl.cc.annot.analyzeClass;
 import edu.columbia.psl.cc.annot.extractTemplate;
 import edu.columbia.psl.cc.annot.testTemplate;
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class MIBClassFileTransformer implements ClassFileTransformer {
 	
@@ -47,19 +48,23 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 				ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
 				ClassMiner cm = new ClassMiner(new CheckClassAdapter(cw, false), 
 						name.replace(".", "/"), classAnnot, templateAnnot, testAnnot);
-				cm.setAnnotGuard(MIBConfiguration.isAnnotGuard());
+				cm.setAnnotGuard(MIBConfiguration.getInstance().isAnnotGuard());
 				cr.accept(cm, ClassReader.EXPAND_FRAMES);
 				
-				File f = new File("debug/");
-				if (!f.exists()) {
-					f.mkdir();
+				if (MIBConfiguration.getInstance().isDebug()) {
+					String debugDir = MIBConfiguration.getInstance().getDebugDir();
+					File f = new File(debugDir);
+					if (!f.exists()) {
+						f.mkdir();
+					}
+					
+					FileOutputStream fos = new FileOutputStream(debugDir + "/" + name + ".class");
+					ByteArrayOutputStream bos = new ByteArrayOutputStream(cw.toByteArray().length);
+					bos.write(cw.toByteArray());
+					bos.writeTo(fos);
+					fos.close();
 				}
 				
-				FileOutputStream fos = new FileOutputStream("debug/" + name + ".class");
-				ByteArrayOutputStream bos = new ByteArrayOutputStream(cw.toByteArray().length);
-				bos.write(cw.toByteArray());
-				bos.writeTo(fos);
-				fos.close();
 				return cw.toByteArray();
 			} catch (Exception ex) {
 				System.out.println("In the exception");

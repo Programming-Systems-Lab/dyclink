@@ -6,6 +6,7 @@ import org.objectweb.asm.Opcodes;
 import com.sun.xml.internal.ws.org.objectweb.asm.Type;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.premain.MIBDriver;
 import edu.columbia.psl.cc.util.ObjectIdAllocater;
 
 public class MIBConstructVisitor extends MethodVisitor{
@@ -28,7 +29,7 @@ public class MIBConstructVisitor extends MethodVisitor{
 		this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 		this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, indexerClass, "getIndex", "()I");
 		//this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, this.owner, MIBConfiguration.getMIBIDGenMethod(), "()I");
-		this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.owner, MIBConfiguration.getMIBID(), "I");
+		this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.owner, MIBConfiguration.getMibId(), "I");
 		this.mv.visitInsn(Opcodes.RETURN);
 	}
 

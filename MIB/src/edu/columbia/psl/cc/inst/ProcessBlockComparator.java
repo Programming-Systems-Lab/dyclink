@@ -44,7 +44,7 @@ public class ProcessBlockComparator {
 	
 	public static void main(String[] args) {		
 		//Clean the dir
-		GsonManager.cleanDirs();
+		GsonManager.cleanDirs(true, true);
 				
 		//Read bytecode from both class
 		for (String className: getClassNames()) {

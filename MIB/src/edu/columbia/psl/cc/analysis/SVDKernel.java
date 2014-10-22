@@ -21,11 +21,12 @@ import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.premain.MIBDriver;
 import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class SVDKernel implements MIBSimilarity<double[][]>{
-	
+		
 	private StringBuilder sb = new StringBuilder();
 
 	/**
@@ -33,14 +34,14 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		double[][] A = {{3, 1, 1}, {-1, 3, 1}};
+		/*double[][] A = {{3, 1, 1}, {-1, 3, 1}};
 		SVDKernel sk = new SVDKernel();
 		double[] s = getSingularVector(A);
-		System.out.println(Arrays.toString(s));
+		System.out.println(Arrays.toString(s));*/
 		
 		double[] a1 = {1, 2, 3};
-		double[] a2 = {4, 5, 6};
-		System.out.println(sk.innerProduct(a1, a2));
+		double[] a2 = {4, 5, 6, 9};
+		System.out.println(similarityHelper(a1, a2));
 	}
 	
 	public static double[] getSingularVector(double[][] matrix) {
@@ -57,6 +58,27 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 	}
 	
 	private static double similarityHelper(double[] s1, double[] s2) {
+		int max = s1.length;
+		int min = s2.length;
+		boolean cutS1 = true;
+		if (s2.length > s1.length) {
+			max = s2.length;
+			min = s1.length;
+			cutS1 = false;
+		}
+		
+		if (cutS1) {
+			double[] cuttS1 = new double[min];
+			System.arraycopy(s1, 0, cuttS1, 0, min);
+			return innerProduct(cuttS1, s2)/max;
+		} else {
+			double[] cuttS2 = new double[min];
+			System.arraycopy(s2, 0, cuttS2, 0, min);
+			return innerProduct(s1, cuttS2)/max;
+		}
+	}
+	
+	/*private static double similarityHelper(double[] s1, double[] s2) {
 		int max = s1.length;
 		boolean expandS1 = false;
 		if (s2.length > s1.length) {
@@ -79,7 +101,7 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 			}
 			return innerProduct(s1, expandedS2);
 		}
-	}
+	}*/
 	
 	public void updateResult(String key1, String key2, double similarity) {
 		System.out.println(key1 + " vs. " + key2 + " " + similarity);
@@ -115,8 +137,7 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 		HashMap<String, double[]> svdMap = new HashMap<String, double[]>();
 		HashMap<String, Future<double[]>> svdFuture = new HashMap<String, Future<double[]>>();
 		
-		System.out.println("Parallelization setting: " + MIBConfiguration.getParallelFactor());
-		ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getParallelFactor());
+		ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
 		for (String key: cachedMap.keySet()) {
 			SVDWorker worker = new SVDWorker();
 			worker.methodName = key;
@@ -214,7 +235,7 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 		}
 				
 		try {
-			File f = new File(MIBConfiguration.getCostTableDir() + methodName + ".csv");
+			File f = new File(MIBConfiguration.getInstance().getCostTableDir() + methodName + ".csv");
 			if (f.exists()) {
 				f.delete();
 			}

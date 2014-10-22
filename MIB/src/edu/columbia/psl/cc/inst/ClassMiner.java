@@ -74,8 +74,8 @@ public class ClassMiner extends ClassVisitor{
 		this.isInterface = (access & Opcodes.ACC_INTERFACE) != 0;
 		if (!isInterface) {
 			this.cv.visitField(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, 
-					MIBConfiguration.getMIBIDGen(), "I", null, 1);
-			this.cv.visitField(Opcodes.ACC_PUBLIC, MIBConfiguration.getMIBID(), "I", null, null);
+					MIBConfiguration.getMibIdGen(), "I", null, 1);
+			this.cv.visitField(Opcodes.ACC_PUBLIC, MIBConfiguration.getMibId(), "I", null, null);
 		} else {
 			System.out.println("Not instrument interface: " + name);
 		}
@@ -142,7 +142,7 @@ public class ClassMiner extends ClassVisitor{
 		if (this.shouldInstrument()) {
 			//Create the static id generator
 			MethodVisitor mv = this.cv.visitMethod(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC + Opcodes.ACC_SYNCHRONIZED, 
-					MIBConfiguration.getMIBIDGenMethod(), "()I", null, null);
+					MIBConfiguration.getMibIdGenMethod(), "()I", null, null);
 			mv = new MIBIDGenVisitor(mv, this.owner);
 			mv.visitCode();
 			mv.visitMaxs(0, 0);

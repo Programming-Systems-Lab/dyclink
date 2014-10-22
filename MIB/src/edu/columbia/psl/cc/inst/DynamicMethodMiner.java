@@ -347,7 +347,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 			//Give obj id before visit super class
 			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ObjectIdAllocater.class), "getIndex", "()I");
-			this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMIBID(), "I");
+			this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMibId(), "I");
 			return ; 
 		}
 		

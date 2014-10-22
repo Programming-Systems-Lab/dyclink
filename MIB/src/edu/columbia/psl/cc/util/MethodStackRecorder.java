@@ -32,9 +32,10 @@ import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.pojo.StaticRep;
+import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class MethodStackRecorder {
-	
+		
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 		
 	private String className;
@@ -142,10 +143,10 @@ public class MethodStackRecorder {
 	
 	private void updateCachedMap(InstNode parent, InstNode child, boolean isControl) {
 		if (isControl) {
-			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getControlWeight());
+			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getControlWeight());
 			child.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);
 		} else {
-			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getDataWeight());
+			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getDataWeight());
 			child.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);		
 		}
 		//System.out.println("Update map: " + this.dataDep);
@@ -469,7 +470,7 @@ public class MethodStackRecorder {
 			eo.setInstIdx(instIdx);
 			this.updateExtMethods(eo);
 			
-			String filePath = MIBConfiguration.getTemplateDir() + "/" + searchKey + ".json";
+			String filePath = MIBConfiguration.getInstance().getTemplateDir() + "/" + searchKey + ".json";
 			GraphTemplate childGraph = TemplateLoader.loadTemplateFile(filePath, graphToken);
 			
 			//This means that the callee method is from jvm, keep the method inst in graph
@@ -679,7 +680,7 @@ public class MethodStackRecorder {
 		
 		Class<?> valueClass = value.getClass();
 		try {
-			Field idField = valueClass.getField(MIBConfiguration.getMIBID());
+			Field idField = valueClass.getField(MIBConfiguration.getMibId());
 			int objId = idField.getInt(value);
 			return objId;
 		} catch (Exception ex) {
