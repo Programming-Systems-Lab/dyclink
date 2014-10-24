@@ -6,14 +6,14 @@
   "extMethods": [
     {
       "instIdx": 3,
-      "lineNumber": 24,
+      "lineNumber": 26,
       "writeFieldInsts": [],
       "loadLocalInsts": [],
       "affFieldInsts": []
     },
     {
       "instIdx": 3,
-      "lineNumber": 24,
+      "lineNumber": 26,
       "writeFieldInsts": [],
       "loadLocalInsts": [],
       "affFieldInsts": []
@@ -26,9 +26,11 @@
       {
         "fromMethod": "cc.testbase.TemplateMethod:init:():V",
         "idx": 4,
+        "startTime": 4,
+        "updateTime": 4,
         "op": 181,
         "inst": "putfield",
-        "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;1",
+        "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;3",
         "dataParentList": [
           "cc.testbase.TemplateMethod:init:():V-1",
           "cc.testbase.TemplateMethod:init:():V-0"
@@ -41,9 +43,11 @@
       {
         "fromMethod": "cc.testbase.TemplateMethod:init:():V",
         "idx": 4,
+        "startTime": 4,
+        "updateTime": 4,
         "op": 181,
         "inst": "putfield",
-        "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;1",
+        "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;3",
         "dataParentList": [
           "cc.testbase.TemplateMethod:init:():V-1",
           "cc.testbase.TemplateMethod:init:():V-0"
@@ -58,6 +62,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:init:():V",
       "idx": 0,
+      "startTime": 0,
+      "updateTime": 0,
       "op": 25,
       "inst": "aload",
       "addInfo": "0",
@@ -70,6 +76,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:init:():V",
       "idx": 1,
+      "startTime": 1,
+      "updateTime": 1,
       "op": 187,
       "inst": "new",
       "addInfo": "java/util/ArrayList",
@@ -83,6 +91,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:init:():V",
       "idx": 2,
+      "startTime": 2,
+      "updateTime": 2,
       "op": 89,
       "inst": "dup",
       "addInfo": "",
@@ -93,6 +103,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:init:():V",
       "idx": 3,
+      "startTime": 3,
+      "updateTime": 3,
       "op": 183,
       "inst": "invokespecial",
       "addInfo": "java.util.ArrayList:init:():V",
@@ -105,9 +117,11 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:init:():V",
       "idx": 4,
+      "startTime": 4,
+      "updateTime": 4,
       "op": 181,
       "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;1",
+      "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;3",
       "dataParentList": [
         "cc.testbase.TemplateMethod:init:():V-1",
         "cc.testbase.TemplateMethod:init:():V-0"
@@ -118,6 +132,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:init:():V",
       "idx": 5,
+      "startTime": 5,
+      "updateTime": 5,
       "op": 177,
       "inst": "return",
       "addInfo": "",
@@ -130,6 +146,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:init:():V",
       "idx": 0,
+      "startTime": 0,
+      "updateTime": 0,
       "op": 25,
       "inst": "aload",
       "addInfo": "0",
@@ -142,6 +160,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:init:():V",
       "idx": 1,
+      "startTime": 1,
+      "updateTime": 1,
       "op": 187,
       "inst": "new",
       "addInfo": "java/util/ArrayList",
@@ -154,17 +174,9 @@
     },
     {
       "fromMethod": "cc.testbase.TemplateMethod:init:():V",
-      "idx": 2,
-      "op": 89,
-      "inst": "dup",
-      "addInfo": "",
-      "dataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {}
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:init:():V",
       "idx": 3,
+      "startTime": 3,
+      "updateTime": 3,
       "op": 183,
       "inst": "invokespecial",
       "addInfo": "java.util.ArrayList:init:():V",
@@ -177,9 +189,11 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:init:():V",
       "idx": 4,
+      "startTime": 4,
+      "updateTime": 4,
       "op": 181,
       "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;1",
+      "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;3",
       "dataParentList": [
         "cc.testbase.TemplateMethod:init:():V-1",
         "cc.testbase.TemplateMethod:init:():V-0"
@@ -190,6 +204,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:init:():V",
       "idx": 5,
+      "startTime": 5,
+      "updateTime": 5,
       "op": 177,
       "inst": "return",
       "addInfo": "",
@@ -198,15 +214,19 @@
       "childFreqMap": {}
     }
   ],
-  "firstReadLocalVars": [],
+  "firstReadLocalVars": [
+    0
+  ],
   "firstReadFields": [],
   "writeFields": {
-    "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;1": {
+    "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;3": {
       "fromMethod": "cc.testbase.TemplateMethod:init:():V",
       "idx": 4,
+      "startTime": 4,
+      "updateTime": 4,
       "op": 181,
       "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;1",
+      "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;3",
       "dataParentList": [
         "cc.testbase.TemplateMethod:init:():V-1",
         "cc.testbase.TemplateMethod:init:():V-0"

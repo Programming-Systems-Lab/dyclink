@@ -7,7 +7,7 @@ import java.util.Locale;
 import org.apache.commons.math3.linear.RealMatrixFormat;
 import org.apache.commons.math3.util.CompositeFormat;
 
-public class TemplateParent {
+public class TemplateParent implements TemplateInterface{
 	
 	public int sVar = 0;
 	
@@ -15,12 +15,18 @@ public class TemplateParent {
 	
 	public Object obj;
 	
+	@Override
+	public String doIt(Number n) {
+		System.out.println("Template Parent do: " + n);
+		return "";
+	}
+	
 	public static RealMatrixFormat getInstance(final Locale locale) {
 		return new RealMatrixFormat(CompositeFormat.getDefaultNumberFormat(locale));
 	}
 	
-	public void setList(List list) {
-		
+	public List setList(List list) {
+		return new ArrayList();
 	}
 	
 	public int parentAdd(int a, int b) {
@@ -28,7 +34,7 @@ public class TemplateParent {
 		return a + b;
 	}
 	
-	private void interestingMethod() {
+	public void interestingMethod() {
         System.out.println("Superclass's interesting method.");
     }
 

@@ -1,6 +1,9 @@
 package cc.testbase;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.objectweb.asm.Type;
@@ -41,6 +44,14 @@ public class TemplateObjMethod {
 		Student stu = new Student();
 		this.acceptObject(stu);
 		this.acceptObject(2.0);
+	}
+	
+	public void testArray(Object[] input) {
+		
+	}
+	
+	public void testStringArray(String[] input, int i) {
+		
 	}
 	
 	public void testStudentArray() {
@@ -86,6 +97,14 @@ public class TemplateObjMethod {
 		return this.testObjSequence(s1, s2);
 	}
 	
+	public void testMap(Map m) {
+		
+	}
+	
+	public int testMap(List l) {
+		return 0;
+	}
+	
 	public static void main(String[] args) {
 		int[][] test = {{1, 2}, {3, 4}};
 		System.out.println(Arrays.toString(test));
@@ -107,6 +126,18 @@ public class TemplateObjMethod {
 		
 		TemplateObjMethod tom = new TemplateObjMethod();
 		System.out.println(Type.getType("[Ljava/lang/Object;").getSort());
+		
+		Integer[] aArray = new Integer[5];
+		tom.testArray(aArray);
+		
+		int[] singleArray = new int[5];
+		int[][][] bbArray = new int[1][2][3];
+		Integer[][][] bArray = new Integer[1][2][3];
+		System.out.println(Type.getType(bArray.getClass()).getElementType().getDescriptor());
+		Object o = "test123";
+		System.out.println(Type.getType(o.getClass()).getDescriptor());
+		
+		tom.testMap(new HashMap());
 	}
 	
 	public static class Home {

@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.objectweb.asm.Type;
 
@@ -28,7 +29,7 @@ public class ClassInfoCollector {
 	}
 
 	public static Class<?> retrieveCorrectClassByMethod(String className, String methodName, String methodDescriptor, boolean direct) {
-		try {
+		try { 
 			className = className.replace("/", ".");
 			Class<?> calledClass = Class.forName(className);
 			
@@ -53,7 +54,7 @@ public class ClassInfoCollector {
 						for (int i =0; i < targetArgs.length; i++) {
 							if (!targetArgs[i].equals(mArgs[i]))
 								continue ;
-						} 
+						}
 						return calledClass;
 					}
 				}
@@ -93,9 +94,9 @@ public class ClassInfoCollector {
 	
 	public static void main(String[] args) {
 		Class clazz = retrieveCorrectClassByField("cc/testbase/TemplateParent", "sVar");
-		Class clazz2 = retrieveCorrectClassByMethod("java/util/ArrayList", "<init>", "()V", true);
+		Class<?> clazz2 = retrieveCorrectClassByMethod("java/util/ArrayList", "<init>", "()V", true);
 		System.out.println("Check class name: " + clazz.getName());
-		System.out.println("Check clazz2: " + clazz2.getName());
+		System.out.println("Check clazz2: " + clazz2);
 		
 		ArrayList a = new ArrayList();
 	}

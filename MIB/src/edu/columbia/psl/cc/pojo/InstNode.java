@@ -2,7 +2,9 @@ package edu.columbia.psl.cc.pojo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.columbia.psl.cc.util.StringUtil;
 
@@ -20,12 +22,21 @@ public class InstNode implements Comparable<InstNode>{
 	
 	private int linenumber;
 	
+	private int startTime = -1;
+	
+	private int updateTime = -1;
+	
+	private AtomicInteger maxSurrogate = new AtomicInteger();
+	
 	private ArrayList<String> dataParentList = new ArrayList<String>();
 	
 	private ArrayList<String> controlParentList = new ArrayList<String>();
 	
 	//For freq map, the key is the inst method + idx, and the value is the frequency
 	private TreeMap<String, Double> childFreqMap = new TreeMap<String, Double>();
+	
+	//Key surrogate id, value child node rep
+	private HashMap<String, Integer> surrogates = new HashMap<String, Integer>();
 	
 	private Object relatedObj = null;
 	
@@ -35,6 +46,8 @@ public class InstNode implements Comparable<InstNode>{
 	
 	public InstNode(InstNode copy) {
 		this.idx = copy.getIdx();
+		this.startTime = copy.getStartTime();
+		this.updateTime = copy.getUpdateTime();
 		this.op = copy.getOp();
 		this.addInfo = copy.getAddInfo();
 		this.fromMethod = copy.getFromMethod();
@@ -94,6 +107,22 @@ public class InstNode implements Comparable<InstNode>{
 		return this.idx;
 	}
 	
+	public void setStartTime(int startTime) {
+		this.startTime = startTime;
+	}
+	
+	public int getStartTime() {
+		return this.startTime;
+	}
+	
+	public void setUpdateTime(int updateTime) {
+		this.updateTime = updateTime;
+	}
+	
+	public int getUpdateTime() {
+		return this.updateTime;
+	}
+	
 	public void setAddInfo(String addInfo) {
 		this.addInfo = addInfo;
 	}
@@ -132,6 +161,26 @@ public class InstNode implements Comparable<InstNode>{
 	
 	public Object getRelatedObj() {
 		return this.relatedObj;
+	}
+	
+	public void putSurrogate(String childNodeRep, int surrogateId) {
+		this.surrogates.put(childNodeRep, surrogateId);
+	}
+	
+	public HashMap<String, Integer> getSurrogates() {
+		return this.surrogates;
+	}
+	
+	public void setMaxSurrogate(int baseId) {
+		this.maxSurrogate.set(baseId);
+	}
+	
+	public int getMaxSurrogate() {
+		return this.maxSurrogate.getAndIncrement();
+	}
+	
+	public int probeSurrogate() {
+		return this.maxSurrogate.get();
 	}
 			
 	public void setVar(Var v) {

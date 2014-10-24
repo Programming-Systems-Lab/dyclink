@@ -1,0 +1,16 @@
+cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.String,cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.String,0.8
+cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.String,cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.Object,0.7272727272727273
+cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.String,cc.testbase.TemplateMethod:init:():V,0.3676549125785789
+cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.String,cc.testbase.TemplateParent:init:():V,0.44494897427831787
+cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.Object,cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.String,0.7272727272727273
+cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.Object,cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.Object,0.7272727272727273
+cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.Object,cc.testbase.TemplateMethod:init:():V,0.334231738707799
+cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.Object,cc.testbase.TemplateParent:init:():V,0.40449906752574355
+cc.testbase.TemplateMethod:init:():V,cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.String,0.3676549125785789
+cc.testbase.TemplateMethod:init:():V,cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.Object,0.334231738707799
+cc.testbase.TemplateMethod:init:():V,cc.testbase.TemplateMethod:init:():V,0.6
+cc.testbase.TemplateMethod:init:():V,cc.testbase.TemplateParent:init:():V,0.45175395145262565
+cc.testbase.TemplateParent:init:():V,cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.String,0.44494897427831787
+cc.testbase.TemplateParent:init:():V,cc.testbase.TemplateParent:doIt:(Ljava.lang.Number):Ljava.lang.Object,0.40449906752574355
+cc.testbase.TemplateParent:init:():V,cc.testbase.TemplateMethod:init:():V,0.45175395145262565
+cc.testbase.TemplateParent:init:():V,cc.testbase.TemplateParent:init:():V,0.5714285714285715

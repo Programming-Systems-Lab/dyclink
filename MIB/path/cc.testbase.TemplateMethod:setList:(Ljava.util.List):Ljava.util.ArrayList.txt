@@ -1,0 +1,4 @@
+cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList 0 187 new java/util/ArrayList
+cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList 1 89 dup 
+cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList 2 183 invokespecial java.util.ArrayList:init:():V
+cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList 3 176 areturn 

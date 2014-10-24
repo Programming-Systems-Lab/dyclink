@@ -31,6 +31,8 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		JsonObject object = json.getAsJsonObject();
 		String methodKey = object.get("fromMethod").getAsString();
 		int idx = object.get("idx").getAsInt();
+		int startTime = object.get("startTime").getAsInt();
+		int updateTime = object.get("updateTime").getAsInt();
 		int opcode = object.get("op").getAsInt();
 		String addInfo = object.get("addInfo").getAsString();
 		
@@ -62,6 +64,8 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		inst.setDataParentList(dataParentList);
 		inst.setControlParentList(controlParentList);
 		inst.setChildFreqMap(childFreqMap);
+		inst.setStartTime(startTime);
+		inst.setUpdateTime(updateTime);
 		//inst.setChildFreqMap((TreeMap<Integer, Double>)context.deserialize(object.get("childFreqpMap"), childToken.getType()));
 		//inst.setParentList((ArrayList<Integer>)context.deserialize(object.get("parentList"), parentToken.getType()));
 		return inst;
@@ -71,8 +75,10 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 	public JsonElement serialize(InstNode inst, Type typeOfSrc,
 			JsonSerializationContext context) {
 		JsonObject result = new JsonObject();
-		result.addProperty("fromMethod", inst.getFromMethod())
-;		result.addProperty("idx", inst.getIdx());
+		result.addProperty("fromMethod", inst.getFromMethod());		
+		result.addProperty("idx", inst.getIdx());
+		result.addProperty("startTime", inst.getStartTime());
+		result.addProperty("updateTime", inst.getUpdateTime());
 		result.addProperty("op", inst.getOp().getOpcode());
 		//For debuggin purpose, or we only need opcode
 		result.addProperty("inst", inst.getOp().getInstruction());

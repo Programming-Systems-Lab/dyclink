@@ -11,9 +11,11 @@
       {
         "fromMethod": "cc.testbase.TemplateParent:init:():V",
         "idx": 2,
+        "startTime": 2,
+        "updateTime": 2,
         "op": 181,
         "inst": "putfield",
-        "addInfo": "cc.testbase.TemplateParent.sVar.I1",
+        "addInfo": "cc.testbase.TemplateParent.sVar.I3",
         "dataParentList": [
           "cc.testbase.TemplateParent:init:():V-1",
           "cc.testbase.TemplateParent:init:():V-0"
@@ -24,9 +26,11 @@
       {
         "fromMethod": "cc.testbase.TemplateParent:init:():V",
         "idx": 5,
+        "startTime": 5,
+        "updateTime": 5,
         "op": 181,
         "inst": "putfield",
-        "addInfo": "cc.testbase.TemplateParent.pVar.I1",
+        "addInfo": "cc.testbase.TemplateParent.pVar.I3",
         "dataParentList": [
           "cc.testbase.TemplateParent:init:():V-4",
           "cc.testbase.TemplateParent:init:():V-3"
@@ -39,9 +43,11 @@
       {
         "fromMethod": "cc.testbase.TemplateParent:init:():V",
         "idx": 5,
+        "startTime": 5,
+        "updateTime": 5,
         "op": 181,
         "inst": "putfield",
-        "addInfo": "cc.testbase.TemplateParent.pVar.I1",
+        "addInfo": "cc.testbase.TemplateParent.pVar.I3",
         "dataParentList": [
           "cc.testbase.TemplateParent:init:():V-4",
           "cc.testbase.TemplateParent:init:():V-3"
@@ -56,6 +62,8 @@
     {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 0,
+      "startTime": 0,
+      "updateTime": 0,
       "op": 25,
       "inst": "aload",
       "addInfo": "0",
@@ -68,6 +76,8 @@
     {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 1,
+      "startTime": 1,
+      "updateTime": 1,
       "op": 3,
       "inst": "iconst_0",
       "addInfo": "",
@@ -80,9 +90,11 @@
     {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 2,
+      "startTime": 2,
+      "updateTime": 2,
       "op": 181,
       "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateParent.sVar.I1",
+      "addInfo": "cc.testbase.TemplateParent.sVar.I3",
       "dataParentList": [
         "cc.testbase.TemplateParent:init:():V-1",
         "cc.testbase.TemplateParent:init:():V-0"
@@ -93,6 +105,8 @@
     {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 3,
+      "startTime": 3,
+      "updateTime": 3,
       "op": 25,
       "inst": "aload",
       "addInfo": "0",
@@ -105,6 +119,8 @@
     {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 4,
+      "startTime": 4,
+      "updateTime": 4,
       "op": 3,
       "inst": "iconst_0",
       "addInfo": "",
@@ -117,9 +133,11 @@
     {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 5,
+      "startTime": 5,
+      "updateTime": 5,
       "op": 181,
       "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateParent.pVar.I1",
+      "addInfo": "cc.testbase.TemplateParent.pVar.I3",
       "dataParentList": [
         "cc.testbase.TemplateParent:init:():V-4",
         "cc.testbase.TemplateParent:init:():V-3"
@@ -130,6 +148,8 @@
     {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 6,
+      "startTime": 6,
+      "updateTime": 6,
       "op": 177,
       "inst": "return",
       "addInfo": "",
@@ -142,6 +162,8 @@
     {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 0,
+      "startTime": 0,
+      "updateTime": 0,
       "op": 25,
       "inst": "aload",
       "addInfo": "0",
@@ -154,6 +176,8 @@
     {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 1,
+      "startTime": 1,
+      "updateTime": 1,
       "op": 3,
       "inst": "iconst_0",
       "addInfo": "",
@@ -166,9 +190,11 @@
     {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 2,
+      "startTime": 2,
+      "updateTime": 2,
       "op": 181,
       "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateParent.sVar.I1",
+      "addInfo": "cc.testbase.TemplateParent.sVar.I3",
       "dataParentList": [
         "cc.testbase.TemplateParent:init:():V-1",
         "cc.testbase.TemplateParent:init:():V-0"
@@ -179,6 +205,8 @@
     {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 3,
+      "startTime": 3,
+      "updateTime": 3,
       "op": 25,
       "inst": "aload",
       "addInfo": "0",
@@ -191,6 +219,8 @@
     {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 4,
+      "startTime": 4,
+      "updateTime": 4,
       "op": 3,
       "inst": "iconst_0",
       "addInfo": "",
@@ -203,9 +233,11 @@
     {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 5,
+      "startTime": 5,
+      "updateTime": 5,
       "op": 181,
       "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateParent.pVar.I1",
+      "addInfo": "cc.testbase.TemplateParent.pVar.I3",
       "dataParentList": [
         "cc.testbase.TemplateParent:init:():V-4",
         "cc.testbase.TemplateParent:init:():V-3"
@@ -216,6 +248,8 @@
     {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 6,
+      "startTime": 6,
+      "updateTime": 6,
       "op": 177,
       "inst": "return",
       "addInfo": "",
@@ -224,15 +258,20 @@
       "childFreqMap": {}
     }
   ],
-  "firstReadLocalVars": [],
+  "firstReadLocalVars": [
+    0,
+    3
+  ],
   "firstReadFields": [],
   "writeFields": {
-    "cc.testbase.TemplateParent.sVar.I1": {
+    "cc.testbase.TemplateParent.sVar.I3": {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 2,
+      "startTime": 2,
+      "updateTime": 2,
       "op": 181,
       "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateParent.sVar.I1",
+      "addInfo": "cc.testbase.TemplateParent.sVar.I3",
       "dataParentList": [
         "cc.testbase.TemplateParent:init:():V-1",
         "cc.testbase.TemplateParent:init:():V-0"
@@ -240,12 +279,14 @@
       "controlParentList": [],
       "childFreqMap": {}
     },
-    "cc.testbase.TemplateParent.pVar.I1": {
+    "cc.testbase.TemplateParent.pVar.I3": {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 5,
+      "startTime": 5,
+      "updateTime": 5,
       "op": 181,
       "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateParent.pVar.I1",
+      "addInfo": "cc.testbase.TemplateParent.pVar.I3",
       "dataParentList": [
         "cc.testbase.TemplateParent:init:():V-4",
         "cc.testbase.TemplateParent:init:():V-3"

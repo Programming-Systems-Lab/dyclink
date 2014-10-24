@@ -1,0 +1,9 @@
+cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList,cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList,0.5000000000000001
+cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList,cc.testbase.TemplateMethod:init:():V,0.3813742685451229
+cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList,cc.testbase.TemplateParent:init:():V,0.28571428571428575
+cc.testbase.TemplateMethod:init:():V,cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList,0.3813742685451229
+cc.testbase.TemplateMethod:init:():V,cc.testbase.TemplateMethod:init:():V,0.5
+cc.testbase.TemplateMethod:init:():V,cc.testbase.TemplateParent:init:():V,0.45175395145262565
+cc.testbase.TemplateParent:init:():V,cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList,0.28571428571428575
+cc.testbase.TemplateParent:init:():V,cc.testbase.TemplateMethod:init:():V,0.45175395145262565
+cc.testbase.TemplateParent:init:():V,cc.testbase.TemplateParent:init:():V,0.5714285714285715

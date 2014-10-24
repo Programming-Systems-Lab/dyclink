@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.math3.util.MathUtils;
 import org.apache.commons.math3.util.Precision;
@@ -34,9 +37,36 @@ import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.pojo.VarPair;
-import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class GraphUtil {
+	
+	public static InstNode lastSecondInst(InstPool instPool) {
+		if (instPool.size() == 0)
+			return null;
+		
+		Comparator<InstNode> updateComp = new Comparator<InstNode>() {
+			
+			@Override
+			public int compare(InstNode i1, InstNode i2) {
+				return i1.getUpdateTime() > i2.getUpdateTime()?1:(i2.getUpdateTime() > i1.getUpdateTime()?-1: 0);
+			}
+		};
+		List<InstNode> sortedList = new ArrayList<InstNode>(instPool);
+		Collections.sort(sortedList, updateComp);
+		return sortedList.get(sortedList.size() - 1);
+	}
+	
+	public static int reindexInstPool(int base, InstPool instPool) {
+		int maxStartTime = 0;
+		for (InstNode inst: instPool) {
+			inst.setStartTime(base + inst.getStartTime());
+			inst.setUpdateTime(base + inst.getUpdateTime());
+			
+			if (inst.getStartTime() > maxStartTime)
+				maxStartTime = inst.getStartTime();
+		}
+		return maxStartTime + 1;
+	}
 	
 	public static void parentRemove(InstNode inst, InstPool pool, String instKey) {
 		//Remove data parent if any
@@ -105,78 +135,79 @@ public class GraphUtil {
 			
 			int idx =Integer.valueOf(fInst.getAddInfo());
 			
-			if (childSummary.containsKey(idx)) {
-				childSummary.get(idx).add(fInst);
-			} else {
-				List<InstNode> insts = new ArrayList<InstNode>();
-				insts.add(fInst);
-				childSummary.put(idx, insts);
+			if (parentMap.containsKey(idx)) {
+				if (childSummary.containsKey(idx)) {
+					childSummary.get(idx).add(fInst);
+				} else {
+					List<InstNode> insts = new ArrayList<InstNode>();
+					insts.add(fInst);
+					childSummary.put(idx, insts);
+				}
 			}
 		}
 		
 		for (Integer varKey: childSummary.keySet()) {
 			List<InstNode> childInsts = childSummary.get(varKey);
 			InstNode parentNode = parentMap.get(varKey);
-			String parentKey = StringUtil.genIdxKey(parentNode.getFromMethod(), parentNode.getIdx());
+			//Copy for maintaining the current state of parent
+			InstNode copyParent = new InstNode(parentNode);
+			
+			List<InstNode> allPPList = new ArrayList<InstNode>();
+			List<InstNode> pChildList = new ArrayList<InstNode>();
+			
+			//Collect grand parent
+			for (String dPParent: parentNode.getDataParentList()) {
+				String[] dPParentKeys = StringUtil.parseIdxKey(dPParent);
+				InstNode ppNode = parentPool.searchAndGet(dPParentKeys[0], 
+						Integer.valueOf(dPParentKeys[1]));
+				allPPList.add(ppNode);
+			}
+			for (String cPParent: parentNode.getControlParentList()) {
+				String[] cPParentKeys = StringUtil.parseIdxKey(cPParent);
+				InstNode cpNode = parentPool.searchAndGet(cPParentKeys[0], 
+						Integer.valueOf(cPParentKeys[1]));
+				allPPList.add(cpNode);
+			}
+			for (String cKey: parentNode.getChildFreqMap().keySet()) {
+				String[] cKeys = StringUtil.parseIdxKey(cKey);
+				InstNode cNode = parentPool.searchAndGet(cKeys[0], 
+						Integer.valueOf(cKeys[1]));
+				pChildList.add(cNode);
+			}
 			
 			if (parentNode != null) {
-				if (childInsts.size() == 1) {
-					InstNode fInst = childInsts.get(0);
-					transplantCalleeDepToCaller(parentNode, parentPool, fInst, childPool);
-				} else if (childInsts.size() > 0) {
-					int curPId = parentNode.getIdx();
-					boolean expand = false;
+				String parentKey = StringUtil.genIdxKey(parentNode.getFromMethod(), parentNode.getIdx());
+				
+				for (InstNode cInst: childInsts) {
+					String cInstKey = StringUtil.genIdxKey(cInst.getFromMethod(), cInst.getIdx());
 					
-					List<InstNode> allPPList = new ArrayList<InstNode>();
-					List<InstNode> pChildList = new ArrayList<InstNode>();
-					
-					//Collect grand parent
-					for (String dPParent: parentNode.getDataParentList()) {
-						String[] dPParentKeys = StringUtil.parseIdxKey(dPParent);
-						InstNode ppNode = parentPool.searchAndGet(dPParentKeys[0], 
-								Integer.valueOf(dPParentKeys[1]));
-						allPPList.add(ppNode);
-					}
-					for (String cPParent: parentNode.getControlParentList()) {
-						String[] cPParentKeys = StringUtil.parseIdxKey(cPParent);
-						InstNode cpNode = parentPool.searchAndGet(cPParentKeys[0], 
-								Integer.valueOf(cPParentKeys[1]));
-						allPPList.add(cpNode);
-					}
-					for (String cKey: parentNode.getChildFreqMap().keySet()) {
-						String[] cKeys = StringUtil.parseIdxKey(cKey);
-						InstNode cNode = parentPool.searchAndGet(cKeys[0], 
-								Integer.valueOf(cKeys[1]));
-						pChildList.add(cNode);
-					}
-					
-					for (int i = 0; i < childInsts.size(); i++) {
-						InstNode fInst = childInsts.get(i);
-						InstNode copyParent = new InstNode(parentNode);
-						copyParent.setIdx(curPId);
-						
-						if (i == 0) {
-							parentPool.remove(parentNode);
-						}
-						
-						if (!expand) {
-							curPId *= 1000;
-							expand = true;
+					//Check if the surrogate exists in parent pool
+					if (parentNode.getSurrogates().containsKey(cInstKey)) {
+						InstNode surrogate = parentPool.searchAndGet(parentNode.getFromMethod(), parentNode.getSurrogates().get(cInstKey));
+						transplantCalleeDepToCaller(surrogate, parentPool, cInst, childPool);
+					} else {
+						if (parentNode.probeSurrogate() == 0) {
+							parentNode.setMaxSurrogate(parentNode.getIdx() * 10000);
+							transplantCalleeDepToCaller(parentNode, parentPool, cInst, childPool);
+							parentNode.putSurrogate(cInstKey, parentNode.getIdx());
 						} else {
-							curPId++;
+							InstNode newSur = new InstNode(copyParent);
+							newSur.setIdx(parentNode.getMaxSurrogate());
+							
+							for (InstNode pp: allPPList) {
+								double freq = pp.getChildFreqMap().get(parentKey);
+								pp.increChild(newSur.getFromMethod(), newSur.getIdx(), freq);
+							}
+							
+							for (InstNode c: pChildList) {
+								boolean control = BytecodeCategory.controlCategory().contains(c.getOp().getCatId());
+								c.registerParent(newSur.getFromMethod(), newSur.getIdx(), control);
+							}
+							
+							parentNode.putSurrogate(cInstKey, newSur.getIdx());
+							parentPool.add(newSur);
+							transplantCalleeDepToCaller(newSur, parentPool, cInst, childPool);
 						}
-						
-						for (InstNode pp: allPPList) {
-							double freq = pp.getChildFreqMap().get(parentKey);
-							pp.increChild(copyParent.getFromMethod(), copyParent.getIdx(), freq);
-						}
-						
-						for (InstNode c: pChildList) {
-							boolean control = BytecodeCategory.controlCategory().contains(c.getOp().getCatId());
-							c.registerParent(copyParent.getFromMethod(), copyParent.getIdx(), control);
-						}
-						parentPool.add(copyParent);
-						transplantCalleeDepToCaller(copyParent, parentPool, fInst, childPool);
 					}
 				}
 			}
@@ -203,9 +234,18 @@ public class GraphUtil {
 		}
 	}
 	
-	public static void controlDepFromParentToChild(InstNode controlFromParent, List<InstNode> childPath) {
+	public static void controlDepFromParentToChild(InstNode controlFromParent, InstPool childPool) {
+		Comparator<InstNode> startTimeComp = new Comparator<InstNode>() {
+			@Override
+			public int compare(InstNode i1, InstNode i2) {
+				return i1.getStartTime() > i2.getStartTime()?1:(i1.getStartTime() < i2.getStartTime()?-1:0);
+			}
+		};
+		ArrayList<InstNode> sortedChild = new ArrayList<InstNode>(childPool);
+		Collections.sort(sortedChild, startTimeComp);
+		
 		HashSet<InstNode> affectedSet = new HashSet<InstNode>();
-		for (InstNode inst: childPath) {
+		for (InstNode inst: sortedChild) {
 			affectedSet.add(inst);
 			
 			//Stop at the first control node in child method

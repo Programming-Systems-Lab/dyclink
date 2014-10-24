@@ -15,6 +15,24 @@ public class StringUtil {
 		return s1 + "->" + s2;
 	}
 	
+	public static String genRuntimeDescription(Object o) {
+		Type realType = Type.getType(o.getClass());
+		
+		if (realType.getSort() == Type.ARRAY) {
+			StringBuilder sb = new StringBuilder();
+			int dim = realType.getDimensions();
+			String desc = realType.getElementType().getDescriptor();
+			
+			for (int i = 0; i < dim; i++) {
+				sb.append("[");
+			}
+			sb.append(desc);
+			return sb.toString();
+		} else {
+			return realType.getDescriptor();
+		}
+	}
+	
 	public static String cleanPuncHelper(String oriString, String newVal) {
 		//String ret = oriString.replaceAll("\\W", newVal);
 		String ret = shouldRemove.matcher(oriString).replaceAll(newVal);
@@ -37,12 +55,6 @@ public class StringUtil {
 			System.err.println("Incorrect desc: " + desc);
 			return null;
 		}
-		//String in = cleanPunc(desc.substring(0, idx + 1));
-		//String out = cleanPunc(desc.substring(idx + 1, desc.length()));
-		//return in + "~" + out;
-		
-		//String in = desc.substring(0, idx + 1);
-		//String out = desc.substring(idx + 1, desc.length());
 		
 		String in = desc.substring(1, idx);
 		String[] rawIn = in.split(";");

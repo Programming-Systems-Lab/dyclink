@@ -1,5 +1,6 @@
 package edu.columbia.psl.cc.datastruct;
 
+import java.util.HashMap;
 import java.util.TreeSet;
 
 import edu.columbia.psl.cc.pojo.InstNode;
@@ -58,5 +59,4 @@ public class InstPool extends TreeSet<InstNode> {
 			}
 		}
 	}
-
 }

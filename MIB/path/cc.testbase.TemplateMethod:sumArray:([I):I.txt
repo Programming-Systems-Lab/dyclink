@@ -2,11 +2,11 @@ cc.testbase.TemplateMethod:sumArray:([I):I 0 3 iconst_0
 cc.testbase.TemplateMethod:sumArray:([I):I 1 54 istore 3
 cc.testbase.TemplateMethod:sumArray:([I):I 2 3 iconst_0 
 cc.testbase.TemplateMethod:sumArray:([I):I 3 54 istore 4
-cc.testbase.TemplateMethod:sumArray:([I):I 4 167 goto L2066473405
+cc.testbase.TemplateMethod:sumArray:([I):I 4 167 goto L1759969037
 cc.testbase.TemplateMethod:sumArray:([I):I 10 21 iload 4
 cc.testbase.TemplateMethod:sumArray:([I):I 11 25 aload 1
 cc.testbase.TemplateMethod:sumArray:([I):I 12 190 arraylength 
-cc.testbase.TemplateMethod:sumArray:([I):I 13 161 if_icmplt L2112978551
+cc.testbase.TemplateMethod:sumArray:([I):I 13 161 if_icmplt L359851081
 cc.testbase.TemplateMethod:sumArray:([I):I 5 21 iload 3
 cc.testbase.TemplateMethod:sumArray:([I):I 6 21 iload 4
 cc.testbase.TemplateMethod:sumArray:([I):I 7 96 iadd 
@@ -15,7 +15,7 @@ cc.testbase.TemplateMethod:sumArray:([I):I 9 132 iinc 4
 cc.testbase.TemplateMethod:sumArray:([I):I 10 21 iload 4
 cc.testbase.TemplateMethod:sumArray:([I):I 11 25 aload 1
 cc.testbase.TemplateMethod:sumArray:([I):I 12 190 arraylength 
-cc.testbase.TemplateMethod:sumArray:([I):I 13 161 if_icmplt L2112978551
+cc.testbase.TemplateMethod:sumArray:([I):I 13 161 if_icmplt L359851081
 cc.testbase.TemplateMethod:sumArray:([I):I 5 21 iload 3
 cc.testbase.TemplateMethod:sumArray:([I):I 6 21 iload 4
 cc.testbase.TemplateMethod:sumArray:([I):I 7 96 iadd 
@@ -24,7 +24,7 @@ cc.testbase.TemplateMethod:sumArray:([I):I 9 132 iinc 4
 cc.testbase.TemplateMethod:sumArray:([I):I 10 21 iload 4
 cc.testbase.TemplateMethod:sumArray:([I):I 11 25 aload 1
 cc.testbase.TemplateMethod:sumArray:([I):I 12 190 arraylength 
-cc.testbase.TemplateMethod:sumArray:([I):I 13 161 if_icmplt L2112978551
+cc.testbase.TemplateMethod:sumArray:([I):I 13 161 if_icmplt L359851081
 cc.testbase.TemplateMethod:sumArray:([I):I 5 21 iload 3
 cc.testbase.TemplateMethod:sumArray:([I):I 6 21 iload 4
 cc.testbase.TemplateMethod:sumArray:([I):I 7 96 iadd 
@@ -33,7 +33,7 @@ cc.testbase.TemplateMethod:sumArray:([I):I 9 132 iinc 4
 cc.testbase.TemplateMethod:sumArray:([I):I 10 21 iload 4
 cc.testbase.TemplateMethod:sumArray:([I):I 11 25 aload 1
 cc.testbase.TemplateMethod:sumArray:([I):I 12 190 arraylength 
-cc.testbase.TemplateMethod:sumArray:([I):I 13 161 if_icmplt L2112978551
+cc.testbase.TemplateMethod:sumArray:([I):I 13 161 if_icmplt L359851081
 cc.testbase.TemplateMethod:sumArray:([I):I 5 21 iload 3
 cc.testbase.TemplateMethod:sumArray:([I):I 6 21 iload 4
 cc.testbase.TemplateMethod:sumArray:([I):I 7 96 iadd 
@@ -42,7 +42,7 @@ cc.testbase.TemplateMethod:sumArray:([I):I 9 132 iinc 4
 cc.testbase.TemplateMethod:sumArray:([I):I 10 21 iload 4
 cc.testbase.TemplateMethod:sumArray:([I):I 11 25 aload 1
 cc.testbase.TemplateMethod:sumArray:([I):I 12 190 arraylength 
-cc.testbase.TemplateMethod:sumArray:([I):I 13 161 if_icmplt L2112978551
+cc.testbase.TemplateMethod:sumArray:([I):I 13 161 if_icmplt L359851081
 cc.testbase.TemplateMethod:sumArray:([I):I 5 21 iload 3
 cc.testbase.TemplateMethod:sumArray:([I):I 6 21 iload 4
 cc.testbase.TemplateMethod:sumArray:([I):I 7 96 iadd 
@@ -51,6 +51,6 @@ cc.testbase.TemplateMethod:sumArray:([I):I 9 132 iinc 4
 cc.testbase.TemplateMethod:sumArray:([I):I 10 21 iload 4
 cc.testbase.TemplateMethod:sumArray:([I):I 11 25 aload 1
 cc.testbase.TemplateMethod:sumArray:([I):I 12 190 arraylength 
-cc.testbase.TemplateMethod:sumArray:([I):I 13 161 if_icmplt L2112978551
+cc.testbase.TemplateMethod:sumArray:([I):I 13 161 if_icmplt L359851081
 cc.testbase.TemplateMethod:sumArray:([I):I 14 21 iload 3
 cc.testbase.TemplateMethod:sumArray:([I):I 15 172 ireturn 

@@ -1,0 +1,15 @@
+head,cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V 1 8 iconst_5 ,cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V 2 181 putfield cc.testbase.TemplateParent.pVar.I1,cc.testbase.TemplateMethod:invokeParent:(II):I 0 25 aload 0,cc.testbase.TemplateMethod:invokeParent:(II):I 1 21 iload 1,cc.testbase.TemplateMethod:invokeParent:(II):I 2 21 iload 2,cc.testbase.TemplateMethod:invokeParent:(II):I 4 54 istore 4,cc.testbase.TemplateMethod:invokeParent:(II):I 5 21 iload 4,cc.testbase.TemplateMethod:invokeParent:(II):I 6 25 aload 0,cc.testbase.TemplateMethod:invokeParent:(II):I 7 180 getfield cc.testbase.TemplateParent.pVar.I1,cc.testbase.TemplateMethod:invokeParent:(II):I 8 96 iadd ,cc.testbase.TemplateMethod:invokeParent:(II):I 9 54 istore 5,cc.testbase.TemplateMethod:invokeParent:(II):I 10 21 iload 5,cc.testbase.TemplateMethod:invokeParent:(II):I 11 172 ireturn ,cc.testbase.TemplateParent:parentAdd:(II):I 4 96 iadd 
+cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V 1 8 iconst_5 ,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+cc.testbase.DummySet:setParent:(Lcc.testbase.TemplateParent):V 2 181 putfield cc.testbase.TemplateParent.pVar.I1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0
+cc.testbase.TemplateMethod:invokeParent:(II):I 0 25 aload 0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+cc.testbase.TemplateMethod:invokeParent:(II):I 1 21 iload 1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0
+cc.testbase.TemplateMethod:invokeParent:(II):I 2 21 iload 2,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0
+cc.testbase.TemplateMethod:invokeParent:(II):I 4 54 istore 4,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+cc.testbase.TemplateMethod:invokeParent:(II):I 5 21 iload 4,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+cc.testbase.TemplateMethod:invokeParent:(II):I 6 25 aload 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0
+cc.testbase.TemplateMethod:invokeParent:(II):I 7 180 getfield cc.testbase.TemplateParent.pVar.I1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0
+cc.testbase.TemplateMethod:invokeParent:(II):I 8 96 iadd ,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0
+cc.testbase.TemplateMethod:invokeParent:(II):I 9 54 istore 5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0
+cc.testbase.TemplateMethod:invokeParent:(II):I 10 21 iload 5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0
+cc.testbase.TemplateMethod:invokeParent:(II):I 11 172 ireturn ,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+cc.testbase.TemplateParent:parentAdd:(II):I 4 96 iadd ,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0

@@ -2,7 +2,9 @@ package cc.testbase;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
@@ -31,6 +33,11 @@ public class TemplateMethod extends TemplateParent{
 	
 	public TemplateMethod(String test1, String test2, String test3) {
 		this.test = test1;
+	}
+	
+	@Override
+	public ArrayList setList(List l) {
+		return new ArrayList();
 	}
 	
 	public int add2(int a) {
@@ -173,7 +180,7 @@ public class TemplateMethod extends TemplateParent{
 	
 	@extractTemplate
 	public int invoke3Methods(int a, int b) {
-		int c = a + b;
+		int c = a + b + this.pVar;
 		String ret = "";
 		if (c > 5) {
 			ret = fakeString(); 
@@ -257,14 +264,33 @@ public class TemplateMethod extends TemplateParent{
 		return c;
 	}
 	
-	private void interestingMethod() {
+	@Override
+	public void interestingMethod() {
         System.out.println("Subclass's interesting method.");
     }
+	
+	public void forMethod() {
+		TemplateMethod tm = new TemplateMethod();
+		for (int i = 0; i < 3; i++) {
+			int c = tm.add2(i);
+		}
+	}
 		
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
 		int a = 2;
 		int[] b = {3, 4, 7};
+		tm.forMethod();
+		AtomicInteger in = new AtomicInteger();
+		System.out.println(in.getAndIncrement());
+		/*TemplateParent tp = new TemplateMethod();
+		tp.interestingMethod();*/
+		
+		/*TemplateInterface ti = new TemplateMethod();
+		Integer i = new Integer(1);
+		ti.doIt(i);*/
+		
+		//tm.setList(new ArrayList());
 		//tm.exampleMethod();
 		//System.out.println(tm.invokeParent(3, 5));
 		//System.out.println(tm.all3Methods(3, 5));
@@ -273,7 +299,7 @@ public class TemplateMethod extends TemplateParent{
 		//System.out.println(tm.instanceMethod(2, b));
 		//System.out.println("Test add: " + tm.testAdd(2));
 		//System.out.println("Test add2: " + tm.testAdd2(5));
-		System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
+		//System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
 		/*System.out.println("TestMethod: " + tm.all3Methods(3, 5));
 		System.out.println("cc/testbase/TemplateMethod.iVar.I".split("\\.").length);
 		System.out.println(Type.INT);

@@ -37,6 +37,8 @@ import edu.columbia.psl.cc.premain.MIBDriver;
 public class MethodStackRecorder {
 		
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
+	
+	private AtomicInteger curTime = new AtomicInteger();
 		
 	private String className;
 	
@@ -101,6 +103,7 @@ public class MethodStackRecorder {
 		int count = 0, start = 0;
 		if (!this.staticMethod) {
 			//Start from 0
+			this.shouldRecordReadLocalVars.add(0);
 			start = 1;
 		}
 		
@@ -109,6 +112,10 @@ public class MethodStackRecorder {
 			start++;
 			count++;
 		}
+	}
+	
+	private int getCurTime() {
+		return this.curTime.getAndIncrement();
 	}
 	
 	private void stopLocalVar(int localVarId) {
@@ -141,13 +148,43 @@ public class MethodStackRecorder {
 		this.path.add(fullInst);
 	}
 	
+	private void updateTime(InstNode fullInst) {
+		int curTime = this.getCurTime();
+		if (fullInst.getStartTime() < 0) {
+			fullInst.setStartTime(curTime);
+			fullInst.setUpdateTime(curTime);	
+		} else {
+			fullInst.setUpdateTime(curTime);
+		}
+ 	}
+	
 	private void updateCachedMap(InstNode parent, InstNode child, boolean isControl) {
 		if (isControl) {
 			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getControlWeight());
 			child.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);
+			
+			for (Integer i: parent.getSurrogates().values()) {
+				InstNode sur = this.pool.searchAndGet(parent.getFromMethod(), i);
+				sur.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getControlWeight());
+			}
+			
+			for (Integer i: child.getSurrogates().values()) {
+				InstNode sur = this.pool.searchAndGet(child.getFromMethod(), i);
+				sur.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);
+			}
 		} else {
 			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getDataWeight());
-			child.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);		
+			child.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);
+			
+			for (Integer i: parent.getSurrogates().values()) {
+				InstNode sur = this.pool.searchAndGet(parent.getFromMethod(), i);
+				sur.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getDataWeight());
+			}
+			
+			for (Integer i: child.getSurrogates().values()) {
+				InstNode sur = this.pool.searchAndGet(child.getFromMethod(), i);
+				sur.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);
+			}
 		}
 		//System.out.println("Update map: " + this.dataDep);
 	}
@@ -172,6 +209,7 @@ public class MethodStackRecorder {
 	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {
 		System.out.println("Handling now: " + opcode + " " + instIdx + " " + addInfo);
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
+		this.updateTime(fullInst);
 		
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
@@ -210,6 +248,7 @@ public class MethodStackRecorder {
 		}
 		
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, fieldKey);
+		this.updateTime(fullInst);
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
 		
@@ -265,6 +304,7 @@ public class MethodStackRecorder {
 		int opcat = oo.getCatId();
 		
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
+		this.updateTime(fullInst);
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
 		
@@ -300,6 +340,7 @@ public class MethodStackRecorder {
 		} else {
 			fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, "");
 		}
+		this.updateTime(fullInst);
 		
 		int opcat = fullInst.getOp().getCatId();
 		
@@ -308,7 +349,10 @@ public class MethodStackRecorder {
 			lastInst = stackSimulator.peek();
 		}
 		
-		this.updateControlRelation(fullInst);
+		if (!BytecodeCategory.dupCategory().contains(opcode)) {
+			//Dup inst will be replaced later. No need to add any dep
+			this.updateControlRelation(fullInst);
+		}
 		this.updatePath(fullInst);
 		
 		System.out.println("Check lastInst: " + lastInst);
@@ -316,9 +360,9 @@ public class MethodStackRecorder {
 		boolean hasUpdate = false;
 		if (BytecodeCategory.writeCategory().contains(opcat)) {
 			if (lastInst != null) {
-				System.out.println("Update data dep");
-				if (localVarIdx >= 0)
+				if (localVarIdx >= 0) {
 					this.localVarRecorder.put(localVarIdx, fullInst);
+				}
 				
 				this.updateCachedMap(lastInst, fullInst, false);
 				for (int i = 0; i < fullInst.getOp().getInList().size(); i++)
@@ -336,12 +380,17 @@ public class MethodStackRecorder {
 		} else if (BytecodeCategory.readCategory().contains(opcat)) {
 			//Search local var recorder;
 			InstNode parentInst = this.localVarRecorder.get(localVarIdx);
-			if (parentInst != null)
+			if (parentInst != null) {
+				System.out.println("Access local var recorder: " + fullInst);
+				System.out.println(parentInst);
 				this.updateCachedMap(parentInst, fullInst, false);
+			}
 			
 			this.updateReadLocalVar(fullInst);
 		} else if (BytecodeCategory.dupCategory().contains(opcat)) {
 			this.handleDup(opcode);
+			//dup should not have any dep, no need to parentRemove
+			this.pool.remove(fullInst);
 			hasUpdate = true;
 		} else {
 			if (BytecodeCategory.controlCategory().contains(opcat)) {
@@ -371,6 +420,7 @@ public class MethodStackRecorder {
 		System.out.println("Handling now: " + desc + " " + dim + " " + instIdx);
 		String addInfo = desc + " " + dim;
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, Opcodes.MULTIANEWARRAY, addInfo);
+		this.updateTime(fullInst);
 		
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
@@ -386,6 +436,7 @@ public class MethodStackRecorder {
 	
 	private void handleUninstrumentedMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc, InstNode fullInst, ExtObj eo) {
 		System.out.println("Handling uninstrumented method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+		this.updateTime(fullInst);
 		
 		this.updateControlRelation(fullInst);
 		
@@ -448,17 +499,18 @@ public class MethodStackRecorder {
 			Class<?> correctClass = null;
 			if (BytecodeCategory.staticMethod().contains(opcode)) {
 				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
+			} else if (opcode == Opcodes.INVOKESPECIAL) {
+				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, true);
 			} else {
-				if (opcode == Opcodes.INVOKESPECIAL) {
-					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name,desc, true);
-				} else {
-					Object objOnStack = this.stackSimulator.get(stackSimulator.size() - argSize - 1).getRelatedObj();
-					System.out.println("Real obj on stack: " + objOnStack.getClass());
-					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(objOnStack.getClass().getName(), name, desc, false);
-				}
+				//For inovkeinterface, the bridge method created by JVM can help us locate the correct method
+				Object objOnStack = this.stackSimulator.get(stackSimulator.size() - argSize - 1).getRelatedObj();
+				System.out.println("Real obj on stack: " + objOnStack.getClass());
+				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(objOnStack.getClass().getName(), name, desc, false);
 			}
+			
 			System.out.println("Method owner: " + correctClass.getName());
 			String searchKey = StringUtil.genKey(correctClass.getName(), name, desc);
+			System.out.println("Search key: " + searchKey);
 			InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, searchKey);
 			
 			ExtObj eo = new ExtObj();
@@ -486,14 +538,20 @@ public class MethodStackRecorder {
 			InstPool childPool = childGraph.getInstPool();
 			GraphUtil.removeReturnInst(childPool);
 			
+			//Reindex child
+			int baseTime = this.getCurTime();
+			int reBase = GraphUtil.reindexInstPool(baseTime, childPool);
+			this.curTime.set(reBase);
+			
 			//Search correct inst on inst, update local data dep dependency
+			HashMap<Integer, InstNode> parentFromCaller = new HashMap<Integer, InstNode>();
 			if (args.length > 0) {
 				int startIdx = 0;
 				if (!BytecodeCategory.staticMethod().contains(opcode)) {
 					startIdx = 1;
 				}
 				int endIdx = startIdx + args.length - 1;
-				HashMap<Integer, InstNode> parentFromCaller = new HashMap<Integer, InstNode>();
+				
 				for (int i = args.length - 1; i >= 0 ;i--) {
 					Type t = args[i];
 					InstNode targetNode = null;
@@ -505,25 +563,23 @@ public class MethodStackRecorder {
 					}
 					parentFromCaller.put(endIdx--, targetNode);
 				}
-				GraphUtil.dataDepFromParentToChild(parentFromCaller,
-						this.pool,
-						childPool, 
-						childGraph.getFirstReadLocalVars(), 
-						childGraph.getMethodKey());
 			}
 			
-			System.out.println("Check opcode before safe pop: " + opcode);
 			if (!BytecodeCategory.staticMethod().contains(opcode)) {
-				//Pop the obj reference on stack, and remove from pool
+				//loadNode can be anyload that load an object
 				InstNode loadNode = this.safePop();
-				String loadKey = StringUtil.genIdxKey(loadNode.getFromMethod(), loadNode.getIdx());
-				GraphUtil.parentRemove(loadNode, this.pool, loadKey);
-				this.pool.remove(loadNode);
+				parentFromCaller.put(0, loadNode);
 			}
 			
-			//Update control dep 
+			GraphUtil.dataDepFromParentToChild(parentFromCaller,
+					this.pool,
+					childPool, 
+					childGraph.getFirstReadLocalVars(), 
+					childGraph.getMethodKey());
+			
+			//Update control dep
 			if (this.curControlInst != null) {
-				GraphUtil.controlDepFromParentToChild(this.curControlInst, childGraph.getPath());
+				GraphUtil.controlDepFromParentToChild(this.curControlInst, childPool);
 			}
 			
 			//Update field data dep
@@ -544,12 +600,13 @@ public class MethodStackRecorder {
 			
 			String returnType = methodType.getReturnType().getDescriptor();
 			if (!returnType.equals("V")) {
-				List<InstNode> childPath = childGraph.getPath();
+				InstNode lastSecond = GraphUtil.lastSecondInst(childGraph.getInstPool());
+				System.out.println("Check last second from child: " + lastSecond);
 				if (returnType.equals("D") || returnType.equals("L")) {
-					if (childPath.size() > 1)
-						this.updateStackSimulator(2, childPath.get(childPath.size() - 2));
+					if (lastSecond != null)
+						this.updateStackSimulator(2, lastSecond);
 				} else {
-					this.updateStackSimulator(1, childPath.get(childPath.size() - 2));
+					this.updateStackSimulator(1, lastSecond);
 				}
 			}
 			this.showStackSimulator();
@@ -714,8 +771,11 @@ public class MethodStackRecorder {
 			int cCatId = curControlInst.getOp().getCatId();
 			
 			InstNode lastNode = null;
-			if (this.path.size() > 0)
-				lastNode = this.path.get(this.path.size() - 1);
+			/*if (this.path.size() > 0)
+				lastNode = this.path.get(this.path.size() - 1);*/
+			
+			if (this.stackSimulator.size() > 0)
+				lastNode = this.stackSimulator.peek();
 			
 			if (BytecodeCategory.controlCategory().contains(cCatId)) {
 				if (lastNode != null && lastNode.equals(this.curControlInst)) {
