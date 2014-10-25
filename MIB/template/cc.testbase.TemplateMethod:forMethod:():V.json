@@ -23,10 +23,11 @@
           "op": 181,
           "inst": "putfield",
           "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;3",
-          "dataParentList": [
+          "instDataParentList": [
             "cc.testbase.TemplateMethod:init:():V-1",
             "cc.testbase.TemplateMethod:forMethod:():V-0"
           ],
+          "writeDataParentList": [],
           "controlParentList": [],
           "childFreqMap": {}
         }
@@ -46,10 +47,11 @@
           "op": 181,
           "inst": "putfield",
           "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;3",
-          "dataParentList": [
+          "instDataParentList": [
             "cc.testbase.TemplateMethod:init:():V-1",
             "cc.testbase.TemplateMethod:forMethod:():V-0"
           ],
+          "writeDataParentList": [],
           "controlParentList": [],
           "childFreqMap": {}
         }
@@ -69,10 +71,11 @@
           "op": 181,
           "inst": "putfield",
           "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;3",
-          "dataParentList": [
+          "instDataParentList": [
             "cc.testbase.TemplateMethod:init:():V-1",
             "cc.testbase.TemplateMethod:forMethod:():V-0"
           ],
+          "writeDataParentList": [],
           "controlParentList": [],
           "childFreqMap": {}
         }
@@ -93,10 +96,11 @@
         "op": 181,
         "inst": "putfield",
         "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;3",
-        "dataParentList": [
+        "instDataParentList": [
           "cc.testbase.TemplateMethod:init:():V-1",
           "cc.testbase.TemplateMethod:forMethod:():V-0"
         ],
+        "writeDataParentList": [],
         "controlParentList": [],
         "childFreqMap": {}
       }
@@ -109,15 +113,13 @@
         "updateTime": 43,
         "op": 161,
         "inst": "if_icmplt",
-        "addInfo": "L714994516",
-        "dataParentList": [
+        "addInfo": "L998462082",
+        "instDataParentList": [
           "cc.testbase.TemplateMethod:forMethod:():V-13",
           "cc.testbase.TemplateMethod:forMethod:():V-12"
         ],
-        "controlParentList": [
-          "cc.testbase.TemplateMethod:forMethod:():V-6",
-          "cc.testbase.TemplateMethod:forMethod:():V-14"
-        ],
+        "writeDataParentList": [],
+        "controlParentList": [],
         "childFreqMap": {
           "cc.testbase.TemplateMethod:add2:(I):I-2": 3.0,
           "cc.testbase.TemplateMethod:forMethod:():V-10": 3.0,
@@ -126,8 +128,7 @@
           "cc.testbase.TemplateMethod:forMethod:():V-14": 3.0,
           "cc.testbase.TemplateMethod:forMethod:():V-15": 1.0,
           "cc.testbase.TemplateMethod:forMethod:():V-7": 3.0,
-          "cc.testbase.TemplateMethod:forMethod:():V-8": 3.0,
-          "cc.testbase.TemplateMethod:forMethod:():V-80000": 1.0
+          "cc.testbase.TemplateMethod:forMethod:():V-8": 3.0
         }
       }
     ],
@@ -142,11 +143,11 @@
       "op": 187,
       "inst": "new",
       "addInfo": "cc/testbase/TemplateMethod",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
-        "cc.testbase.TemplateMethod:forMethod:():V-3": 2.0,
-        "cc.testbase.TemplateMethod:init:():V-4": 1.0
+        "cc.testbase.TemplateMethod:forMethod:():V-3": 1.0
       }
     },
     {
@@ -157,7 +158,8 @@
       "op": 89,
       "inst": "dup",
       "addInfo": "",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     },
@@ -169,7 +171,8 @@
       "op": 183,
       "inst": "invokespecial",
       "addInfo": "cc.testbase.TemplateMethod:init:():V",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     },
@@ -181,9 +184,10 @@
       "op": 58,
       "inst": "astore",
       "addInfo": "2",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-0"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-7": 3.0
@@ -197,7 +201,8 @@
       "op": 3,
       "inst": "iconst_0",
       "addInfo": "",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-5": 1.0
@@ -211,15 +216,17 @@
       "op": 54,
       "inst": "istore",
       "addInfo": "3",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-4"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-11": 1.0,
         "cc.testbase.TemplateMethod:forMethod:():V-12": 1.0,
         "cc.testbase.TemplateMethod:forMethod:():V-8": 1.0,
-        "cc.testbase.TemplateMethod:forMethod:():V-80000": 1.0
+        "cc.testbase.TemplateMethod:forMethod:():V-80000": 1.0,
+        "cc.testbase.TemplateMethod:forMethod:():V-80001": 1.0
       }
     },
     {
@@ -229,8 +236,9 @@
       "updateTime": 10,
       "op": 167,
       "inst": "goto",
-      "addInfo": "L998462082",
-      "dataParentList": [],
+      "addInfo": "L2013125681",
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-12": 1.0,
@@ -245,14 +253,12 @@
       "op": 21,
       "inst": "iload",
       "addInfo": "3",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-5",
         "cc.testbase.TemplateMethod:forMethod:():V-11"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-6",
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-14": 4.0
       }
@@ -265,7 +271,8 @@
       "op": 6,
       "inst": "iconst_3",
       "addInfo": "",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-14": 4.0
@@ -278,15 +285,13 @@
       "updateTime": 43,
       "op": 161,
       "inst": "if_icmplt",
-      "addInfo": "L714994516",
-      "dataParentList": [
+      "addInfo": "L998462082",
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-13",
         "cc.testbase.TemplateMethod:forMethod:():V-12"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-6",
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:add2:(I):I-2": 3.0,
         "cc.testbase.TemplateMethod:forMethod:():V-10": 3.0,
@@ -295,8 +300,7 @@
         "cc.testbase.TemplateMethod:forMethod:():V-14": 3.0,
         "cc.testbase.TemplateMethod:forMethod:():V-15": 1.0,
         "cc.testbase.TemplateMethod:forMethod:():V-7": 3.0,
-        "cc.testbase.TemplateMethod:forMethod:():V-8": 3.0,
-        "cc.testbase.TemplateMethod:forMethod:():V-80000": 1.0
+        "cc.testbase.TemplateMethod:forMethod:():V-8": 3.0
       }
     },
     {
@@ -307,12 +311,11 @@
       "op": 25,
       "inst": "aload",
       "addInfo": "2",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-3"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "controlParentList": [],
       "childFreqMap": {}
     },
     {
@@ -323,16 +326,13 @@
       "op": 21,
       "inst": "iload",
       "addInfo": "3",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-5",
         "cc.testbase.TemplateMethod:forMethod:():V-11"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:add2:(I):I-2": 3.0
-      }
+      "controlParentList": [],
+      "childFreqMap": {}
     },
     {
       "fromMethod": "cc.testbase.TemplateMethod:forMethod:():V",
@@ -342,7 +342,8 @@
       "op": 182,
       "inst": "invokevirtual",
       "addInfo": "cc.testbase.TemplateMethod:add2:(I):I",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     },
@@ -354,12 +355,11 @@
       "op": 54,
       "inst": "istore",
       "addInfo": "4",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:add2:(I):I-2"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
       "childFreqMap": {}
     },
     {
@@ -370,13 +370,12 @@
       "op": 132,
       "inst": "iinc",
       "addInfo": "3",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-5",
         "cc.testbase.TemplateMethod:forMethod:():V-11"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-11": 2.0,
         "cc.testbase.TemplateMethod:forMethod:():V-12": 3.0,
@@ -391,14 +390,12 @@
       "op": 21,
       "inst": "iload",
       "addInfo": "3",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-5",
         "cc.testbase.TemplateMethod:forMethod:():V-11"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-6",
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-14": 4.0
       }
@@ -411,7 +408,8 @@
       "op": 6,
       "inst": "iconst_3",
       "addInfo": "",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-14": 4.0
@@ -424,15 +422,13 @@
       "updateTime": 43,
       "op": 161,
       "inst": "if_icmplt",
-      "addInfo": "L714994516",
-      "dataParentList": [
+      "addInfo": "L998462082",
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-13",
         "cc.testbase.TemplateMethod:forMethod:():V-12"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-6",
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:add2:(I):I-2": 3.0,
         "cc.testbase.TemplateMethod:forMethod:():V-10": 3.0,
@@ -441,8 +437,7 @@
         "cc.testbase.TemplateMethod:forMethod:():V-14": 3.0,
         "cc.testbase.TemplateMethod:forMethod:():V-15": 1.0,
         "cc.testbase.TemplateMethod:forMethod:():V-7": 3.0,
-        "cc.testbase.TemplateMethod:forMethod:():V-8": 3.0,
-        "cc.testbase.TemplateMethod:forMethod:():V-80000": 1.0
+        "cc.testbase.TemplateMethod:forMethod:():V-8": 3.0
       }
     },
     {
@@ -453,12 +448,11 @@
       "op": 25,
       "inst": "aload",
       "addInfo": "2",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-3"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "controlParentList": [],
       "childFreqMap": {}
     },
     {
@@ -469,16 +463,13 @@
       "op": 21,
       "inst": "iload",
       "addInfo": "3",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-5",
         "cc.testbase.TemplateMethod:forMethod:():V-11"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:add2:(I):I-2": 3.0
-      }
+      "controlParentList": [],
+      "childFreqMap": {}
     },
     {
       "fromMethod": "cc.testbase.TemplateMethod:forMethod:():V",
@@ -488,7 +479,8 @@
       "op": 182,
       "inst": "invokevirtual",
       "addInfo": "cc.testbase.TemplateMethod:add2:(I):I",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     },
@@ -500,12 +492,11 @@
       "op": 54,
       "inst": "istore",
       "addInfo": "4",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:add2:(I):I-2"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
       "childFreqMap": {}
     },
     {
@@ -516,13 +507,12 @@
       "op": 132,
       "inst": "iinc",
       "addInfo": "3",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-5",
         "cc.testbase.TemplateMethod:forMethod:():V-11"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-11": 2.0,
         "cc.testbase.TemplateMethod:forMethod:():V-12": 3.0,
@@ -537,14 +527,12 @@
       "op": 21,
       "inst": "iload",
       "addInfo": "3",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-5",
         "cc.testbase.TemplateMethod:forMethod:():V-11"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-6",
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-14": 4.0
       }
@@ -557,7 +545,8 @@
       "op": 6,
       "inst": "iconst_3",
       "addInfo": "",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-14": 4.0
@@ -570,15 +559,13 @@
       "updateTime": 43,
       "op": 161,
       "inst": "if_icmplt",
-      "addInfo": "L714994516",
-      "dataParentList": [
+      "addInfo": "L998462082",
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-13",
         "cc.testbase.TemplateMethod:forMethod:():V-12"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-6",
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:add2:(I):I-2": 3.0,
         "cc.testbase.TemplateMethod:forMethod:():V-10": 3.0,
@@ -587,8 +574,7 @@
         "cc.testbase.TemplateMethod:forMethod:():V-14": 3.0,
         "cc.testbase.TemplateMethod:forMethod:():V-15": 1.0,
         "cc.testbase.TemplateMethod:forMethod:():V-7": 3.0,
-        "cc.testbase.TemplateMethod:forMethod:():V-8": 3.0,
-        "cc.testbase.TemplateMethod:forMethod:():V-80000": 1.0
+        "cc.testbase.TemplateMethod:forMethod:():V-8": 3.0
       }
     },
     {
@@ -599,12 +585,11 @@
       "op": 25,
       "inst": "aload",
       "addInfo": "2",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-3"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "controlParentList": [],
       "childFreqMap": {}
     },
     {
@@ -615,16 +600,13 @@
       "op": 21,
       "inst": "iload",
       "addInfo": "3",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-5",
         "cc.testbase.TemplateMethod:forMethod:():V-11"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:add2:(I):I-2": 3.0
-      }
+      "controlParentList": [],
+      "childFreqMap": {}
     },
     {
       "fromMethod": "cc.testbase.TemplateMethod:forMethod:():V",
@@ -634,7 +616,8 @@
       "op": 182,
       "inst": "invokevirtual",
       "addInfo": "cc.testbase.TemplateMethod:add2:(I):I",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     },
@@ -646,12 +629,11 @@
       "op": 54,
       "inst": "istore",
       "addInfo": "4",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:add2:(I):I-2"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
       "childFreqMap": {}
     },
     {
@@ -662,13 +644,12 @@
       "op": 132,
       "inst": "iinc",
       "addInfo": "3",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-5",
         "cc.testbase.TemplateMethod:forMethod:():V-11"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-11": 2.0,
         "cc.testbase.TemplateMethod:forMethod:():V-12": 3.0,
@@ -683,14 +664,12 @@
       "op": 21,
       "inst": "iload",
       "addInfo": "3",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-5",
         "cc.testbase.TemplateMethod:forMethod:():V-11"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-6",
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-14": 4.0
       }
@@ -703,7 +682,8 @@
       "op": 6,
       "inst": "iconst_3",
       "addInfo": "",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-14": 4.0
@@ -716,15 +696,13 @@
       "updateTime": 43,
       "op": 161,
       "inst": "if_icmplt",
-      "addInfo": "L714994516",
-      "dataParentList": [
+      "addInfo": "L998462082",
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-13",
         "cc.testbase.TemplateMethod:forMethod:():V-12"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-6",
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:add2:(I):I-2": 3.0,
         "cc.testbase.TemplateMethod:forMethod:():V-10": 3.0,
@@ -733,8 +711,7 @@
         "cc.testbase.TemplateMethod:forMethod:():V-14": 3.0,
         "cc.testbase.TemplateMethod:forMethod:():V-15": 1.0,
         "cc.testbase.TemplateMethod:forMethod:():V-7": 3.0,
-        "cc.testbase.TemplateMethod:forMethod:():V-8": 3.0,
-        "cc.testbase.TemplateMethod:forMethod:():V-80000": 1.0
+        "cc.testbase.TemplateMethod:forMethod:():V-8": 3.0
       }
     },
     {
@@ -745,10 +722,9 @@
       "op": 177,
       "inst": "return",
       "addInfo": "",
-      "dataParentList": [],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
       "childFreqMap": {}
     }
   ],
@@ -761,13 +737,12 @@
       "op": 96,
       "inst": "iadd",
       "addInfo": "",
-      "dataParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-8",
-        "cc.testbase.TemplateMethod:forMethod:():V-80000"
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:forMethod:():V-80000",
+        "cc.testbase.TemplateMethod:forMethod:():V-80001"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-10": 1.0
       }
@@ -780,11 +755,11 @@
       "op": 187,
       "inst": "new",
       "addInfo": "cc/testbase/TemplateMethod",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
-        "cc.testbase.TemplateMethod:forMethod:():V-3": 2.0,
-        "cc.testbase.TemplateMethod:init:():V-4": 1.0
+        "cc.testbase.TemplateMethod:forMethod:():V-3": 1.0
       }
     },
     {
@@ -795,9 +770,10 @@
       "op": 58,
       "inst": "astore",
       "addInfo": "2",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-0"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-7": 3.0
@@ -811,7 +787,8 @@
       "op": 3,
       "inst": "iconst_0",
       "addInfo": "",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-5": 1.0
@@ -825,15 +802,17 @@
       "op": 54,
       "inst": "istore",
       "addInfo": "3",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-4"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-11": 1.0,
         "cc.testbase.TemplateMethod:forMethod:():V-12": 1.0,
         "cc.testbase.TemplateMethod:forMethod:():V-8": 1.0,
-        "cc.testbase.TemplateMethod:forMethod:():V-80000": 1.0
+        "cc.testbase.TemplateMethod:forMethod:():V-80000": 1.0,
+        "cc.testbase.TemplateMethod:forMethod:():V-80001": 1.0
       }
     },
     {
@@ -843,8 +822,9 @@
       "updateTime": 10,
       "op": 167,
       "inst": "goto",
-      "addInfo": "L998462082",
-      "dataParentList": [],
+      "addInfo": "L2013125681",
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-12": 1.0,
@@ -859,12 +839,11 @@
       "op": 25,
       "inst": "aload",
       "addInfo": "2",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-3"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "controlParentList": [],
       "childFreqMap": {}
     },
     {
@@ -875,16 +854,13 @@
       "op": 21,
       "inst": "iload",
       "addInfo": "3",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-5",
         "cc.testbase.TemplateMethod:forMethod:():V-11"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:add2:(I):I-2": 3.0
-      }
+      "controlParentList": [],
+      "childFreqMap": {}
     },
     {
       "fromMethod": "cc.testbase.TemplateMethod:forMethod:():V",
@@ -894,12 +870,11 @@
       "op": 54,
       "inst": "istore",
       "addInfo": "4",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:add2:(I):I-2"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
       "childFreqMap": {}
     },
     {
@@ -910,13 +885,12 @@
       "op": 132,
       "inst": "iinc",
       "addInfo": "3",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-5",
         "cc.testbase.TemplateMethod:forMethod:():V-11"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-11": 2.0,
         "cc.testbase.TemplateMethod:forMethod:():V-12": 3.0,
@@ -931,14 +905,12 @@
       "op": 21,
       "inst": "iload",
       "addInfo": "3",
-      "dataParentList": [
+      "instDataParentList": [],
+      "writeDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-5",
         "cc.testbase.TemplateMethod:forMethod:():V-11"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-6",
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-14": 4.0
       }
@@ -951,7 +923,8 @@
       "op": 6,
       "inst": "iconst_3",
       "addInfo": "",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:forMethod:():V-14": 4.0
@@ -964,15 +937,13 @@
       "updateTime": 43,
       "op": 161,
       "inst": "if_icmplt",
-      "addInfo": "L714994516",
-      "dataParentList": [
+      "addInfo": "L998462082",
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:forMethod:():V-13",
         "cc.testbase.TemplateMethod:forMethod:():V-12"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-6",
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:add2:(I):I-2": 3.0,
         "cc.testbase.TemplateMethod:forMethod:():V-10": 3.0,
@@ -981,8 +952,7 @@
         "cc.testbase.TemplateMethod:forMethod:():V-14": 3.0,
         "cc.testbase.TemplateMethod:forMethod:():V-15": 1.0,
         "cc.testbase.TemplateMethod:forMethod:():V-7": 3.0,
-        "cc.testbase.TemplateMethod:forMethod:():V-8": 3.0,
-        "cc.testbase.TemplateMethod:forMethod:():V-80000": 1.0
+        "cc.testbase.TemplateMethod:forMethod:():V-8": 3.0
       }
     },
     {
@@ -993,10 +963,9 @@
       "op": 177,
       "inst": "return",
       "addInfo": "",
-      "dataParentList": [],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
-      ],
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
       "childFreqMap": {}
     },
     {
@@ -1007,13 +976,28 @@
       "op": 21,
       "inst": "iload",
       "addInfo": "3",
-      "dataParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-5",
-        "cc.testbase.TemplateMethod:forMethod:():V-11"
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:forMethod:():V-5"
       ],
-      "controlParentList": [
-        "cc.testbase.TemplateMethod:forMethod:():V-14"
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:add2:(I):I-2": 3.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:forMethod:():V",
+      "idx": 80001,
+      "startTime": 15,
+      "updateTime": 15,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "3",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:forMethod:():V-5"
       ],
+      "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:add2:(I):I-2": 3.0
       }
@@ -1026,7 +1010,8 @@
       "op": 187,
       "inst": "new",
       "addInfo": "java/util/ArrayList",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:init:():V-3": 1.0,
@@ -1041,9 +1026,10 @@
       "op": 183,
       "inst": "invokespecial",
       "addInfo": "java.util.ArrayList:init:():V",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:init:():V-1"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     },
@@ -1055,10 +1041,11 @@
       "op": 181,
       "inst": "putfield",
       "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;3",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:init:():V-1",
         "cc.testbase.TemplateMethod:forMethod:():V-0"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     }
@@ -1074,10 +1061,11 @@
       "op": 181,
       "inst": "putfield",
       "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;3",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:init:():V-1",
         "cc.testbase.TemplateMethod:forMethod:():V-0"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     }

@@ -112,22 +112,6 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		expandDepMap(nodeInfo, targetMap);
 	}
 	
-	private void parentRemove(InstNode inst, InstPool pool, String instKey) {
-		//Remove data parent if any
-		for (String dp: inst.getDataParentList()) {
-			String[] dParsed = StringUtil.parseIdxKey(dp);
-			InstNode dpInst = pool.searchAndGet(dParsed[0], Integer.valueOf(dParsed[1]));
-			dpInst.getChildFreqMap().remove(instKey);
-		}
-		
-		//Remove control parent if any
-		for (String cp: inst.getControlParentList()) {
-			String[] cParsed = StringUtil.parseIdxKey(cp);
-			InstNode cpInst = pool.searchAndGet(cParsed[0], Integer.valueOf(cParsed[1]));
-			cpInst.getChildFreqMap().remove(instKey);
-		}
-	}
-	
 	private void mergeHead(GraphTemplate parent, GraphTemplate child, ExtObj methodEo) {
 		InstNode methodNode = parent.getInstPool().searchAndGet(parent.getMethodKey(), methodEo.getInstIdx());
 		String methodKey = StringUtil.genIdxKey(methodNode.getFromMethod(), methodNode.getIdx());
@@ -150,12 +134,12 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 				InstNode fcInst = child.getInstPool().searchAndGet(parsed[0], Integer.valueOf(parsed[1]));
 				parentLoad.increChild(fcInst.getFromMethod(), fcInst.getIdx(), fInst.getChildFreqMap().get(fcID));
 				
-				fcInst.getDataParentList().remove(fInstKey);
-				fcInst.registerParent(parentLoad.getFromMethod(), parentLoad.getIdx(), false);
+				//fcInst.getDataParentList().remove(fInstKey);
+				//fcInst.registerParent(parentLoad.getFromMethod(), parentLoad.getIdx(), false);
 			}
 			
 			//Remvoe the load insts in child because of duplicates
-			this.parentRemove(fInst, child.getInstPool(), fInstKey);
+			//this.parentRemove(fInst, child.getInstPool(), fInstKey);
 			
 			parent.getInstPool().remove(fInst);
 			child.getInstPool().remove(fInst);
@@ -169,8 +153,8 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 				InstNode fieldInst = child.getInstPool().searchAndGet(child.getMethodKey(), fieldInstId);
 				
 				if (pFieldInst.getAddInfo().equals(fieldInst.getAddInfo())) {
-					pFieldInst.increChild(child.getMethodKey(), fieldInstId, MIBConfiguration.getInstance().getDataWeight());
-					fieldInst.registerParent(pFieldInst.getFromMethod(), pFieldInst.getIdx(), false);
+					//pFieldInst.increChild(child.getMethodKey(), fieldInstId, MIBConfiguration.getInstance().getDataWeight());
+					//fieldInst.registerParent(pFieldInst.getFromMethod(), pFieldInst.getIdx(), false);
 				}
 			}
 		}
@@ -206,7 +190,7 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			parentPool.add(childInst);
 		}
 		String returnInstKey = StringUtil.genIdxKey(returnInst.getFromMethod(), returnInst.getIdx());
-		this.parentRemove(returnInst, child.getInstPool(), returnInstKey);
+		//this.parentRemove(returnInst, child.getInstPool(), returnInstKey);
 		child.getInstPool().remove(returnInst);
 		
 		this.mergeHead(parent, child, methodEo);
@@ -215,13 +199,13 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		String methodKey = StringUtil.genIdxKey(methodNode.getFromMethod(), methodNode.getIdx());
 		if (BytecodeCategory.objMethodOps().contains(methodNode.getOp().getOpcode())) {
 			//If method is instance level, remove the aload instruction from pool
-			String aloadId = methodNode.getDataParentList().get(methodNode.getDataParentList().size() - 1);
-			String[] parsed = StringUtil.parseIdxKey(aloadId);
-			InstNode loadInst = parent.getInstPool().searchAndGet(parsed[0], Integer.valueOf(parsed[1]));
+			//String aloadId = methodNode.getDataParentList().get(methodNode.getDataParentList().size() - 1);
+			//String[] parsed = StringUtil.parseIdxKey(aloadId);
+			//InstNode loadInst = parent.getInstPool().searchAndGet(parsed[0], Integer.valueOf(parsed[1]));
 			
-			this.parentRemove(loadInst, parent.getInstPool(), aloadId);
-			System.out.println("MIB Debug: remove load inst from " + parent.getMethodKey() + " " + loadInst);
-			parent.getInstPool().remove(loadInst);
+			//this.parentRemove(loadInst, parent.getInstPool(), aloadId);
+			//System.out.println("MIB Debug: remove load inst from " + parent.getMethodKey() + " " + loadInst);
+			//parent.getInstPool().remove(loadInst);
 		}
 		
 		//Update children of method inst
@@ -238,8 +222,8 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 				double freq = methodNode.getChildFreqMap().get(childKey);
 				
 				lastSecond.getChildFreqMap().put(childKey, freq);
-				childInst.getDataParentList().remove(methodKey);
-				childInst.getDataParentList().add(lastSecondKey);
+				//childInst.getDataParentList().remove(methodKey);
+				//childInst.getDataParentList().add(lastSecondKey);
 			}
 		}
 		
@@ -247,10 +231,10 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			for (InstNode writeInst: returnEo.getWriteFieldInsts()) {
 				for (InstNode affected: methodEo.getAffFieldInsts()) {
 					if (affected.getAddInfo().equals(writeInst.getAddInfo())) {
-						affected.registerParent(writeInst.getFromMethod(), writeInst.getIdx(), false);
+						/*affected.registerParent(writeInst.getFromMethod(), writeInst.getIdx(), false);
 						writeInst.getChildFreqMap().put(StringUtil.genIdxKey(affected.getFromMethod(), 
 								affected.getIdx()), 
-								MIBConfiguration.getInstance().getDataWeight());
+								MIBConfiguration.getInstance().getDataWeight());*/
 						
 						if (parent.getFirstReadFields().contains(affected.getIdx()))
 							parent.getFirstReadFields().remove(affected.getIdx());

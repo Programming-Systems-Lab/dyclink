@@ -158,11 +158,30 @@ public class MethodStackRecorder {
 		}
  	}
 	
-	private void updateCachedMap(InstNode parent, InstNode child, boolean isControl) {
-		if (isControl) {
+	private void updateCachedMap(InstNode parent, InstNode child, int depType) {
+		if (depType == MIBConfiguration.INST_DATA_DEP) {
+			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
+			child.registerParent(parent.getFromMethod(), parent.getIdx(), depType);
+		} else if (depType == MIBConfiguration.WRITE_DATA_DEP) {
+			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getWriteDataWeight());
+			child.registerParent(parent.getFromMethod(), parent.getIdx(), depType);
+		} else if (depType == MIBConfiguration.CONTR_DEP) {
+			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getControlWeight());
+			child.registerParent(parent.getFromMethod(), parent.getIdx(), depType);
+		}
+		
+		/*if (isControl) {
 			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getControlWeight());
 			child.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);
 			
+			//p->surC, surC->p
+			for (Integer i: child.getSurrogates().values()) {
+				InstNode sur = this.pool.searchAndGet(child.getFromMethod(), i);
+				parent.increChild(child.getFromMethod(), sur.getIdx(), MIBConfiguration.getInstance().getControlWeight());
+				sur.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);
+			}
+			
+			//surP->surC
 			for (Integer i: parent.getSurrogates().values()) {
 				InstNode sur = this.pool.searchAndGet(parent.getFromMethod(), i);
 				sur.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getControlWeight());
@@ -185,7 +204,7 @@ public class MethodStackRecorder {
 				InstNode sur = this.pool.searchAndGet(child.getFromMethod(), i);
 				sur.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);
 			}
-		}
+		}*/
 		//System.out.println("Update map: " + this.dataDep);
 	}
 	
@@ -258,7 +277,7 @@ public class MethodStackRecorder {
 			if (opcode == Opcodes.GETSTATIC || objId > 0) {
 				InstNode parent = this.fieldRecorder.get(fieldKey);
 				if (parent != null)
-					this.updateCachedMap(parent, fullInst, false);
+					this.updateCachedMap(parent, fullInst, MIBConfiguration.WRITE_DATA_DEP);
 				
 				if (this.extMethods.size() > 0) {
 					this.extMethods.get(this.extMethods.size() - 1).addAffFieldInst(fullInst);
@@ -291,7 +310,7 @@ public class MethodStackRecorder {
 			for (int i = 0; i < inputSize; i++) {
 				//Should not return null here
 				InstNode tmpInst = this.safePop();
-				this.updateCachedMap(tmpInst, fullInst, false);
+				this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
 			}
 		}
 		this.updateStackSimulator(fullInst, addOutput);
@@ -319,7 +338,7 @@ public class MethodStackRecorder {
 			for (int i = 0; i < inputSize; i++) {
 				//Should not return null here
 				InstNode tmpInst = this.safePop();
-				this.updateCachedMap(tmpInst, fullInst, false);
+				this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
 			}
 		}
 		this.updateStackSimulator(fullInst, 0);
@@ -364,7 +383,7 @@ public class MethodStackRecorder {
 					this.localVarRecorder.put(localVarIdx, fullInst);
 				}
 				
-				this.updateCachedMap(lastInst, fullInst, false);
+				this.updateCachedMap(lastInst, fullInst, MIBConfiguration.INST_DATA_DEP);
 				for (int i = 0; i < fullInst.getOp().getInList().size(); i++)
 					this.safePop();
 			}
@@ -372,7 +391,7 @@ public class MethodStackRecorder {
 		} else if (opcode == Opcodes.IINC) {
 			InstNode parentInst = this.localVarRecorder.get(localVarIdx);
 			if (parentInst != null)
-				this.updateCachedMap(parentInst, fullInst, false);
+				this.updateCachedMap(parentInst, fullInst, MIBConfiguration.WRITE_DATA_DEP);
 			
 			this.localVarRecorder.put(localVarIdx, fullInst);
 			this.updateReadLocalVar(fullInst);
@@ -383,7 +402,7 @@ public class MethodStackRecorder {
 			if (parentInst != null) {
 				System.out.println("Access local var recorder: " + fullInst);
 				System.out.println(parentInst);
-				this.updateCachedMap(parentInst, fullInst, false);
+				this.updateCachedMap(parentInst, fullInst, MIBConfiguration.WRITE_DATA_DEP);
 			}
 			
 			this.updateReadLocalVar(fullInst);
@@ -404,7 +423,7 @@ public class MethodStackRecorder {
 					//Should not return null here
 					InstNode tmpInst = this.safePop();
 					if (!tmpInst.equals(lastTmp))
-						this.updateCachedMap(tmpInst, fullInst, false);
+						this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
 					
 					lastTmp = tmpInst;
 				}
@@ -425,10 +444,9 @@ public class MethodStackRecorder {
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
 		
-		//Parse method type
 		for (int i = 0; i < dim; i++) {
 			InstNode tmpInst = this.safePop();
-			this.updateCachedMap(tmpInst, fullInst, false);
+			this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
 		}
 		this.updateStackSimulator(fullInst, 0);
 		this.showStackSimulator();
@@ -462,7 +480,7 @@ public class MethodStackRecorder {
 		String returnType = methodType.getReturnType().getDescriptor();
 		for (int i = 0; i < argSize; i++) {
 			InstNode tmpInst = this.safePop();
-			this.updateCachedMap(tmpInst, fullInst, false);
+			this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
 			//this.updateInvokeMethod(methodKey, tmpInst);
 		}
 		
@@ -802,7 +820,7 @@ public class MethodStackRecorder {
 			}
 			
 			if (!BytecodeCategory.dupCategory().contains(fullInst.getOp().getCatId()))
-				this.updateCachedMap(this.curControlInst, fullInst, true);
+				this.updateCachedMap(this.curControlInst, fullInst, MIBConfiguration.CONTR_DEP);
 		}
 	}
 	

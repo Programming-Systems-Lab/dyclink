@@ -1,0 +1,16 @@
+cc.testbase.TemplateMethod:add2:(I):I,cc.testbase.TemplateMethod:add2:(I):I,0.7500000000000001
+cc.testbase.TemplateMethod:add2:(I):I,cc.testbase.TemplateMethod:forMethod:():V,NaN
+cc.testbase.TemplateMethod:add2:(I):I,cc.testbase.TemplateMethod:init:():V,0.5812559200041265
+cc.testbase.TemplateMethod:add2:(I):I,cc.testbase.TemplateParent:init:():V,0.487744794624728
+cc.testbase.TemplateMethod:forMethod:():V,cc.testbase.TemplateMethod:add2:(I):I,NaN
+cc.testbase.TemplateMethod:forMethod:():V,cc.testbase.TemplateMethod:forMethod:():V,NaN
+cc.testbase.TemplateMethod:forMethod:():V,cc.testbase.TemplateMethod:init:():V,NaN
+cc.testbase.TemplateMethod:forMethod:():V,cc.testbase.TemplateParent:init:():V,NaN
+cc.testbase.TemplateMethod:init:():V,cc.testbase.TemplateMethod:add2:(I):I,0.5812559200041265
+cc.testbase.TemplateMethod:init:():V,cc.testbase.TemplateMethod:forMethod:():V,NaN
+cc.testbase.TemplateMethod:init:():V,cc.testbase.TemplateMethod:init:():V,0.6
+cc.testbase.TemplateMethod:init:():V,cc.testbase.TemplateParent:init:():V,0.45175395145262565
+cc.testbase.TemplateParent:init:():V,cc.testbase.TemplateMethod:add2:(I):I,0.487744794624728
+cc.testbase.TemplateParent:init:():V,cc.testbase.TemplateMethod:forMethod:():V,NaN
+cc.testbase.TemplateParent:init:():V,cc.testbase.TemplateMethod:init:():V,0.45175395145262565
+cc.testbase.TemplateParent:init:():V,cc.testbase.TemplateParent:init:():V,0.5714285714285715

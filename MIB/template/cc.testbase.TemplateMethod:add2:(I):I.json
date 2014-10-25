@@ -17,10 +17,11 @@
         "op": 96,
         "inst": "iadd",
         "addInfo": "",
-        "dataParentList": [
+        "instDataParentList": [
           "cc.testbase.TemplateMethod:add2:(I):I-1",
           "cc.testbase.TemplateMethod:add2:(I):I-0"
         ],
+        "writeDataParentList": [],
         "controlParentList": [],
         "childFreqMap": {
           "cc.testbase.TemplateMethod:add2:(I):I-3": 1.0
@@ -38,7 +39,8 @@
       "op": 21,
       "inst": "iload",
       "addInfo": "1",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:add2:(I):I-2": 1.0
@@ -52,7 +54,8 @@
       "op": 21,
       "inst": "iload",
       "addInfo": "1",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:add2:(I):I-2": 1.0
@@ -66,10 +69,11 @@
       "op": 96,
       "inst": "iadd",
       "addInfo": "",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:add2:(I):I-1",
         "cc.testbase.TemplateMethod:add2:(I):I-0"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:add2:(I):I-3": 1.0
@@ -83,9 +87,10 @@
       "op": 172,
       "inst": "ireturn",
       "addInfo": "",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:add2:(I):I-2"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     }
@@ -99,7 +104,8 @@
       "op": 21,
       "inst": "iload",
       "addInfo": "1",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:add2:(I):I-2": 1.0
@@ -113,7 +119,8 @@
       "op": 21,
       "inst": "iload",
       "addInfo": "1",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:add2:(I):I-2": 1.0
@@ -127,10 +134,11 @@
       "op": 96,
       "inst": "iadd",
       "addInfo": "",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:add2:(I):I-1",
         "cc.testbase.TemplateMethod:add2:(I):I-0"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateMethod:add2:(I):I-3": 1.0
@@ -144,9 +152,10 @@
       "op": 172,
       "inst": "ireturn",
       "addInfo": "",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateMethod:add2:(I):I-2"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     }

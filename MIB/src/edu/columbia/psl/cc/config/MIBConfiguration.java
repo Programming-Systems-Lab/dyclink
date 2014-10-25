@@ -8,6 +8,12 @@ import edu.columbia.psl.cc.util.GsonManager;
 
 public class MIBConfiguration {
 	
+	public static int INST_DATA_DEP = 0;
+	
+	public static int WRITE_DATA_DEP = 1;
+	
+	public static int CONTR_DEP = 2;
+	
 	private static String srHandleCommon = "handleOpcode";
 	
 	private static String srHCDesc = "(III)V";
@@ -70,7 +76,9 @@ public class MIBConfiguration {
 	
 	private double controlWeight;
 	
-	private double dataWeight;
+	private double instDataWeight;
+	
+	private double writeDataWeight;
 	
 	private int precisionDigit;
 	
@@ -225,12 +233,20 @@ public class MIBConfiguration {
 		this.controlWeight = controlWeight;
 	}
 
-	public double getDataWeight() {
-		return dataWeight;
+	public double getInstDataWeight() {
+		return instDataWeight;
 	}
 
-	public void setDataWeight(double dataWeight) {
-		this.dataWeight = dataWeight;
+	public void setInstDataWeight(double instDataWeight) {
+		this.instDataWeight = instDataWeight;
+	}
+	
+	public double getWriteDataWeight() {
+		return this.writeDataWeight;
+	}
+	
+	public void setWriteDataWeight(double writeDataWeight) {
+		this.writeDataWeight = writeDataWeight;
 	}
 
 	public int getPrecisionDigit() {
@@ -343,7 +359,8 @@ public class MIBConfiguration {
 		sb.append("result dir: " + this.resultDir + "\n");
 		sb.append("debug dir: " + this.debugDir + "\n");
 		sb.append("control weigtht: " + this.controlWeight + "\n");
-		sb.append("data weigth: " + this.dataWeight + "\n");
+		sb.append("inst data weigtht: " + this.instDataWeight + "\n");
+		sb.append("write data weight: " + this.writeDataWeight + "\n");
 		sb.append("precision digit: " + this.precisionDigit + "\n");
 		sb.append("parallel factor: " + this.parallelFactor + "\n");
 		sb.append("annotation guard: " + this.annotGuard + "\n");

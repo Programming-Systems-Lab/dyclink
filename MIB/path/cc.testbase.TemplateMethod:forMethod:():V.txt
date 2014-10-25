@@ -4,10 +4,10 @@ cc.testbase.TemplateMethod:forMethod:():V 2 183 invokespecial cc.testbase.Templa
 cc.testbase.TemplateMethod:forMethod:():V 3 58 astore 2
 cc.testbase.TemplateMethod:forMethod:():V 4 3 iconst_0 
 cc.testbase.TemplateMethod:forMethod:():V 5 54 istore 3
-cc.testbase.TemplateMethod:forMethod:():V 6 167 goto L998462082
+cc.testbase.TemplateMethod:forMethod:():V 6 167 goto L2013125681
 cc.testbase.TemplateMethod:forMethod:():V 12 21 iload 3
 cc.testbase.TemplateMethod:forMethod:():V 13 6 iconst_3 
-cc.testbase.TemplateMethod:forMethod:():V 14 161 if_icmplt L714994516
+cc.testbase.TemplateMethod:forMethod:():V 14 161 if_icmplt L998462082
 cc.testbase.TemplateMethod:forMethod:():V 7 25 aload 2
 cc.testbase.TemplateMethod:forMethod:():V 8 21 iload 3
 cc.testbase.TemplateMethod:forMethod:():V 9 182 invokevirtual cc.testbase.TemplateMethod:add2:(I):I
@@ -15,7 +15,7 @@ cc.testbase.TemplateMethod:forMethod:():V 10 54 istore 4
 cc.testbase.TemplateMethod:forMethod:():V 11 132 iinc 3
 cc.testbase.TemplateMethod:forMethod:():V 12 21 iload 3
 cc.testbase.TemplateMethod:forMethod:():V 13 6 iconst_3 
-cc.testbase.TemplateMethod:forMethod:():V 14 161 if_icmplt L714994516
+cc.testbase.TemplateMethod:forMethod:():V 14 161 if_icmplt L998462082
 cc.testbase.TemplateMethod:forMethod:():V 7 25 aload 2
 cc.testbase.TemplateMethod:forMethod:():V 8 21 iload 3
 cc.testbase.TemplateMethod:forMethod:():V 9 182 invokevirtual cc.testbase.TemplateMethod:add2:(I):I
@@ -23,7 +23,7 @@ cc.testbase.TemplateMethod:forMethod:():V 10 54 istore 4
 cc.testbase.TemplateMethod:forMethod:():V 11 132 iinc 3
 cc.testbase.TemplateMethod:forMethod:():V 12 21 iload 3
 cc.testbase.TemplateMethod:forMethod:():V 13 6 iconst_3 
-cc.testbase.TemplateMethod:forMethod:():V 14 161 if_icmplt L714994516
+cc.testbase.TemplateMethod:forMethod:():V 14 161 if_icmplt L998462082
 cc.testbase.TemplateMethod:forMethod:():V 7 25 aload 2
 cc.testbase.TemplateMethod:forMethod:():V 8 21 iload 3
 cc.testbase.TemplateMethod:forMethod:():V 9 182 invokevirtual cc.testbase.TemplateMethod:add2:(I):I
@@ -31,5 +31,5 @@ cc.testbase.TemplateMethod:forMethod:():V 10 54 istore 4
 cc.testbase.TemplateMethod:forMethod:():V 11 132 iinc 3
 cc.testbase.TemplateMethod:forMethod:():V 12 21 iload 3
 cc.testbase.TemplateMethod:forMethod:():V 13 6 iconst_3 
-cc.testbase.TemplateMethod:forMethod:():V 14 161 if_icmplt L714994516
+cc.testbase.TemplateMethod:forMethod:():V 14 161 if_icmplt L998462082
 cc.testbase.TemplateMethod:forMethod:():V 15 177 return 

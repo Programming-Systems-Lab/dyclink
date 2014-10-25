@@ -36,10 +36,16 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		int opcode = object.get("op").getAsInt();
 		String addInfo = object.get("addInfo").getAsString();
 		
-		JsonArray dataParentObj = object.get("dataParentList").getAsJsonArray();
-		ArrayList<String> dataParentList = new ArrayList<String>();
-		for (int i = 0; i < dataParentObj.size(); i++) {
-			dataParentList.add(dataParentObj.get(i).getAsString());
+		JsonArray instDataParentObj = object.get("instDataParentList").getAsJsonArray();
+		ArrayList<String> instDataParentList = new ArrayList<String>();
+		for (int i = 0; i < instDataParentObj.size(); i++) {
+			instDataParentList.add(instDataParentObj.get(i).getAsString());
+		}
+		
+		JsonArray writeDataParentObj = object.get("writeDataParentList").getAsJsonArray();
+		ArrayList<String> writeDataParentList = new ArrayList<String>();
+		for (int i = 0; i < writeDataParentObj.size(); i++) {
+			writeDataParentList.add(writeDataParentObj.get(i).getAsString());
 		}
 		
 		JsonArray controlParentObj = object.get("controlParentList").getAsJsonArray();
@@ -61,7 +67,8 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		
 		InstNode inst = this.pool.searchAndGet(methodKey, idx, opcode, addInfo);
 		inst.setFromMethod(methodKey);
-		inst.setDataParentList(dataParentList);
+		inst.setInstDataParentList(instDataParentList);
+		inst.setWriteDataParentList(writeDataParentList);
 		inst.setControlParentList(controlParentList);
 		inst.setChildFreqMap(childFreqMap);
 		inst.setStartTime(startTime);
@@ -85,7 +92,8 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		result.addProperty("addInfo", inst.getAddInfo());
 		
 		TypeToken<ArrayList<String>> listType = new TypeToken<ArrayList<String>>(){};
-		result.add("dataParentList", context.serialize(inst.getDataParentList(), listType.getType()));
+		result.add("instDataParentList", context.serialize(inst.getInstDataParentList(), listType.getType()));
+		result.add("writeDataParentList", context.serialize(inst.getWriteDataParentList(), listType.getType()));
 		result.add("controlParentList", context.serialize(inst.getControlParentList(), listType.getType()));
 		
 		TypeToken<TreeMap<String, Double>> mapType = new TypeToken<TreeMap<String, Double>>(){};

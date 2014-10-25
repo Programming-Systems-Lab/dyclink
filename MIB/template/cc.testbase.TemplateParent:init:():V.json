@@ -16,10 +16,11 @@
         "op": 181,
         "inst": "putfield",
         "addInfo": "cc.testbase.TemplateParent.sVar.I3",
-        "dataParentList": [
+        "instDataParentList": [
           "cc.testbase.TemplateParent:init:():V-1",
           "cc.testbase.TemplateParent:init:():V-0"
         ],
+        "writeDataParentList": [],
         "controlParentList": [],
         "childFreqMap": {}
       },
@@ -31,10 +32,11 @@
         "op": 181,
         "inst": "putfield",
         "addInfo": "cc.testbase.TemplateParent.pVar.I3",
-        "dataParentList": [
+        "instDataParentList": [
           "cc.testbase.TemplateParent:init:():V-4",
           "cc.testbase.TemplateParent:init:():V-3"
         ],
+        "writeDataParentList": [],
         "controlParentList": [],
         "childFreqMap": {}
       }
@@ -48,10 +50,11 @@
         "op": 181,
         "inst": "putfield",
         "addInfo": "cc.testbase.TemplateParent.pVar.I3",
-        "dataParentList": [
+        "instDataParentList": [
           "cc.testbase.TemplateParent:init:():V-4",
           "cc.testbase.TemplateParent:init:():V-3"
         ],
+        "writeDataParentList": [],
         "controlParentList": [],
         "childFreqMap": {}
       }
@@ -67,7 +70,8 @@
       "op": 25,
       "inst": "aload",
       "addInfo": "0",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateParent:init:():V-2": 1.0
@@ -81,7 +85,8 @@
       "op": 3,
       "inst": "iconst_0",
       "addInfo": "",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateParent:init:():V-2": 1.0
@@ -95,10 +100,11 @@
       "op": 181,
       "inst": "putfield",
       "addInfo": "cc.testbase.TemplateParent.sVar.I3",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateParent:init:():V-1",
         "cc.testbase.TemplateParent:init:():V-0"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     },
@@ -110,7 +116,8 @@
       "op": 25,
       "inst": "aload",
       "addInfo": "0",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateParent:init:():V-5": 1.0
@@ -124,7 +131,8 @@
       "op": 3,
       "inst": "iconst_0",
       "addInfo": "",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateParent:init:():V-5": 1.0
@@ -138,10 +146,11 @@
       "op": 181,
       "inst": "putfield",
       "addInfo": "cc.testbase.TemplateParent.pVar.I3",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateParent:init:():V-4",
         "cc.testbase.TemplateParent:init:():V-3"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     },
@@ -153,7 +162,8 @@
       "op": 177,
       "inst": "return",
       "addInfo": "",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     }
@@ -167,7 +177,8 @@
       "op": 25,
       "inst": "aload",
       "addInfo": "0",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateParent:init:():V-2": 1.0
@@ -181,7 +192,8 @@
       "op": 3,
       "inst": "iconst_0",
       "addInfo": "",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateParent:init:():V-2": 1.0
@@ -195,10 +207,11 @@
       "op": 181,
       "inst": "putfield",
       "addInfo": "cc.testbase.TemplateParent.sVar.I3",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateParent:init:():V-1",
         "cc.testbase.TemplateParent:init:():V-0"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     },
@@ -210,7 +223,8 @@
       "op": 25,
       "inst": "aload",
       "addInfo": "0",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateParent:init:():V-5": 1.0
@@ -224,7 +238,8 @@
       "op": 3,
       "inst": "iconst_0",
       "addInfo": "",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
         "cc.testbase.TemplateParent:init:():V-5": 1.0
@@ -238,10 +253,11 @@
       "op": 181,
       "inst": "putfield",
       "addInfo": "cc.testbase.TemplateParent.pVar.I3",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateParent:init:():V-4",
         "cc.testbase.TemplateParent:init:():V-3"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     },
@@ -253,7 +269,8 @@
       "op": 177,
       "inst": "return",
       "addInfo": "",
-      "dataParentList": [],
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     }
@@ -272,10 +289,11 @@
       "op": 181,
       "inst": "putfield",
       "addInfo": "cc.testbase.TemplateParent.sVar.I3",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateParent:init:():V-1",
         "cc.testbase.TemplateParent:init:():V-0"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     },
@@ -287,10 +305,11 @@
       "op": 181,
       "inst": "putfield",
       "addInfo": "cc.testbase.TemplateParent.pVar.I3",
-      "dataParentList": [
+      "instDataParentList": [
         "cc.testbase.TemplateParent:init:():V-4",
         "cc.testbase.TemplateParent:init:():V-3"
       ],
+      "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     }

@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class InstNode implements Comparable<InstNode>{
@@ -28,7 +29,9 @@ public class InstNode implements Comparable<InstNode>{
 	
 	private AtomicInteger maxSurrogate = new AtomicInteger();
 	
-	private ArrayList<String> dataParentList = new ArrayList<String>();
+	private ArrayList<String> instDataParentList = new ArrayList<String>();
+	
+	private ArrayList<String> writeDataParentList = new ArrayList<String>();
 	
 	private ArrayList<String> controlParentList = new ArrayList<String>();
 	
@@ -51,26 +54,43 @@ public class InstNode implements Comparable<InstNode>{
 		this.op = copy.getOp();
 		this.addInfo = copy.getAddInfo();
 		this.fromMethod = copy.getFromMethod();
-		this.dataParentList = new ArrayList<String>(copy.getDataParentList());
+		this.instDataParentList = new ArrayList<String>(copy.getInstDataParentList());
+		this.writeDataParentList = new ArrayList<String>(copy.getWriteDataParentList());
 		this.controlParentList = new ArrayList<String>(copy.getControlParentList());
 		this.childFreqMap = new TreeMap<String, Double>(copy.getChildFreqMap());
 	}
 	
-	public void registerParent(String fromMethod, int parentIdx, boolean isControl) {
+	/**
+	 * depType: 1 for inst data dep, 2 for writ data dep, 3, for control dep
+	 * @param fromMethod
+	 * @param parentIdx
+	 * @param isControl
+	 */
+	public void registerParent(String fromMethod, int parentIdx, int depType) {
 		String idxKey = StringUtil.genIdxKey(fromMethod, parentIdx);
-		if (!isControl && !this.dataParentList.contains(idxKey)) {
-			this.dataParentList.add(idxKey);
-		} else if (isControl && !this.controlParentList.contains(idxKey)){
+		if (depType == MIBConfiguration.INST_DATA_DEP && !this.instDataParentList.contains(idxKey)) {
+			this.instDataParentList.add(idxKey);
+		} else if (depType == MIBConfiguration.WRITE_DATA_DEP && !this.writeDataParentList.contains(idxKey)) {
+			this.writeDataParentList.add(idxKey);
+		} else if (depType == MIBConfiguration.CONTR_DEP && this.controlParentList.contains(idxKey)){
 			this.controlParentList.add(idxKey);
 		}
 	}
 	
-	public void setDataParentList(ArrayList<String> dataParentList) {
-		this.dataParentList = dataParentList;
+	public void setInstDataParentList(ArrayList<String> instDataParentList) {
+		this.instDataParentList = instDataParentList;
 	}
 	
-	public ArrayList<String> getDataParentList() {
-		return this.dataParentList;
+	public ArrayList<String> getInstDataParentList() {
+		return this.instDataParentList;
+	}
+	
+	public void setWriteDataParentList(ArrayList<String> writeDataParentList) {
+		this.writeDataParentList = writeDataParentList;
+	}
+	
+	public ArrayList<String> getWriteDataParentList() {
+		return this.writeDataParentList;
 	}
 	
 	public void setControlParentList(ArrayList<String> controlParentList) {
