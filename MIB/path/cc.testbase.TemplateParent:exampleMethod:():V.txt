@@ -1,3 +1,0 @@
-cc.testbase.TemplateParent:exampleMethod:():V 0 25 aload 0
-cc.testbase.TemplateParent:exampleMethod:():V 1 183 invokespecial cc.testbase.TemplateParent:interestingMethod:():V
-cc.testbase.TemplateParent:exampleMethod:():V 2 177 return 

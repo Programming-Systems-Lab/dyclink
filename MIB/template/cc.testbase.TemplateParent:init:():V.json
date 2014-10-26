@@ -3,64 +3,6 @@
   "methodArgSize": 0,
   "methodReturnSize": 0,
   "staticMethod": false,
-  "extMethods": [],
-  "returnInfo": {
-    "instIdx": 0,
-    "lineNumber": 0,
-    "writeFieldInsts": [
-      {
-        "fromMethod": "cc.testbase.TemplateParent:init:():V",
-        "idx": 2,
-        "startTime": 2,
-        "updateTime": 2,
-        "op": 181,
-        "inst": "putfield",
-        "addInfo": "cc.testbase.TemplateParent.sVar.I3",
-        "instDataParentList": [
-          "cc.testbase.TemplateParent:init:():V-1",
-          "cc.testbase.TemplateParent:init:():V-0"
-        ],
-        "writeDataParentList": [],
-        "controlParentList": [],
-        "childFreqMap": {}
-      },
-      {
-        "fromMethod": "cc.testbase.TemplateParent:init:():V",
-        "idx": 5,
-        "startTime": 5,
-        "updateTime": 5,
-        "op": 181,
-        "inst": "putfield",
-        "addInfo": "cc.testbase.TemplateParent.pVar.I3",
-        "instDataParentList": [
-          "cc.testbase.TemplateParent:init:():V-4",
-          "cc.testbase.TemplateParent:init:():V-3"
-        ],
-        "writeDataParentList": [],
-        "controlParentList": [],
-        "childFreqMap": {}
-      }
-    ],
-    "loadLocalInsts": [
-      {
-        "fromMethod": "cc.testbase.TemplateParent:init:():V",
-        "idx": 5,
-        "startTime": 5,
-        "updateTime": 5,
-        "op": 181,
-        "inst": "putfield",
-        "addInfo": "cc.testbase.TemplateParent.pVar.I3",
-        "instDataParentList": [
-          "cc.testbase.TemplateParent:init:():V-4",
-          "cc.testbase.TemplateParent:init:():V-3"
-        ],
-        "writeDataParentList": [],
-        "controlParentList": [],
-        "childFreqMap": {}
-      }
-    ],
-    "affFieldInsts": []
-  },
   "path": [
     {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
@@ -99,7 +41,7 @@
       "updateTime": 2,
       "op": 181,
       "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateParent.sVar.I3",
+      "addInfo": "cc.testbase.TemplateParent.sVar.I1",
       "instDataParentList": [
         "cc.testbase.TemplateParent:init:():V-1",
         "cc.testbase.TemplateParent:init:():V-0"
@@ -145,7 +87,7 @@
       "updateTime": 5,
       "op": 181,
       "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateParent.pVar.I3",
+      "addInfo": "cc.testbase.TemplateParent.pVar.I1",
       "instDataParentList": [
         "cc.testbase.TemplateParent:init:():V-4",
         "cc.testbase.TemplateParent:init:():V-3"
@@ -206,7 +148,7 @@
       "updateTime": 2,
       "op": 181,
       "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateParent.sVar.I3",
+      "addInfo": "cc.testbase.TemplateParent.sVar.I1",
       "instDataParentList": [
         "cc.testbase.TemplateParent:init:():V-1",
         "cc.testbase.TemplateParent:init:():V-0"
@@ -252,7 +194,7 @@
       "updateTime": 5,
       "op": 181,
       "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateParent.pVar.I3",
+      "addInfo": "cc.testbase.TemplateParent.pVar.I1",
       "instDataParentList": [
         "cc.testbase.TemplateParent:init:():V-4",
         "cc.testbase.TemplateParent:init:():V-3"
@@ -281,14 +223,14 @@
   ],
   "firstReadFields": [],
   "writeFields": {
-    "cc.testbase.TemplateParent.sVar.I3": {
+    "cc.testbase.TemplateParent.sVar.I1": {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 2,
       "startTime": 2,
       "updateTime": 2,
       "op": 181,
       "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateParent.sVar.I3",
+      "addInfo": "cc.testbase.TemplateParent.sVar.I1",
       "instDataParentList": [
         "cc.testbase.TemplateParent:init:():V-1",
         "cc.testbase.TemplateParent:init:():V-0"
@@ -297,14 +239,14 @@
       "controlParentList": [],
       "childFreqMap": {}
     },
-    "cc.testbase.TemplateParent.pVar.I3": {
+    "cc.testbase.TemplateParent.pVar.I1": {
       "fromMethod": "cc.testbase.TemplateParent:init:():V",
       "idx": 5,
       "startTime": 5,
       "updateTime": 5,
       "op": 181,
       "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateParent.pVar.I3",
+      "addInfo": "cc.testbase.TemplateParent.pVar.I1",
       "instDataParentList": [
         "cc.testbase.TemplateParent:init:():V-4",
         "cc.testbase.TemplateParent:init:():V-3"

@@ -177,7 +177,7 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		}
 	}
 	
-	private void mergeGraphs(GraphTemplate parent, GraphTemplate child, ExtObj methodEo) {
+	/*private void mergeGraphs(GraphTemplate parent, GraphTemplate child, ExtObj methodEo) {
 		InstPool parentPool = parent.getInstPool();
 		Iterator<InstNode> poolIt = child.getInstPool().iterator();
 		InstNode returnInst = null;
@@ -199,13 +199,13 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		String methodKey = StringUtil.genIdxKey(methodNode.getFromMethod(), methodNode.getIdx());
 		if (BytecodeCategory.objMethodOps().contains(methodNode.getOp().getOpcode())) {
 			//If method is instance level, remove the aload instruction from pool
-			//String aloadId = methodNode.getDataParentList().get(methodNode.getDataParentList().size() - 1);
-			//String[] parsed = StringUtil.parseIdxKey(aloadId);
-			//InstNode loadInst = parent.getInstPool().searchAndGet(parsed[0], Integer.valueOf(parsed[1]));
+			String aloadId = methodNode.getDataParentList().get(methodNode.getDataParentList().size() - 1);
+			String[] parsed = StringUtil.parseIdxKey(aloadId);
+			InstNode loadInst = parent.getInstPool().searchAndGet(parsed[0], Integer.valueOf(parsed[1]));
 			
-			//this.parentRemove(loadInst, parent.getInstPool(), aloadId);
-			//System.out.println("MIB Debug: remove load inst from " + parent.getMethodKey() + " " + loadInst);
-			//parent.getInstPool().remove(loadInst);
+			this.parentRemove(loadInst, parent.getInstPool(), aloadId);
+			System.out.println("MIB Debug: remove load inst from " + parent.getMethodKey() + " " + loadInst);
+			parent.getInstPool().remove(loadInst);
 		}
 		
 		//Update children of method inst
@@ -231,10 +231,10 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			for (InstNode writeInst: returnEo.getWriteFieldInsts()) {
 				for (InstNode affected: methodEo.getAffFieldInsts()) {
 					if (affected.getAddInfo().equals(writeInst.getAddInfo())) {
-						/*affected.registerParent(writeInst.getFromMethod(), writeInst.getIdx(), false);
+						affected.registerParent(writeInst.getFromMethod(), writeInst.getIdx(), false);
 						writeInst.getChildFreqMap().put(StringUtil.genIdxKey(affected.getFromMethod(), 
 								affected.getIdx()), 
-								MIBConfiguration.getInstance().getDataWeight());*/
+								MIBConfiguration.getInstance().getDataWeight());
 						
 						if (parent.getFirstReadFields().contains(affected.getIdx()))
 							parent.getFirstReadFields().remove(affected.getIdx());
@@ -245,16 +245,9 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		
 		System.out.println("MIB Debug: remove inst from " + parent.getMethodKey() + " " + methodNode);
 		parent.getInstPool().remove(methodNode);
-	}
+	}*/
 	
-	/**
-	 * Now merge all ext methods in one graph.
-	 * Or we need separate grown graph for each ext methods?
-	 * This will result in too many graphs to analyze
-	 * @param parentGraph
-	 * @return
-	 */
-	private GrownGraph collectAndMergeChildGraphs(GraphTemplate parentGraph) {
+	/*private GrownGraph collectAndMergeChildGraphs(GraphTemplate parentGraph) {
 		HashMap<Integer, GraphTemplate> extMethodMap = GraphUtil.collectChildGraphs(parentGraph);
 		if (extMethodMap.size() == 0)
 			return null;
@@ -333,7 +326,7 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		//return ret;
 		
 		return copyParent;
-	}
+	}*/
 	
 	/**
 	 * If annot guard, compare the single test with all other templates

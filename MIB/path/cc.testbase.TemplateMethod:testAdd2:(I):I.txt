@@ -1,6 +1,0 @@
-cc.testbase.TemplateMethod:testAdd2:(I):I 0 25 aload 0
-cc.testbase.TemplateMethod:testAdd2:(I):I 1 21 iload 1
-cc.testbase.TemplateMethod:testAdd2:(I):I 2 182 invokevirtual cc.testbase.TemplateMethod:add2:(I):I
-cc.testbase.TemplateMethod:testAdd2:(I):I 3 54 istore 3
-cc.testbase.TemplateMethod:testAdd2:(I):I 4 21 iload 3
-cc.testbase.TemplateMethod:testAdd2:(I):I 5 172 ireturn 

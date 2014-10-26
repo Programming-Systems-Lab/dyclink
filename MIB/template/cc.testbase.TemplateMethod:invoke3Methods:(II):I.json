@@ -1,171 +1,17 @@
 {
-  "methodKey": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-  "methodArgSize": 1,
-  "methodReturnSize": 0,
-  "staticMethod": true,
+  "methodKey": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+  "methodArgSize": 2,
+  "methodReturnSize": 1,
+  "staticMethod": false,
   "path": [
     {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 0,
       "startTime": 0,
       "updateTime": 0,
-      "op": 187,
-      "inst": "new",
-      "addInfo": "cc/testbase/TemplateMethod",
-      "instDataParentList": [],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:init:():V-4": 1.0,
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-3": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 1,
-      "startTime": 1,
-      "updateTime": 1,
-      "op": 89,
-      "inst": "dup",
-      "addInfo": "",
-      "instDataParentList": [],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {}
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 2,
-      "startTime": -1,
-      "updateTime": -1,
-      "op": 183,
-      "inst": "invokespecial",
-      "addInfo": "cc.testbase.TemplateMethod:init:():V",
-      "instDataParentList": [],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {}
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 3,
-      "startTime": 7,
-      "updateTime": 7,
-      "op": 58,
-      "inst": "astore",
-      "addInfo": "2",
-      "instDataParentList": [
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-0"
-      ],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-9": 1.0,
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-90000": 1.0,
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-90001": 1.0,
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-90002": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 4,
-      "startTime": 8,
-      "updateTime": 8,
-      "op": 178,
-      "inst": "getstatic",
-      "addInfo": "java.lang.System.out.Ljava/io/PrintStream;",
-      "instDataParentList": [],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-15": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 5,
-      "startTime": 9,
-      "updateTime": 9,
-      "op": 187,
-      "inst": "new",
-      "addInfo": "java/lang/StringBuilder",
-      "instDataParentList": [],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-13": 1.0,
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-8": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 6,
-      "startTime": 10,
-      "updateTime": 10,
-      "op": 89,
-      "inst": "dup",
-      "addInfo": "",
-      "instDataParentList": [],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {}
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 7,
-      "startTime": 11,
-      "updateTime": 11,
-      "op": 18,
-      "inst": "ldc",
-      "addInfo": "TemplateMethod: ",
-      "instDataParentList": [],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-8": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 8,
-      "startTime": 12,
-      "updateTime": 12,
-      "op": 183,
-      "inst": "invokespecial",
-      "addInfo": "java.lang.StringBuilder:init:(Ljava.lang.String):V",
-      "instDataParentList": [
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-7",
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-5"
-      ],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {}
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 9,
-      "startTime": 13,
-      "updateTime": 13,
-      "op": 25,
-      "inst": "aload",
-      "addInfo": "2",
-      "instDataParentList": [],
-      "writeDataParentList": [
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-3"
-      ],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-4": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 10,
-      "startTime": 14,
-      "updateTime": 14,
-      "op": 6,
-      "inst": "iconst_3",
-      "addInfo": "",
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "1",
       "instDataParentList": [],
       "writeDataParentList": [],
       "controlParentList": [],
@@ -174,10 +20,157 @@
       }
     },
     {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 11,
-      "startTime": 15,
-      "updateTime": 15,
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 1,
+      "startTime": 1,
+      "updateTime": 1,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "2",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-2": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 2,
+      "startTime": 2,
+      "updateTime": 2,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-1",
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-0"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 3,
+      "startTime": 3,
+      "updateTime": 3,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-4": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 4,
+      "startTime": 4,
+      "updateTime": 4,
+      "op": 180,
+      "inst": "getfield",
+      "addInfo": "cc.testbase.TemplateParent.pVar.I1",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-3"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 5,
+      "startTime": 5,
+      "updateTime": 5,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-4",
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-2"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-6": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 6,
+      "startTime": 6,
+      "updateTime": 6,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "4",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-5"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-9": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 7,
+      "startTime": 7,
+      "updateTime": 7,
+      "op": 18,
+      "inst": "ldc",
+      "addInfo": "",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-8": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 8,
+      "startTime": 8,
+      "updateTime": 8,
+      "op": 58,
+      "inst": "astore",
+      "addInfo": "5",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-7"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 9,
+      "startTime": 9,
+      "updateTime": 9,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-6"
+      ],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-11": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 10,
+      "startTime": 10,
+      "updateTime": 10,
       "op": 8,
       "inst": "iconst_5",
       "addInfo": "",
@@ -185,84 +178,305 @@
       "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
-        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-2": 1.0
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-11": 1.0
       }
     },
     {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 11,
+      "startTime": 11,
+      "updateTime": 11,
+      "op": 164,
+      "inst": "if_icmple",
+      "addInfo": "L467772424",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-10",
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-9"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 12,
+      "startTime": 12,
+      "updateTime": 12,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 13,
       "startTime": -1,
       "updateTime": -1,
       "op": 182,
       "inst": "invokevirtual",
-      "addInfo": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "addInfo": "cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String",
       "instDataParentList": [],
       "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     },
     {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 13,
-      "startTime": 110,
-      "updateTime": 110,
-      "op": 182,
-      "inst": "invokevirtual",
-      "addInfo": "java.lang.StringBuilder:append:(I):Ljava.lang.StringBuilder",
-      "instDataParentList": [
-        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-28",
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-5"
-      ],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-14": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 14,
-      "startTime": 111,
-      "updateTime": 111,
-      "op": 182,
-      "inst": "invokevirtual",
-      "addInfo": "java.lang.StringBuilder:toString:():Ljava.lang.String",
+      "startTime": 14,
+      "updateTime": 14,
+      "op": 58,
+      "inst": "astore",
+      "addInfo": "5",
       "instDataParentList": [
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-13"
-      ],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-15": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 15,
-      "startTime": 112,
-      "updateTime": 112,
-      "op": 182,
-      "inst": "invokevirtual",
-      "addInfo": "java.io.PrintStream:println:(Ljava.lang.String):V",
-      "instDataParentList": [
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-14",
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-4"
+        "cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String-0"
       ],
       "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {}
     },
     {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 16,
-      "startTime": 113,
-      "updateTime": 113,
-      "op": 177,
-      "inst": "return",
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 15,
+      "startTime": 15,
+      "updateTime": 15,
+      "op": 167,
+      "inst": "goto",
+      "addInfo": "L323135501",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:increArray:([I):V-0": 1.0,
+        "cc.testbase.TemplateMethod:increArray:([I):V-1": 1.0,
+        "cc.testbase.TemplateMethod:increArray:([I):V-2": 1.0,
+        "cc.testbase.TemplateMethod:increArray:([I):V-3": 1.0,
+        "cc.testbase.TemplateMethod:increArray:([I):V-4": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-18": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-19": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-20": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-21": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-22": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-220000": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-24": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-25": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-27": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-28": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-29": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-0": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-1": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-2": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 18,
+      "startTime": 16,
+      "updateTime": 16,
+      "op": 8,
+      "inst": "iconst_5",
       "addInfo": "",
       "instDataParentList": [],
       "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-15"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-19": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 19,
+      "startTime": 17,
+      "updateTime": 17,
+      "op": 188,
+      "inst": "newarray",
+      "addInfo": "10",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-18"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-15"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-20": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 20,
+      "startTime": 18,
+      "updateTime": 18,
+      "op": 58,
+      "inst": "astore",
+      "addInfo": "6",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-19"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-15"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-22": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-220000": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-25": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 21,
+      "startTime": 19,
+      "updateTime": 19,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-15"
+      ],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 22,
+      "startTime": 20,
+      "updateTime": 20,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "6",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-20"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-15"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:increArray:([I):V-8": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 23,
+      "startTime": -1,
+      "updateTime": -1,
+      "op": 182,
+      "inst": "invokevirtual",
+      "addInfo": "cc.testbase.TemplateMethod:increArray:([I):V",
+      "instDataParentList": [],
+      "writeDataParentList": [],
       "controlParentList": [],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 24,
+      "startTime": 35,
+      "updateTime": 35,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-15"
+      ],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 25,
+      "startTime": 36,
+      "updateTime": 36,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "6",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-20"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-15"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 26,
+      "startTime": -1,
+      "updateTime": -1,
+      "op": 182,
+      "inst": "invokevirtual",
+      "addInfo": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 27,
+      "startTime": 92,
+      "updateTime": 92,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "7",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-14"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-15"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-28": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 28,
+      "startTime": 93,
+      "updateTime": 93,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "7",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-27"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-15"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-29": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 29,
+      "startTime": 94,
+      "updateTime": 94,
+      "op": 172,
+      "inst": "ireturn",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-28"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-15"
+      ],
       "childFreqMap": {}
     }
   ],
@@ -270,8 +484,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String",
       "idx": 0,
-      "startTime": 29,
-      "updateTime": 29,
+      "startTime": 13,
+      "updateTime": 13,
       "op": 18,
       "inst": "ldc",
       "addInfo": "ret \u003e 5",
@@ -285,8 +499,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:increArray:([I):V",
       "idx": 0,
-      "startTime": 37,
-      "updateTime": 37,
+      "startTime": 21,
+      "updateTime": 21,
       "op": 18,
       "inst": "ldc",
       "addInfo": "-32769",
@@ -302,8 +516,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:increArray:([I):V",
       "idx": 1,
-      "startTime": 38,
-      "updateTime": 38,
+      "startTime": 22,
+      "updateTime": 22,
       "op": 54,
       "inst": "istore",
       "addInfo": "3",
@@ -319,8 +533,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:increArray:([I):V",
       "idx": 2,
-      "startTime": 39,
-      "updateTime": 39,
+      "startTime": 23,
+      "updateTime": 23,
       "op": 3,
       "inst": "iconst_0",
       "addInfo": "",
@@ -336,8 +550,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:increArray:([I):V",
       "idx": 3,
-      "startTime": 40,
-      "updateTime": 40,
+      "startTime": 24,
+      "updateTime": 24,
       "op": 54,
       "inst": "istore",
       "addInfo": "4",
@@ -357,8 +571,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:increArray:([I):V",
       "idx": 4,
-      "startTime": 41,
-      "updateTime": 41,
+      "startTime": 25,
+      "updateTime": 25,
       "op": 167,
       "inst": "goto",
       "addInfo": "L820791943",
@@ -377,8 +591,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:increArray:([I):V",
       "idx": 6,
-      "startTime": 47,
-      "updateTime": 83,
+      "startTime": 31,
+      "updateTime": 67,
       "op": 21,
       "inst": "iload",
       "addInfo": "4",
@@ -397,8 +611,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:increArray:([I):V",
       "idx": 7,
-      "startTime": 48,
-      "updateTime": 84,
+      "startTime": 32,
+      "updateTime": 68,
       "op": 8,
       "inst": "iconst_5",
       "addInfo": "",
@@ -414,8 +628,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:increArray:([I):V",
       "idx": 8,
-      "startTime": 49,
-      "updateTime": 85,
+      "startTime": 33,
+      "updateTime": 69,
       "op": 79,
       "inst": "iastore",
       "addInfo": "",
@@ -433,8 +647,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:increArray:([I):V",
       "idx": 9,
-      "startTime": 50,
-      "updateTime": 86,
+      "startTime": 34,
+      "updateTime": 70,
       "op": 132,
       "inst": "iinc",
       "addInfo": "4",
@@ -455,8 +669,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:increArray:([I):V",
       "idx": 10,
-      "startTime": 42,
-      "updateTime": 87,
+      "startTime": 26,
+      "updateTime": 71,
       "op": 21,
       "inst": "iload",
       "addInfo": "4",
@@ -476,8 +690,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:increArray:([I):V",
       "idx": 12,
-      "startTime": 44,
-      "updateTime": 89,
+      "startTime": 28,
+      "updateTime": 73,
       "op": 190,
       "inst": "arraylength",
       "addInfo": "",
@@ -496,8 +710,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:increArray:([I):V",
       "idx": 13,
-      "startTime": 45,
-      "updateTime": 90,
+      "startTime": 29,
+      "updateTime": 74,
       "op": 161,
       "inst": "if_icmplt",
       "addInfo": "L1762721320",
@@ -523,63 +737,46 @@
       }
     },
     {
-      "fromMethod": "cc.testbase.TemplateMethod:init:():V",
-      "idx": 1,
-      "startTime": 3,
-      "updateTime": 3,
-      "op": 187,
-      "inst": "new",
-      "addInfo": "java/util/ArrayList",
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 0,
+      "startTime": 0,
+      "updateTime": 0,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "1",
       "instDataParentList": [],
       "writeDataParentList": [],
       "controlParentList": [],
       "childFreqMap": {
-        "cc.testbase.TemplateMethod:init:():V-3": 1.0,
-        "cc.testbase.TemplateMethod:init:():V-4": 1.0
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-2": 1.0
       }
     },
     {
-      "fromMethod": "cc.testbase.TemplateMethod:init:():V",
-      "idx": 3,
-      "startTime": 5,
-      "updateTime": 5,
-      "op": 183,
-      "inst": "invokespecial",
-      "addInfo": "java.util.ArrayList:init:():V",
-      "instDataParentList": [
-        "cc.testbase.TemplateMethod:init:():V-1"
-      ],
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 1,
+      "startTime": 1,
+      "updateTime": 1,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "2",
+      "instDataParentList": [],
       "writeDataParentList": [],
       "controlParentList": [],
-      "childFreqMap": {}
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:init:():V",
-      "idx": 4,
-      "startTime": 6,
-      "updateTime": 6,
-      "op": 181,
-      "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;1",
-      "instDataParentList": [
-        "cc.testbase.TemplateMethod:init:():V-1",
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-0"
-      ],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {}
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-2": 1.0
+      }
     },
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 2,
-      "startTime": 18,
-      "updateTime": 18,
+      "startTime": 2,
+      "updateTime": 2,
       "op": 96,
       "inst": "iadd",
       "addInfo": "",
       "instDataParentList": [
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-10",
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-11"
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-1",
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-0"
       ],
       "writeDataParentList": [],
       "controlParentList": [],
@@ -589,14 +786,29 @@
     },
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 3,
+      "startTime": 3,
+      "updateTime": 3,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-4": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 4,
-      "startTime": 20,
-      "updateTime": 20,
+      "startTime": 4,
+      "updateTime": 4,
       "op": 180,
       "inst": "getfield",
       "addInfo": "cc.testbase.TemplateParent.pVar.I1",
       "instDataParentList": [
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-9"
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-3"
       ],
       "writeDataParentList": [],
       "controlParentList": [],
@@ -607,8 +819,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 5,
-      "startTime": 21,
-      "updateTime": 21,
+      "startTime": 5,
+      "updateTime": 5,
       "op": 96,
       "inst": "iadd",
       "addInfo": "",
@@ -625,8 +837,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 6,
-      "startTime": 22,
-      "updateTime": 22,
+      "startTime": 6,
+      "updateTime": 6,
       "op": 54,
       "inst": "istore",
       "addInfo": "4",
@@ -642,8 +854,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 7,
-      "startTime": 23,
-      "updateTime": 23,
+      "startTime": 7,
+      "updateTime": 7,
       "op": 18,
       "inst": "ldc",
       "addInfo": "",
@@ -657,8 +869,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 8,
-      "startTime": 24,
-      "updateTime": 24,
+      "startTime": 8,
+      "updateTime": 8,
       "op": 58,
       "inst": "astore",
       "addInfo": "5",
@@ -672,8 +884,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 9,
-      "startTime": 25,
-      "updateTime": 25,
+      "startTime": 9,
+      "updateTime": 9,
       "op": 21,
       "inst": "iload",
       "addInfo": "4",
@@ -689,8 +901,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 10,
-      "startTime": 26,
-      "updateTime": 26,
+      "startTime": 10,
+      "updateTime": 10,
       "op": 8,
       "inst": "iconst_5",
       "addInfo": "",
@@ -704,8 +916,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 11,
-      "startTime": 27,
-      "updateTime": 27,
+      "startTime": 11,
+      "updateTime": 11,
       "op": 164,
       "inst": "if_icmple",
       "addInfo": "L467772424",
@@ -719,9 +931,22 @@
     },
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 12,
+      "startTime": 12,
+      "updateTime": 12,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 14,
-      "startTime": 30,
-      "updateTime": 30,
+      "startTime": 14,
+      "updateTime": 14,
       "op": 58,
       "inst": "astore",
       "addInfo": "5",
@@ -735,8 +960,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 15,
-      "startTime": 31,
-      "updateTime": 31,
+      "startTime": 15,
+      "updateTime": 15,
       "op": 167,
       "inst": "goto",
       "addInfo": "L323135501",
@@ -752,13 +977,14 @@
         "cc.testbase.TemplateMethod:invoke3Methods:(II):I-18": 1.0,
         "cc.testbase.TemplateMethod:invoke3Methods:(II):I-19": 1.0,
         "cc.testbase.TemplateMethod:invoke3Methods:(II):I-20": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-21": 1.0,
         "cc.testbase.TemplateMethod:invoke3Methods:(II):I-22": 1.0,
         "cc.testbase.TemplateMethod:invoke3Methods:(II):I-220000": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-24": 1.0,
         "cc.testbase.TemplateMethod:invoke3Methods:(II):I-25": 1.0,
         "cc.testbase.TemplateMethod:invoke3Methods:(II):I-27": 1.0,
         "cc.testbase.TemplateMethod:invoke3Methods:(II):I-28": 1.0,
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-90000": 1.0,
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-90001": 1.0,
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-29": 1.0,
         "cc.testbase.TemplateMethod:sumArray:([I):I-0": 1.0,
         "cc.testbase.TemplateMethod:sumArray:([I):I-1": 1.0,
         "cc.testbase.TemplateMethod:sumArray:([I):I-2": 1.0,
@@ -769,8 +995,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 18,
-      "startTime": 32,
-      "updateTime": 32,
+      "startTime": 16,
+      "updateTime": 16,
       "op": 8,
       "inst": "iconst_5",
       "addInfo": "",
@@ -786,8 +1012,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 19,
-      "startTime": 33,
-      "updateTime": 33,
+      "startTime": 17,
+      "updateTime": 17,
       "op": 188,
       "inst": "newarray",
       "addInfo": "10",
@@ -805,8 +1031,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 20,
-      "startTime": 34,
-      "updateTime": 34,
+      "startTime": 18,
+      "updateTime": 18,
       "op": 58,
       "inst": "astore",
       "addInfo": "6",
@@ -825,9 +1051,24 @@
     },
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 21,
+      "startTime": 19,
+      "updateTime": 19,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-15"
+      ],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 22,
-      "startTime": 36,
-      "updateTime": 36,
+      "startTime": 20,
+      "updateTime": 20,
       "op": 25,
       "inst": "aload",
       "addInfo": "6",
@@ -844,9 +1085,24 @@
     },
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 24,
+      "startTime": 35,
+      "updateTime": 35,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "0",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-15"
+      ],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 25,
-      "startTime": 52,
-      "updateTime": 52,
+      "startTime": 36,
+      "updateTime": 36,
       "op": 25,
       "inst": "aload",
       "addInfo": "6",
@@ -864,8 +1120,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 27,
-      "startTime": 108,
-      "updateTime": 108,
+      "startTime": 92,
+      "updateTime": 92,
       "op": 54,
       "inst": "istore",
       "addInfo": "7",
@@ -883,8 +1139,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 28,
-      "startTime": 109,
-      "updateTime": 109,
+      "startTime": 93,
+      "updateTime": 93,
       "op": 21,
       "inst": "iload",
       "addInfo": "7",
@@ -896,14 +1152,31 @@
         "cc.testbase.TemplateMethod:invoke3Methods:(II):I-15"
       ],
       "childFreqMap": {
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-13": 1.0
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-29": 1.0
       }
     },
     {
       "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
+      "idx": 29,
+      "startTime": 94,
+      "updateTime": 94,
+      "op": 172,
+      "inst": "ireturn",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-28"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-15"
+      ],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:invoke3Methods:(II):I",
       "idx": 220000,
-      "startTime": 36,
-      "updateTime": 36,
+      "startTime": 20,
+      "updateTime": 20,
       "op": 25,
       "inst": "aload",
       "addInfo": "6",
@@ -919,264 +1192,10 @@
       }
     },
     {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 0,
-      "startTime": 0,
-      "updateTime": 0,
-      "op": 187,
-      "inst": "new",
-      "addInfo": "cc/testbase/TemplateMethod",
-      "instDataParentList": [],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:init:():V-4": 1.0,
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-3": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 3,
-      "startTime": 7,
-      "updateTime": 7,
-      "op": 58,
-      "inst": "astore",
-      "addInfo": "2",
-      "instDataParentList": [
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-0"
-      ],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-9": 1.0,
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-90000": 1.0,
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-90001": 1.0,
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-90002": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 4,
-      "startTime": 8,
-      "updateTime": 8,
-      "op": 178,
-      "inst": "getstatic",
-      "addInfo": "java.lang.System.out.Ljava/io/PrintStream;",
-      "instDataParentList": [],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-15": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 5,
-      "startTime": 9,
-      "updateTime": 9,
-      "op": 187,
-      "inst": "new",
-      "addInfo": "java/lang/StringBuilder",
-      "instDataParentList": [],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-13": 1.0,
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-8": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 7,
-      "startTime": 11,
-      "updateTime": 11,
-      "op": 18,
-      "inst": "ldc",
-      "addInfo": "TemplateMethod: ",
-      "instDataParentList": [],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-8": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 8,
-      "startTime": 12,
-      "updateTime": 12,
-      "op": 183,
-      "inst": "invokespecial",
-      "addInfo": "java.lang.StringBuilder:init:(Ljava.lang.String):V",
-      "instDataParentList": [
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-7",
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-5"
-      ],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {}
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 9,
-      "startTime": 13,
-      "updateTime": 13,
-      "op": 25,
-      "inst": "aload",
-      "addInfo": "2",
-      "instDataParentList": [],
-      "writeDataParentList": [
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-3"
-      ],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-4": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 10,
-      "startTime": 14,
-      "updateTime": 14,
-      "op": 6,
-      "inst": "iconst_3",
-      "addInfo": "",
-      "instDataParentList": [],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-2": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 11,
-      "startTime": 15,
-      "updateTime": 15,
-      "op": 8,
-      "inst": "iconst_5",
-      "addInfo": "",
-      "instDataParentList": [],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-2": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 13,
-      "startTime": 110,
-      "updateTime": 110,
-      "op": 182,
-      "inst": "invokevirtual",
-      "addInfo": "java.lang.StringBuilder:append:(I):Ljava.lang.StringBuilder",
-      "instDataParentList": [
-        "cc.testbase.TemplateMethod:invoke3Methods:(II):I-28",
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-5"
-      ],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-14": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 14,
-      "startTime": 111,
-      "updateTime": 111,
-      "op": 182,
-      "inst": "invokevirtual",
-      "addInfo": "java.lang.StringBuilder:toString:():Ljava.lang.String",
-      "instDataParentList": [
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-13"
-      ],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-15": 1.0
-      }
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 15,
-      "startTime": 112,
-      "updateTime": 112,
-      "op": 182,
-      "inst": "invokevirtual",
-      "addInfo": "java.io.PrintStream:println:(Ljava.lang.String):V",
-      "instDataParentList": [
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-14",
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-4"
-      ],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {}
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 16,
-      "startTime": 113,
-      "updateTime": 113,
-      "op": 177,
-      "inst": "return",
-      "addInfo": "",
-      "instDataParentList": [],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {}
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 90000,
-      "startTime": 13,
-      "updateTime": 13,
-      "op": 25,
-      "inst": "aload",
-      "addInfo": "2",
-      "instDataParentList": [],
-      "writeDataParentList": [
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-3"
-      ],
-      "controlParentList": [],
-      "childFreqMap": {}
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 90001,
-      "startTime": 13,
-      "updateTime": 13,
-      "op": 25,
-      "inst": "aload",
-      "addInfo": "2",
-      "instDataParentList": [],
-      "writeDataParentList": [
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-3"
-      ],
-      "controlParentList": [],
-      "childFreqMap": {}
-    },
-    {
-      "fromMethod": "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V",
-      "idx": 90002,
-      "startTime": 13,
-      "updateTime": 13,
-      "op": 25,
-      "inst": "aload",
-      "addInfo": "2",
-      "instDataParentList": [],
-      "writeDataParentList": [
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-3"
-      ],
-      "controlParentList": [],
-      "childFreqMap": {}
-    },
-    {
       "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
       "idx": 0,
-      "startTime": 53,
-      "updateTime": 53,
+      "startTime": 37,
+      "updateTime": 37,
       "op": 3,
       "inst": "iconst_0",
       "addInfo": "",
@@ -1192,8 +1211,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
       "idx": 1,
-      "startTime": 54,
-      "updateTime": 54,
+      "startTime": 38,
+      "updateTime": 38,
       "op": 54,
       "inst": "istore",
       "addInfo": "3",
@@ -1211,8 +1230,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
       "idx": 2,
-      "startTime": 55,
-      "updateTime": 55,
+      "startTime": 39,
+      "updateTime": 39,
       "op": 3,
       "inst": "iconst_0",
       "addInfo": "",
@@ -1228,8 +1247,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
       "idx": 3,
-      "startTime": 56,
-      "updateTime": 56,
+      "startTime": 40,
+      "updateTime": 40,
       "op": 54,
       "inst": "istore",
       "addInfo": "4",
@@ -1249,8 +1268,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
       "idx": 4,
-      "startTime": 57,
-      "updateTime": 57,
+      "startTime": 41,
+      "updateTime": 41,
       "op": 167,
       "inst": "goto",
       "addInfo": "L2131361171",
@@ -1269,8 +1288,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
       "idx": 5,
-      "startTime": 62,
-      "updateTime": 98,
+      "startTime": 46,
+      "updateTime": 82,
       "op": 21,
       "inst": "iload",
       "addInfo": "3",
@@ -1289,8 +1308,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
       "idx": 6,
-      "startTime": 63,
-      "updateTime": 99,
+      "startTime": 47,
+      "updateTime": 83,
       "op": 21,
       "inst": "iload",
       "addInfo": "4",
@@ -1309,8 +1328,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
       "idx": 7,
-      "startTime": 64,
-      "updateTime": 100,
+      "startTime": 48,
+      "updateTime": 84,
       "op": 96,
       "inst": "iadd",
       "addInfo": "",
@@ -1329,8 +1348,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
       "idx": 8,
-      "startTime": 65,
-      "updateTime": 101,
+      "startTime": 49,
+      "updateTime": 85,
       "op": 54,
       "inst": "istore",
       "addInfo": "3",
@@ -1349,8 +1368,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
       "idx": 9,
-      "startTime": 66,
-      "updateTime": 102,
+      "startTime": 50,
+      "updateTime": 86,
       "op": 132,
       "inst": "iinc",
       "addInfo": "4",
@@ -1371,8 +1390,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
       "idx": 10,
-      "startTime": 58,
-      "updateTime": 103,
+      "startTime": 42,
+      "updateTime": 87,
       "op": 21,
       "inst": "iload",
       "addInfo": "4",
@@ -1392,8 +1411,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
       "idx": 12,
-      "startTime": 60,
-      "updateTime": 105,
+      "startTime": 44,
+      "updateTime": 89,
       "op": 190,
       "inst": "arraylength",
       "addInfo": "",
@@ -1412,8 +1431,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
       "idx": 13,
-      "startTime": 61,
-      "updateTime": 106,
+      "startTime": 45,
+      "updateTime": 90,
       "op": 161,
       "inst": "if_icmplt",
       "addInfo": "L1759969037",
@@ -1441,8 +1460,8 @@
     {
       "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
       "idx": 14,
-      "startTime": 107,
-      "updateTime": 107,
+      "startTime": 91,
+      "updateTime": 91,
       "op": 21,
       "inst": "iload",
       "addInfo": "3",
@@ -1456,26 +1475,16 @@
       }
     }
   ],
-  "firstReadLocalVars": [],
+  "firstReadLocalVars": [
+    0,
+    1,
+    3,
+    21,
+    24,
+    12
+  ],
   "firstReadFields": [
     4
   ],
-  "writeFields": {
-    "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;1": {
-      "fromMethod": "cc.testbase.TemplateMethod:init:():V",
-      "idx": 4,
-      "startTime": 6,
-      "updateTime": 6,
-      "op": 181,
-      "inst": "putfield",
-      "addInfo": "cc.testbase.TemplateMethod.fakeList.Ljava/util/ArrayList;1",
-      "instDataParentList": [
-        "cc.testbase.TemplateMethod:init:():V-1",
-        "cc.testbase.TemplateMethod:main:([Ljava.lang.String):V-0"
-      ],
-      "writeDataParentList": [],
-      "controlParentList": [],
-      "childFreqMap": {}
-    }
-  }
+  "writeFields": {}
 }

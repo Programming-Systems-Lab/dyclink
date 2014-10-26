@@ -1,0 +1,1475 @@
+{
+  "methodKey": "cc.testbase.TemplateMethod:sumArray:([I):I",
+  "methodArgSize": 1,
+  "methodReturnSize": 1,
+  "staticMethod": false,
+  "path": [
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 0,
+      "startTime": 0,
+      "updateTime": 0,
+      "op": 3,
+      "inst": "iconst_0",
+      "addInfo": "",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-1": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 1,
+      "startTime": 1,
+      "updateTime": 1,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "3",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-0"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 2,
+      "startTime": 2,
+      "updateTime": 2,
+      "op": 3,
+      "inst": "iconst_0",
+      "addInfo": "",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 3,
+      "startTime": 3,
+      "updateTime": 3,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "4",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-2"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 4,
+      "startTime": 4,
+      "updateTime": 4,
+      "op": 167,
+      "inst": "goto",
+      "addInfo": "L2131361171",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 10,
+      "startTime": 5,
+      "updateTime": 50,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 11,
+      "startTime": 6,
+      "updateTime": 51,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "1",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 12,
+      "startTime": 7,
+      "updateTime": 52,
+      "op": 190,
+      "inst": "arraylength",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 13,
+      "startTime": 8,
+      "updateTime": 53,
+      "op": 161,
+      "inst": "if_icmplt",
+      "addInfo": "L1759969037",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 5,
+      "startTime": 9,
+      "updateTime": 45,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "3",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-1",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 6,
+      "startTime": 10,
+      "updateTime": 46,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 7,
+      "startTime": 11,
+      "updateTime": 47,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 8,
+      "startTime": 12,
+      "updateTime": 48,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "3",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-14": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 9,
+      "startTime": 13,
+      "updateTime": 49,
+      "op": 132,
+      "inst": "iinc",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 10,
+      "startTime": 5,
+      "updateTime": 50,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 11,
+      "startTime": 6,
+      "updateTime": 51,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "1",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 12,
+      "startTime": 7,
+      "updateTime": 52,
+      "op": 190,
+      "inst": "arraylength",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 13,
+      "startTime": 8,
+      "updateTime": 53,
+      "op": 161,
+      "inst": "if_icmplt",
+      "addInfo": "L1759969037",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 5,
+      "startTime": 9,
+      "updateTime": 45,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "3",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-1",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 6,
+      "startTime": 10,
+      "updateTime": 46,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 7,
+      "startTime": 11,
+      "updateTime": 47,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 8,
+      "startTime": 12,
+      "updateTime": 48,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "3",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-14": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 9,
+      "startTime": 13,
+      "updateTime": 49,
+      "op": 132,
+      "inst": "iinc",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 10,
+      "startTime": 5,
+      "updateTime": 50,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 11,
+      "startTime": 6,
+      "updateTime": 51,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "1",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 12,
+      "startTime": 7,
+      "updateTime": 52,
+      "op": 190,
+      "inst": "arraylength",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 13,
+      "startTime": 8,
+      "updateTime": 53,
+      "op": 161,
+      "inst": "if_icmplt",
+      "addInfo": "L1759969037",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 5,
+      "startTime": 9,
+      "updateTime": 45,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "3",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-1",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 6,
+      "startTime": 10,
+      "updateTime": 46,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 7,
+      "startTime": 11,
+      "updateTime": 47,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 8,
+      "startTime": 12,
+      "updateTime": 48,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "3",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-14": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 9,
+      "startTime": 13,
+      "updateTime": 49,
+      "op": 132,
+      "inst": "iinc",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 10,
+      "startTime": 5,
+      "updateTime": 50,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 11,
+      "startTime": 6,
+      "updateTime": 51,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "1",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 12,
+      "startTime": 7,
+      "updateTime": 52,
+      "op": 190,
+      "inst": "arraylength",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 13,
+      "startTime": 8,
+      "updateTime": 53,
+      "op": 161,
+      "inst": "if_icmplt",
+      "addInfo": "L1759969037",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 5,
+      "startTime": 9,
+      "updateTime": 45,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "3",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-1",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 6,
+      "startTime": 10,
+      "updateTime": 46,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 7,
+      "startTime": 11,
+      "updateTime": 47,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 8,
+      "startTime": 12,
+      "updateTime": 48,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "3",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-14": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 9,
+      "startTime": 13,
+      "updateTime": 49,
+      "op": 132,
+      "inst": "iinc",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 10,
+      "startTime": 5,
+      "updateTime": 50,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 11,
+      "startTime": 6,
+      "updateTime": 51,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "1",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 12,
+      "startTime": 7,
+      "updateTime": 52,
+      "op": 190,
+      "inst": "arraylength",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 13,
+      "startTime": 8,
+      "updateTime": 53,
+      "op": 161,
+      "inst": "if_icmplt",
+      "addInfo": "L1759969037",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 5,
+      "startTime": 9,
+      "updateTime": 45,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "3",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-1",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 6,
+      "startTime": 10,
+      "updateTime": 46,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 7,
+      "startTime": 11,
+      "updateTime": 47,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 8,
+      "startTime": 12,
+      "updateTime": 48,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "3",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-14": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 9,
+      "startTime": 13,
+      "updateTime": 49,
+      "op": 132,
+      "inst": "iinc",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 10,
+      "startTime": 5,
+      "updateTime": 50,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 11,
+      "startTime": 6,
+      "updateTime": 51,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "1",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 12,
+      "startTime": 7,
+      "updateTime": 52,
+      "op": 190,
+      "inst": "arraylength",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 13,
+      "startTime": 8,
+      "updateTime": 53,
+      "op": 161,
+      "inst": "if_icmplt",
+      "addInfo": "L1759969037",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 14,
+      "startTime": 54,
+      "updateTime": 54,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "3",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8"
+      ],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-15": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 15,
+      "startTime": 55,
+      "updateTime": 55,
+      "op": 172,
+      "inst": "ireturn",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-14"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {}
+    }
+  ],
+  "pool": [
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 0,
+      "startTime": 0,
+      "updateTime": 0,
+      "op": 3,
+      "inst": "iconst_0",
+      "addInfo": "",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-1": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 1,
+      "startTime": 1,
+      "updateTime": 1,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "3",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-0"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 2,
+      "startTime": 2,
+      "updateTime": 2,
+      "op": 3,
+      "inst": "iconst_0",
+      "addInfo": "",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 3,
+      "startTime": 3,
+      "updateTime": 3,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "4",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-2"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 4,
+      "startTime": 4,
+      "updateTime": 4,
+      "op": 167,
+      "inst": "goto",
+      "addInfo": "L2131361171",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 5,
+      "startTime": 9,
+      "updateTime": 45,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "3",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-1",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 6,
+      "startTime": 10,
+      "updateTime": 46,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 7,
+      "startTime": 11,
+      "updateTime": 47,
+      "op": 96,
+      "inst": "iadd",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 8,
+      "startTime": 12,
+      "updateTime": 48,
+      "op": 54,
+      "inst": "istore",
+      "addInfo": "3",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-14": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 9,
+      "startTime": 13,
+      "updateTime": 49,
+      "op": 132,
+      "inst": "iinc",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6": 1.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 10,
+      "startTime": 5,
+      "updateTime": 50,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "4",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-3",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9"
+      ],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 11,
+      "startTime": 6,
+      "updateTime": 51,
+      "op": 25,
+      "inst": "aload",
+      "addInfo": "1",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 12,
+      "startTime": 7,
+      "updateTime": 52,
+      "op": 190,
+      "inst": "arraylength",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 13,
+      "startTime": 8,
+      "updateTime": 53,
+      "op": 161,
+      "inst": "if_icmplt",
+      "addInfo": "L1759969037",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-4",
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13"
+      ],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-10": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-11": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-12": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-13": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-5": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-6": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-7": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8": 5.0,
+        "cc.testbase.TemplateMethod:sumArray:([I):I-9": 5.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 14,
+      "startTime": 54,
+      "updateTime": 54,
+      "op": 21,
+      "inst": "iload",
+      "addInfo": "3",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-8"
+      ],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:sumArray:([I):I-15": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:sumArray:([I):I",
+      "idx": 15,
+      "startTime": 55,
+      "updateTime": 55,
+      "op": 172,
+      "inst": "ireturn",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:sumArray:([I):I-14"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {}
+    }
+  ],
+  "firstReadLocalVars": [
+    11
+  ],
+  "firstReadFields": [],
+  "writeFields": {}
+}

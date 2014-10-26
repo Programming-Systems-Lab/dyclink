@@ -1,0 +1,73 @@
+{
+  "methodKey": "cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String",
+  "methodArgSize": 0,
+  "methodReturnSize": 1,
+  "staticMethod": false,
+  "path": [
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String",
+      "idx": 0,
+      "startTime": 0,
+      "updateTime": 0,
+      "op": 18,
+      "inst": "ldc",
+      "addInfo": "ret \u003e 5",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String-1": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String",
+      "idx": 1,
+      "startTime": 1,
+      "updateTime": 1,
+      "op": 176,
+      "inst": "areturn",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String-0"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {}
+    }
+  ],
+  "pool": [
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String",
+      "idx": 0,
+      "startTime": 0,
+      "updateTime": 0,
+      "op": 18,
+      "inst": "ldc",
+      "addInfo": "ret \u003e 5",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String-1": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String",
+      "idx": 1,
+      "startTime": 1,
+      "updateTime": 1,
+      "op": 176,
+      "inst": "areturn",
+      "addInfo": "",
+      "instDataParentList": [
+        "cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String-0"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {}
+    }
+  ],
+  "firstReadLocalVars": [],
+  "firstReadFields": [],
+  "writeFields": {}
+}

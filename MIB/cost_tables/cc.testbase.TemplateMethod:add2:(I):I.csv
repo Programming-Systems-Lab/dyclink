@@ -1,5 +1,0 @@
-head,cc.testbase.TemplateMethod:add2:(I):I 0 21 iload 1,cc.testbase.TemplateMethod:add2:(I):I 1 21 iload 1,cc.testbase.TemplateMethod:add2:(I):I 2 96 iadd ,cc.testbase.TemplateMethod:add2:(I):I 3 172 ireturn 
-cc.testbase.TemplateMethod:add2:(I):I 0 21 iload 1,0.0,0.0,1.0,0.0
-cc.testbase.TemplateMethod:add2:(I):I 1 21 iload 1,0.0,0.0,1.0,0.0
-cc.testbase.TemplateMethod:add2:(I):I 2 96 iadd ,0.0,0.0,0.0,1.0
-cc.testbase.TemplateMethod:add2:(I):I 3 172 ireturn ,0.0,0.0,0.0,0.0

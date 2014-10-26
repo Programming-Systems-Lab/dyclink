@@ -1,2 +1,0 @@
-cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String 0 18 ldc ret > 5
-cc.testbase.TemplateMethod:fakeString:():Ljava.lang.String 1 176 areturn 

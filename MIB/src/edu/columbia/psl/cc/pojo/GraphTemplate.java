@@ -1,12 +1,9 @@
 package edu.columbia.psl.cc.pojo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.columbia.psl.cc.datastruct.InstPool;
 
@@ -19,11 +16,6 @@ public class GraphTemplate {
 	private int methodReturnSize;
 	
 	private boolean staticMethod;
-	
-	//private Map<Integer, Integer> extMethods;
-	private List<ExtObj> extMethods;
-	
-	private ExtObj returnInfo;
 	
 	private List<InstNode> path;
 	
@@ -46,7 +38,6 @@ public class GraphTemplate {
 		this.staticMethod = copy.isStaticMethod();
 		this.firstReadFields = new HashSet<Integer>(copy.getFirstReadFields());
 		this.firstReadLocalVars = new HashSet<Integer>(copy.getFirstReadLocalVars());
-		this.extMethods = new ArrayList<ExtObj>();
 		
 		this.pool = new InstPool();
 		this.path = new ArrayList<InstNode>();
@@ -65,34 +56,6 @@ public class GraphTemplate {
 			InstNode fieldNode = this.pool.searchAndGet(copyNode.getFromMethod(), copyNode.getIdx());
 			this.writeFields.put(field, fieldNode);
 		}
-		
-		for (ExtObj from: copy.getExtMethods()) {
-			ExtObj eo = new ExtObj();
-			eo.setInstIdx(from.getInstIdx());
-			eo.setLineNumber(from.getLineNumber());
-			for (InstNode localInst: from.getLoadLocalInsts()) {
-				eo.addLoadLocalInst(this.pool.searchAndGet(localInst.getFromMethod(), localInst.getIdx()));
-			}
-			for (InstNode writeFieldInst: from.getWriteFieldInsts()) {
-				eo.addWriteFieldInst(this.pool.searchAndGet(writeFieldInst.getFromMethod(), writeFieldInst.getIdx()));
-			}
-			for (InstNode affFieldInst: from.getAffFieldInsts()) {
-				eo.addAffFieldInst(this.pool.searchAndGet(affFieldInst.getFromMethod(), affFieldInst.getIdx()));
-			}
-			this.extMethods.add(eo);
-		}
-		
-		this.returnInfo = new ExtObj();
-		this.returnInfo.setLineNumber(copy.getReturnInfo().getLineNumber());
-		for (InstNode localInst: copy.getReturnInfo().getLoadLocalInsts()) {
-			this.returnInfo.addLoadLocalInst(this.pool.searchAndGet(localInst.getFromMethod(), localInst.getIdx()));
-		}
-		for (InstNode writeFieldInst: copy.getReturnInfo().getWriteFieldInsts()) {
-			this.returnInfo.addWriteFieldInst(this.pool.searchAndGet(writeFieldInst.getFromMethod(), writeFieldInst.getIdx()));
-		}
-		for (InstNode affFieldInst: copy.getReturnInfo().getAffFieldInsts()) {
-			this.returnInfo.addAffFieldInst(this.pool.searchAndGet(affFieldInst.getFromMethod(), affFieldInst.getIdx()));
-		}
 	}
 		
 	public void setMethodKey(String methodKey) {
@@ -101,14 +64,6 @@ public class GraphTemplate {
 	
 	public String getMethodKey() {
 		return this.methodKey;
-	}
-	
-	public void setExtMethods(List<ExtObj> extMethods) {
-		this.extMethods = extMethods;
-	}
-	
-	public List<ExtObj> getExtMethods() {
-		return this.extMethods;
 	}
 	
 	public void setPath(List<InstNode> path) {
@@ -149,14 +104,6 @@ public class GraphTemplate {
 	
 	public boolean isStaticMethod() {
 		return this.staticMethod;
-	}
-	
-	public void setReturnInfo(ExtObj returnInfo) {
-		this.returnInfo = returnInfo;
-	}
-	
-	public ExtObj getReturnInfo() {
-		return this.returnInfo;
 	}
 	
 	public void setFirstReadLocalVars(HashSet<Integer> firstReadLocalVars) {

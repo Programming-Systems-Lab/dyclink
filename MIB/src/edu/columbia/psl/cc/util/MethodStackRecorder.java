@@ -65,9 +65,6 @@ public class MethodStackRecorder {
 	//Key: field name, Val: inst node
 	private Map<String, InstNode> fieldRecorder = new HashMap<String, InstNode>();
 	
-	//Val: line num, write field and load local vars
-	private List<ExtObj> extMethods = new ArrayList<ExtObj>();
-	
 	//Record which insts might be affected by input params
 	private HashSet<Integer> firstReadFields = new HashSet<Integer>();
 	
@@ -77,8 +74,6 @@ public class MethodStackRecorder {
 	private HashSet<Integer> firstReadLocalVars = new HashSet<Integer>();
 	
 	private HashSet<Integer> shouldRecordReadLocalVars = new HashSet<Integer>();
-	
-	private ExtObj returnEo = new ExtObj();
 	
 	private List<InstNode> path = new ArrayList<InstNode>();
 	
@@ -139,10 +134,6 @@ public class MethodStackRecorder {
 			return ;
 		
 		this.firstReadFields.add(fieldNode.getIdx());
-	}
-	
-	private void updateExtMethods(ExtObj eo) {
-		this.extMethods.add(eo);
 	}
 		
 	private void updatePath(InstNode fullInst) {
@@ -267,10 +258,6 @@ public class MethodStackRecorder {
 				InstNode parent = this.fieldRecorder.get(fieldKey);
 				if (parent != null)
 					this.updateCachedMap(parent, fullInst, MIBConfiguration.WRITE_DATA_DEP);
-				
-				if (this.extMethods.size() > 0) {
-					this.extMethods.get(this.extMethods.size() - 1).addAffFieldInst(fullInst);
-				}
 				
 				this.updateReadField(fullInst);
 			}
@@ -441,7 +428,7 @@ public class MethodStackRecorder {
 		this.showStackSimulator();
 	}
 	
-	private void handleUninstrumentedMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc, InstNode fullInst, ExtObj eo) {
+	private void handleUninstrumentedMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc, InstNode fullInst) {
 		System.out.println("Handling uninstrumented method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		this.updateTime(fullInst);
 		
@@ -458,9 +445,7 @@ public class MethodStackRecorder {
 			} else {
 				argSize += 1;
 			}
-			eo.addLoadLocalInst(this.stackSimulator.get(this.stackSimulator.size() - argSize));
 		}
-		this.updateExtMethods(eo);
 		
 		if (!BytecodeCategory.staticMethod().contains(opcode)) {
 			argSize++;
@@ -520,14 +505,9 @@ public class MethodStackRecorder {
 			System.out.println("Search key: " + searchKey);
 			InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, searchKey);
 			
-			ExtObj eo = new ExtObj();
 			//Don't update, because we will remove inst before leaving the method
 			//this.updateControlRelation(fullInst);
 			this.updatePath(fullInst);
-			
-			eo.setLineNumber(linenum);
-			eo.setInstIdx(instIdx);
-			this.updateExtMethods(eo);
 			
 			String filePath = MIBConfiguration.getInstance().getTemplateDir() + "/" + searchKey + ".json";
 			GraphTemplate childGraph = TemplateLoader.loadTemplateFile(filePath, graphToken);
@@ -535,7 +515,7 @@ public class MethodStackRecorder {
 			//This means that the callee method is from jvm, keep the method inst in graph
 			if (childGraph == null) {
 				System.out.println("Null graph: " + searchKey);
-				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst, eo);
+				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 				return ;
 			}
 			
@@ -595,10 +575,6 @@ public class MethodStackRecorder {
 						childPool, 
 						childGraph.getFirstReadFields(), 
 						childGraph.getMethodKey());
-				
-				for (InstNode inst: this.fieldRecorder.values()) {
-					eo.addWriteFieldInst(inst);
-				}
 			}
 			
 			if (childGraph.getWriteFields().size() > 0) {
@@ -617,48 +593,12 @@ public class MethodStackRecorder {
 				}
 			}
 			this.showStackSimulator();
-			System.out.println("Remove method node: " + fullInst + " " + this.pool.remove(fullInst));
-			//this.pool.remove(fullInst);
+			this.pool.remove(fullInst);
 			
 			GraphUtil.unionInstPools(this.pool, childPool);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		
-		/*Type methodType = Type.getMethodType(desc);
-		//+1 for object reference, if instance method
-		Type[] args = methodType.getArgumentTypes();
-		int argSize = 0;
-		for (int i = 0; i < args.length; i++) {
-			Type t = args[i];
-			if (t.getDescriptor().equals("D") || t.getDescriptor().equals("L")) {
-				argSize += 2;
-			} else {
-				argSize += 1;
-			}
-			eo.addLoadLocalInst(this.stackSimulator.get(this.stackSimulator.size() - argSize));
-		}
-		this.updateExtMethods(eo);
-		
-		if (!BytecodeCategory.staticMethod().contains(opcode)) {
-			argSize++;
-		}
-		System.out.println("Arg size: " + argSize);
-		String returnType = methodType.getReturnType().getDescriptor();
-		for (int i = 0; i < argSize; i++) {
-			InstNode tmpInst = this.safePop();
-			this.updateCachedMap(tmpInst, fullInst, false);
-			//this.updateInvokeMethod(methodKey, tmpInst);
-		}
-		
-		if (!returnType.equals("V")) {
-			if (returnType.equals("D") || returnType.equals("L")) {
-				this.updateStackSimulator(2, fullInst);
-			} else {
-				this.updateStackSimulator(1, fullInst);
-			}
-		}
-		this.showStackSimulator();*/
 	}
 	
 	public void handleDup(int opcode) {
@@ -764,8 +704,6 @@ public class MethodStackRecorder {
 		for (int i = 0; i < times; i++) {
 			this.stackSimulator.push(fullInst);
 		}
-		//System.out.println("Check data dep: " + this.dataDep);
-		//System.out.println("Check stack simulator: " + this.stackSimulator);
 	}
 	
 	private void showStackSimulator() {
@@ -816,24 +754,14 @@ public class MethodStackRecorder {
 	public void dumpGraph(boolean isTemplate) {		
 		//For serilization
 		GraphTemplate gt = new GraphTemplate();
-		if (this.path.size() > 1)
-			this.returnEo.addLoadLocalInst(this.path.get(this.path.size() - 2));
-		
-		if (this.fieldRecorder.size() > 0) {
-			for (InstNode inst: this.fieldRecorder.values()) {
-				this.returnEo.addWriteFieldInst(inst);
-			}
-		}
 		
 		gt.setMethodKey(this.methodKey);
 		gt.setMethodArgSize(this.methodArgSize);
 		gt.setMethodReturnSize(this.methodReturnSize);
 		gt.setStaticMethod(this.staticMethod);
-		gt.setExtMethods(this.extMethods);
 		gt.setFirstReadLocalVars(this.firstReadLocalVars);
 		gt.setFirstReadFields(this.firstReadFields);
 		gt.setWriteFields(this.fieldRecorder);
-		gt.setReturnInfo(this.returnEo);
 		gt.setPath(this.path);
 		
 		GraphUtil.transplantFirstSurrogate(this.pool);

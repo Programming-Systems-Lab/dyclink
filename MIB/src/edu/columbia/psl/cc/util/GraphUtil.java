@@ -447,23 +447,6 @@ public class GraphUtil {
 		}
 	}
 	
-	public static HashMap<Integer, GraphTemplate> collectChildGraphs(GraphTemplate parentGraph) {
-		String tempDir = MIBConfiguration.getInstance().getTemplateDir();
-		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
-		
-		HashMap<Integer, GraphTemplate> childGraphLib = new HashMap<Integer, GraphTemplate>();
-		for (ExtObj eo: parentGraph.getExtMethods()) {
-			int methodIdx = eo.getInstIdx();
-			InstNode methodInst = parentGraph.getInstPool().searchAndGet(parentGraph.getMethodKey(), methodIdx);
-			
-			String filePath = tempDir + "/" + methodInst.getAddInfo() + ".json";
-			GraphTemplate childGraph = TemplateLoader.loadTemplateFile(filePath, graphToken);
-			if (childGraph != null)
-				childGraphLib.put(methodIdx, childGraph);
-		}
-		return childGraphLib;
-	}
-	
 	public static double roundValue(double value) {
 		return Precision.round(value, MIBConfiguration.getInstance().getPrecisionDigit());
 	}

@@ -1,5 +1,0 @@
-head,cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList 0 187 new java/util/ArrayList,cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList 1 89 dup ,cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList 2 183 invokespecial java.util.ArrayList:init:():V,cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList 3 176 areturn 
-cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList 0 187 new java/util/ArrayList,0.0,0.0,1.0,1.0
-cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList 1 89 dup ,0.0,0.0,0.0,0.0
-cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList 2 183 invokespecial java.util.ArrayList:init:():V,0.0,0.0,0.0,0.0
-cc.testbase.TemplateMethod:setList:(Ljava.util.List):Ljava.util.ArrayList 3 176 areturn ,0.0,0.0,0.0,0.0

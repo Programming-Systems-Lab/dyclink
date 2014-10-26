@@ -1,6 +1,0 @@
-org.apache.commons.math3.linear.RealMatrixFormat:getInstance:(Ljava.util.Locale):Lorg.apache.commons.math3.linear.RealMatrixFormat 0 187 new org/apache/commons/math3/linear/RealMatrixFormat
-org.apache.commons.math3.linear.RealMatrixFormat:getInstance:(Ljava.util.Locale):Lorg.apache.commons.math3.linear.RealMatrixFormat 1 89 dup 
-org.apache.commons.math3.linear.RealMatrixFormat:getInstance:(Ljava.util.Locale):Lorg.apache.commons.math3.linear.RealMatrixFormat 2 25 aload 0
-org.apache.commons.math3.linear.RealMatrixFormat:getInstance:(Ljava.util.Locale):Lorg.apache.commons.math3.linear.RealMatrixFormat 3 184 invokestatic org.apache.commons.math3.util.CompositeFormat:getDefaultNumberFormat:(Ljava.util.Locale):Ljava.text.NumberFormat
-org.apache.commons.math3.linear.RealMatrixFormat:getInstance:(Ljava.util.Locale):Lorg.apache.commons.math3.linear.RealMatrixFormat 4 183 invokespecial org.apache.commons.math3.linear.RealMatrixFormat:init:(Ljava.text.NumberFormat):V
-org.apache.commons.math3.linear.RealMatrixFormat:getInstance:(Ljava.util.Locale):Lorg.apache.commons.math3.linear.RealMatrixFormat 5 176 areturn 
