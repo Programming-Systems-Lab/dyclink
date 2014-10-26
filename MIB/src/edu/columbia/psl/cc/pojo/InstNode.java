@@ -38,8 +38,8 @@ public class InstNode implements Comparable<InstNode>{
 	//For freq map, the key is the inst method + idx, and the value is the frequency
 	private TreeMap<String, Double> childFreqMap = new TreeMap<String, Double>();
 	
-	//Key surrogate id, value child node rep
-	private HashMap<String, Integer> surrogates = new HashMap<String, Integer>();
+	//Key child rep in callee method, val surrogate node
+	private transient HashSet<SurrogateInst> surrogates = new HashSet<SurrogateInst>();
 	
 	private Object relatedObj = null;
 	
@@ -72,11 +72,11 @@ public class InstNode implements Comparable<InstNode>{
 			this.instDataParentList.add(idxKey);
 		} else if (depType == MIBConfiguration.WRITE_DATA_DEP && !this.writeDataParentList.contains(idxKey)) {
 			this.writeDataParentList.add(idxKey);
-		} else if (depType == MIBConfiguration.CONTR_DEP && this.controlParentList.contains(idxKey)){
+		} else if (depType == MIBConfiguration.CONTR_DEP && !this.controlParentList.contains(idxKey)){
 			this.controlParentList.add(idxKey);
 		}
 	}
-	
+		
 	public void setInstDataParentList(ArrayList<String> instDataParentList) {
 		this.instDataParentList = instDataParentList;
 	}
@@ -183,12 +183,26 @@ public class InstNode implements Comparable<InstNode>{
 		return this.relatedObj;
 	}
 	
-	public void putSurrogate(String childNodeRep, int surrogateId) {
-		this.surrogates.put(childNodeRep, surrogateId);
+	public void addSurrogateInst(SurrogateInst surrogate) {
+		this.surrogates.add(surrogate);
 	}
 	
-	public HashMap<String, Integer> getSurrogates() {
+	public void setSurrogateInsts(HashSet<SurrogateInst> surrogates) {
+		this.surrogates = surrogates;
+	}
+	
+	public HashSet<SurrogateInst> getSurrogateInsts() {
 		return this.surrogates;
+	}
+	
+	public SurrogateInst searchSurrogateInst(String instKey) {
+		for (SurrogateInst sur: this.surrogates) {
+			if (sur.getRelatedChildMethodInst().equals(instKey)) {
+				return sur;
+			}
+		}
+		
+		return null;
 	}
 	
 	public void setMaxSurrogate(int baseId) {

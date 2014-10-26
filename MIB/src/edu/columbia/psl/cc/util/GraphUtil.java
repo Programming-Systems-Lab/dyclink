@@ -35,16 +35,42 @@ import edu.columbia.psl.cc.pojo.ExtObj;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
+import edu.columbia.psl.cc.pojo.SurrogateInst;
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.pojo.VarPair;
 
 public class GraphUtil {
 	
+	public static List<InstNode> sortInstPool(InstPool instPool, boolean byStartTime) {
+		Comparator<InstNode> comp = null;
+		
+		if (byStartTime) {
+			comp = new Comparator<InstNode>() {
+				@Override
+				public int compare(InstNode i1, InstNode i2) {
+					return i1.getStartTime() > i2.getStartTime()?1:(i1.getStartTime() < i2.getStartTime()?-1:0);
+				}
+			};
+		} else {
+			comp = new Comparator<InstNode>() {
+				
+				@Override
+				public int compare(InstNode i1, InstNode i2) {
+					return i1.getUpdateTime() > i2.getUpdateTime()?1:(i2.getUpdateTime() > i1.getUpdateTime()?-1: 0);
+				}
+			};
+		}
+		
+		List<InstNode> sortedList = new ArrayList<InstNode>(instPool);
+		Collections.sort(sortedList, comp);
+		return sortedList;
+	}
+	
 	public static InstNode lastSecondInst(InstPool instPool) {
 		if (instPool.size() == 0)
 			return null;
 		
-		Comparator<InstNode> updateComp = new Comparator<InstNode>() {
+		/*Comparator<InstNode> updateComp = new Comparator<InstNode>() {
 			
 			@Override
 			public int compare(InstNode i1, InstNode i2) {
@@ -52,7 +78,9 @@ public class GraphUtil {
 			}
 		};
 		List<InstNode> sortedList = new ArrayList<InstNode>(instPool);
-		Collections.sort(sortedList, updateComp);
+		Collections.sort(sortedList, updateComp);*/
+		
+		List<InstNode> sortedList = sortInstPool(instPool, false);
 		return sortedList.get(sortedList.size() - 1);
 	}
 	
@@ -99,7 +127,6 @@ public class GraphUtil {
 	}
 	
 	public static void transplantCalleeDepToCaller(InstNode parentNode, 
-			InstPool parentPool, 
 			InstNode childNode, 
 			InstPool childPool) {
 		String fInstKey = StringUtil.genIdxKey(childNode.getFromMethod(), childNode.getIdx());
@@ -161,66 +188,77 @@ public class GraphUtil {
 	 * @param forSurrogate
 	 * @return
 	 */
-	public static HashSet<InstNode> retrieveRequiredParentInsts(InstNode inst, InstPool pool, boolean forSurrogate) {
+	public static HashSet<InstNode> retrieveRequiredParentInsts(InstNode inst, InstPool pool, int depType) {
 		HashSet<InstNode> allParents = new HashSet<InstNode>();
 		
-		if (forSurrogate) {
+		if (depType == MIBConfiguration.CONTR_DEP) {
+			for (String cPParent: inst.getControlParentList()) {
+				InstNode cpNode = _retrieveRealInst(cPParent, pool);
+				allParents.add(cpNode);
+			}
+		} else if (depType == MIBConfiguration.INST_DATA_DEP) {
 			for (String dPParent: inst.getInstDataParentList()) {
 				InstNode ppNode = _retrieveRealInst(dPParent, pool);
 				allParents.add(ppNode);
 			}
-		} else {
+		} else if (depType == MIBConfiguration.WRITE_DATA_DEP) {
 			for (String dPParent: inst.getWriteDataParentList()) {
 				InstNode ppNode = _retrieveRealInst(dPParent, pool);
 				allParents.add(ppNode);
-			}
-			
-			for (String cPParent: inst.getControlParentList()) {
-				InstNode cpNode = _retrieveRealInst(cPParent, pool);
-				allParents.add(cpNode);
 			}
 		}
 		
 		return allParents;
 	}
 	
-	private static InstNode generateSurrogate(InstNode inst, InstPool pool) {
+	private static SurrogateInst generateSurrogate(InstNode inst, InstPool pool) {
 		//possible read: xload, getfield, getstatic, all method calls from jvm
 		String instKey = StringUtil.genIdxKey(inst.getFromMethod(), inst.getIdx());
-		HashSet<InstNode> allPPSet = retrieveRequiredParentInsts(inst, pool, false);
-		HashSet<InstNode> pChildSet = retrieveChildInsts(inst, pool);
-		if (inst.probeSurrogate() == 0 ) {
-			inst.setMaxSurrogate(inst.getIdx() * 10000);
+		
+		//For the first surrogate, don't copy parent for it. It's for storing children in method
+		boolean shouldCopyParent = true;
+		SurrogateInst newSur = new SurrogateInst(inst);
+		if (inst.probeSurrogate() == 0) {
+			inst.setMaxSurrogate(inst.getIdx() * MIBConfiguration.getInstance().getIdxExpandFactor());
+			shouldCopyParent = false;
+			
+			newSur.getInstDataParentList().clear();
+			newSur.getWriteDataParentList().clear();
+			newSur.getControlParentList().clear();
+			newSur.getChildFreqMap().clear();
+			newSur.setIdx(inst.getIdx());
+		} else {
+			newSur.setIdx(inst.getMaxSurrogate());
+			pool.add(newSur);
 		}
 		
-		InstNode newSur = new InstNode(inst);
-		newSur.setIdx(inst.getMaxSurrogate());
+		inst.addSurrogateInst(newSur);
 		//Construct new inst data parent
 		newSur.getInstDataParentList().clear();
 		
-		for (InstNode pp: allPPSet) {
-			double freq = pp.getChildFreqMap().get(instKey);
-			pp.increChild(newSur.getFromMethod(), newSur.getIdx(), freq);
-		}
-		
-		for (InstNode c: pChildSet) {
-			if (c.getControlParentList().contains(inst.getIdx())) {
-				c.registerParent(newSur.getFromMethod(), newSur.getIdx(), MIBConfiguration.CONTR_DEP);
-			} else if (c.getInstDataParentList().contains(inst.getIdx())) {
-				c.registerParent(newSur.getFromMethod(), newSur.getIdx(), MIBConfiguration.INST_DATA_DEP);
-			} else if (c.getWriteDataParentList().contains(inst.getIdx())) {
-				c.registerParent(newSur.getFromMethod(), newSur.getIdx(), MIBConfiguration.WRITE_DATA_DEP);
+		if (shouldCopyParent) {
+			HashSet<InstNode> controlSet = retrieveRequiredParentInsts(inst, pool, MIBConfiguration.CONTR_DEP);
+			for (InstNode instNode: controlSet) {
+				double freq = instNode.getChildFreqMap().get(instKey);
+				instNode.increChild(newSur.getFromMethod(), newSur.getIdx(), freq);
+				newSur.registerParent(instNode.getFromMethod(), instNode.getIdx(), MIBConfiguration.CONTR_DEP);
+			}
+			
+			HashSet<InstNode> writeSet = retrieveRequiredParentInsts(inst, pool, MIBConfiguration.WRITE_DATA_DEP);
+			for (InstNode instNode: writeSet) {
+				double freq = instNode.getChildFreqMap().get(instKey);
+				instNode.increChild(newSur.getFromMethod(), newSur.getIdx(), freq);
+				newSur.registerParent(instNode.getFromMethod(), instNode.getIdx(), MIBConfiguration.WRITE_DATA_DEP);
+			}
+			
+			HashSet<InstNode> instParents = retrieveRequiredParentInsts(inst, pool, MIBConfiguration.INST_DATA_DEP);
+			for (InstNode instParent: instParents) {
+				SurrogateInst surParent = generateSurrogate(instParent, pool);
+				
+				surParent.increChild(surParent.getFromMethod(), surParent.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
+				newSur.registerParent(surParent.getFromMethod(), surParent.getIdx(), MIBConfiguration.INST_DATA_DEP);
 			}
 		}
-		
-		HashSet<InstNode> instParents = retrieveRequiredParentInsts(inst, pool, true);
-		for (InstNode instParent: instParents) {
-			InstNode surParent = generateSurrogate(instParent, pool);
-			
-			surParent.increChild(surParent.getFromMethod(), surParent.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
-			newSur.registerParent(surParent.getFromMethod(), surParent.getIdx(), MIBConfiguration.INST_DATA_DEP);
-		}
-		pool.add(newSur);
 		
 		return newSur;
 	}
@@ -237,7 +275,7 @@ public class GraphUtil {
 			if (fInst == null)
 				continue ;
 			
-			int idx =Integer.valueOf(fInst.getAddInfo());
+			int idx = Integer.valueOf(fInst.getAddInfo());
 			
 			if (parentMap.containsKey(idx)) {
 				if (childSummary.containsKey(idx)) {
@@ -254,18 +292,78 @@ public class GraphUtil {
 			List<InstNode> childInsts = childSummary.get(varKey);
 			InstNode parentNode = parentMap.get(varKey);
 			
-			if (parentNode != null) {				
+			if (parentNode != null) {
+				boolean initSur = false;
 				for (InstNode cInst: childInsts) {
 					String cInstKey = StringUtil.genIdxKey(cInst.getFromMethod(), cInst.getIdx());
 					
 					//Check if the surrogate exists in parent pool
-					if (parentNode.getSurrogates().containsKey(cInstKey)) {
-						InstNode surrogate = parentPool.searchAndGet(parentNode.getFromMethod(), parentNode.getSurrogates().get(cInstKey));
-						transplantCalleeDepToCaller(surrogate, parentPool, cInst, childPool);
+					SurrogateInst surrogate = parentNode.searchSurrogateInst(cInstKey);
+					if (surrogate != null) {
+						transplantCalleeDepToCaller(surrogate, cInst, childPool);
 					} else {
-						InstNode newSur = generateSurrogate(parentNode, parentPool);
-						parentNode.putSurrogate(cInstKey, newSur.getIdx());
-						transplantCalleeDepToCaller(newSur, parentPool, cInst, childPool);
+						surrogate = generateSurrogate(parentNode, parentPool);
+						surrogate.setRelatedChildMethodInst(cInstKey);
+						transplantCalleeDepToCaller(surrogate, cInst, childPool);
+						
+						if (surrogate.getIdx() == parentNode.getIdx()) {
+							initSur = true;
+						}
+					}
+					System.out.println("Check surrogate++: " + surrogate);
+					System.out.println(surrogate.getChildFreqMap());
+				}
+				
+				/*if (initSur) {
+					//Transplant the first surrogate's children in method to parentNode
+					int removeSurId = parentNode.getIdx() * MIBConfiguration.getInstance().getIdxExpandFactor();
+					InstNode minSur = parentPool.searchAndGet(parentNode.getFromMethod(), removeSurId);
+					SurrogateInst decMinSur = (SurrogateInst)minSur;
+					
+					//Create a surrogate for parent itself
+					SurrogateInst mySur = new SurrogateInst(parentNode);
+					mySur.setRelatedChildMethodInst(decMinSur.getRelatedChildMethodInst());
+					transplantCalleeDepToCaller(mySur, decMinSur, childPool);
+					
+					parentNode.addSurrogateInst(mySur);
+					parentNode.getSurrogateInsts().remove(decMinSur);
+					parentPool.remove(minSur);
+					
+					//transplantCalleeDepToCaller(parentNode, my)
+				}*/
+			}
+		}
+	}
+	
+	/**
+	 * This step is done right before dumping graph
+	 * Transplant the surrogate to the real inst in pool
+	 * @param pool
+	 */
+	public static void transplantFirstSurrogate(InstPool pool) {
+		for (InstNode inst: pool) {
+			if (inst.getSurrogateInsts().size() == 0)
+				continue ;
+			
+			for (SurrogateInst si: inst.getSurrogateInsts()) {
+				if (si.getIdx() == inst.getIdx()) {
+					
+					//This si is only possible have control parent and data child (inst)
+					for (String childInst: si.getChildFreqMap().keySet()) {
+						double freq = si.getChildFreqMap().get(childInst);
+						String[] cDecomp = StringUtil.parseIdxKey(childInst);
+						inst.increChild(cDecomp[0], Integer.valueOf(cDecomp[1]), freq);
+					}
+					
+					for (String controlP: si.getControlParentList()) {
+						String[] conDecomp = StringUtil.parseIdxKey(controlP);
+						inst.registerParent(conDecomp[0], Integer.valueOf(conDecomp[1]), MIBConfiguration.CONTR_DEP);
+					}
+					
+					//Almost impossible to have write data dep
+					for (String writeP: si.getWriteDataParentList()) {
+						String[] writeDecomp = StringUtil.parseIdxKey(writeP);
+						inst.registerParent(writeDecomp[0], Integer.valueOf(writeDecomp[1]), MIBConfiguration.WRITE_DATA_DEP);
 					}
 				}
 			}
@@ -296,14 +394,16 @@ public class GraphUtil {
 	}
 	
 	public static void controlDepFromParentToChild(InstNode controlFromParent, InstPool childPool) {
-		Comparator<InstNode> startTimeComp = new Comparator<InstNode>() {
+		/*omparator<InstNode> startTimeComp = new Comparator<InstNode>() {
 			@Override
 			public int compare(InstNode i1, InstNode i2) {
 				return i1.getStartTime() > i2.getStartTime()?1:(i1.getStartTime() < i2.getStartTime()?-1:0);
 			}
 		};
 		ArrayList<InstNode> sortedChild = new ArrayList<InstNode>(childPool);
-		Collections.sort(sortedChild, startTimeComp);
+		Collections.sort(sortedChild, startTimeComp);*/
+		
+		List<InstNode> sortedChild = sortInstPool(childPool, true);
 		
 		HashSet<InstNode> affectedSet = new HashSet<InstNode>();
 		for (InstNode inst: sortedChild) {

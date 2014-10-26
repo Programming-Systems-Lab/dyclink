@@ -281,8 +281,6 @@ public class TemplateMethod extends TemplateParent{
 		int a = 2;
 		int[] b = {3, 4, 7};
 		tm.forMethod();
-		AtomicInteger in = new AtomicInteger();
-		System.out.println(in.getAndIncrement());
 		/*TemplateParent tp = new TemplateMethod();
 		tp.interestingMethod();*/
 		

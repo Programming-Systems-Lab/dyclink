@@ -80,6 +80,8 @@ public class MIBConfiguration {
 	
 	private double writeDataWeight;
 	
+	private int idxExpandFactor;
+	
 	private int precisionDigit;
 	
 	//private static int parallelFactor = Runtime.getRuntime().availableProcessors();
@@ -248,6 +250,14 @@ public class MIBConfiguration {
 	public void setWriteDataWeight(double writeDataWeight) {
 		this.writeDataWeight = writeDataWeight;
 	}
+	
+	public int getIdxExpandFactor() {
+		return this.idxExpandFactor;
+	}
+	
+	public void setIdxExpandFactor(int idxExpandFactor) {
+		this.idxExpandFactor = idxExpandFactor;
+	}
 
 	public int getPrecisionDigit() {
 		return precisionDigit;
@@ -361,6 +371,7 @@ public class MIBConfiguration {
 		sb.append("control weigtht: " + this.controlWeight + "\n");
 		sb.append("inst data weigtht: " + this.instDataWeight + "\n");
 		sb.append("write data weight: " + this.writeDataWeight + "\n");
+		sb.append("idx expand factor: " + this.idxExpandFactor + "\n");
 		sb.append("precision digit: " + this.precisionDigit + "\n");
 		sb.append("parallel factor: " + this.parallelFactor + "\n");
 		sb.append("annotation guard: " + this.annotGuard + "\n");

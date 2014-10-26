@@ -32,6 +32,7 @@ import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.pojo.StaticRep;
+import edu.columbia.psl.cc.pojo.SurrogateInst;
 import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class MethodStackRecorder {
@@ -163,49 +164,37 @@ public class MethodStackRecorder {
 			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
 			child.registerParent(parent.getFromMethod(), parent.getIdx(), depType);
 		} else if (depType == MIBConfiguration.WRITE_DATA_DEP) {
+			//write data dep only needs to be recorded once
+			String childIdxKey = StringUtil.genIdxKey(child.getFromMethod(), child.getIdx());
+			if (parent.getChildFreqMap().containsKey(childIdxKey))
+				return ;
+			
 			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getWriteDataWeight());
 			child.registerParent(parent.getFromMethod(), parent.getIdx(), depType);
+			
+			if (child.getSurrogateInsts().size() > 0) {
+				for (SurrogateInst surNode: child.getSurrogateInsts()) {
+					if (surNode.equals(child))
+						continue ;
+					
+					parent.increChild(surNode.getFromMethod(), surNode.getIdx(), MIBConfiguration.getInstance().getWriteDataWeight());
+					surNode.registerParent(parent.getFromMethod(), parent.getIdx(), depType);
+				}
+			}
 		} else if (depType == MIBConfiguration.CONTR_DEP) {
 			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getControlWeight());
 			child.registerParent(parent.getFromMethod(), parent.getIdx(), depType);
+			
+			if (child.getSurrogateInsts().size() > 0) {
+				for (SurrogateInst surNode: child.getSurrogateInsts()) {
+					if (surNode.equals(child))
+						continue ;
+					
+					parent.increChild(surNode.getFromMethod(), surNode.getIdx(), MIBConfiguration.getInstance().getControlWeight());
+					surNode.registerParent(parent.getFromMethod(), parent.getIdx(), depType);
+				}
+			}
 		}
-		
-		/*if (isControl) {
-			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getControlWeight());
-			child.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);
-			
-			//p->surC, surC->p
-			for (Integer i: child.getSurrogates().values()) {
-				InstNode sur = this.pool.searchAndGet(child.getFromMethod(), i);
-				parent.increChild(child.getFromMethod(), sur.getIdx(), MIBConfiguration.getInstance().getControlWeight());
-				sur.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);
-			}
-			
-			//surP->surC
-			for (Integer i: parent.getSurrogates().values()) {
-				InstNode sur = this.pool.searchAndGet(parent.getFromMethod(), i);
-				sur.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getControlWeight());
-			}
-			
-			for (Integer i: child.getSurrogates().values()) {
-				InstNode sur = this.pool.searchAndGet(child.getFromMethod(), i);
-				sur.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);
-			}
-		} else {
-			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getDataWeight());
-			child.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);
-			
-			for (Integer i: parent.getSurrogates().values()) {
-				InstNode sur = this.pool.searchAndGet(parent.getFromMethod(), i);
-				sur.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getDataWeight());
-			}
-			
-			for (Integer i: child.getSurrogates().values()) {
-				InstNode sur = this.pool.searchAndGet(child.getFromMethod(), i);
-				sur.registerParent(parent.getFromMethod(), parent.getIdx(), isControl);
-			}
-		}*/
-		//System.out.println("Update map: " + this.dataDep);
 	}
 	
 	private synchronized InstNode safePop() {
@@ -368,7 +357,7 @@ public class MethodStackRecorder {
 			lastInst = stackSimulator.peek();
 		}
 		
-		if (!BytecodeCategory.dupCategory().contains(opcode)) {
+		if (!BytecodeCategory.dupCategory().contains(opcat)) {
 			//Dup inst will be replaced later. No need to add any dep
 			this.updateControlRelation(fullInst);
 		}
@@ -561,7 +550,7 @@ public class MethodStackRecorder {
 			int reBase = GraphUtil.reindexInstPool(baseTime, childPool);
 			this.curTime.set(reBase);
 			
-			//Search correct inst on inst, update local data dep dependency
+			//Search correct inst, update local data dep dependency
 			HashMap<Integer, InstNode> parentFromCaller = new HashMap<Integer, InstNode>();
 			if (args.length > 0) {
 				int startIdx = 0;
@@ -628,7 +617,8 @@ public class MethodStackRecorder {
 				}
 			}
 			this.showStackSimulator();
-			this.pool.remove(fullInst);
+			System.out.println("Remove method node: " + fullInst + " " + this.pool.remove(fullInst));
+			//this.pool.remove(fullInst);
 			
 			GraphUtil.unionInstPools(this.pool, childPool);
 		} catch (Exception ex) {
@@ -786,14 +776,13 @@ public class MethodStackRecorder {
 		if (this.curControlInst != null) {
 			//System.out.println("Check current control inst label: " + curControlInst.getAddInfo());
 			//System.out.println("Check current label: " + this.curLabel);
+			//System.out.println("Check fullInst: " + fullInst);
 			int cCatId = curControlInst.getOp().getCatId();
 			
+			//Get the last second, because the current node is in the pool
 			InstNode lastNode = null;
-			/*if (this.path.size() > 0)
-				lastNode = this.path.get(this.path.size() - 1);*/
-			
-			if (this.stackSimulator.size() > 0)
-				lastNode = this.stackSimulator.peek();
+			if (this.path.size() > 0)
+				lastNode = this.path.get(this.path.size() - 1);
 			
 			if (BytecodeCategory.controlCategory().contains(cCatId)) {
 				if (lastNode != null && lastNode.equals(this.curControlInst)) {
@@ -847,8 +836,9 @@ public class MethodStackRecorder {
 		gt.setReturnInfo(this.returnEo);
 		gt.setPath(this.path);
 		
-		System.out.println("Instruction dependency:");
+		GraphUtil.transplantFirstSurrogate(this.pool);
 		
+		System.out.println("Instruction dependency:");
 		int depCount = 0;
 		Iterator<InstNode> instIterator = this.pool.iterator();
 		while (instIterator.hasNext()) {

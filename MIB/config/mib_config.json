@@ -12,6 +12,7 @@
     "controlWeight": 1.0,
     "instDataWeight": 1.0,
     "writeDataWeight": 1.0,
+    "idxExpandFactor": 10000,
     "precisionDigit": 5,
     "parallelFactor": 8,
     "annotGuard": false,

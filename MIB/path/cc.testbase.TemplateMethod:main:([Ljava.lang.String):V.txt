@@ -21,12 +21,4 @@ cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 19 79 iastore
 cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 20 58 astore 4
 cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 21 25 aload 2
 cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 22 182 invokevirtual cc.testbase.TemplateMethod:forMethod:():V
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 23 187 new java/util/concurrent/atomic/AtomicInteger
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 24 89 dup 
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 25 183 invokespecial java.util.concurrent.atomic.AtomicInteger:init:():V
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 26 58 astore 5
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 27 178 getstatic java.lang.System.out.Ljava/io/PrintStream;
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 28 25 aload 5
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 29 182 invokevirtual java.util.concurrent.atomic.AtomicInteger:getAndIncrement:():I
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 30 182 invokevirtual java.io.PrintStream:println:(I):V
-cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 31 177 return 
+cc.testbase.TemplateMethod:main:([Ljava.lang.String):V 23 177 return 
