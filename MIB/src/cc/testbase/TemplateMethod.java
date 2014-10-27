@@ -157,8 +157,10 @@ public class TemplateMethod extends TemplateParent{
 	}
 	
 	@extractTemplate
-	public String fakeString() {
-		return "ret > 5";
+	public String fakeString(int input) {
+		int a = input + 5;
+		String ret = "ret > 5: " + input;
+		return ret;
 	}
 	
 	@extractTemplate
@@ -183,7 +185,7 @@ public class TemplateMethod extends TemplateParent{
 		int c = a + b + this.pVar;
 		String ret = "";
 		if (c > 5) {
-			ret = fakeString(); 
+			ret = fakeString(c); 
 		} else {
 			ret = "ret <= 5";
 		}
@@ -326,6 +328,13 @@ public class TemplateMethod extends TemplateParent{
 		System.out.println(methodType.getReturnType().getDescriptor());
 		System.out.println(methodType.getArgumentTypes().length);
 		System.out.println(methodType.getArgumentsAndReturnSizes());*/
+		
+		/*long[] longArray = new long[5];
+		System.out.println(Type.getType(longArray.getClass()).getElementType());
+		long longVar = 5;
+		System.out.println(Type.LONG_TYPE);
+		System.out.println(Type.DOUBLE_TYPE);
+		System.out.println(Type.INT_TYPE);*/
 	}
 	
 	public int empty(int a, double b) {

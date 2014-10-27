@@ -438,7 +438,7 @@ public class MethodStackRecorder {
 		int argSize = 0;
 		for (int i = 0; i < args.length; i++) {
 			Type t = args[i];
-			if (t.getDescriptor().equals("D") || t.getDescriptor().equals("L")) {
+			if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
 				argSize += 2;
 			} else {
 				argSize += 1;
@@ -457,7 +457,7 @@ public class MethodStackRecorder {
 		}
 		
 		if (!returnType.equals("V")) {
-			if (returnType.equals("D") || returnType.equals("L")) {
+			if (returnType.equals("D") || returnType.equals("J")) {
 				this.updateStackSimulator(2, fullInst);
 			} else {
 				this.updateStackSimulator(1, fullInst);
@@ -507,7 +507,12 @@ public class MethodStackRecorder {
 			//this.updateControlRelation(fullInst);
 			this.updatePath(fullInst);
 			
-			String filePath = MIBConfiguration.getInstance().getTemplateDir() + "/" + searchKey + ".json";
+			String filePath = "";
+			if (MIBConfiguration.getInstance().isTemplateMode()) {
+				filePath = MIBConfiguration.getInstance().getTemplateDir() + "/" + searchKey + ".json";
+			} else {
+				filePath = MIBConfiguration.getInstance().getTestDir() + "/" + searchKey + ".json";
+			}
 			GraphTemplate childGraph = TemplateLoader.loadTemplateFile(filePath, graphToken);
 			
 			//This means that the callee method is from jvm, keep the method inst in graph
@@ -540,7 +545,7 @@ public class MethodStackRecorder {
 				for (int i = args.length - 1; i >= 0 ;i--) {
 					Type t = args[i];
 					InstNode targetNode = null;
-					if (t.getDescriptor().equals("D") || t.getDescriptor().equals("L")) {
+					if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
 						this.safePop();
 						targetNode = this.safePop();
 					} else {
@@ -582,7 +587,7 @@ public class MethodStackRecorder {
 			String returnType = methodType.getReturnType().getDescriptor();
 			if (!returnType.equals("V")) {
 				InstNode lastSecond = GraphUtil.lastSecondInst(childGraph.getInstPool());
-				if (returnType.equals("D") || returnType.equals("L")) {
+				if (returnType.equals("D") || returnType.equals("J")) {
 					if (lastSecond != null)
 						this.updateStackSimulator(2, lastSecond);
 				} else {
@@ -748,7 +753,7 @@ public class MethodStackRecorder {
 		}
 	}
 	
-	public void dumpGraph(boolean isTemplate) {		
+	public void dumpGraph() {		
 		//For serilization
 		GraphTemplate gt = new GraphTemplate();
 		
@@ -782,7 +787,7 @@ public class MethodStackRecorder {
 		
 		TypeToken<GraphTemplate> typeToken = new TypeToken<GraphTemplate>(){};
 		
-		if (isTemplate) {
+		if (MIBConfiguration.getInstance().isTemplateMode()) {
 			GsonManager.writeJsonGeneric(gt, this.methodKey, typeToken, 0);
 		} else {
 			GsonManager.writeJsonGeneric(gt, this.methodKey, typeToken, 1);

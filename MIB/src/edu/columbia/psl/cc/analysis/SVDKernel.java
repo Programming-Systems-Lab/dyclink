@@ -258,8 +258,9 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 		
 		@Override
 		public double[] call() throws Exception {
+			System.out.println("SVD decompose: " + methodName);
 			double[] ret = SVDKernel.getSingularVector(adjMatrix);
-			System.out.println(methodName + " singular vector: " + Arrays.toString(ret));
+			System.out.println(Arrays.toString(ret));
 			return ret;
 		}
 	}

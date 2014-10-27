@@ -161,11 +161,17 @@ public class GraphUtil {
 			String[] keySet = StringUtil.parseIdxKey(cont);
 			int cIdx = Integer.valueOf(keySet[1]);
 			InstNode contNode = childPool.searchAndGet(keySet[0], cIdx);
+			System.out.println("Attempt: " + cont);
+			System.out.println("Child node: " + fInstKey);
+			System.out.println("Parent node: " + parentNode);
 			double freq = contNode.getChildFreqMap().get(fInstKey);
 			
 			if (parentNode != null) {
 				contNode.increChild(parentNode.getFromMethod(), parentNode.getIdx(), freq);
+				parentNode.registerParent(contNode.getFromMethod(), contNode.getIdx(), MIBConfiguration.CONTR_DEP);
 			}
+			System.out.println("Check parentNode cont parent: " + parentNode.getControlParentList());
+			System.out.println("Check cont parent child list: " + contNode.getChildFreqMap());
 		}
 		
 		//Remove these first read local vars from child pool, 
@@ -387,15 +393,6 @@ public class GraphUtil {
 	}
 	
 	public static void controlDepFromParentToChild(InstNode controlFromParent, InstPool childPool) {
-		/*omparator<InstNode> startTimeComp = new Comparator<InstNode>() {
-			@Override
-			public int compare(InstNode i1, InstNode i2) {
-				return i1.getStartTime() > i2.getStartTime()?1:(i1.getStartTime() < i2.getStartTime()?-1:0);
-			}
-		};
-		ArrayList<InstNode> sortedChild = new ArrayList<InstNode>(childPool);
-		Collections.sort(sortedChild, startTimeComp);*/
-		
 		List<InstNode> sortedChild = sortInstPool(childPool, true);
 		
 		HashSet<InstNode> affectedSet = new HashSet<InstNode>();
@@ -432,11 +429,52 @@ public class GraphUtil {
 		pool.remove(returnInst);
 	}
 	
+	public static void unionInst(String instParent, 
+			InstNode parentNode, InstNode childNode, 
+			InstPool parentPool, InstPool childPool, int depType) {
+		String[] keys = StringUtil.parseIdxKey(instParent);
+		InstNode instParentNode = childPool.searchAndGet(keys[0], Integer.valueOf(keys[1]));
+		String childInstKey = StringUtil.genIdxKey(childNode.getFromMethod(), childNode.getIdx());
+		if (!parentNode.getInstDataParentList().contains(instParent)) {
+			parentNode.registerParent(instParentNode.getFromMethod(), instParentNode.getIdx(), depType);
+		}
+		double freq = instParentNode.getChildFreqMap().get(childInstKey);
+		instParentNode.increChild(parentNode.getFromMethod(), parentNode.getIdx(), freq);
+	}
+	
 	public static void unionInstPools(InstPool parentPool, InstPool childPool) {
 		Iterator<InstNode> poolIt = childPool.iterator();
 		while (poolIt.hasNext()) {
 			InstNode childInst = poolIt.next();
-			parentPool.add(childInst);
+			
+			if (parentPool.contains(childInst)) {
+				InstNode sameInst = parentPool.searchAndGet(childInst.getFromMethod(), childInst.getIdx());
+				
+				for (String instParent: childInst.getInstDataParentList()) {
+					unionInst(instParent, sameInst, childInst, parentPool, childPool, MIBConfiguration.INST_DATA_DEP);
+				}
+				
+				for (String instParent: childInst.getWriteDataParentList()) {
+					unionInst(instParent, sameInst, childInst, parentPool, childPool, MIBConfiguration.WRITE_DATA_DEP);
+				}
+				
+				for (String instParent: childInst.getControlParentList()) {
+					unionInst(instParent, sameInst, childInst, parentPool, childPool, MIBConfiguration.CONTR_DEP);
+				}
+				
+				for (String ccKey: childInst.getChildFreqMap().keySet()) {
+					String[] ccKeys = StringUtil.parseIdxKey(ccKey);
+					double freq = childInst.getChildFreqMap().get(ccKey);
+					
+					String ccMethod = ccKeys[0];
+					int ccIdx = Integer.valueOf(ccKeys[1]);
+					sameInst.increChild(ccMethod, ccIdx, freq);
+					
+					//No need to register parent, because sameInst and childInst are the same
+				}
+			} else {
+				parentPool.add(childInst);
+			}
 		}
 	}
 	

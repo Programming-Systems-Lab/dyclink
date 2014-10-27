@@ -38,7 +38,7 @@ public class MIBConfiguration {
 	
 	private static String srGraphDump = "dumpGraph";
 	
-	private static String srGraphDumpDesc = "(Z)V";
+	private static String srGraphDumpDesc = "()V";
 	
 	private static String __mib_id_gen = "__MIB_ID_GEN";
 	
@@ -92,6 +92,10 @@ public class MIBConfiguration {
 	private boolean cleanTemplate;
 	
 	private boolean cleanTest;
+	
+	private boolean templateMode;
+	
+	private boolean overallAnalysis;
 	
 	private boolean debug;
 	
@@ -347,6 +351,22 @@ public class MIBConfiguration {
 		this.cleanTest = cleanTest;
 	}
 	
+	public boolean isTemplateMode() {
+		return this.templateMode;
+	}
+	
+	public void setTemplateMode(boolean templateMode) {
+		this.templateMode = templateMode;
+	}
+	
+	public boolean isOverallAnalysis() {
+		return this.overallAnalysis;
+	}
+	
+	public void setOverallAnalysis(boolean overallAnalysis) {
+		this.overallAnalysis = overallAnalysis;
+	}
+	
 	public boolean isDebug() {
 		return this.debug;
 	}
@@ -375,8 +395,10 @@ public class MIBConfiguration {
 		sb.append("precision digit: " + this.precisionDigit + "\n");
 		sb.append("parallel factor: " + this.parallelFactor + "\n");
 		sb.append("annotation guard: " + this.annotGuard + "\n");
-		sb.append("clean template" + this.cleanTemplate + "\n");
+		sb.append("clean template: " + this.cleanTemplate + "\n");
 		sb.append("clean test: " + this.cleanTest + "\n");
+		sb.append("template mode: " + this.templateMode + "\n");
+		sb.append("overall analysis: " + this.overallAnalysis + "\n");
 		sb.append("debug: " + this.debug + "\n");
 		return sb.toString();
 	}

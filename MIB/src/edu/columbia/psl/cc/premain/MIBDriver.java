@@ -46,43 +46,9 @@ public class MIBDriver {
 			Method mainMethod = targetClass.getMethod("main", String[].class);
 			mainMethod.invoke(null, (Object)newArgs);
 			
-			//Load templates for each analysis
-			File templateDir = new File(mConfig.getTemplateDir());
-			File testDir = new File(mConfig.getTestDir());
-			TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
-			HashMap<String, GraphTemplate> templates = TemplateLoader.loadTemplate(templateDir, graphToken);
-			HashMap<String, GraphTemplate> tests = TemplateLoader.loadTemplate(testDir, graphToken);
-			
-			//Put the analysis here temporarily
-			System.out.println("Dynamic Graph Analysis");
-			Analyzer<GraphTemplate> dynamicAnalyzer = new DynamicGraphAnalyzer();
-			dynamicAnalyzer.setTemplates(templates);
-			dynamicAnalyzer.setTests(tests);
-			dynamicAnalyzer.setAnnotGuard(mConfig.isAnnotGuard());
-			dynamicAnalyzer.analyzeTemplate();
-			
-			/*File labelDir = new File(MIBConfiguration.getLabelmapDir());
-			TypeToken<StaticRep> staticToken = new TypeToken<StaticRep>(){};
-			HashMap<String, StaticRep> allReps = TemplateLoader.loadTemplate(labelDir, staticToken);
-			
-			HashMap<String, StaticRep> templateReps = new HashMap<String, StaticRep>();
-			HashMap<String, StaticRep> testReps = new HashMap<String, StaticRep>();
-			
-			for (String name: allReps.keySet()) {
-				StaticRep sr = allReps.get(name);
-				
-				if (sr.isTemplate()) {
-					templateReps.put(name, sr);
-				} else {
-					testReps.put(name, sr);
-				}
+			if (mConfig.isOverallAnalysis()) {
+				AnalysisService.invokeFinalAnalysis(mConfig);
 			}
-			
-			System.out.println("Static Analysis");
-			Analyzer<StaticRep> staticAnalyzer = new StaticBytecodeCatAnalyzer();
-			staticAnalyzer.setTemplates(templateReps);
-			staticAnalyzer.setTests(testReps);
-			staticAnalyzer.analyzeTemplate();*/
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

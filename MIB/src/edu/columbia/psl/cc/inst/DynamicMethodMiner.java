@@ -414,11 +414,6 @@ public class DynamicMethodMiner extends MethodVisitor {
 			} else {
 				this.handleOpcode(opcode);
 				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
-				if (!this.annotGuard || this.isTemplate) {
-					this.mv.visitInsn(Opcodes.ICONST_1);
-				} else {
-					this.mv.visitInsn(Opcodes.ICONST_0);
-				}
 				this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srGraphDump, srGraphDumpDesc);
 				this.mv.visitInsn(opcode);
 			}

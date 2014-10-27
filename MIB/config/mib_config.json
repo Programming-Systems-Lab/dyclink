@@ -18,5 +18,7 @@
     "annotGuard": false,
     "cleanTemplate": true,
     "cleanTest": true,
+    "templateMode": true,
+    "overallAnalysis": true,
     "debug": true
 }
