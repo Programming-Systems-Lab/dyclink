@@ -150,7 +150,7 @@ public class MethodStackRecorder {
 		}
  	}
 	
-	private void updateCachedMap(InstNode parent, InstNode child, int depType) {
+	private void updateCachedMap(InstNode parent, InstNode child, int depType) {		
 		if (depType == MIBConfiguration.INST_DATA_DEP) {
 			parent.increChild(child.getFromMethod(), child.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
 			child.registerParent(parent.getFromMethod(), parent.getIdx(), depType);
@@ -376,8 +376,6 @@ public class MethodStackRecorder {
 			//Search local var recorder;
 			InstNode parentInst = this.localVarRecorder.get(localVarIdx);
 			if (parentInst != null) {
-				System.out.println("Access local var recorder: " + fullInst);
-				System.out.println(parentInst);
 				this.updateCachedMap(parentInst, fullInst, MIBConfiguration.WRITE_DATA_DEP);
 			}
 			
@@ -584,7 +582,6 @@ public class MethodStackRecorder {
 			String returnType = methodType.getReturnType().getDescriptor();
 			if (!returnType.equals("V")) {
 				InstNode lastSecond = GraphUtil.lastSecondInst(childGraph.getInstPool());
-				System.out.println("Check last second from child: " + lastSecond);
 				if (returnType.equals("D") || returnType.equals("L")) {
 					if (lastSecond != null)
 						this.updateStackSimulator(2, lastSecond);

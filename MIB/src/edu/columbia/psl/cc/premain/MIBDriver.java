@@ -36,7 +36,7 @@ public class MIBDriver {
 		String[] newArgs = new String[args.length - 1];
 		
 		for (int i = 1; i < args.length; i++) {
-			newArgs[i] = args[i];
+			newArgs[i - 1] = args[i];
 		}
 		
 		try {

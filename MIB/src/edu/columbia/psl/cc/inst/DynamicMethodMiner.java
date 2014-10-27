@@ -528,7 +528,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 	@Override
 	public void visitLdcInsn(Object cst) {
 		if (this.shouldInstrument() && !this.constructor) {
-			if (cst instanceof Double || cst instanceof Float) {
+			if (cst instanceof Double || cst instanceof Long) {
 				this.handleLdc(Opcodes.LDC, 2, cst.toString());
 			} else {
 				this.handleLdc(Opcodes.LDC, 1, cst.toString());

@@ -117,6 +117,8 @@ public class GraphUtil {
 		
 		//Remove from write data parent if any
 		for (String dp: inst.getWriteDataParentList()) {
+			System.out.println("Child node: " + inst);
+			System.out.println("Remove from parent node: " + dp);
 			_parentRemove(dp, pool, instKey);
 		}
 		
@@ -219,7 +221,7 @@ public class GraphUtil {
 		boolean shouldCopyParent = true;
 		SurrogateInst newSur = new SurrogateInst(inst);
 		if (inst.probeSurrogate() == 0) {
-			inst.setMaxSurrogate(inst.getIdx() * MIBConfiguration.getInstance().getIdxExpandFactor());
+			inst.setMaxSurrogate((inst.getIdx() + 1 ) * MIBConfiguration.getInstance().getIdxExpandFactor());
 			shouldCopyParent = false;
 			
 			newSur.getInstDataParentList().clear();
@@ -229,12 +231,11 @@ public class GraphUtil {
 			newSur.setIdx(inst.getIdx());
 		} else {
 			newSur.setIdx(inst.getMaxSurrogate());
+			newSur.getInstDataParentList().clear();
 			pool.add(newSur);
 		}
 		
 		inst.addSurrogateInst(newSur);
-		//Construct new inst data parent
-		newSur.getInstDataParentList().clear();
 		
 		if (shouldCopyParent) {
 			HashSet<InstNode> controlSet = retrieveRequiredParentInsts(inst, pool, MIBConfiguration.CONTR_DEP);
@@ -255,7 +256,7 @@ public class GraphUtil {
 			for (InstNode instParent: instParents) {
 				SurrogateInst surParent = generateSurrogate(instParent, pool);
 				
-				surParent.increChild(surParent.getFromMethod(), surParent.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
+				surParent.increChild(newSur.getFromMethod(), newSur.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
 				newSur.registerParent(surParent.getFromMethod(), surParent.getIdx(), MIBConfiguration.INST_DATA_DEP);
 			}
 		}
@@ -293,7 +294,6 @@ public class GraphUtil {
 			InstNode parentNode = parentMap.get(varKey);
 			
 			if (parentNode != null) {
-				boolean initSur = false;
 				for (InstNode cInst: childInsts) {
 					String cInstKey = StringUtil.genIdxKey(cInst.getFromMethod(), cInst.getIdx());
 					
@@ -305,13 +305,7 @@ public class GraphUtil {
 						surrogate = generateSurrogate(parentNode, parentPool);
 						surrogate.setRelatedChildMethodInst(cInstKey);
 						transplantCalleeDepToCaller(surrogate, cInst, childPool);
-						
-						if (surrogate.getIdx() == parentNode.getIdx()) {
-							initSur = true;
-						}
 					}
-					System.out.println("Check surrogate++: " + surrogate);
-					System.out.println(surrogate.getChildFreqMap());
 				}
 				
 				/*if (initSur) {
@@ -346,8 +340,7 @@ public class GraphUtil {
 				continue ;
 			
 			for (SurrogateInst si: inst.getSurrogateInsts()) {
-				if (si.getIdx() == inst.getIdx()) {
-					
+				if (si.getIdx() == inst.getIdx()) {					
 					//This si is only possible have control parent and data child (inst)
 					for (String childInst: si.getChildFreqMap().keySet()) {
 						double freq = si.getChildFreqMap().get(childInst);
