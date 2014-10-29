@@ -162,7 +162,7 @@ public class MethodMiner extends MethodVisitor{
 		OpcodeObj op = BytecodeCategory.getOpcodeObj(opcode);
 		InstNode inst = new InstNode();
 		inst.setOp(op);
-		inst.setVar(var);
+		//inst.setVar(var);
 		this.curBlock.addInst(inst);
 	}
 	

@@ -35,6 +35,10 @@ public class TemplateMethod extends TemplateParent{
 		this.test = test1;
 	}
 	
+	private  static int classAdd(int i) {
+		return i + i;
+	}
+	
 	@Override
 	public ArrayList setList(List l) {
 		return new ArrayList();
@@ -240,6 +244,10 @@ public class TemplateMethod extends TemplateParent{
 		}
 	}
 	
+	public void dummyObj(Object o) {
+		
+	}
+	
 	public void dummyFor(double[] a) {
 		int j = 5;
 		for (int i = 0; i < a.length; i++) {
@@ -272,19 +280,26 @@ public class TemplateMethod extends TemplateParent{
     }
 	
 	public void forMethod() {
-		TemplateMethod tm = new TemplateMethod();
 		for (int i = 0; i < 3; i++) {
-			int c = tm.add2(i);
+			int c = this.add2(i);
+		}
+	}
+	
+	public void forClassMethod() {
+		for (int i = 0; i < 3; i++) {
+			classAdd(i);
 		}
 	}
 		
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
+		//classAdd(5);
 		//int a = 2;
 		//int[] b = {3, 4, 7};
 		//tm.forMethod();
-		/*TemplateParent tp = new TemplateMethod();
-		tp.interestingMethod();*/
+		tm.forClassMethod();
+		//TemplateParent tp = new TemplateMethod();
+		//tp.interestingMethod();
 		
 		/*TemplateInterface ti = new TemplateMethod();
 		Integer i = new Integer(1);
@@ -299,7 +314,7 @@ public class TemplateMethod extends TemplateParent{
 		//System.out.println(tm.instanceMethod(2, b));
 		//System.out.println("Test add: " + tm.testAdd(2));
 		//System.out.println("Test add2: " + tm.testAdd2(5));
-		System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
+		//System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
 		/*System.out.println("TestMethod: " + tm.all3Methods(3, 5));
 		System.out.println("cc/testbase/TemplateMethod.iVar.I".split("\\.").length);
 		System.out.println(Type.INT);

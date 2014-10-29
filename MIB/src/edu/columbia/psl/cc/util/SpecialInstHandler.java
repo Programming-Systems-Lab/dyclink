@@ -38,7 +38,7 @@ public class SpecialInstHandler {
 		simulateBuf.addAll(inst.getOp().getInList());
 		
 		int count = 0;
-		for (int i = idx - 1; i >= 0; i--) {
+		/*for (int i = idx - 1; i >= 0; i--) {
 			InstNode curInst = insts.get(i);
 			simulateBuf.remove(simulateBuf.size() - 1);
 			if (DepInferenceEngine.noInput(curInst.getOp().getInList())) {
@@ -50,7 +50,7 @@ public class SpecialInstHandler {
 			
 			if (simulateBuf.size() == 0)
 				break ;
- 		}
+ 		}*/
 		return count;
 	}
 	
@@ -70,7 +70,7 @@ public class SpecialInstHandler {
 			if (simulateBuf.size() == 2)
 				shouldRecord = false;
 			
-			if (BytecodeCategory.dupCategory().contains(curInst.getOp().getCatId())) {
+			/*if (BytecodeCategory.dupCategory().contains(curInst.getOp().getCatId())) {
 				handleDup(curInst, simulateBuf);
 			} else {
 				simulateBuf.remove(simulateBuf.size() - 1);
@@ -79,14 +79,14 @@ public class SpecialInstHandler {
 				} else if (curInst.isLoad() && shouldRecord){
 					parentVars.add(curInst.getVar());
 				}
-			} 
+			}
 			
 			ret++;
 			
 			if (simulateBuf.size() == 0) {
 				childVar = curInst.getVar();
 				break ;
-			}
+			}*/
 		}
 		
 		if (childVar == null)

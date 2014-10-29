@@ -49,7 +49,7 @@ public class GraphVisualizer {
 			String pId = inst.getIdx() + " " + inst.getOp().getInstruction();
 			for (String c: inst.getChildFreqMap().keySet()) {
 				String[] idx = StringUtil.parseIdxKey(c);
-				InstNode cInst = template.getInstPool().searchAndGet(idx[0], Integer.valueOf(idx[1]));
+				InstNode cInst = template.getInstPool().searchAndGet(idx[0], Integer.valueOf(idx[1]), Integer.valueOf(idx[2]));
 				String cId = cInst.getIdx() + " " + cInst.getOp().getInstruction();
 				String eId = pId + "-" + cId;
 				

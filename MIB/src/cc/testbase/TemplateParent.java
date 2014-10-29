@@ -25,6 +25,10 @@ public class TemplateParent implements TemplateInterface{
 		return new RealMatrixFormat(CompositeFormat.getDefaultNumberFormat(locale));
 	}
 	
+	public static String classMethod() {
+		return "classMethod";
+	}
+	
 	public List setList(List list) {
 		return new ArrayList();
 	}

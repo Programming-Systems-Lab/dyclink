@@ -85,9 +85,9 @@ public class DepInferenceEngine {
 	
 	private static void constructRelation(Var parentVar, InstNode childInst) {
 		if (BytecodeCategory.readCategory().contains(childInst.getOp().getCatId())) {
-			parentVar.addChildren(childInst.getVar(), RelationManager.getControlRead());
+			//parentVar.addChildren(childInst.getVar(), RelationManager.getControlRead());
 		} else if (BytecodeCategory.writeCategory().contains(childInst.getOp().getCatId())) {
-			parentVar.addChildren(childInst.getVar(), RelationManager.getControlWrite());
+			//parentVar.addChildren(childInst.getVar(), RelationManager.getControlWrite());
 		}
 	}
 	
@@ -109,12 +109,12 @@ public class DepInferenceEngine {
 					System.out.println("In same scc: " + bn.getLabelObj().getOffset() + " " + child.getLabelObj().getOffset());
 					List<InstNode> insts = child.getInsts();
 					
-					for (InstNode inst: insts) {
+					/*for (InstNode inst: insts) {
 						if (inst.getVar() == null)
 							continue ;
 						
 						constructRelation(v, inst);
-					}
+					}*/
 				}
 			}
 		}
@@ -128,7 +128,7 @@ public class DepInferenceEngine {
 				return ;
 			
 			for (InstNode inst: insts) {
-				Var check = inst.getVar();
+				/*Var check = inst.getVar();
 				if (check instanceof LocalVar) {
 					LocalVar vCheck = (LocalVar)check;
 					List<LabelInterval> intervals = vCheck.getIntervals();
@@ -142,9 +142,9 @@ public class DepInferenceEngine {
 								vCheck.getLocalVarId(), 
 								bn.getLabelObj().getOffset(), 
 								true);
-						inst.setVar(newVar);
+						//inst.setVar(newVar);
 					}
-				}
+				}*/
 			}
 			
 		}
@@ -179,16 +179,16 @@ public class DepInferenceEngine {
 				shouldAnalyze = true;
 			}*/
 			
-			if (inst.isStore() || inst.isArrayStore()) {
+			/*if (inst.isStore() || inst.isArrayStore()) {
 				shouldAnalyze = true;
-			}
+			}*/
 			
 			if (shouldAnalyze) {
 				List<String> instInput = inst.getOp().getInList();			
 				List<String> instOutput = inst.getOp().getOutList();
 				
 				//Array store needs a forward analysis. Handle it in another class
-				if (inst.isArrayStore()) {
+				/*if (inst.isArrayStore()) {
 					int forward = SpecialInstHandler.locateChildVarForArrayStore(inst, insts, i);
 					i -= forward;					
 					continue ;
@@ -201,9 +201,9 @@ public class DepInferenceEngine {
 						curVar = inst.getVar();
 					
 					continue ;
-				}
+				}*/
 				
-				if (BytecodeCategory.dupCategory().contains(opcat)) {
+				/*if (BytecodeCategory.dupCategory().contains(opcat)) {
 					SpecialInstHandler.handleDup(inst, inferBuf);
 				} else if (!noInput(instInput)) {
 					inferBuf.remove(inferBuf.size() - 1);
@@ -222,7 +222,7 @@ public class DepInferenceEngine {
 						}
 					}
 					inferBuf.remove(inferBuf.size() - 1);
-				}
+				}*/
 				
 				if (inferBuf.size() == 0) {
 					inferBuf = null;

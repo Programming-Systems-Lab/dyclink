@@ -11,6 +11,8 @@ public class GraphTemplate {
 	
 	private String methodKey;
 	
+	private int methodId;
+	
 	private int methodArgSize;
 	
 	private int methodReturnSize;
@@ -21,11 +23,13 @@ public class GraphTemplate {
 	
 	private InstPool pool;
 	
-	private HashSet<Integer> firstReadLocalVars;
+	private HashSet<InstNode> firstReadLocalVars;
 	
-	private HashSet<Integer> firstReadFields;
+	private HashSet<InstNode> firstReadFields;
 	
 	private Map<String, InstNode> writeFields;
+	
+	private int maxTime;
 	
 	public GraphTemplate() {
 		
@@ -35,9 +39,11 @@ public class GraphTemplate {
 		this.methodKey = copy.getMethodKey();
 		this.methodArgSize = copy.getMethodArgSize();
 		this.methodReturnSize = copy.getMethodReturnSize();
+		this.methodId = copy.getMethodId();
 		this.staticMethod = copy.isStaticMethod();
-		this.firstReadFields = new HashSet<Integer>(copy.getFirstReadFields());
-		this.firstReadLocalVars = new HashSet<Integer>(copy.getFirstReadLocalVars());
+		this.firstReadFields = new HashSet<InstNode>(copy.getFirstReadFields());
+		this.firstReadLocalVars = new HashSet<InstNode>(copy.getFirstReadLocalVars());
+		this.maxTime = copy.getMaxTime();
 		
 		this.pool = new InstPool();
 		this.path = new ArrayList<InstNode>();
@@ -48,12 +54,12 @@ public class GraphTemplate {
 		
 		for (int i = 0; i < copy.getPath().size(); i++) {
 			InstNode pathNode = copy.getPath().get(i);
-			this.path.add(this.pool.searchAndGet(pathNode.getFromMethod(), pathNode.getIdx()));
+			this.path.add(this.pool.searchAndGet(pathNode.getFromMethod(), pathNode.getMethodId(), pathNode.getIdx()));
 		}
 		
 		for (String field: copy.getWriteFields().keySet()) {
 			InstNode copyNode = copy.getWriteFields().get(field);
-			InstNode fieldNode = this.pool.searchAndGet(copyNode.getFromMethod(), copyNode.getIdx());
+			InstNode fieldNode = this.pool.searchAndGet(copyNode.getFromMethod(), copyNode.getMethodId(), copyNode.getIdx());
 			this.writeFields.put(field, fieldNode);
 		}
 	}
@@ -106,19 +112,19 @@ public class GraphTemplate {
 		return this.staticMethod;
 	}
 	
-	public void setFirstReadLocalVars(HashSet<Integer> firstReadLocalVars) {
+	public void setFirstReadLocalVars(HashSet<InstNode> firstReadLocalVars) {
 		this.firstReadLocalVars = firstReadLocalVars;
 	}
 	
-	public HashSet<Integer> getFirstReadLocalVars() {
+	public HashSet<InstNode> getFirstReadLocalVars() {
 		return this.firstReadLocalVars;
 	}
 	
-	public void setFirstReadFields(HashSet<Integer> firstReadFields) {
+	public void setFirstReadFields(HashSet<InstNode> firstReadFields) {
 		this.firstReadFields = firstReadFields;
 	}
 	
-	public HashSet<Integer> getFirstReadFields() {
+	public HashSet<InstNode> getFirstReadFields() {
 		return this.firstReadFields;
 	}
 	
@@ -128,6 +134,22 @@ public class GraphTemplate {
 	
 	public Map<String, InstNode> getWriteFields() {
 		return writeFields;
+	}
+	
+	public void setMethodId(int methodId) {
+		this.methodId = methodId;
+	}
+	
+	public int getMethodId() {
+		return this.methodId;
+	}
+	
+	public void setMaxTime(int maxTime) {
+		this.maxTime = maxTime;
+	}
+	
+	public int getMaxTime() {
+		return this.maxTime;
 	}
 	
 	public void showGraph() {

@@ -10,8 +10,8 @@ import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class InstNode implements Comparable<InstNode>{
-	
-	private Var var;
+		
+	private int methodId;
 	
 	private int idx;
 	
@@ -48,6 +48,7 @@ public class InstNode implements Comparable<InstNode>{
 	}
 	
 	public InstNode(InstNode copy) {
+		this.methodId = copy.getMethodId();
 		this.idx = copy.getIdx();
 		this.startTime = copy.getStartTime();
 		this.updateTime = copy.getUpdateTime();
@@ -66,8 +67,8 @@ public class InstNode implements Comparable<InstNode>{
 	 * @param parentIdx
 	 * @param isControl
 	 */
-	public void registerParent(String fromMethod, int parentIdx, int depType) {
-		String idxKey = StringUtil.genIdxKey(fromMethod, parentIdx);
+	public void registerParent(String fromMethod, int methodIdx, int parentIdx, int depType) {
+		String idxKey = StringUtil.genIdxKey(fromMethod, methodIdx, parentIdx);
 		if (depType == MIBConfiguration.INST_DATA_DEP && !this.instDataParentList.contains(idxKey)) {
 			this.instDataParentList.add(idxKey);
 		} else if (depType == MIBConfiguration.WRITE_DATA_DEP && !this.writeDataParentList.contains(idxKey)) {
@@ -101,8 +102,8 @@ public class InstNode implements Comparable<InstNode>{
 		return this.controlParentList;
 	}
 	
-	public void increChild(String fromMethod, int childIdx, double amount) {
-		String idxKey = StringUtil.genIdxKey(fromMethod, childIdx);
+	public void increChild(String fromMethod, int methodIdx, int childIdx, double amount) {
+		String idxKey = StringUtil.genIdxKey(fromMethod, methodIdx, childIdx);
 		if (this.childFreqMap.containsKey(idxKey)) {
 			double count = this.childFreqMap.get(idxKey) + amount;
 			this.childFreqMap.put(idxKey, count);
@@ -117,6 +118,14 @@ public class InstNode implements Comparable<InstNode>{
 	
 	public TreeMap<String, Double> getChildFreqMap() {
 		return this.childFreqMap;
+	}
+	
+	public void setMethodId(int methodId) {
+		this.methodId = methodId;
+	}
+	
+	public int getMethodId() {
+		return this.methodId;
 	}
 	
 	public void setIdx(int idx) {
@@ -216,47 +225,10 @@ public class InstNode implements Comparable<InstNode>{
 	public int probeSurrogate() {
 		return this.maxSurrogate.get();
 	}
-			
-	public void setVar(Var v) {
-		this.var = v;
-	}
-	
-	public Var getVar() {
-		return this.var;
-	}
-	
-	public boolean isLoad() {
-		//Exclude aload series
-		if (this.getOp().getCatId() == 1)
-			return true;
-		else 
-			return false;
-	}
-	
-	public boolean isArrayLoad() {
-		if (this.getOp().getCatId() == 2)
-			return true;
-		else
-			return false;
-	}
-	
-	public boolean isStore() {
-		if (this.getOp().getCatId() == 3)
-			return true;
-		else 
-			return false;
-	}
-	
-	public boolean isArrayStore() {
-		if (this.getOp().getCatId() == 4)
-			return true;
-		else
-			return false;
-	}
 	
 	@Override
 	public String toString() {
-		return this.fromMethod + " " + this.idx + " " + this.op.getOpcode() + " " + this.op.getInstruction() + " " + this.getAddInfo();
+		return this.fromMethod + " " + this.methodId + " " + this.idx + " " + this.op.getOpcode() + " " + this.op.getInstruction() + " " + this.getAddInfo();
 	}
 	
 	@Override
@@ -279,11 +251,9 @@ public class InstNode implements Comparable<InstNode>{
 
 	@Override
 	public int compareTo(InstNode other) {
-		int methodCompare = this.getFromMethod().compareTo(other.getFromMethod());
-		if (methodCompare != 0)
-			return methodCompare;
-		else
-			return (this.getIdx() > other.getIdx())?1:((this.getIdx() < other.getIdx()))?-1:0;
+		String myKey = StringUtil.genIdxKey(this.getFromMethod(), this.getMethodId(), this.getIdx());
+		String otherKey = StringUtil.genIdxKey(other.getFromMethod(), other.getMethodId(), other.getIdx());
+ 		return myKey.compareTo(otherKey);
 	}
 
 }

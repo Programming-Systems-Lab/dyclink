@@ -94,9 +94,9 @@ public class RelationMiner {
 	}
 	
 	private void addChildrenToParent(InstNode parent, InstNode child) {
-		Var parentVar = parent.getVar();
-		Var childVar = child.getVar();
-		parentVar.addChildren(childVar);
+		//Var parentVar = parent.getVar();
+		//Var childVar = child.getVar();
+		//parentVar.addChildren(childVar);
 	}
 	
 	private void connectLastLoadWithCurBlock(InstNode lastLoad, BlockNode block) {
@@ -107,7 +107,7 @@ public class RelationMiner {
 	}
 	
 	private InstNode analyzeBlock(BlockNode block) {
-		List<InstNode> insts = block.getInsts();
+		/*List<InstNode> insts = block.getInsts();
 		Stack<InstNode> replayer = new Stack<InstNode>();
 		for (InstNode inst: insts) {
 			if (replayer.isEmpty()) {
@@ -134,7 +134,7 @@ public class RelationMiner {
 			if (potentialRet.isLoad()) {
 				return potentialRet;
 			}
-		}
+		}*/
 		
 		return null;
 	}

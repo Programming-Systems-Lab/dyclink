@@ -41,6 +41,57 @@ import edu.columbia.psl.cc.pojo.VarPair;
 
 public class GraphUtil {
 	
+	public static ArrayList<String> replaceMethodKeyInParentList(ArrayList<String> parents, String methodKey, int cMethodInvokeId) {
+		ArrayList<String> ret = new ArrayList<String>();
+		
+		for (String p: parents) {
+			String[] pKeys = StringUtil.parseIdxKey(p);
+			
+			if (pKeys[0].equals(methodKey) && Integer.valueOf(pKeys[1]) == 0) {
+				String newP = StringUtil.genIdxKey(pKeys[0], cMethodInvokeId, Integer.valueOf(pKeys[2]));
+				ret.add(newP);
+			} else {
+				ret.add(p);
+			}
+		}
+		
+		return ret;
+	}
+	
+	public static void setStaticMethodIdx(GraphTemplate graph, int cMethodInvokeId) {
+		InstPool pool = graph.getInstPool();
+		String methodKey = graph.getMethodKey();
+		
+		for (InstNode inst: pool) {
+			if (inst.getFromMethod().equals(methodKey) && inst.getMethodId() == 0) {
+				inst.setMethodId(cMethodInvokeId);
+			}
+			
+			if (inst.getInstDataParentList().size() > 0)
+				inst.setInstDataParentList(replaceMethodKeyInParentList(inst.getInstDataParentList(), methodKey, cMethodInvokeId));
+			if (inst.getWriteDataParentList().size() > 0)
+				inst.setWriteDataParentList(replaceMethodKeyInParentList(inst.getWriteDataParentList(), methodKey, cMethodInvokeId));
+			if (inst.getControlParentList().size() > 0)
+				inst.setControlParentList(replaceMethodKeyInParentList(inst.getControlParentList(), methodKey, cMethodInvokeId));
+			
+			if (inst.getChildFreqMap().size() > 0) {
+				TreeMap<String, Double> newChildMap = new TreeMap<String, Double>();
+				for (String childKey: inst.getChildFreqMap().keySet()) {
+					double freq = inst.getChildFreqMap().get(childKey);
+					
+					String[] cKeys = StringUtil.parseIdxKey(childKey);
+					if (cKeys[0].equals(methodKey) && Integer.valueOf(cKeys[1]) == 0) {
+						String newKey = StringUtil.genIdxKey(cKeys[0], cMethodInvokeId, Integer.valueOf(cKeys[2]));
+						newChildMap.put(newKey, freq);
+					} else {
+						newChildMap.put(childKey, freq);
+					}
+				}
+				inst.setChildFreqMap(newChildMap);
+			}
+		}
+	}
+	
 	public static List<InstNode> sortInstPool(InstPool instPool, boolean byStartTime) {
 		Comparator<InstNode> comp = null;
 		
@@ -98,14 +149,15 @@ public class GraphUtil {
 	
 	private static void _parentRemove(String parentKey, InstPool pool, String removeKey) {
 		String[] parentParsed = StringUtil.parseIdxKey(parentKey);
-		InstNode inst = pool.searchAndGet(parentParsed[0], Integer.valueOf(parentParsed[1]));
+		InstNode inst = pool.searchAndGet(parentParsed[0], Integer.valueOf(parentParsed[1]), Integer.valueOf(parentParsed[2]));
 		inst.getChildFreqMap().remove(removeKey);
 	}
 	
 	private static InstNode _retrieveRealInst(String instKey, InstPool pool) {
 		String[] instKeys = StringUtil.parseIdxKey(instKey);
 		InstNode instNode = pool.searchAndGet(instKeys[0], 
-				Integer.valueOf(instKeys[1]));
+				Integer.valueOf(instKeys[1]), 
+				Integer.valueOf(instKeys[2]));
 		return instNode;
 	}
 	
@@ -117,8 +169,6 @@ public class GraphUtil {
 		
 		//Remove from write data parent if any
 		for (String dp: inst.getWriteDataParentList()) {
-			System.out.println("Child node: " + inst);
-			System.out.println("Remove from parent node: " + dp);
 			_parentRemove(dp, pool, instKey);
 		}
 		
@@ -131,15 +181,16 @@ public class GraphUtil {
 	public static void transplantCalleeDepToCaller(InstNode parentNode, 
 			InstNode childNode, 
 			InstPool childPool) {
-		String fInstKey = StringUtil.genIdxKey(childNode.getFromMethod(), childNode.getIdx());
+		String fInstKey = StringUtil.genIdxKey(childNode.getFromMethod(), childNode.getMethodId(), childNode.getIdx());
 		
 		for (String c: childNode.getChildFreqMap().keySet()) {
 			double freq = childNode.getChildFreqMap().get(c);
 			String[] keySet = StringUtil.parseIdxKey(c);
-			int cIdx= Integer.valueOf(keySet[1]);
-			parentNode.increChild(keySet[0], cIdx, freq);
+			int cMethodId = Integer.valueOf(keySet[1]);
+			int cIdx= Integer.valueOf(keySet[2]);
+			parentNode.increChild(keySet[0], cMethodId, cIdx, freq);
 			
-			InstNode cNode = childPool.searchAndGet(keySet[0], cIdx);
+			InstNode cNode = childPool.searchAndGet(keySet[0], cMethodId, cIdx);
 			//Try to remove in either inst data or write data parent
 			boolean fromInstData = cNode.getInstDataParentList().remove(fInstKey);
 			boolean fromWriteData = false;
@@ -151,24 +202,25 @@ public class GraphUtil {
 			
 			if (parentNode != null) {
 				if (fromInstData)
-					cNode.registerParent(parentNode.getFromMethod(), parentNode.getIdx(), MIBConfiguration.INST_DATA_DEP);
+					cNode.registerParent(parentNode.getFromMethod(), parentNode.getMethodId(), parentNode.getIdx(), MIBConfiguration.INST_DATA_DEP);
 				else
-					cNode.registerParent(parentNode.getFromMethod(), parentNode.getIdx(), MIBConfiguration.WRITE_DATA_DEP);
+					cNode.registerParent(parentNode.getFromMethod(), parentNode.getMethodId(), parentNode.getIdx(), MIBConfiguration.WRITE_DATA_DEP);
 			}
 		}
 		
 		for (String cont: childNode.getControlParentList()) {
 			String[] keySet = StringUtil.parseIdxKey(cont);
-			int cIdx = Integer.valueOf(keySet[1]);
-			InstNode contNode = childPool.searchAndGet(keySet[0], cIdx);
+			int cMethodId = Integer.valueOf(keySet[1]);
+			int cIdx = Integer.valueOf(keySet[2]);
+			InstNode contNode = childPool.searchAndGet(keySet[0], cMethodId, cIdx);
 			System.out.println("Attempt: " + cont);
 			System.out.println("Child node: " + fInstKey);
 			System.out.println("Parent node: " + parentNode);
 			double freq = contNode.getChildFreqMap().get(fInstKey);
 			
 			if (parentNode != null) {
-				contNode.increChild(parentNode.getFromMethod(), parentNode.getIdx(), freq);
-				parentNode.registerParent(contNode.getFromMethod(), contNode.getIdx(), MIBConfiguration.CONTR_DEP);
+				contNode.increChild(parentNode.getFromMethod(), parentNode.getMethodId(), parentNode.getIdx(), freq);
+				parentNode.registerParent(contNode.getFromMethod(), contNode.getMethodId(), contNode.getIdx(), MIBConfiguration.CONTR_DEP);
 			}
 			System.out.println("Check parentNode cont parent: " + parentNode.getControlParentList());
 			System.out.println("Check cont parent child list: " + contNode.getChildFreqMap());
@@ -176,7 +228,7 @@ public class GraphUtil {
 		
 		//Remove these first read local vars from child pool, 
 		//if there is corresponding parent in parent pool
-		parentRemove(childNode, childPool, StringUtil.genIdxKey(childNode.getFromMethod(), childNode.getIdx()));
+		parentRemove(childNode, childPool, StringUtil.genIdxKey(childNode.getFromMethod(), childNode.getMethodId(), childNode.getIdx()));
 		childPool.remove(childNode);
 	}
 	
@@ -221,7 +273,7 @@ public class GraphUtil {
 	
 	private static SurrogateInst generateSurrogate(InstNode inst, InstPool pool) {
 		//possible read: xload, getfield, getstatic, all method calls from jvm
-		String instKey = StringUtil.genIdxKey(inst.getFromMethod(), inst.getIdx());
+		String instKey = StringUtil.genIdxKey(inst.getFromMethod(), inst.getMethodId(), inst.getIdx());
 		
 		//For the first surrogate, don't copy parent for it. It's for storing children in method
 		boolean shouldCopyParent = true;
@@ -247,23 +299,23 @@ public class GraphUtil {
 			HashSet<InstNode> controlSet = retrieveRequiredParentInsts(inst, pool, MIBConfiguration.CONTR_DEP);
 			for (InstNode instNode: controlSet) {
 				double freq = instNode.getChildFreqMap().get(instKey);
-				instNode.increChild(newSur.getFromMethod(), newSur.getIdx(), freq);
-				newSur.registerParent(instNode.getFromMethod(), instNode.getIdx(), MIBConfiguration.CONTR_DEP);
+				instNode.increChild(newSur.getFromMethod(), newSur.getMethodId(), newSur.getIdx(), freq);
+				newSur.registerParent(instNode.getFromMethod(), instNode.getMethodId(), instNode.getIdx(), MIBConfiguration.CONTR_DEP);
 			}
 			
 			HashSet<InstNode> writeSet = retrieveRequiredParentInsts(inst, pool, MIBConfiguration.WRITE_DATA_DEP);
 			for (InstNode instNode: writeSet) {
 				double freq = instNode.getChildFreqMap().get(instKey);
-				instNode.increChild(newSur.getFromMethod(), newSur.getIdx(), freq);
-				newSur.registerParent(instNode.getFromMethod(), instNode.getIdx(), MIBConfiguration.WRITE_DATA_DEP);
+				instNode.increChild(newSur.getFromMethod(), newSur.getMethodId(), newSur.getIdx(), freq);
+				newSur.registerParent(instNode.getFromMethod(), instNode.getMethodId(), instNode.getIdx(), MIBConfiguration.WRITE_DATA_DEP);
 			}
 			
 			HashSet<InstNode> instParents = retrieveRequiredParentInsts(inst, pool, MIBConfiguration.INST_DATA_DEP);
 			for (InstNode instParent: instParents) {
 				SurrogateInst surParent = generateSurrogate(instParent, pool);
 				
-				surParent.increChild(newSur.getFromMethod(), newSur.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
-				newSur.registerParent(surParent.getFromMethod(), surParent.getIdx(), MIBConfiguration.INST_DATA_DEP);
+				surParent.increChild(newSur.getFromMethod(), newSur.getMethodId(), newSur.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
+				newSur.registerParent(surParent.getFromMethod(), surParent.getMethodId(), surParent.getIdx(), MIBConfiguration.INST_DATA_DEP);
 			}
 		}
 		
@@ -272,24 +324,24 @@ public class GraphUtil {
 		
 	public static void dataDepFromParentToChild(Map<Integer, InstNode> parentMap, 
 			InstPool parentPool,
-			InstPool childPool, 
-			HashSet<Integer> firstReadLocalVars, 
-			String childMethod) {
+			GraphTemplate childGraph) {
+		InstPool childPool = childGraph.getInstPool();
+		HashSet<InstNode> firstReadLocalVars = childGraph.getFirstReadLocalVars();
 		HashMap<Integer, List<InstNode>> childSummary = new HashMap<Integer, List<InstNode>>();
-		for (Integer f: firstReadLocalVars) {
-			InstNode fInst = childPool.searchAndGet(childMethod, f);
+		for (InstNode f: firstReadLocalVars) {
+			//InstNode fInst = childPool.searchAndGet(f.getFromMethod(), f.getMethodId(), f.getIdx());
 			//It's possible that fInst is null, probably an aload for method node, which should be removed
-			if (fInst == null)
+			if (f == null)
 				continue ;
 			
-			int idx = Integer.valueOf(fInst.getAddInfo());
+			int idx = Integer.valueOf(f.getAddInfo());
 			
 			if (parentMap.containsKey(idx)) {
 				if (childSummary.containsKey(idx)) {
-					childSummary.get(idx).add(fInst);
+					childSummary.get(idx).add(f);
 				} else {
 					List<InstNode> insts = new ArrayList<InstNode>();
-					insts.add(fInst);
+					insts.add(f);
 					childSummary.put(idx, insts);
 				}
 			}
@@ -301,7 +353,7 @@ public class GraphUtil {
 			
 			if (parentNode != null) {
 				for (InstNode cInst: childInsts) {
-					String cInstKey = StringUtil.genIdxKey(cInst.getFromMethod(), cInst.getIdx());
+					String cInstKey = StringUtil.genIdxKey(cInst.getFromMethod(), cInst.getMethodId(), cInst.getIdx());
 					
 					//Check if the surrogate exists in parent pool
 					SurrogateInst surrogate = parentNode.searchSurrogateInst(cInstKey);
@@ -313,24 +365,6 @@ public class GraphUtil {
 						transplantCalleeDepToCaller(surrogate, cInst, childPool);
 					}
 				}
-				
-				/*if (initSur) {
-					//Transplant the first surrogate's children in method to parentNode
-					int removeSurId = parentNode.getIdx() * MIBConfiguration.getInstance().getIdxExpandFactor();
-					InstNode minSur = parentPool.searchAndGet(parentNode.getFromMethod(), removeSurId);
-					SurrogateInst decMinSur = (SurrogateInst)minSur;
-					
-					//Create a surrogate for parent itself
-					SurrogateInst mySur = new SurrogateInst(parentNode);
-					mySur.setRelatedChildMethodInst(decMinSur.getRelatedChildMethodInst());
-					transplantCalleeDepToCaller(mySur, decMinSur, childPool);
-					
-					parentNode.addSurrogateInst(mySur);
-					parentNode.getSurrogateInsts().remove(decMinSur);
-					parentPool.remove(minSur);
-					
-					//transplantCalleeDepToCaller(parentNode, my)
-				}*/
 			}
 		}
 	}
@@ -351,18 +385,18 @@ public class GraphUtil {
 					for (String childInst: si.getChildFreqMap().keySet()) {
 						double freq = si.getChildFreqMap().get(childInst);
 						String[] cDecomp = StringUtil.parseIdxKey(childInst);
-						inst.increChild(cDecomp[0], Integer.valueOf(cDecomp[1]), freq);
+						inst.increChild(cDecomp[0], Integer.valueOf(cDecomp[1]), Integer.valueOf(cDecomp[2]), freq);
 					}
 					
 					for (String controlP: si.getControlParentList()) {
 						String[] conDecomp = StringUtil.parseIdxKey(controlP);
-						inst.registerParent(conDecomp[0], Integer.valueOf(conDecomp[1]), MIBConfiguration.CONTR_DEP);
+						inst.registerParent(conDecomp[0], Integer.valueOf(conDecomp[1]),Integer.valueOf(conDecomp[2]), MIBConfiguration.CONTR_DEP);
 					}
 					
 					//Almost impossible to have write data dep
 					for (String writeP: si.getWriteDataParentList()) {
 						String[] writeDecomp = StringUtil.parseIdxKey(writeP);
-						inst.registerParent(writeDecomp[0], Integer.valueOf(writeDecomp[1]), MIBConfiguration.WRITE_DATA_DEP);
+						inst.registerParent(writeDecomp[0], Integer.valueOf(writeDecomp[1]), Integer.valueOf(writeDecomp[2]), MIBConfiguration.WRITE_DATA_DEP);
 					}
 				}
 			}
@@ -370,24 +404,26 @@ public class GraphUtil {
 	}
 	
 	public static void fieldDataDepFromParentToChild(Map<String, InstNode> parentMap, 
-			InstPool childPool, 
-			HashSet<Integer> firstReadFields, 
-			String childMethod) {
-		for (Integer f: firstReadFields){
-			InstNode fInst = childPool.searchAndGet(childMethod, f);
-			//fInst is possible to be null, like alod
-			if (fInst == null)
-				continue ;
+			GraphTemplate childGraph) {
+		HashSet<InstNode> firstReadFields = childGraph.getFirstReadFields();
+		
+		Iterator<InstNode> frIterator = firstReadFields.iterator();
+		while (frIterator.hasNext()) {
+			InstNode fInst = frIterator.next();
 			
 			if (parentMap.containsKey(fInst.getAddInfo())) {
 				InstNode parentNode = parentMap.get(fInst.getAddInfo());
 				
-				parentNode.increChild(fInst.getFromMethod(), 
+				parentNode.increChild(fInst.getFromMethod(),
+						fInst.getMethodId(),
 						fInst.getIdx(), 
 						MIBConfiguration.getInstance().getWriteDataWeight());
 				fInst.registerParent(parentNode.getFromMethod(), 
+						parentNode.getMethodId(),
 						parentNode.getIdx(), 
 						MIBConfiguration.WRITE_DATA_DEP);
+				
+				frIterator.remove();
 			}
 		}
 	}
@@ -409,9 +445,13 @@ public class GraphUtil {
 		
 		for (InstNode cNode: affectedSet) {
 			controlFromParent.increChild(cNode.getFromMethod(), 
+					cNode.getMethodId(),
 					cNode.getIdx(), 
 					MIBConfiguration.getInstance().getControlWeight());
-			cNode.registerParent(controlFromParent.getFromMethod(), controlFromParent.getIdx(), MIBConfiguration.CONTR_DEP);
+			cNode.registerParent(controlFromParent.getFromMethod(), 
+					controlFromParent.getMethodId(), 
+					controlFromParent.getIdx(), 
+					MIBConfiguration.CONTR_DEP);
 		}
 	}
 	
@@ -424,14 +464,18 @@ public class GraphUtil {
 				returnInst = inst;
 			}
 		}
-		String returnInstKey = StringUtil.genIdxKey(returnInst.getFromMethod(), returnInst.getIdx());
+		String returnInstKey = StringUtil.genIdxKey(returnInst.getFromMethod(), returnInst.getMethodId(), returnInst.getIdx());
 		parentRemove(returnInst, pool, returnInstKey);
 		pool.remove(returnInst);
 	}
 	
-	public static void unionInst(String instParent, 
+	/*public static void unionInst(String instParent, 
 			InstNode parentNode, InstNode childNode, 
 			InstPool parentPool, InstPool childPool, int depType) {
+		System.out.println("Children's parent inst: " + instParent);
+		System.out.println("Child inst: " + childNode);
+		System.out.println("Parent inst: " + parentNode);
+		
 		String[] keys = StringUtil.parseIdxKey(instParent);
 		InstNode instParentNode = childPool.searchAndGet(keys[0], Integer.valueOf(keys[1]));
 		String childInstKey = StringUtil.genIdxKey(childNode.getFromMethod(), childNode.getIdx());
@@ -440,41 +484,13 @@ public class GraphUtil {
 		}
 		double freq = instParentNode.getChildFreqMap().get(childInstKey);
 		instParentNode.increChild(parentNode.getFromMethod(), parentNode.getIdx(), freq);
-	}
+	}*/
 	
 	public static void unionInstPools(InstPool parentPool, InstPool childPool) {
 		Iterator<InstNode> poolIt = childPool.iterator();
 		while (poolIt.hasNext()) {
 			InstNode childInst = poolIt.next();
-			
-			if (parentPool.contains(childInst)) {
-				InstNode sameInst = parentPool.searchAndGet(childInst.getFromMethod(), childInst.getIdx());
-				
-				for (String instParent: childInst.getInstDataParentList()) {
-					unionInst(instParent, sameInst, childInst, parentPool, childPool, MIBConfiguration.INST_DATA_DEP);
-				}
-				
-				for (String instParent: childInst.getWriteDataParentList()) {
-					unionInst(instParent, sameInst, childInst, parentPool, childPool, MIBConfiguration.WRITE_DATA_DEP);
-				}
-				
-				for (String instParent: childInst.getControlParentList()) {
-					unionInst(instParent, sameInst, childInst, parentPool, childPool, MIBConfiguration.CONTR_DEP);
-				}
-				
-				for (String ccKey: childInst.getChildFreqMap().keySet()) {
-					String[] ccKeys = StringUtil.parseIdxKey(ccKey);
-					double freq = childInst.getChildFreqMap().get(ccKey);
-					
-					String ccMethod = ccKeys[0];
-					int ccIdx = Integer.valueOf(ccKeys[1]);
-					sameInst.increChild(ccMethod, ccIdx, freq);
-					
-					//No need to register parent, because sameInst and childInst are the same
-				}
-			} else {
-				parentPool.add(childInst);
-			}
+			parentPool.add(childInst);
 		}
 	}
 	
@@ -535,6 +551,7 @@ public class GraphUtil {
 		System.out.println(bd.setScale(3, RoundingMode.HALF_UP));
 		System.out.println(Precision.round(0.11111, 3));
 		System.out.println(Precision.round(0.1115,3));
+		int i = 0;
 		
 	}
 

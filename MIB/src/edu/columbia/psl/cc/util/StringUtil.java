@@ -72,6 +72,10 @@ public class StringUtil {
 		return ret;
 	}
 	
+	public static String genKeyWithMethodId(String methodKey, int methodId) {
+		return methodKey + ":" + methodId;
+	}
+	
 	public static String genKey(String className, String methodName, String methodDesc) {
 		String[] parsedDesc = StringUtil.parseDesc(methodDesc);
 		String key = StringUtil.cleanPunc(className, ".") 
@@ -81,8 +85,8 @@ public class StringUtil {
 		return key;
 	}
 	
-	public static String genIdxKey(String fromMethod, int idx) {
-		return fromMethod + "-" + idx;
+	public static String genIdxKey(String fromMethod, int methodId, int idx) {
+		return fromMethod + "-" + methodId + "-" + idx;
 	}
 	
 	public static String[] parseIdxKey(String idxKey) {

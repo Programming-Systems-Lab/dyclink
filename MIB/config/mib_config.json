@@ -19,6 +19,6 @@
     "cleanTemplate": true,
     "cleanTest": true,
     "templateMode": true,
-    "overallAnalysis": true,
+    "overallAnalysis": false,
     "debug": true
 }

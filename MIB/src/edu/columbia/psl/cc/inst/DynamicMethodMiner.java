@@ -150,14 +150,6 @@ public class DynamicMethodMiner extends MethodVisitor {
 		return this.lvs;
 	}
 	
-	/*public void setAdviceAdapter(AdviceAdapter lvs) {
-		this.lvs = lvs;
-	}
-	
-	public AdviceAdapter getAdviceAdapter() {
-		return this.lvs;
-	}*/
-	
 	public boolean shouldInstrument() {
 		return !this.annotGuard || this.isTemplate || this.isTest;
 	}
@@ -189,14 +181,6 @@ public class DynamicMethodMiner extends MethodVisitor {
 				methodStackRecorder, 
 				MIBConfiguration.getObjOnStack(), 
 				MIBConfiguration.getObjOnStackDesc());
-	}
-	
-	private void handleInstruction(int opcode, Var var) {
-		OpcodeObj op = BytecodeCategory.getOpcodeObj(opcode);
-		InstNode inst = new InstNode();
-		inst.setOp(op);
-		inst.setVar(var);
-		this.sequence.add(op);
 	}
 	
 	private int updateMethodRep(int opcode) {
@@ -326,15 +310,20 @@ public class DynamicMethodMiner extends MethodVisitor {
 			this.mv.visitLdcInsn(this.myName);
 			this.mv.visitLdcInsn(this.desc);
 			
-			if (this.isStatic)
-				this.mv.visitInsn(Opcodes.ICONST_1);
-			else
-				this.mv.visitInsn(Opcodes.ICONST_0);
+			if (this.isStatic) {
+				//this.mv.visitInsn(Opcodes.ICONST_1);
+				this.mv.visitInsn(Opcodes.ACONST_NULL);
+			} else {
+				//this.mv.visitInsn(Opcodes.ICONST_0);
+				//this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+				//this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, MIBConfiguration.getMibId(), Type.INT_TYPE.getDescriptor());
+				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+			}
 			
 			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, 
 					methodStackRecorder, 
 					"<init>", 
-					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V");
+					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V");
 			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
 		}
 	}
@@ -362,15 +351,21 @@ public class DynamicMethodMiner extends MethodVisitor {
 			this.mv.visitLdcInsn(this.myName);
 			this.mv.visitLdcInsn(this.desc);
 			
-			if (this.isStatic)
-				this.mv.visitInsn(Opcodes.ICONST_1);
-			else
-				this.mv.visitInsn(Opcodes.ICONST_0);
+			if (this.isStatic) {
+				//this.mv.visitInsn(Opcodes.ICONST_1);
+				this.mv.visitInsn(Opcodes.ACONST_NULL);
+			} else {
+				//this.mv.visitInsn(Opcodes.ICONST_0);
+				
+				//this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+				//this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, MIBConfiguration.getMibId(), Type.INT_TYPE.getDescriptor());
+				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+			}
 			
 			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, 
 					methodStackRecorder, 
 					"<init>", 
-					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V");
+					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V");
 			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
 		}
 	}

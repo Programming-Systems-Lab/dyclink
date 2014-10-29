@@ -18,13 +18,14 @@ public class InstPool extends TreeSet<InstNode> {
 	
 	public InstPool(InstPool contents) {
 		for (InstNode c: contents) {
-			this.searchAndGet(c.getFromMethod(), c.getIdx(), c.getOp().getOpcode(), c.getAddInfo());
+			this.searchAndGet(c.getFromMethod(), c.getMethodId(), c.getIdx(), c.getOp().getOpcode(), c.getAddInfo());
 		}
 	}
 
-	public InstNode searchAndGet(String methodKey, int idx, int opcode, String addInfo) {
+	public InstNode searchAndGet(String methodKey, int methodId, int idx, int opcode, String addInfo) {
 		for (InstNode inst: this) {
 			if (inst.getFromMethod().equals(methodKey) && 
+					inst.getMethodId() == methodId && 
 					inst.getIdx() == idx && 
 					inst.getOp().getOpcode() == opcode && 
 					inst.getAddInfo().equals(addInfo))
@@ -34,6 +35,7 @@ public class InstPool extends TreeSet<InstNode> {
 		//Create new 
 		InstNode probe = new InstNode();
 		probe.setFromMethod(methodKey);
+		probe.setMethodId(methodId);
 		probe.setIdx(idx);
 		probe.setOp(BytecodeCategory.getOpcodeObj(opcode));
 		probe.setAddInfo(addInfo);
@@ -41,22 +43,15 @@ public class InstPool extends TreeSet<InstNode> {
 		return probe;
 	}
 	
-	public InstNode searchAndGet(String methodKey, int idx) {
+	public InstNode searchAndGet(String methodKey, int methodId, int idx) {
 		for (InstNode inst: this) {
-			if (inst.getFromMethod().equals(methodKey) && inst.getIdx() == idx)
+			if (inst.getFromMethod().equals(methodKey) && 
+					inst.getMethodId() == methodId && 
+					inst.getIdx() == idx)
 				return inst;
 		}
 		
 		System.err.println("Cannot find inst by method key and idx: " +  methodKey + " " + idx);
 		return null;
-	}
-	
-	public void searchAndRemove(String methodKey, int idx) {
-		for (InstNode inst: this) {
-			if (inst.getFromMethod().equals(methodKey) && inst.getIdx() == idx) {
-				this.remove(inst);
-				return ;
-			}
-		}
 	}
 }
