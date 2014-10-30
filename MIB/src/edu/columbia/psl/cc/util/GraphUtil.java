@@ -464,22 +464,64 @@ public class GraphUtil {
 		pool.remove(returnInst);
 	}
 	
-	/*public static void unionInst(String instParent, 
-			InstNode parentNode, InstNode childNode, 
-			InstPool parentPool, InstPool childPool, int depType) {
-		System.out.println("Children's parent inst: " + instParent);
-		System.out.println("Child inst: " + childNode);
-		System.out.println("Parent inst: " + parentNode);
+	public static <T> ArrayList<T> unionList(ArrayList<T> c1, ArrayList<T> c2) {
+		ArrayList<T> ret = new ArrayList<T>();
 		
-		String[] keys = StringUtil.parseIdxKey(instParent);
-		InstNode instParentNode = childPool.searchAndGet(keys[0], Integer.valueOf(keys[1]));
-		String childInstKey = StringUtil.genIdxKey(childNode.getFromMethod(), childNode.getIdx());
-		if (!parentNode.getInstDataParentList().contains(instParent)) {
-			parentNode.registerParent(instParentNode.getFromMethod(), instParentNode.getIdx(), depType);
+		for (T t: c1) {
+			if (!ret.contains(t)) {
+				ret.add(t);
+			}
 		}
-		double freq = instParentNode.getChildFreqMap().get(childInstKey);
-		instParentNode.increChild(parentNode.getFromMethod(), parentNode.getIdx(), freq);
-	}*/
+		
+		for (T t: c2) {
+			if (!ret.contains(t)) {
+				ret.add(t);
+			}
+		}
+		
+		return ret;
+	}
+	
+	public static void unionInst(InstNode parentNode, InstNode childNode) {		
+		//Union their parents first;
+		ArrayList<String> unionInstParent = unionList(parentNode.getInstDataParentList(), 
+				childNode.getInstDataParentList());
+		
+		ArrayList<String> unionWriteParent = unionList(parentNode.getWriteDataParentList(), 
+				childNode.getWriteDataParentList());
+		
+		ArrayList<String> unionControlParent = unionList(parentNode.getControlParentList(), 
+				childNode.getControlParentList());
+		
+		//Union their child, don't accumulate. Use the latest from child
+		TreeMap<String, Double> unionChildren = new TreeMap<String, Double>(parentNode.getChildFreqMap());
+		unionChildren.putAll(childNode.getChildFreqMap());
+		
+		parentNode.setInstDataParentList(unionInstParent);
+		parentNode.setWriteDataParentList(unionWriteParent);
+		parentNode.setControlParentList(unionControlParent);
+		parentNode.setChildFreqMap(unionChildren);
+		
+		childNode.setInstDataParentList(unionInstParent);
+		childNode.setWriteDataParentList(unionWriteParent);
+		childNode.setControlParentList(unionControlParent);
+		childNode.setChildFreqMap(unionChildren);
+	}
+	
+	public static void synchronizeInstPools(InstPool parentPool, InstPool childPool) {
+		Iterator<InstNode> poolIt = childPool.iterator();
+		while (poolIt.hasNext()) {
+			InstNode childInst = poolIt.next();
+			
+			if (parentPool.contains(childInst)) {
+				InstNode sameNode = parentPool.searchAndGet(childInst.getFromMethod(), 
+						childInst.getMethodId(), 
+						childInst.getIdx());
+				
+				unionInst(sameNode, childInst);
+			}
+		}
+	}
 	
 	public static void unionInstPools(InstPool parentPool, InstPool childPool) {
 		Iterator<InstNode> poolIt = childPool.iterator();

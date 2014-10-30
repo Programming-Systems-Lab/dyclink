@@ -30,14 +30,20 @@ public class ObjectIdAllocater {
 	
 	public static int parseObjId(Object value) {
 		if (value == null)
-			return - 1;
+			return -1;
 		
 		Class<?> valueClass = value.getClass();
 		try {
 			Field idField = valueClass.getField(MIBConfiguration.getMibId());
+			idField.setAccessible(true);
+			/*System.out.println("Traverse fields of " + valueClass);
+			for (Field f: valueClass.getFields()) {
+				System.out.println(f);
+			}*/
 			int objId = idField.getInt(value);
 			return objId;
 		} catch (Exception ex) {
+			//ex.printStackTrace();
 			System.out.println("Warning: object " + valueClass + " is not MIB-instrumented");
 			return -1;
 		}

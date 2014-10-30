@@ -296,8 +296,8 @@ public class TemplateMethod extends TemplateParent{
 		//classAdd(5);
 		//int a = 2;
 		//int[] b = {3, 4, 7};
-		//tm.forMethod();
-		tm.forClassMethod();
+		tm.forMethod();
+		//tm.forClassMethod();
 		/*TemplateParent tp = new TemplateMethod();
 		tp.interestingMethod();*/
 		

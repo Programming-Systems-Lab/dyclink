@@ -106,9 +106,6 @@ public class MethodStackRecorder {
 		} else {
 			this.id = ObjectIdAllocater.parseObjId(obj);
 		}
-		System.out.println("Check method key: " + this.methodKey);
-		//System.out.println("Check object: " + obj);
-		System.out.println("Check id: " + this.id);
 		
 		int count = 0, start = 0;
 		if (!this.staticMethod) {
@@ -171,7 +168,7 @@ public class MethodStackRecorder {
 		}
  	}
 	
-	private void updateCachedMap(InstNode parent, InstNode child, int depType) {		
+	private void updateCachedMap(InstNode parent, InstNode child, int depType) {
 		if (depType == MIBConfiguration.INST_DATA_DEP) {
 			parent.increChild(child.getFromMethod(), child.getMethodId(), child.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
 			child.registerParent(parent.getFromMethod(), parent.getMethodId(), parent.getIdx(), depType);
@@ -226,7 +223,6 @@ public class MethodStackRecorder {
 		InstNode latestInst = this.stackSimulator.get(idx);
 		//InstNode latestInst = this.stackSimulator.peek();
 		latestInst.setRelatedObj(obj);
-		System.out.println("Inst add obj: " + latestInst);
 	}
 	
 	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {
@@ -515,7 +511,7 @@ public class MethodStackRecorder {
 				methodId = ObjectIdAllocater.getClassMethodIndex(owner, name, desc);
 			} else {
 				InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
-				System.out.println("Related inst: " + relatedInst);
+				//System.out.println("Related inst: " + relatedInst);
 				Object objOnStack = relatedInst.getRelatedObj();
 				//System.out.println("Check objOnStack: " + objOnStack);
 				methodId = ObjectIdAllocater.parseObjId(objOnStack);
@@ -571,6 +567,8 @@ public class MethodStackRecorder {
 			int baseTime = this.getCurTime();
 			int reBase = GraphUtil.reindexInstPool(baseTime, childPool);
 			this.curTime.set(reBase);
+			
+			GraphUtil.synchronizeInstPools(this.pool, childPool);
 			
 			//Search correct inst, update local data dep dependency
 			HashMap<Integer, InstNode> parentFromCaller = new HashMap<Integer, InstNode>();

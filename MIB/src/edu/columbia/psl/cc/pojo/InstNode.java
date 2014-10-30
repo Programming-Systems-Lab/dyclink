@@ -112,6 +112,11 @@ public class InstNode implements Comparable<InstNode>{
 		}
 	}
 	
+	public void updateChild(String fromMethod, int methodIdx, int childIdx, double amount) {
+		String idxKey = StringUtil.genIdxKey(fromMethod, methodIdx, childIdx);
+		this.childFreqMap.put(idxKey, amount);
+	}
+	
 	public void setChildFreqMap(TreeMap<String, Double> childFreqMap) {
 		this.childFreqMap = childFreqMap;
 	}
