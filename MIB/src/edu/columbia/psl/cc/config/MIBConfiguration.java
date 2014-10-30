@@ -52,7 +52,7 @@ public class MIBConfiguration {
 	
 	private static String objOnStack = "updateObjOnStack";
 	
-	private static String objOnStackDesc = "(Ljava/lang/Object;)V";
+	private static String objOnStackDesc = "(Ljava/lang/Object;I)V";
 	
 	private String opTablePath;
 	

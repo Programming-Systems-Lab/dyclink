@@ -298,8 +298,8 @@ public class TemplateMethod extends TemplateParent{
 		//int[] b = {3, 4, 7};
 		//tm.forMethod();
 		tm.forClassMethod();
-		//TemplateParent tp = new TemplateMethod();
-		//tp.interestingMethod();
+		/*TemplateParent tp = new TemplateMethod();
+		tp.interestingMethod();*/
 		
 		/*TemplateInterface ti = new TemplateMethod();
 		Integer i = new Integer(1);
@@ -307,7 +307,7 @@ public class TemplateMethod extends TemplateParent{
 		
 		//tm.setList(new ArrayList());
 		//tm.exampleMethod();
-		//System.out.println(tm.invokeParent(3, 5));
+		//tm.invokeParent(3, 5);
 		//System.out.println(tm.all3Methods(3, 5));
 		//System.out.println(tm.sumArray(b));
 		//System.out.println(tm.simpleIf(1, 2));

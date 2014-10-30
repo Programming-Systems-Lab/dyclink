@@ -107,7 +107,7 @@ public class MethodStackRecorder {
 			this.id = ObjectIdAllocater.parseObjId(obj);
 		}
 		System.out.println("Check method key: " + this.methodKey);
-		System.out.println("Check obj: " + obj);
+		//System.out.println("Check object: " + obj);
 		System.out.println("Check id: " + this.id);
 		
 		int count = 0, start = 0;
@@ -221,9 +221,12 @@ public class MethodStackRecorder {
 		//this.curControlInsts.add(fullInst);
 	}
 	
-	public void updateObjOnStack(Object obj) {
-		InstNode latestInst = this.stackSimulator.peek();
+	public void updateObjOnStack(Object obj, int traceBack) {
+		int idx = this.stackSimulator.size() - 1 - traceBack;
+		InstNode latestInst = this.stackSimulator.get(idx);
+		//InstNode latestInst = this.stackSimulator.peek();
 		latestInst.setRelatedObj(obj);
+		System.out.println("Inst add obj: " + latestInst);
 	}
 	
 	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {
@@ -506,27 +509,32 @@ public class MethodStackRecorder {
 			
 			//Load the correct graph
 			Class<?> correctClass = null;
-			int objId = 0;
-			int cMethodInvokeId = -1;
+			int methodId = 0;
 			if (BytecodeCategory.staticMethod().contains(opcode)) {
 				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
-				cMethodInvokeId = ObjectIdAllocater.getClassMethodIndex(owner, name, desc);
+				methodId = ObjectIdAllocater.getClassMethodIndex(owner, name, desc);
 			} else {
-				Object objOnStack = this.stackSimulator.get(stackSimulator.size() - argSize - 1).getRelatedObj();
-				objId = ObjectIdAllocater.parseObjId(objOnStack);
+				InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
+				System.out.println("Related inst: " + relatedInst);
+				Object objOnStack = relatedInst.getRelatedObj();
+				//System.out.println("Check objOnStack: " + objOnStack);
+				methodId = ObjectIdAllocater.parseObjId(objOnStack);
 				
 				if (opcode == Opcodes.INVOKESPECIAL) {
 					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, true);
 				} else {
 					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(objOnStack.getClass().getName(), name, desc, false);
-					System.out.println("Real obj on stack: " + objOnStack.getClass());
-					System.out.println("Obj id: " + ObjectIdAllocater.parseObjId(objOnStack));
 				}
 			}
 			
 			System.out.println("Method owner: " + correctClass.getName());
 			String methodKey = StringUtil.genKey(correctClass.getName(), name, desc);
-			String searchKey = StringUtil.genKeyWithMethodId(methodKey, objId);
+			String searchKey = "";
+			if (BytecodeCategory.staticMethod().contains(opcode)) {
+				searchKey = StringUtil.genKeyWithMethodId(methodKey, 0);
+			} else {
+				searchKey = StringUtil.genKeyWithMethodId(methodKey, methodId);
+			}
 			System.out.println("Search key: " + searchKey);
 			InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.id, instIdx, opcode, searchKey);
 			
@@ -542,9 +550,9 @@ public class MethodStackRecorder {
 			}
 			GraphTemplate childGraph = TemplateLoader.loadTemplateFile(filePath, graphToken);
 			
-			if (BytecodeCategory.staticMethod().contains(opcode)) {
-				System.out.println("Reset class method inst id: " + cMethodInvokeId);
-				GraphUtil.setStaticMethodIdx(childGraph, cMethodInvokeId);
+			if (childGraph != null && BytecodeCategory.staticMethod().contains(opcode)) {
+				System.out.println("Reset class method inst id: " + methodId);
+				GraphUtil.setStaticMethodIdx(childGraph, methodId);
 			}
 			
 			//This means that the callee method is from jvm, keep the method inst in graph

@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -115,7 +116,7 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 	@Override
 	public void calculateSimilarities(HashMap<String, GraphTemplate> gMap1, 
 			HashMap<String, GraphTemplate> gMap2) {
-		HashMap<String, double[][]> cachedMap = new HashMap<String, double[][]>();
+		TreeMap<String, double[][]> cachedMap = new TreeMap<String, double[][]>();
 		
 		for (String key1: gMap1.keySet()) {
 			if (cachedMap.containsKey(key1))
@@ -258,9 +259,10 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 		
 		@Override
 		public double[] call() throws Exception {
-			System.out.println("SVD decompose: " + methodName);
+			System.out.println("SVD decompose " + methodName + " starts");
 			double[] ret = SVDKernel.getSingularVector(adjMatrix);
-			System.out.println(Arrays.toString(ret));
+			System.out.println("SVD decompose " + methodName + " ends");
+			//System.out.println(Arrays.toString(ret));
 			return ret;
 		}
 	}

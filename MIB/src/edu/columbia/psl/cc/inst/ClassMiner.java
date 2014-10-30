@@ -106,20 +106,16 @@ public class ClassMiner extends ClassVisitor{
 				constructVisit = true;
 				System.out.println("Constructor visit code");
 				//mv.visitCode();
+			} else if (name.equals("toString") && Type.getReturnType(desc).equals(Type.getType(String.class))) {
+				return mv;
+			} else if (name.equals("equals") && Type.getReturnType(desc).equals(Type.BOOLEAN_TYPE)) {
+				return mv;
+			} else if (name.equals("hashCode") && Type.getReturnType(desc).equals(Type.INT_TYPE)) {
+				return mv;
 			}
 			
 			DynamicMethodMiner dmm =  new DynamicMethodMiner(mv, this.owner, access, name, desc, this.templateAnnot, this.testAnnot, this.annotGuard);
 			LocalVariablesSorter lvs = new LocalVariablesSorter(access, desc, dmm);
-			/*AdviceAdapter aa = new AdviceAdapter(Opcodes.ASM4, dmm, access, name, desc) {
-				@Override
-				public void onMethodEnter() {
-					System.out.println("Method name in onMethodEnter: " + name);
-					//this.mv.visitCode();
-					//super.onMethodEnter();
-				}
-			};
-			dmm.setAdviceAdapter(aa);
-			return dmm.getAdviceAdapter();*/
 			
 			//See the comment from https://github.com/pmahoney/asm-bug/blob/master/src/main/java/Main.java
 			/*try {

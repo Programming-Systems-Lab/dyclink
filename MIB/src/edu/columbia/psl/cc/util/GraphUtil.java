@@ -213,17 +213,12 @@ public class GraphUtil {
 			int cMethodId = Integer.valueOf(keySet[1]);
 			int cIdx = Integer.valueOf(keySet[2]);
 			InstNode contNode = childPool.searchAndGet(keySet[0], cMethodId, cIdx);
-			System.out.println("Attempt: " + cont);
-			System.out.println("Child node: " + fInstKey);
-			System.out.println("Parent node: " + parentNode);
 			double freq = contNode.getChildFreqMap().get(fInstKey);
 			
 			if (parentNode != null) {
 				contNode.increChild(parentNode.getFromMethod(), parentNode.getMethodId(), parentNode.getIdx(), freq);
 				parentNode.registerParent(contNode.getFromMethod(), contNode.getMethodId(), contNode.getIdx(), MIBConfiguration.CONTR_DEP);
 			}
-			System.out.println("Check parentNode cont parent: " + parentNode.getControlParentList());
-			System.out.println("Check cont parent child list: " + contNode.getChildFreqMap());
 		}
 		
 		//Remove these first read local vars from child pool, 

@@ -59,7 +59,8 @@ public class AnalysisService {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-
+		MIBConfiguration mConfig = MIBConfiguration.getInstance();
+		invokeFinalAnalysis(mConfig);
 	}
 
 }

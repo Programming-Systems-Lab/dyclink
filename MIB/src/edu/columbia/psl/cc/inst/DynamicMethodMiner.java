@@ -177,6 +177,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.mv.visitInsn(Opcodes.DUP);
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.mv.visitInsn(Opcodes.SWAP);
+		this.mv.visitInsn(Opcodes.ICONST_0);
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
 				methodStackRecorder, 
 				MIBConfiguration.getObjOnStack(), 
@@ -481,19 +482,32 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.mv.visitMethodInsn(opcode, owner, name, desc);
 		//System.out.println("Method should instrument: " + opcode + " " + owner + " " + name + " " + this.shouldInstrument() + " " + this.constructor);
 		if (this.shouldInstrument() && !this.constructor) {
+			if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
+				Type[] argTypes = Type.getMethodType(desc).getArgumentTypes();
+				int traceBack = 0;
+				for (Type t: argTypes) {
+					if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
+						traceBack += 2;
+					} else {
+						traceBack += 1;
+					}
+				}
+				
+				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+				this.mv.visitInsn(Opcodes.SWAP);
+				this.convertConst(traceBack);
+				this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
+						methodStackRecorder, 
+						MIBConfiguration.getObjOnStack(), 
+						MIBConfiguration.getObjOnStackDesc());
+				
+			}
+			
 			this.handleMethod(opcode, owner, name, desc);
 			this.updateMethodRep(opcode);
 			
 			if (Type.getMethodType(desc).getReturnType().getSort() == Type.OBJECT)
 				this.updateObjOnVStack();
-			else if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
-				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
-				this.mv.visitInsn(Opcodes.SWAP);
-				this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
-						methodStackRecorder, 
-						MIBConfiguration.getObjOnStack(), 
-						MIBConfiguration.getObjOnStackDesc());
-			}
 		}
 		
 		//If the INVOKESPECIAL is visited, start instrument constructor
