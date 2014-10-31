@@ -11,7 +11,9 @@ public class GraphTemplate {
 	
 	private String methodKey;
 	
-	private int methodId;
+	private long threadId;
+	
+	private int threadMethodId;
 	
 	private int methodArgSize;
 	
@@ -39,7 +41,8 @@ public class GraphTemplate {
 		this.methodKey = copy.getMethodKey();
 		this.methodArgSize = copy.getMethodArgSize();
 		this.methodReturnSize = copy.getMethodReturnSize();
-		this.methodId = copy.getMethodId();
+		this.threadId = copy.getThreadId();
+		this.threadMethodId = copy.getThreadMethodId();
 		this.staticMethod = copy.isStaticMethod();
 		this.firstReadFields = new HashSet<InstNode>(copy.getFirstReadFields());
 		this.firstReadLocalVars = new HashSet<InstNode>(copy.getFirstReadLocalVars());
@@ -54,12 +57,12 @@ public class GraphTemplate {
 		
 		for (int i = 0; i < copy.getPath().size(); i++) {
 			InstNode pathNode = copy.getPath().get(i);
-			this.path.add(this.pool.searchAndGet(pathNode.getFromMethod(), pathNode.getMethodId(), pathNode.getIdx()));
+			this.path.add(this.pool.searchAndGet(pathNode.getFromMethod(), pathNode.getThreadId(), pathNode.getThreadMethodIdx(), pathNode.getIdx()));
 		}
 		
 		for (String field: copy.getWriteFields().keySet()) {
 			InstNode copyNode = copy.getWriteFields().get(field);
-			InstNode fieldNode = this.pool.searchAndGet(copyNode.getFromMethod(), copyNode.getMethodId(), copyNode.getIdx());
+			InstNode fieldNode = this.pool.searchAndGet(copyNode.getFromMethod(), copyNode.getThreadId(), copyNode.getThreadMethodIdx(), copyNode.getIdx());
 			this.writeFields.put(field, fieldNode);
 		}
 	}
@@ -136,12 +139,20 @@ public class GraphTemplate {
 		return writeFields;
 	}
 	
-	public void setMethodId(int methodId) {
-		this.methodId = methodId;
+	public void setThreadId(long threadId) {
+		this.threadId = threadId;
 	}
 	
-	public int getMethodId() {
-		return this.methodId;
+	public long getThreadId() {
+		return this.threadId;
+	}
+	
+	public void setThreadMethodId(int threadMethodId) {
+		this.threadMethodId = threadMethodId;
+	}
+	
+	public int getThreadMethodId() {
+		return this.threadMethodId;
 	}
 	
 	public void setMaxTime(int maxTime) {

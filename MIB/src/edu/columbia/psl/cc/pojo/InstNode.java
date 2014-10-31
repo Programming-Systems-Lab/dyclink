@@ -11,7 +11,9 @@ import edu.columbia.psl.cc.util.StringUtil;
 
 public class InstNode implements Comparable<InstNode>{
 		
-	private int methodId;
+	private long threadId;
+	
+	private int threadMethodIdx;
 	
 	private int idx;
 	
@@ -48,7 +50,8 @@ public class InstNode implements Comparable<InstNode>{
 	}
 	
 	public InstNode(InstNode copy) {
-		this.methodId = copy.getMethodId();
+		this.threadId = copy.getThreadId();
+		this.threadMethodIdx = copy.getThreadMethodIdx();
 		this.idx = copy.getIdx();
 		this.startTime = copy.getStartTime();
 		this.updateTime = copy.getUpdateTime();
@@ -67,8 +70,8 @@ public class InstNode implements Comparable<InstNode>{
 	 * @param parentIdx
 	 * @param isControl
 	 */
-	public void registerParent(String fromMethod, int methodIdx, int parentIdx, int depType) {
-		String idxKey = StringUtil.genIdxKey(fromMethod, methodIdx, parentIdx);
+	public void registerParent(String fromMethod, long threadId, int threadMethodIdx, int parentIdx, int depType) {
+		String idxKey = StringUtil.genIdxKey(fromMethod, threadId, threadMethodIdx,  parentIdx);
 		if (depType == MIBConfiguration.INST_DATA_DEP && !this.instDataParentList.contains(idxKey)) {
 			this.instDataParentList.add(idxKey);
 		} else if (depType == MIBConfiguration.WRITE_DATA_DEP && !this.writeDataParentList.contains(idxKey)) {
@@ -102,8 +105,8 @@ public class InstNode implements Comparable<InstNode>{
 		return this.controlParentList;
 	}
 	
-	public void increChild(String fromMethod, int methodIdx, int childIdx, double amount) {
-		String idxKey = StringUtil.genIdxKey(fromMethod, methodIdx, childIdx);
+	public void increChild(String fromMethod, long threadId, int threadMethodIdx, int childIdx, double amount) {
+		String idxKey = StringUtil.genIdxKey(fromMethod, threadId, threadMethodIdx, childIdx);
 		if (this.childFreqMap.containsKey(idxKey)) {
 			double count = this.childFreqMap.get(idxKey) + amount;
 			this.childFreqMap.put(idxKey, count);
@@ -112,8 +115,8 @@ public class InstNode implements Comparable<InstNode>{
 		}
 	}
 	
-	public void updateChild(String fromMethod, int methodIdx, int childIdx, double amount) {
-		String idxKey = StringUtil.genIdxKey(fromMethod, methodIdx, childIdx);
+	public void updateChild(String fromMethod, long threadId, int threadMethodIdx, int childIdx, double amount) {
+		String idxKey = StringUtil.genIdxKey(fromMethod, threadId, threadMethodIdx, childIdx);
 		this.childFreqMap.put(idxKey, amount);
 	}
 	
@@ -125,12 +128,20 @@ public class InstNode implements Comparable<InstNode>{
 		return this.childFreqMap;
 	}
 	
-	public void setMethodId(int methodId) {
-		this.methodId = methodId;
+	public void setThreadId(long threadId) {
+		this.threadId = threadId;
 	}
 	
-	public int getMethodId() {
-		return this.methodId;
+	public long getThreadId() {
+		return this.threadId;
+	}
+	
+	public void setThreadMethodIdx(int threadMethodIdx) {
+		this.threadMethodIdx = threadMethodIdx;
+	}
+	
+	public int getThreadMethodIdx() {
+		return this.threadMethodIdx;
 	}
 	
 	public void setIdx(int idx) {
@@ -233,7 +244,7 @@ public class InstNode implements Comparable<InstNode>{
 	
 	@Override
 	public String toString() {
-		return this.fromMethod + " " + this.methodId + " " + this.idx + " " + this.op.getOpcode() + " " + this.op.getInstruction() + " " + this.getAddInfo();
+		return this.fromMethod + " " + this.threadId + " " + this.threadMethodIdx + " " + this.idx + " " + this.op.getOpcode() + " " + this.op.getInstruction() + " " + this.getAddInfo();
 	}
 	
 	@Override
@@ -256,8 +267,8 @@ public class InstNode implements Comparable<InstNode>{
 
 	@Override
 	public int compareTo(InstNode other) {
-		String myKey = StringUtil.genIdxKey(this.getFromMethod(), this.getMethodId(), this.getIdx());
-		String otherKey = StringUtil.genIdxKey(other.getFromMethod(), other.getMethodId(), other.getIdx());
+		String myKey = StringUtil.genIdxKey(this.getFromMethod(), this.getThreadId(), this.getThreadMethodIdx(), this.getIdx());
+		String otherKey = StringUtil.genIdxKey(other.getFromMethod(), other.getThreadId(), other.getThreadMethodIdx(), other.getIdx());
  		return myKey.compareTo(otherKey);
 	}
 

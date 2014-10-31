@@ -74,6 +74,8 @@ public class MIBConfiguration {
 	
 	private String debugDir;
 	
+	private String cacheDir;
+	
 	private double controlWeight;
 	
 	private double instDataWeight;
@@ -86,6 +88,8 @@ public class MIBConfiguration {
 	
 	//private static int parallelFactor = Runtime.getRuntime().availableProcessors();
 	private int parallelFactor;
+	
+	private int instThreshold;
 	
 	private boolean annotGuard;
 	
@@ -279,6 +283,14 @@ public class MIBConfiguration {
 		this.parallelFactor = parallelFactor;
 	}
 	
+	public int getInstThreshold() {
+		return this.instThreshold;
+	}
+	
+	public void setInstThreshold(int instThreshold) {
+		this.instThreshold = instThreshold;
+	}
+	
 	public String getTemplateDir() {
 		return templateDir;
 	}
@@ -325,6 +337,14 @@ public class MIBConfiguration {
 	
 	public void setDebugDir(String debugDir) {
 		this.debugDir = debugDir;
+	}
+	
+	public String getCacheDir() {
+		return this.cacheDir;
+	}
+	
+	public void setCacheDir(String cacheDir) {
+		this.cacheDir = cacheDir;
 	}
 
 	public boolean isAnnotGuard() {

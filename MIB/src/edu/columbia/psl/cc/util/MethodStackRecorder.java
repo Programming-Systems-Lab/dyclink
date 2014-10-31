@@ -81,7 +81,9 @@ public class MethodStackRecorder {
 	
 	private InstPool pool = new InstPool();
 	
-	private int id = -1;
+	private long threadId = -1;
+	
+	private int threadMethodId = -1;
 	
 	private int maxTime = -1;
 	
@@ -100,12 +102,11 @@ public class MethodStackRecorder {
 			this.methodReturnSize = 1;
 		}
 		
-		if (obj == null) {
-			this.id = 0;
-			this.staticMethod = true;
-		} else {
-			this.id = ObjectIdAllocater.parseObjId(obj);
-		}
+		this.threadId = Thread.currentThread().getId();
+		this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(className, 
+				methodName, 
+				methodDesc, 
+				this.threadId);
 		
 		int count = 0, start = 0;
 		if (!this.staticMethod) {
@@ -170,39 +171,44 @@ public class MethodStackRecorder {
 	
 	private void updateCachedMap(InstNode parent, InstNode child, int depType) {
 		if (depType == MIBConfiguration.INST_DATA_DEP) {
-			parent.increChild(child.getFromMethod(), child.getMethodId(), child.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
-			child.registerParent(parent.getFromMethod(), parent.getMethodId(), parent.getIdx(), depType);
+			parent.increChild(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
+			child.registerParent(parent.getFromMethod(), parent.getThreadId(), child.getThreadMethodIdx(), parent.getIdx(), depType);
 		} else if (depType == MIBConfiguration.WRITE_DATA_DEP) {
 			//write data dep only needs to be recorded once
-			String childIdxKey = StringUtil.genIdxKey(child.getFromMethod(), child.getMethodId(), child.getIdx());
+			String childIdxKey = StringUtil.genIdxKey(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx());
 			if (parent.getChildFreqMap().containsKey(childIdxKey))
 				return ;
 			
-			parent.increChild(child.getFromMethod(), child.getMethodId(), child.getIdx(), MIBConfiguration.getInstance().getWriteDataWeight());
-			child.registerParent(parent.getFromMethod(), parent.getMethodId(), parent.getIdx(), depType);
+			parent.increChild(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getWriteDataWeight());
+			child.registerParent(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
 			
 			if (child.getSurrogateInsts().size() > 0) {
 				for (SurrogateInst surNode: child.getSurrogateInsts()) {
 					if (surNode.equals(child))
 						continue ;
 					
-					parent.increChild(surNode.getFromMethod(), surNode.getMethodId(), surNode.getIdx(), MIBConfiguration.getInstance().getWriteDataWeight());
-					surNode.registerParent(parent.getFromMethod(), parent.getMethodId(), parent.getIdx(), depType);
+					parent.increChild(surNode.getFromMethod(), surNode.getThreadId(), surNode.getThreadMethodIdx(), surNode.getIdx(), MIBConfiguration.getInstance().getWriteDataWeight());
+					surNode.registerParent(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
 				}
 			}
 		} else if (depType == MIBConfiguration.CONTR_DEP) {
-			parent.increChild(child.getFromMethod(), child.getMethodId(), child.getIdx(), MIBConfiguration.getInstance().getControlWeight());
-			child.registerParent(parent.getFromMethod(), parent.getMethodId(), parent.getIdx(), depType);
+			parent.increChild(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getControlWeight());
+			child.registerParent(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
 			
 			if (child.getSurrogateInsts().size() > 0) {
 				for (SurrogateInst surNode: child.getSurrogateInsts()) {
 					if (surNode.equals(child))
 						continue ;
 					
-					parent.increChild(surNode.getFromMethod(), surNode.getMethodId(), surNode.getIdx(), MIBConfiguration.getInstance().getControlWeight());
-					surNode.registerParent(parent.getFromMethod(), parent.getMethodId(), parent.getIdx(), depType);
+					parent.increChild(surNode.getFromMethod(), surNode.getThreadId(), surNode.getThreadMethodIdx(), surNode.getIdx(), MIBConfiguration.getInstance().getControlWeight());
+					surNode.registerParent(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
 				}
 			}
+		}
+		
+		if (child.toString().equals("org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64:makeSingularPositive:():V 1 0 55 103 dsub")) {
+			System.out.println("Get the target: " + child);
+			System.out.println("Its parent: " + parent);
 		}
 	}
 	
@@ -227,7 +233,7 @@ public class MethodStackRecorder {
 	
 	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {
 		System.out.println("Handling now: " + opcode + " " + instIdx + " " + addInfo);
-		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.id, instIdx, opcode, addInfo);
+		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, addInfo);
 		this.updateTime(fullInst);
 		
 		this.updateControlRelation(fullInst);
@@ -266,7 +272,7 @@ public class MethodStackRecorder {
 			fieldKey += objId;
 		}
 		
-		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.id, instIdx, opcode, fieldKey);
+		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, fieldKey);
 		this.updateTime(fullInst);
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
@@ -316,7 +322,7 @@ public class MethodStackRecorder {
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
 		
-		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.id, instIdx, opcode, addInfo);
+		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, addInfo);
 		this.updateTime(fullInst);
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
@@ -349,9 +355,9 @@ public class MethodStackRecorder {
 		
 		InstNode fullInst = null;
 		if (localVarIdx >= 0) {
-			fullInst = this.pool.searchAndGet(this.methodKey, this.id, instIdx, opcode, String.valueOf(localVarIdx));
+			fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, String.valueOf(localVarIdx));
 		} else {
-			fullInst = this.pool.searchAndGet(this.methodKey, this.id, instIdx, opcode, "");
+			fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, "");
 		}
 		this.updateTime(fullInst);
 		
@@ -430,7 +436,7 @@ public class MethodStackRecorder {
 	public void handleMultiNewArray(String desc, int dim, int instIdx) {
 		System.out.println("Handling now: " + desc + " " + dim + " " + instIdx);
 		String addInfo = desc + " " + dim;
-		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.id, instIdx, Opcodes.MULTIANEWARRAY, addInfo);
+		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, Opcodes.MULTIANEWARRAY, addInfo);
 		this.updateTime(fullInst);
 		
 		this.updateControlRelation(fullInst);
@@ -485,10 +491,6 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc) {
-		//String addInfo = owner + "." + name + "." + desc;
-		//String addInfo = StringUtil.genKey(owner, name, desc);
-		//InstNode fullInst = this.pool.searchAndGet(this.methodKey, instIdx, opcode, addInfo);
-		
 		System.out.println("Handling now: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		try {
 			Type methodType = Type.getMethodType(desc);
@@ -505,16 +507,13 @@ public class MethodStackRecorder {
 			
 			//Load the correct graph
 			Class<?> correctClass = null;
-			int methodId = 0;
 			if (BytecodeCategory.staticMethod().contains(opcode)) {
 				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
-				methodId = ObjectIdAllocater.getClassMethodIndex(owner, name, desc);
+				//methodId = ObjectIdAllocater.getClassMethodIndex(owner, name, desc);
 			} else {
 				InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
-				//System.out.println("Related inst: " + relatedInst);
 				Object objOnStack = relatedInst.getRelatedObj();
-				//System.out.println("Check objOnStack: " + objOnStack);
-				methodId = ObjectIdAllocater.parseObjId(objOnStack);
+				//methodId = ObjectIdAllocater.parseObjId(objOnStack);
 				
 				if (opcode == Opcodes.INVOKESPECIAL) {
 					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, true);
@@ -526,13 +525,14 @@ public class MethodStackRecorder {
 			System.out.println("Method owner: " + correctClass.getName());
 			String methodKey = StringUtil.genKey(correctClass.getName(), name, desc);
 			String searchKey = "";
-			if (BytecodeCategory.staticMethod().contains(opcode)) {
-				searchKey = StringUtil.genKeyWithMethodId(methodKey, 0);
+			searchKey = StringUtil.genKeyWithId(methodKey, String.valueOf(this.threadId));
+			/*if (BytecodeCategory.staticMethod().contains(opcode)) {
+				searchKey = StringUtil.genKeyWithId(methodKey, 0);
 			} else {
-				searchKey = StringUtil.genKeyWithMethodId(methodKey, methodId);
-			}
+				searchKey = StringUtil.genKeyWithId(methodKey, methodId);
+			}*/
 			System.out.println("Search key: " + searchKey);
-			InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.id, instIdx, opcode, searchKey);
+			InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, searchKey);
 			
 			//Don't update, because we will remove inst before leaving the method
 			//this.updateControlRelation(fullInst);
@@ -546,11 +546,6 @@ public class MethodStackRecorder {
 			}
 			GraphTemplate childGraph = TemplateLoader.loadTemplateFile(filePath, graphToken);
 			
-			if (childGraph != null && BytecodeCategory.staticMethod().contains(opcode)) {
-				System.out.println("Reset class method inst id: " + methodId);
-				GraphUtil.setStaticMethodIdx(childGraph, methodId);
-			}
-			
 			//This means that the callee method is from jvm, keep the method inst in graph
 			if (childGraph == null) {
 				System.out.println("Null graph: " + searchKey);
@@ -558,7 +553,7 @@ public class MethodStackRecorder {
 				return ;
 			}
 			
-			System.out.println("Child graph: " + childGraph.getMethodKey() + " " + childGraph.getInstPool().size());
+			System.out.println("Child graph: " + childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
 						
 			InstPool childPool = childGraph.getInstPool();
 			GraphUtil.removeReturnInst(childPool);
@@ -568,7 +563,7 @@ public class MethodStackRecorder {
 			int reBase = GraphUtil.reindexInstPool(baseTime, childPool);
 			this.curTime.set(reBase);
 			
-			GraphUtil.synchronizeInstPools(this.pool, childPool);
+			//GraphUtil.synchronizeInstPools(this.pool, childPool);
 			
 			//Search correct inst, update local data dep dependency
 			HashMap<Integer, InstNode> parentFromCaller = new HashMap<Integer, InstNode>();
@@ -770,12 +765,9 @@ public class MethodStackRecorder {
 		GraphTemplate gt = new GraphTemplate();
 		
 		gt.setMethodKey(this.methodKey);
-		/*if (this.staticMethod) {
-			gt.setMethodId(ObjectIdAllocater.getClassMethodIndex(this.className, this.methodName, this.methodDesc));
-		} else {
-			gt.setMethodId(this.id);
-		}*/
-		gt.setMethodId(this.id);
+		gt.setThreadId(this.threadId);
+		gt.setThreadMethodId(this.threadMethodId);
+		gt.setThreadId(Thread.currentThread().getId());
 		gt.setMethodArgSize(this.methodArgSize);
 		gt.setMethodReturnSize(this.methodReturnSize);
 		gt.setStaticMethod(this.staticMethod);
@@ -783,7 +775,7 @@ public class MethodStackRecorder {
 		gt.setFirstReadLocalVars(this.firstReadLocalVars);
 		gt.setFirstReadFields(this.firstReadFields);
 		gt.setWriteFields(this.fieldRecorder);
-		gt.setPath(this.path);
+		//gt.setPath(this.path);
 		
 		GraphUtil.transplantFirstSurrogate(this.pool);
 		
@@ -801,10 +793,13 @@ public class MethodStackRecorder {
 		
 		TypeToken<GraphTemplate> typeToken = new TypeToken<GraphTemplate>(){};
 		
-		String dumpKey = StringUtil.genKeyWithMethodId(this.methodKey, this.id);
+		//String dumpKey = StringUtil.genKeyWithMethodId(this.methodKey, this.id);
+		String dumpKey = StringUtil.genKeyWithId(this.methodKey, String.valueOf(this.threadId));
 		if (MIBConfiguration.getInstance().isTemplateMode()) {
+			GsonManager.cacheGraph(dumpKey, 0);
 			GsonManager.writeJsonGeneric(gt, dumpKey, typeToken, 0);
 		} else {
+			GsonManager.cacheGraph(dumpKey, 1);
 			GsonManager.writeJsonGeneric(gt, dumpKey, typeToken, 1);
 		}
 		GsonManager.writePath(dumpKey, this.path);

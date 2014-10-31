@@ -72,8 +72,8 @@ public class StringUtil {
 		return ret;
 	}
 	
-	public static String genKeyWithMethodId(String methodKey, int methodId) {
-		return methodKey + ":" + methodId;
+	public static String genKeyWithId(String key, String id) {
+		return key + ":" + id;
 	}
 	
 	public static String genKey(String className, String methodName, String methodDesc) {
@@ -85,8 +85,13 @@ public class StringUtil {
 		return key;
 	}
 	
-	public static String genIdxKey(String fromMethod, int methodId, int idx) {
-		return fromMethod + "-" + methodId + "-" + idx;
+	public static String genIdxKey(String fromMethod, long threadId, int threadMethodIdx, int idx) {
+		return fromMethod + "-" + threadId + "-" + threadMethodIdx + "-" + idx;
+	}
+	
+	public static synchronized String genIdxKeyWithThreadId(String fromMethod) {
+		long threadId = Thread.currentThread().getId();
+		return fromMethod + "-" + threadId;
 	}
 	
 	public static String[] parseIdxKey(String idxKey) {

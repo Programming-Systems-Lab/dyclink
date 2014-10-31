@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,6 +15,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.premain.MIBDriver;
@@ -106,6 +108,31 @@ public class GsonManager {
 		}
 	}
 	
+	public static void cacheGraph(String fileName, int dirIdx) {
+		File f;
+		if (dirIdx == 0) {
+			f = new File(MIBConfiguration.getInstance().getTemplateDir() + "/" + fileName + ".json");
+		} else if (dirIdx == 1) {
+			f = new File(MIBConfiguration.getInstance().getTestDir() + "/" + fileName + ".json");
+		} else {
+			f = new File(MIBConfiguration.getInstance().getLabelmapDir() + "/" + fileName + ".json");
+		}
+		
+		if (f.exists()) {
+			try {
+				//Or we can read the existing graph first and use their threadMethodId
+				//GraphTemplate g = readJsonGeneric(f, new TypeToken<GraphTemplate>(){});
+				String newFileName = StringUtil.genKeyWithId(fileName, UUID.randomUUID().toString());
+				//String newFileName = StringUtil.genKeyWithId(fileName, String.valueOf(g.getThreadMethodId()));
+				if (!f.renameTo(new File(MIBConfiguration.getInstance().getCacheDir() + "/" + newFileName + ".json"))) {
+					System.err.println("Warning: faile to move file: " + f.getName());
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+	
 	public static <T> T readJsonGeneric(File f, TypeToken typeToken) {
 		GsonBuilder gb = new GsonBuilder();
 		gb.setPrettyPrinting();
@@ -145,12 +172,16 @@ public class GsonManager {
 	public static void cleanDirs(boolean cleanTemp, boolean cleanTest) {
 		File tempDir = new File(MIBConfiguration.getInstance().getTemplateDir());
 		File teDir = new File(MIBConfiguration.getInstance().getTestDir());
+		File cacheDir = new File(MIBConfiguration.getInstance().getCacheDir());
 		
 		if (cleanTemp)
 			cleanDir(tempDir);
 		
 		if (cleanTest)
 			cleanDir(teDir);
+		
+		//No matter what, clean cache
+		cleanDir(cacheDir);
 	}
 	
 	public static void writeResult(StringBuilder sb) {
