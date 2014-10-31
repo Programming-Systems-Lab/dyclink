@@ -39,9 +39,10 @@ public class TemplateLoader {
 	
 	public static <T> T loadTemplateFile(String fileName, TypeToken<T> typeToken) {
 		File f = new File(fileName);
-		if (f.exists())
+		if (f.exists()) {
+			System.out.println("Start loading graph: " + fileName);
 			return loadTemplateFile(f, typeToken);
-		else {
+		} else {
 			System.out.println("File not exist: " + f.getName());
 			return null;
 		}

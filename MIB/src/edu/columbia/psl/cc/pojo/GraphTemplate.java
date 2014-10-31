@@ -25,6 +25,8 @@ public class GraphTemplate {
 	
 	private InstPool pool;
 	
+	private int depNum;
+	
 	private HashSet<InstNode> firstReadLocalVars;
 	
 	private HashSet<InstNode> firstReadFields;
@@ -43,6 +45,7 @@ public class GraphTemplate {
 		this.methodReturnSize = copy.getMethodReturnSize();
 		this.threadId = copy.getThreadId();
 		this.threadMethodId = copy.getThreadMethodId();
+		this.depNum = copy.getDepNum();
 		this.staticMethod = copy.isStaticMethod();
 		this.firstReadFields = new HashSet<InstNode>(copy.getFirstReadFields());
 		this.firstReadLocalVars = new HashSet<InstNode>(copy.getFirstReadLocalVars());
@@ -89,6 +92,14 @@ public class GraphTemplate {
 	
 	public InstPool getInstPool() {
 		return this.pool;
+	}
+	
+	public void setDepNum(int depNum) {
+		this.depNum = depNum;
+	}
+	
+	public int getDepNum() {
+		return this.depNum;
 	}
 	
 	public void setMethodArgSize(int methodArgSize) {

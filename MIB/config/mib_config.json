@@ -16,7 +16,7 @@
     "idxExpandFactor": 10000,
     "precisionDigit": 5,
     "parallelFactor": 8,
-    "instThreshold": 30,
+    "instThreshold": 0,
     "annotGuard": false,
     "cleanTemplate": true,
     "cleanTest": true,

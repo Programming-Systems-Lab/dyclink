@@ -188,6 +188,7 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 			InstPool pool) {
 		// List here is just for facilitate dumping cost table. Should remove after
 		//System.out.println("Check inst pool: " + pool);
+		System.out.println("Constructing cost table for: " + methodName);
 		ArrayList<InstNode> allNodes = new ArrayList<InstNode>(pool);
 		double[][] ret = new double[allNodes.size()][allNodes.size()];
 		
@@ -216,23 +217,33 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 		}*/
 		
 		//Debugging purpose, dump cost table
-		StringBuilder sb = new StringBuilder();
+		/*StringBuilder sb = new StringBuilder();
 		sb.append("head,");
-		for (int k = 0; k < allNodes.size(); k++) {
-			if (k == pool.size() - 1) {
-				sb.append(allNodes.get(k).toString() + "\n");
-			} else {
-				sb.append(allNodes.get(k).toString() + ",");
+		try {
+			for (int k = 0; k < allNodes.size(); k++) {
+				if (k == pool.size() - 1) {
+					sb.append(allNodes.get(k).toString() + "\n");
+				} else {
+					sb.append(allNodes.get(k).toString() + ",");
+				}
 			}
-		}
+			System.out.println("Header append complets");
 		
-		for (int m = 0; m < ret.length; m++) {
-			StringBuilder rawBuilder = new StringBuilder();
-			rawBuilder.append(allNodes.get(m) + ",");
-			for (int n = 0; n < ret.length; n++) {
-				rawBuilder.append(ret[m][n] + ",");
+			for (int m = 0; m < ret.length; m++) {
+				StringBuilder rawBuilder = new StringBuilder();
+				rawBuilder.append(allNodes.get(m) + ",");
+				System.out.println(allNodes.get(m));
+				for (int n = 0; n < ret.length; n++) {
+					rawBuilder.append(ret[m][n] + ",");
+				}
+				
+				if (rawBuilder.length() > 1)
+					sb.append(rawBuilder.toString().substring(0, rawBuilder.length() - 1) + "\n");
 			}
-			sb.append(rawBuilder.toString().substring(0, rawBuilder.length() - 1) + "\n");
+			System.out.println("Data append completes");
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			System.out.println("Current sb: " + sb.toString());
 		}
 				
 		try {
@@ -246,7 +257,7 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 			bw.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
-		}
+		}*/
 		
 		return ret;
 	}

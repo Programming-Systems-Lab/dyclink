@@ -28,6 +28,7 @@ import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.ExtObj;
+import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
@@ -37,7 +38,9 @@ import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class MethodStackRecorder {
 		
-	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
+	private static TypeToken<GraphTemplate> GRAPH_TOKEN = new TypeToken<GraphTemplate>(){};
+	
+	private static int UNDERSIZE_METHOD_ID = -1;
 	
 	private AtomicInteger curTime = new AtomicInteger();
 		
@@ -86,6 +89,8 @@ public class MethodStackRecorder {
 	private int threadMethodId = -1;
 	
 	private int maxTime = -1;
+	
+	private HashMap<String, GraphGroup> calleeCache = new HashMap<String, GraphGroup>();
 	
 	public MethodStackRecorder(String className, 
 			String methodName, 
@@ -451,7 +456,7 @@ public class MethodStackRecorder {
 	}
 	
 	private void handleUninstrumentedMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc, InstNode fullInst) {
-		System.out.println("Handling uninstrumented method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+		System.out.println("Handling uninstrumented/undersize method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		this.updateTime(fullInst);
 		
 		this.updateControlRelation(fullInst);
@@ -544,19 +549,64 @@ public class MethodStackRecorder {
 			} else {
 				filePath = MIBConfiguration.getInstance().getTestDir() + "/" + searchKey + ".json";
 			}
-			GraphTemplate childGraph = TemplateLoader.loadTemplateFile(filePath, graphToken);
+			GraphTemplate childGraph = TemplateLoader.loadTemplateFile(filePath, GRAPH_TOKEN);
 			
 			//This means that the callee method is from jvm, keep the method inst in graph
+			boolean removeReturn = true;
 			if (childGraph == null) {
 				System.out.println("Null graph: " + searchKey);
 				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 				return ;
+			} else if (childGraph.getInstPool().size() < MIBConfiguration.getInstance().getInstThreshold()){
+				System.out.println("Graph size is too small: " + childGraph.getInstPool().size());
+				
+				//Change the inst idx for preventing this inst will be removed in the future
+				int oldInstIdx = fullInst.getIdx();
+				int newInstIdx = (1 + oldInstIdx) * MIBConfiguration.getInstance().getIdxExpandFactor();
+				//System.out.println("Move inst: " + fullInst);
+				this.pool.remove(fullInst);
+				fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, newInstIdx, opcode, searchKey);
+				//System.out.println("To: " + fullInst);
+				
+				//Only update field data deps
+				if (this.fieldRecorder.size() > 0) {
+					GraphUtil.fieldDataDepFromParentInstToChildGraph(this.fieldRecorder, fullInst, childGraph);
+				}
+				
+				if (childGraph.getWriteFields().size() > 0) {
+					this.fieldRecorder.putAll(childGraph.getWriteFields());
+				}
+				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
+				return ;
+			} else if (this.calleeCache.containsKey(searchKey)) {
+				GraphGroup gGroup = this.calleeCache.get(searchKey);
+				
+				//Check if there is similar graph
+				GraphTemplate rep = gGroup.getGraph(childGraph);
+				
+				if (rep != null) {
+					System.out.println("Find similar graph in cache: " + searchKey);
+					System.out.println("nodeNum depNum: " + childGraph.getInstPool().size() + " " + childGraph.getDepNum());
+					//Guess that this graph is the same
+					childGraph = rep;
+					removeReturn = false;
+				} else {
+					System.out.println("Find no similar graph in cache: " + searchKey);
+					gGroup.addGraph(childGraph);
+				}
+			} else {
+				System.out.println("Creat new graph group for: " + searchKey);
+				GraphGroup gGroup = new GraphGroup();
+				gGroup.addGraph(childGraph);
+				this.calleeCache.put(searchKey, gGroup);
 			}
 			
-			System.out.println("Child graph: " + childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
+			System.out.println("Child graph analysis: " + childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
+			System.out.println("Child graph size: " + childGraph.getInstPool().size());
 						
 			InstPool childPool = childGraph.getInstPool();
-			GraphUtil.removeReturnInst(childPool);
+			if (removeReturn)
+				GraphUtil.removeReturnInst(childPool);
 			
 			//Reindex child
 			int baseTime = this.getCurTime();
@@ -790,9 +840,9 @@ public class MethodStackRecorder {
 		System.out.println("Total dependency count: " + depCount);
 		
 		gt.setInstPool(this.pool);
+		gt.setDepNum(depCount);
 		
 		TypeToken<GraphTemplate> typeToken = new TypeToken<GraphTemplate>(){};
-		
 		//String dumpKey = StringUtil.genKeyWithMethodId(this.methodKey, this.id);
 		String dumpKey = StringUtil.genKeyWithId(this.methodKey, String.valueOf(this.threadId));
 		if (MIBConfiguration.getInstance().isTemplateMode()) {
@@ -803,6 +853,14 @@ public class MethodStackRecorder {
 			GsonManager.writeJsonGeneric(gt, dumpKey, typeToken, 1);
 		}
 		GsonManager.writePath(dumpKey, this.path);
+		
+		//Debuggin, check graph group
+		System.out.println("Graph groups:");
+		for (String searchKey: calleeCache.keySet()) {
+			System.out.println("Group name: " + searchKey);
+			GraphGroup gGroup = calleeCache.get(searchKey);
+			System.out.println(gGroup.keySet());
+		}
 	}
 
 }

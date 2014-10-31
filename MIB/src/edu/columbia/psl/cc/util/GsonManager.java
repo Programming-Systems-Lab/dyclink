@@ -137,7 +137,8 @@ public class GsonManager {
 		GsonBuilder gb = new GsonBuilder();
 		gb.setPrettyPrinting();
 		gb.registerTypeAdapter(InstNode.class, new InstNodeAdapter());
-		Gson gson = gb.enableComplexMapKeySerialization().create();
+		//Gson gson = gb.enableComplexMapKeySerialization().create();
+		Gson gson = gb.create();
 		try {
 			JsonReader jr = new JsonReader(new FileReader(f));
 			T ret = gson.fromJson(jr, typeToken.getType());
@@ -173,6 +174,7 @@ public class GsonManager {
 		File tempDir = new File(MIBConfiguration.getInstance().getTemplateDir());
 		File teDir = new File(MIBConfiguration.getInstance().getTestDir());
 		File cacheDir = new File(MIBConfiguration.getInstance().getCacheDir());
+		File pathDir = new File(MIBConfiguration.getInstance().getPathDir());
 		
 		if (cleanTemp)
 			cleanDir(tempDir);
@@ -182,6 +184,7 @@ public class GsonManager {
 		
 		//No matter what, clean cache
 		cleanDir(cacheDir);
+		cleanDir(pathDir);
 	}
 	
 	public static void writeResult(StringBuilder sb) {

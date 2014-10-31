@@ -235,12 +235,16 @@ public class GraphUtil {
 			}
 		}
 		
+		System.out.println("Child node: " + childNode);
+		System.out.println("Child node control parent: " + childNode.getControlParentList());
 		for (String cont: childNode.getControlParentList()) {
 			String[] keySet = StringUtil.parseIdxKey(cont);
 			long cThreadId = Long.valueOf(keySet[1]);
 			int cThreadMethodId = Integer.valueOf(keySet[2]);
 			int cIdx = Integer.valueOf(keySet[3]);
 			InstNode contNode = childPool.searchAndGet(keySet[0], cThreadId, cThreadMethodId, cIdx);
+			System.out.println("Cont node: " + contNode);
+			System.out.println("Cont node child: " + contNode.getChildFreqMap());
 			double freq = contNode.getChildFreqMap().get(fInstKey);
 			
 			if (parentNode != null) {
@@ -371,10 +375,25 @@ public class GraphUtil {
 		
 		for (Integer varKey: childSummary.keySet()) {
 			List<InstNode> childInsts = childSummary.get(varKey);
-			childInsts = sortInstPool(childInsts, true);
+			//childInsts = sortInstPool(childInsts, true);
 			InstNode parentNode = parentMap.get(varKey);
-			InstNode childNode = childInsts.get(0);
-			transplantCalleeDepToCaller(parentNode, childNode, childPool);
+			//InstNode childNode = childInsts.get(0);
+			//transplantCalleeDepToCaller(parentNode, childNode, childPool);
+			
+			//Only connect input node from parent method to child method
+			for (InstNode childInst: childInsts) {
+				parentNode.increChild(childInst.getFromMethod(), 
+						childInst.getThreadId(), 
+						childInst.getThreadMethodIdx(), 
+						childInst.getIdx(), 
+						MIBConfiguration.getInstance().getInstDataWeight());
+				childInst.registerParent(parentNode.getFromMethod(), 
+						parentNode.getThreadId(), 
+						parentNode.getThreadMethodIdx(), 
+						parentNode.getIdx(), 
+						MIBConfiguration.INST_DATA_DEP);
+			}
+			
 			
 			/*if (parentNode != null) {
 				for (InstNode cInst: childInsts) {
@@ -448,6 +467,34 @@ public class GraphUtil {
 						fInst.getIdx(), 
 						MIBConfiguration.getInstance().getWriteDataWeight());
 				fInst.registerParent(parentNode.getFromMethod(), 
+						parentNode.getThreadId(), 
+						parentNode.getThreadMethodIdx(), 
+						parentNode.getIdx(), 
+						MIBConfiguration.WRITE_DATA_DEP);
+				
+				frIterator.remove();
+			}
+		}
+	}
+	
+	public static void fieldDataDepFromParentInstToChildGraph(Map<String, InstNode> parentMap, 
+			InstNode childMethodInst, 
+			GraphTemplate childGraph) {
+		HashSet<InstNode> firstReadFields = childGraph.getFirstReadFields();
+		
+		Iterator<InstNode> frIterator = firstReadFields.iterator();
+		while (frIterator.hasNext()) {
+			InstNode fInst = frIterator.next();
+			if (parentMap.containsKey(fInst.getAddInfo())) {
+				InstNode parentNode = parentMap.get(fInst.getAddInfo());
+				
+				//Don't use inst, use the chidlMethodInst
+				parentNode.increChild(childMethodInst.getFromMethod(), 
+						childMethodInst.getThreadId(), 
+						childMethodInst.getThreadMethodIdx(), 
+						childMethodInst.getIdx(), 
+						MIBConfiguration.getInstance().getWriteDataWeight());
+				childMethodInst.registerParent(parentNode.getFromMethod(), 
 						parentNode.getThreadId(), 
 						parentNode.getThreadMethodIdx(), 
 						parentNode.getIdx(), 
