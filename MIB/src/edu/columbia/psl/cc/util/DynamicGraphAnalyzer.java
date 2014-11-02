@@ -122,12 +122,16 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 		//MIBSimilarity<CostObj[][]> scorer = new ShortestPathKernel();
 		MIBSimilarity<double[][]> scorer = new SVDKernel();
 		
-		if (this.templates == null || this.templates.size() == 0) {
-			System.out.println("Exhaustive mode: tests vs. tests");
-			scorer.calculateSimilarities(this.tests, this.tests);
-		} else {
+		if (this.templates != null && this.templates.size() > 0 
+				&& this.tests != null && this.tests.size() >0) {
 			System.out.println("Comparison mode: template vs tests");
 			scorer.calculateSimilarities(this.templates, this.tests);
+		} else if (this.templates == null || this.templates.size() == 0) {
+			System.out.println("Exhaustive mode: tests vs. tests");
+			scorer.calculateSimilarities(this.tests, this.tests);
+		} else if (this.tests == null || this.tests.size() == 0) {
+			System.out.println("Exhaustive mode: templates vs. templates");
+			scorer.calculateSimilarities(this.templates, this.templates);
 		}
 		GsonManager.writeResult(scorer.getResult());
 	}

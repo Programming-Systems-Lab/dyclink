@@ -19,9 +19,11 @@ import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.premain.MIBDriver;
 import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.StringUtil;
@@ -56,6 +58,14 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 		RealVector rv1 = new ArrayRealVector(s1);
 		RealVector rv2 = new ArrayRealVector(s2);
 		return rv1.dotProduct(rv2);
+	}
+	
+	public static double sum(double[] array) {
+		double ret = 0;
+		for (int i = 0; i < array.length; i++) {
+			ret += array[i];
+		}
+		return ret;
 	}
 	
 	private static double similarityHelper(double[] s1, double[] s2) {
@@ -122,7 +132,19 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 			if (cachedMap.containsKey(key1))
 				continue ;
 			
-			double[][] adjMatrix = this.constructCostTable(key1, gMap1.get(key1).getInstPool());
+			InstPool instPool = gMap1.get(key1).getInstPool();
+			
+			double[][] adjMatrix = null;
+			if (instPool.size() > 3000) {
+				System.out.println("Graph is too large: " + instPool.size());
+				System.out.println("Conduct PageRank selection");
+				PageRankSelector pgs = new PageRankSelector(instPool);
+				InstPool selectedPool = pgs.selectRepPool();
+				adjMatrix = this.constructCostTable(key1, selectedPool);
+			} else {
+				adjMatrix = this.constructCostTable(key1, instPool);
+				//double[][] adjMatrix = this.constructTransitionTables(key1, gMap1.get(key1).getInstPool());
+			}
 			cachedMap.put(key1, adjMatrix);
 		}
 		
@@ -130,7 +152,19 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 			if (cachedMap.containsKey(key2))
 				continue ;
 			
-			double[][] adjMatrix = this.constructCostTable(key2, gMap2.get(key2).getInstPool());
+			InstPool instPool = gMap2.get(key2).getInstPool();
+			
+			double[][] adjMatrix = null;
+			if (instPool.size() > 3000) {
+				System.out.println("Graph is too large: " + instPool.size());
+				System.out.println("Conduct PageRank selection");
+				PageRankSelector pgs = new PageRankSelector(instPool);
+				InstPool selectedPool = pgs.selectRepPool();
+				adjMatrix = this.constructCostTable(key2, selectedPool);
+			} else {
+				adjMatrix = this.constructCostTable(key2, instPool);
+				//double[][] adjMatrix = this.constructTransitionTables(key2, gMap2.get(key2).getInstPool());
+			}
 			cachedMap.put(key2, adjMatrix);
 		}
 		
@@ -183,6 +217,91 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 		return similarityHelper(s1, s2);
 	}
 	
+	public double[][] constructTransitionTables(String methodName, InstPool pool) {
+		System.out.println("Constructin transition matrix: " + methodName);
+		ArrayList<InstNode> allNodes = new ArrayList<InstNode>(pool);
+		double[][] ret = new double[256][256];
+		
+		for (int i = 0; i < allNodes.size(); i++) {
+			InstNode inst = allNodes.get(i);
+			double[] transArray = ret[inst.getOp().getOpcode()];
+			
+			for (String childKey: inst.getChildFreqMap().keySet()) {
+				String[] keys = StringUtil.parseIdxKey(childKey);
+				InstNode childNode = pool.searchAndGet(keys[0], 
+						Long.valueOf(keys[1]), 
+						Integer.valueOf(keys[2]), 
+						Integer.valueOf(keys[3]));
+				
+				transArray[childNode.getOp().getOpcode()] += inst.getChildFreqMap().get(childKey);
+			}
+		}
+		
+		//Normalize
+		for (int i = 0; i < ret.length; i++) {
+			double[] transArray = ret[i];
+			double base = sum(transArray);
+			for (int j = 0; j < ret.length; j++) {
+				double val = 0;
+				
+				if (base == 0)
+					val = 0;
+				else
+					val = transArray[j]/base;
+				
+				ret[i][j] = val;
+			}
+		}
+		
+		int count = 0;
+		String[] opcodeArray = new String[256];
+		StringBuilder sb = new StringBuilder();
+		sb.append("head,");
+		for (int k = 0; k < ret.length; k++) {
+			OpcodeObj oo = BytecodeCategory.getOpcodeObj(k);
+			
+			String toPrint = "";
+			if (oo != null) {
+				toPrint = oo.getInstruction();
+			} else {
+				toPrint = "emptyInst" + count++; 
+			}
+			
+			opcodeArray[k] = toPrint;
+			if (k == ret.length - 1) {
+				sb.append(toPrint + "\n");
+			} else {
+				sb.append(toPrint + ",");
+			}
+		}
+		
+		
+		for (int m = 0; m < ret.length; m++) {
+			StringBuilder rawBuilder = new StringBuilder();
+			rawBuilder.append(opcodeArray[m] + ",");
+			for (int n = 0; n < ret.length; n++) {
+				rawBuilder.append(ret[m][n] + ",");
+			}
+			
+			if (rawBuilder.length() > 1)
+				sb.append(rawBuilder.toString().substring(0, rawBuilder.length() - 1) + "\n");
+		}
+		
+		try {
+			File f = new File(MIBConfiguration.getInstance().getCostTableDir() + methodName + ".csv");
+			if (f.exists()) {
+				f.delete();
+			}
+			f.createNewFile();
+			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+			bw.write(sb.toString());
+			bw.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return ret;
+	} 
+	
 	@Override
 	public double[][] constructCostTable(String methodName,
 			InstPool pool) {
@@ -217,7 +336,7 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 		}*/
 		
 		//Debugging purpose, dump cost table
-		/*StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		sb.append("head,");
 		try {
 			for (int k = 0; k < allNodes.size(); k++) {
@@ -232,7 +351,6 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 			for (int m = 0; m < ret.length; m++) {
 				StringBuilder rawBuilder = new StringBuilder();
 				rawBuilder.append(allNodes.get(m) + ",");
-				System.out.println(allNodes.get(m));
 				for (int n = 0; n < ret.length; n++) {
 					rawBuilder.append(ret[m][n] + ",");
 				}
@@ -257,7 +375,7 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 			bw.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
-		}*/
+		}
 		
 		return ret;
 	}

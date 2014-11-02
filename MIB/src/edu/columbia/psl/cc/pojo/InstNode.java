@@ -25,9 +25,9 @@ public class InstNode implements Comparable<InstNode>{
 	
 	private int linenumber;
 	
-	private int startTime = -1;
+	private long startTime = -1;
 	
-	private int updateTime = -1;
+	private	long updateTime = -1;
 	
 	private AtomicInteger maxSurrogate = new AtomicInteger();
 	
@@ -152,19 +152,19 @@ public class InstNode implements Comparable<InstNode>{
 		return this.idx;
 	}
 	
-	public void setStartTime(int startTime) {
+	public void setStartTime(long startTime) {
 		this.startTime = startTime;
 	}
 	
-	public int getStartTime() {
+	public long getStartTime() {
 		return this.startTime;
 	}
 	
-	public void setUpdateTime(int updateTime) {
+	public void setUpdateTime(long updateTime) {
 		this.updateTime = updateTime;
 	}
 	
-	public int getUpdateTime() {
+	public long getUpdateTime() {
 		return this.updateTime;
 	}
 	

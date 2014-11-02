@@ -17,7 +17,9 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.log4j.Logger;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -40,9 +42,7 @@ public class MethodStackRecorder {
 		
 	private static TypeToken<GraphTemplate> GRAPH_TOKEN = new TypeToken<GraphTemplate>(){};
 	
-	private static int UNDERSIZE_METHOD_ID = -1;
-	
-	private AtomicInteger curTime = new AtomicInteger();
+	private AtomicLong curTime = new AtomicLong();
 		
 	private String className;
 	
@@ -88,7 +88,7 @@ public class MethodStackRecorder {
 	
 	private int threadMethodId = -1;
 	
-	private int maxTime = -1;
+	private long maxTime = -1;
 	
 	private HashMap<String, GraphGroup> calleeCache = new HashMap<String, GraphGroup>();
 	
@@ -127,7 +127,7 @@ public class MethodStackRecorder {
 		}
 	}
 	
-	private int getCurTime() {
+	private long getCurTime() {
 		return this.curTime.getAndIncrement();
 	}
 	
@@ -161,7 +161,7 @@ public class MethodStackRecorder {
 	}
 	
 	private void updateTime(InstNode fullInst) {
-		int curTime = this.getCurTime();
+		long curTime = this.getCurTime();
 		if (fullInst.getStartTime() < 0) {
 			fullInst.setStartTime(curTime);
 			fullInst.setUpdateTime(curTime);	
@@ -563,10 +563,8 @@ public class MethodStackRecorder {
 				//Change the inst idx for preventing this inst will be removed in the future
 				int oldInstIdx = fullInst.getIdx();
 				int newInstIdx = (1 + oldInstIdx) * MIBConfiguration.getInstance().getIdxExpandFactor();
-				//System.out.println("Move inst: " + fullInst);
 				this.pool.remove(fullInst);
 				fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, newInstIdx, opcode, searchKey);
-				//System.out.println("To: " + fullInst);
 				
 				//Only update field data deps
 				if (this.fieldRecorder.size() > 0) {
@@ -587,6 +585,8 @@ public class MethodStackRecorder {
 				if (rep != null) {
 					System.out.println("Find similar graph in cache: " + searchKey);
 					System.out.println("nodeNum depNum: " + childGraph.getInstPool().size() + " " + childGraph.getDepNum());
+					System.out.println("All group keys now: " + gGroup.keySet());
+					
 					//Guess that this graph is the same
 					childGraph = rep;
 					removeReturn = false;
@@ -595,7 +595,8 @@ public class MethodStackRecorder {
 					gGroup.addGraph(childGraph);
 				}
 			} else {
-				System.out.println("Creat new graph group for: " + searchKey);
+				System.out.println("Caller: " + this.methodKey);
+				System.out.println("Create new graph group for: " + searchKey);
 				GraphGroup gGroup = new GraphGroup();
 				gGroup.addGraph(childGraph);
 				this.calleeCache.put(searchKey, gGroup);
@@ -609,8 +610,8 @@ public class MethodStackRecorder {
 				GraphUtil.removeReturnInst(childPool);
 			
 			//Reindex child
-			int baseTime = this.getCurTime();
-			int reBase = GraphUtil.reindexInstPool(baseTime, childPool);
+			long baseTime = this.getCurTime();
+			long reBase = GraphUtil.reindexInstPool(baseTime, childPool);
 			this.curTime.set(reBase);
 			
 			//GraphUtil.synchronizeInstPools(this.pool, childPool);

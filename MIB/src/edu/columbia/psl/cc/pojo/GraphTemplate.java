@@ -33,7 +33,7 @@ public class GraphTemplate {
 	
 	private Map<String, InstNode> writeFields;
 	
-	private int maxTime;
+	private long maxTime;
 	
 	public GraphTemplate() {
 		
@@ -166,11 +166,11 @@ public class GraphTemplate {
 		return this.threadMethodId;
 	}
 	
-	public void setMaxTime(int maxTime) {
+	public void setMaxTime(long maxTime) {
 		this.maxTime = maxTime;
 	}
 	
-	public int getMaxTime() {
+	public long getMaxTime() {
 		return this.maxTime;
 	}
 	

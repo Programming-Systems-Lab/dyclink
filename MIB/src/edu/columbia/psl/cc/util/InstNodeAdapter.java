@@ -33,8 +33,8 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		long threadId = object.get("threadId").getAsLong();
 		int threadMethodIdx = object.get("threadMethodIdx").getAsInt();
 		int idx = object.get("idx").getAsInt();
-		int startTime = object.get("startTime").getAsInt();
-		int updateTime = object.get("updateTime").getAsInt();
+		long startTime = object.get("startTime").getAsLong();
+		long updateTime = object.get("updateTime").getAsLong();
 		int opcode = object.get("op").getAsInt();
 		String addInfo = object.get("addInfo").getAsString();
 		

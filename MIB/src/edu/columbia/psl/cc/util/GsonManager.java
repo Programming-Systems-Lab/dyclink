@@ -175,6 +175,7 @@ public class GsonManager {
 		File teDir = new File(MIBConfiguration.getInstance().getTestDir());
 		File cacheDir = new File(MIBConfiguration.getInstance().getCacheDir());
 		File pathDir = new File(MIBConfiguration.getInstance().getPathDir());
+		File costDir = new File(MIBConfiguration.getInstance().getCostTableDir());
 		
 		if (cleanTemp)
 			cleanDir(tempDir);
@@ -185,6 +186,7 @@ public class GsonManager {
 		//No matter what, clean cache
 		cleanDir(cacheDir);
 		cleanDir(pathDir);
+		cleanDir(costDir);
 	}
 	
 	public static void writeResult(StringBuilder sb) {

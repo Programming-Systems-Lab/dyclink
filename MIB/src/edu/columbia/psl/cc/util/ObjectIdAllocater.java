@@ -74,6 +74,6 @@ public class ObjectIdAllocater {
 	
 	public static void main(String[] args) {
 		System.out.println(getIndex());
-		System.out.println(getClassMethodIndex("a", "b", "c"));
+		//System.out.println(getClassMethodIndex("a", "b", "c"));
 	}
 }

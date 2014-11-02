@@ -136,8 +136,8 @@ public class GraphUtil {
 		return sortedList.get(sortedList.size() - 1);
 	}
 	
-	public static int reindexInstPool(int base, InstPool instPool) {
-		int maxUpdateTime = 0;
+	public static long reindexInstPool(long base, InstPool instPool) {
+		long maxUpdateTime = 0;
 		for (InstNode inst: instPool) {
 			inst.setStartTime(base + inst.getStartTime());
 			inst.setUpdateTime(base + inst.getUpdateTime());
