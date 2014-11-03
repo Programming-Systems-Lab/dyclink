@@ -28,12 +28,49 @@ public class TemplateMethod extends TemplateParent{
 	
 	private String test;
 	
+	public Object UBV = new Object();
+	
+	public double[] u = new double[3];
+	
+	public double[] b = new double[3];
+	
+	public int m = 5;
+ 	
 	public TemplateMethod() {
 		
 	}
 	
 	public TemplateMethod(String test1, String test2, String test3) {
 		this.test = test1;
+	}
+	
+	public static void callee( Object A , double u[] , double gamma ,
+            int colA0,
+            int w0, int w1 ,
+            double _temp[] ) {
+		Object o1 = A;
+		double[] d1 = u;
+		double d2 = gamma;
+		double c = colA0;
+		int d = w0;
+		int e = w1;
+		double[] d3 = _temp;
+	}
+	
+	public void byteTest(byte b1, double d1, long l1, int i1, Object o1, double[] dArray1, String s1) {
+		byte input1 = b1;
+		double input2 = d1;
+		long input3 = l1;
+		int input4 = i1;
+		Object input5 = o1;
+		double[] input6 = dArray1;
+		String input7 = s1;
+	} 
+	
+	public void caller() {
+		double gamma = 1;
+		int k = 8;
+		callee(UBV,u,gamma,k+1,k,m,this.b);
 	}
 	
 	private  static int classAdd(int i) {
@@ -310,9 +347,10 @@ public class TemplateMethod extends TemplateParent{
 		
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
-		tm.call1();
-		System.out.println(Integer.MAX_VALUE);
-		System.out.println(Integer.MAX_VALUE + 1);
+		tm.caller();
+		//tm.call1();
+		//System.out.println(Integer.MAX_VALUE);
+		//System.out.println(Integer.MAX_VALUE + 1);
 		//classAdd(5);
 		//int a = 2;
 		//int[] b = {3, 4, 7};

@@ -125,17 +125,20 @@ public class MethodStackRecorder {
 			this.objId = ObjectIdAllocater.parseObjId(obj);
 		}
 		
-		int count = 0, start = 0;
+		int start = 0;
 		if (!this.staticMethod) {
 			//Start from 0
 			this.shouldRecordReadLocalVars.add(0);
 			start = 1;
 		}
 		
-		while (count < methodArgSize) {
+		for (Type t: methodType.getArgumentTypes()) {
 			this.shouldRecordReadLocalVars.add(start);
-			start++;
-			count++;
+			if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
+				start += 2;
+			} else {
+				start += 1;
+			}
 		}
 	}
 	
@@ -650,7 +653,19 @@ public class MethodStackRecorder {
 				if (!BytecodeCategory.staticMethod().contains(opcode)) {
 					startIdx = 1;
 				}
-				int endIdx = startIdx + args.length - 1;
+				//int endIdx = startIdx + args.length - 1;
+				
+				int endIdx = startIdx;
+				for (int i = args.length - 1; i >= 0; i--) {
+					Type t = args[i];
+					if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
+						endIdx += 2;
+					} else {
+						endIdx += 1;
+					}
+				}
+				endIdx--;
+				System.out.println("start end: " + startIdx + " " + endIdx);
 				
 				for (int i = args.length - 1; i >= 0 ;i--) {
 					Type t = args[i];
@@ -658,10 +673,17 @@ public class MethodStackRecorder {
 					if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
 						this.safePop();
 						targetNode = this.safePop();
+						
+						endIdx -=1;
+						parentFromCaller.put(endIdx, targetNode);
+						endIdx -= 1;
 					} else {
 						targetNode = this.safePop();
+						parentFromCaller.put(endIdx, targetNode);
+						
+						endIdx -= 1;
 					}
-					parentFromCaller.put(endIdx--, targetNode);
+					//parentFromCaller.put(endIdx--, targetNode);
 				}
 			}
 			
@@ -670,6 +692,8 @@ public class MethodStackRecorder {
 				InstNode loadNode = this.safePop();
 				parentFromCaller.put(0, loadNode);
 			}
+			
+			System.out.println("Check parent map: " + parentFromCaller);
 			
 			GraphUtil.dataDepFromParentToChild(parentFromCaller, this.pool, childGraph);
 			
