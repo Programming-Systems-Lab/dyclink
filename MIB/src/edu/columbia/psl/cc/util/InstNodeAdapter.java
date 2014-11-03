@@ -33,7 +33,9 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		long threadId = object.get("threadId").getAsLong();
 		int threadMethodIdx = object.get("threadMethodIdx").getAsInt();
 		int idx = object.get("idx").getAsInt();
+		long startDigit = object.get("startDigit").getAsLong();
 		long startTime = object.get("startTime").getAsLong();
+		long updateDigit = object.get("updateDigit").getAsLong();
 		long updateTime = object.get("updateTime").getAsLong();
 		int opcode = object.get("op").getAsInt();
 		String addInfo = object.get("addInfo").getAsString();
@@ -72,7 +74,9 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		inst.setWriteDataParentList(writeDataParentList);
 		inst.setControlParentList(controlParentList);
 		inst.setChildFreqMap(childFreqMap);
+		inst.setStartDigit(startDigit);
 		inst.setStartTime(startTime);
+		inst.setUpdateDigit(updateDigit);
 		inst.setUpdateTime(updateTime);
 		//inst.setChildFreqMap((TreeMap<Integer, Double>)context.deserialize(object.get("childFreqpMap"), childToken.getType()));
 		//inst.setParentList((ArrayList<Integer>)context.deserialize(object.get("parentList"), parentToken.getType()));
@@ -87,7 +91,9 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		result.addProperty("threadId", inst.getThreadId());
 		result.addProperty("threadMethodIdx", inst.getThreadMethodIdx());
 		result.addProperty("idx", inst.getIdx());
+		result.addProperty("startDigit", inst.getStartDigit());
 		result.addProperty("startTime", inst.getStartTime());
+		result.addProperty("updateDigit", inst.getUpdateDigit());
 		result.addProperty("updateTime", inst.getUpdateTime());
 		result.addProperty("op", inst.getOp().getOpcode());
 		//For debuggin purpose, or we only need opcode

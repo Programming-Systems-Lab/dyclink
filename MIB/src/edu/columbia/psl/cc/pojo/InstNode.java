@@ -25,7 +25,11 @@ public class InstNode implements Comparable<InstNode>{
 	
 	private int linenumber;
 	
+	private long startDigit = 0;
+	
 	private long startTime = -1;
+	
+	private long updateDigit = 0;
 	
 	private	long updateTime = -1;
 	
@@ -39,9 +43,6 @@ public class InstNode implements Comparable<InstNode>{
 	
 	//For freq map, the key is the inst method + idx, and the value is the frequency
 	private TreeMap<String, Double> childFreqMap = new TreeMap<String, Double>();
-	
-	//Key child rep in callee method, val surrogate node
-	private transient HashSet<SurrogateInst> surrogates = new HashSet<SurrogateInst>();
 	
 	private Object relatedObj = null;
 	
@@ -152,12 +153,28 @@ public class InstNode implements Comparable<InstNode>{
 		return this.idx;
 	}
 	
+	public void setStartDigit(long startDigit) {
+		this.startDigit = startDigit;
+	}
+	
+	public long getStartDigit() {
+		return this.startDigit;
+	}
+	
 	public void setStartTime(long startTime) {
 		this.startTime = startTime;
 	}
 	
 	public long getStartTime() {
 		return this.startTime;
+	}
+	
+	public void setUpdateDigit(long updateDigit) {
+		this.updateDigit = updateDigit;
+	}
+	
+	public long getUpdateDigit() {
+		return this.updateDigit;
 	}
 	
 	public void setUpdateTime(long updateTime) {
@@ -206,28 +223,6 @@ public class InstNode implements Comparable<InstNode>{
 	
 	public Object getRelatedObj() {
 		return this.relatedObj;
-	}
-	
-	public void addSurrogateInst(SurrogateInst surrogate) {
-		this.surrogates.add(surrogate);
-	}
-	
-	public void setSurrogateInsts(HashSet<SurrogateInst> surrogates) {
-		this.surrogates = surrogates;
-	}
-	
-	public HashSet<SurrogateInst> getSurrogateInsts() {
-		return this.surrogates;
-	}
-	
-	public SurrogateInst searchSurrogateInst(String instKey) {
-		for (SurrogateInst sur: this.surrogates) {
-			if (sur.getRelatedChildMethodInst().equals(instKey)) {
-				return sur;
-			}
-		}
-		
-		return null;
 	}
 	
 	public void setMaxSurrogate(int baseId) {

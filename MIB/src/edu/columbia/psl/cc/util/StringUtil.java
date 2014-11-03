@@ -72,6 +72,10 @@ public class StringUtil {
 		return ret;
 	}
 	
+	public static String genKeyWithObjId(String searchKey, int objId) {
+		return searchKey + "-" + objId;
+	}
+	
 	public static String genKeyWithId(String key, String id) {
 		return key + ":" + id;
 	}

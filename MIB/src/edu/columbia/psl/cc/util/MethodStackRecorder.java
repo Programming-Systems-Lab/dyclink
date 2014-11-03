@@ -28,6 +28,7 @@ import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
+import edu.columbia.psl.cc.datastruct.GraphGroupController;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.ExtObj;
 import edu.columbia.psl.cc.pojo.GraphGroup;
@@ -41,6 +42,8 @@ import edu.columbia.psl.cc.premain.MIBDriver;
 public class MethodStackRecorder {
 		
 	private static TypeToken<GraphTemplate> GRAPH_TOKEN = new TypeToken<GraphTemplate>(){};
+	
+	private AtomicLong curDigit = new AtomicLong();
 	
 	private AtomicLong curTime = new AtomicLong();
 		
@@ -69,7 +72,8 @@ public class MethodStackRecorder {
 	private Map<String, InstNode> fieldRecorder = new HashMap<String, InstNode>();
 	
 	//Record which insts might be affected by input params
-	private HashSet<InstNode> firstReadFields = new HashSet<InstNode>();
+	//private HashSet<InstNode> firstReadFields = new HashSet<InstNode>();
+	private HashMap<String, HashSet<InstNode>> firstReadFields = new HashMap<String, HashSet<InstNode>>();
 	
 	//Record which insts might be affecte by field written by parent method
 	private HashSet<InstNode> firstReadLocalVars = new HashSet<InstNode>();
@@ -78,15 +82,17 @@ public class MethodStackRecorder {
 	
 	private List<InstNode> path = new ArrayList<InstNode>();
 	
-	//public Object objOnStack = null;
-	
 	public String curLabel = null;
 	
 	private InstPool pool = new InstPool();
 	
+	private InstNode lastBeforeReturn;
+	
 	private long threadId = -1;
 	
 	private int threadMethodId = -1;
+	
+	private int objId = 0;
 	
 	private long maxTime = -1;
 	
@@ -113,6 +119,12 @@ public class MethodStackRecorder {
 				methodDesc, 
 				this.threadId);
 		
+		if (obj == null) {
+			this.staticMethod = true;
+		} else {
+			this.objId = ObjectIdAllocater.parseObjId(obj);
+		}
+		
 		int count = 0, start = 0;
 		if (!this.staticMethod) {
 			//Start from 0
@@ -127,8 +139,15 @@ public class MethodStackRecorder {
 		}
 	}
 	
-	private long getCurTime() {
-		return this.curTime.getAndIncrement();
+	private long[] getCurTime() {
+		long uni = this.curTime.getAndIncrement();
+		long ten = this.curDigit.get();
+		if (uni == Long.MAX_VALUE) {
+			this.curTime.set(0);
+			this.curDigit.getAndIncrement();
+		}
+		long[] ret = {uni, ten};
+		return ret;
 	}
 	
 	private void stopLocalVar(int localVarId) {
@@ -142,11 +161,19 @@ public class MethodStackRecorder {
 		}
 	}
 	
-	private void updateReadField(InstNode fieldNode) {		
-		this.firstReadFields.add(fieldNode);
+	private void updateReadField(InstNode fieldNode) {
+		String key = fieldNode.getAddInfo();
+		if (this.firstReadFields.keySet().contains(key)) {
+			this.firstReadFields.get(key).add(fieldNode);
+		} else {
+			HashSet<InstNode> nodeSet = new HashSet<InstNode>();
+			nodeSet.add(fieldNode);
+			this.firstReadFields.put(key, nodeSet);
+		}
+		//this.firstReadFields.add(fieldNode);
 	}
 	
-	private void removeReadFields(String field) {
+	/*private void removeReadFields(String field) {
 		Iterator<InstNode> frIterator = this.firstReadFields.iterator();
 		while (frIterator.hasNext()) {
 			InstNode inst = frIterator.next();
@@ -154,24 +181,27 @@ public class MethodStackRecorder {
 			if (inst.getAddInfo().equals(field))
 				frIterator.remove();
 		}
-	}
+	}*/
 		
 	private void updatePath(InstNode fullInst) {
 		this.path.add(fullInst);
 	}
 	
 	private void updateTime(InstNode fullInst) {
-		long curTime = this.getCurTime();
+		long[] curTime = this.getCurTime();
 		if (fullInst.getStartTime() < 0) {
-			fullInst.setStartTime(curTime);
-			fullInst.setUpdateTime(curTime);	
+			fullInst.setStartDigit(curTime[1]);
+			fullInst.setStartTime(curTime[0]);
+			fullInst.setUpdateDigit(curTime[1]);
+			fullInst.setUpdateTime(curTime[0]);
 		} else {
-			fullInst.setUpdateTime(curTime);
+			fullInst.setUpdateDigit(curTime[1]);
+			fullInst.setUpdateTime(curTime[0]);
 		}
 		
-		if (curTime > this.maxTime) {
+		/*if (curTime > this.maxTime) {
 			maxTime = curTime;
-		}
+		}*/
  	}
 	
 	private void updateCachedMap(InstNode parent, InstNode child, int depType) {
@@ -186,29 +216,9 @@ public class MethodStackRecorder {
 			
 			parent.increChild(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getWriteDataWeight());
 			child.registerParent(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
-			
-			if (child.getSurrogateInsts().size() > 0) {
-				for (SurrogateInst surNode: child.getSurrogateInsts()) {
-					if (surNode.equals(child))
-						continue ;
-					
-					parent.increChild(surNode.getFromMethod(), surNode.getThreadId(), surNode.getThreadMethodIdx(), surNode.getIdx(), MIBConfiguration.getInstance().getWriteDataWeight());
-					surNode.registerParent(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
-				}
-			}
 		} else if (depType == MIBConfiguration.CONTR_DEP) {
 			parent.increChild(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getControlWeight());
 			child.registerParent(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
-			
-			if (child.getSurrogateInsts().size() > 0) {
-				for (SurrogateInst surNode: child.getSurrogateInsts()) {
-					if (surNode.equals(child))
-						continue ;
-					
-					parent.increChild(surNode.getFromMethod(), surNode.getThreadId(), surNode.getThreadMethodIdx(), surNode.getIdx(), MIBConfiguration.getInstance().getControlWeight());
-					surNode.registerParent(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
-				}
-			}
 		}
 		
 		if (child.toString().equals("org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64:makeSingularPositive:():V 1 0 55 103 dsub")) {
@@ -260,7 +270,7 @@ public class MethodStackRecorder {
 		if (opcode == Opcodes.GETFIELD) {
 			objId = ObjectIdAllocater.parseObjId(this.stackSimulator.peek().getRelatedObj());
 		} else if (opcode == Opcodes.PUTFIELD) {
-			if (typeSort == Opcodes.LONG || typeSort == Opcodes.DOUBLE) {
+			if (typeSort == Type.LONG || typeSort == Type.DOUBLE) {
 				objId = ObjectIdAllocater.parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 3).getRelatedObj());
 			} else {
 				objId = ObjectIdAllocater.parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 2).getRelatedObj());
@@ -295,7 +305,7 @@ public class MethodStackRecorder {
 		} else if (BytecodeCategory.writeFieldCategory().contains(opcat)) {
 			if (opcode == Opcodes.PUTSTATIC || objId > 0) {
 				this.fieldRecorder.put(fieldKey, fullInst);
-				this.removeReadFields(fieldKey);
+				//this.removeReadFields(fieldKey);
 			}
 		}
 		
@@ -529,14 +539,9 @@ public class MethodStackRecorder {
 			
 			System.out.println("Method owner: " + correctClass.getName());
 			String methodKey = StringUtil.genKey(correctClass.getName(), name, desc);
-			String searchKey = "";
-			searchKey = StringUtil.genKeyWithId(methodKey, String.valueOf(this.threadId));
-			/*if (BytecodeCategory.staticMethod().contains(opcode)) {
-				searchKey = StringUtil.genKeyWithId(methodKey, 0);
-			} else {
-				searchKey = StringUtil.genKeyWithId(methodKey, methodId);
-			}*/
-			System.out.println("Search key: " + searchKey);
+			String searchKey = StringUtil.genKeyWithId(methodKey, String.valueOf(this.threadId));
+			//String searchKeyWithObjId = StringUtil.genKeyWithObjId(searchKey, this.objId);
+			//System.out.println("Search key and obj id: " + searchKey + " " + this.objId);
 			InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, searchKey);
 			
 			//Don't update, because we will remove inst before leaving the method
@@ -571,13 +576,31 @@ public class MethodStackRecorder {
 					GraphUtil.fieldDataDepFromParentInstToChildGraph(this.fieldRecorder, fullInst, childGraph);
 				}
 				
+				if (childGraph.getFirstReadFields().size() > 0) {
+					//Change all inst to method inst
+					//this.firstReadFields.addAll(childGraph.getFirstReadFields());
+					for (String key: childGraph.getFirstReadFields().keySet()) {
+						if (this.firstReadFields.containsKey(key)) {
+							this.firstReadFields.get(key).add(fullInst);
+						} else {
+							HashSet<InstNode> uniSet = new HashSet<InstNode>();
+							uniSet.add(fullInst);
+							this.firstReadFields.put(key, uniSet);
+						}
+					}
+				}
+				
 				if (childGraph.getWriteFields().size() > 0) {
-					this.fieldRecorder.putAll(childGraph.getWriteFields());
+					//this.fieldRecorder.putAll(childGraph.getWriteFields());
+					for (String key: childGraph.getWriteFields().keySet()) {
+						this.fieldRecorder.put(key, fullInst);
+					}
 				}
 				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 				return ;
 			} else if (this.calleeCache.containsKey(searchKey)) {
 				GraphGroup gGroup = this.calleeCache.get(searchKey);
+				//GraphGroup gGroup = GraphGroupController.getGraphGroup(searchKeyWithObjId);
 				
 				//Check if there is similar graph
 				GraphTemplate rep = gGroup.getGraph(childGraph);
@@ -592,6 +615,8 @@ public class MethodStackRecorder {
 					removeReturn = false;
 				} else {
 					System.out.println("Find no similar graph in cache: " + searchKey);
+					System.out.println("Existing graph group key: " + gGroup.keySet());
+					System.out.println("Current graph key: " + GraphGroup.groupKey(childGraph));
 					gGroup.addGraph(childGraph);
 				}
 			} else {
@@ -600,6 +625,7 @@ public class MethodStackRecorder {
 				GraphGroup gGroup = new GraphGroup();
 				gGroup.addGraph(childGraph);
 				this.calleeCache.put(searchKey, gGroup);
+				//GraphGroupController.insertNewGraphGroup(searchKeyWithObjId, gGroup);
 			}
 			
 			System.out.println("Child graph analysis: " + childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
@@ -610,9 +636,10 @@ public class MethodStackRecorder {
 				GraphUtil.removeReturnInst(childPool);
 			
 			//Reindex child
-			long baseTime = this.getCurTime();
-			long reBase = GraphUtil.reindexInstPool(baseTime, childPool);
-			this.curTime.set(reBase);
+			long[] baseTime = this.getCurTime();
+			long[] reBase = GraphUtil.reindexInstPool(baseTime, childPool);
+			this.curDigit.set(reBase[1]);
+			this.curTime.set(reBase[0]);
 			
 			//GraphUtil.synchronizeInstPools(this.pool, childPool);
 			
@@ -654,7 +681,14 @@ public class MethodStackRecorder {
 			//Update field data dep
 			if (this.fieldRecorder.size() > 0) {
 				GraphUtil.fieldDataDepFromParentToChild(this.fieldRecorder, childGraph);
-				this.firstReadFields.addAll(childGraph.getFirstReadFields());
+				//this.firstReadFields.addAll(childGraph.getFirstReadFields());
+				for (String key: childGraph.getFirstReadFields().keySet()) {
+					if (this.firstReadFields.containsKey(key)) {
+						this.firstReadFields.get(key).addAll(childGraph.getFirstReadFields().get(key));
+					} else {
+						this.firstReadFields.put(key, childGraph.getFirstReadFields().get(key));
+					}
+				}
 			}
 			
 			if (childGraph.getWriteFields().size() > 0) {
@@ -663,7 +697,8 @@ public class MethodStackRecorder {
 			
 			String returnType = methodType.getReturnType().getDescriptor();
 			if (!returnType.equals("V")) {
-				InstNode lastSecond = GraphUtil.lastSecondInst(childGraph.getInstPool());
+				//InstNode lastSecond = GraphUtil.lastSecondInst(childGraph.getInstPool());
+				InstNode lastSecond = childGraph.getLastBeforeReturn();
 				if (returnType.equals("D") || returnType.equals("J")) {
 					if (lastSecond != null)
 						this.updateStackSimulator(2, lastSecond);
@@ -767,6 +802,10 @@ public class MethodStackRecorder {
 		for (int i = 0; i < times; i++) {
 			this.stackSimulator.push(fullInst);
 		}
+		
+		if (!BytecodeCategory.returnOps().contains(fullInst.getOp().getOpcode())) {
+			this.lastBeforeReturn = fullInst;
+		}
 	}
 	
 	private void showStackSimulator() {
@@ -819,16 +858,16 @@ public class MethodStackRecorder {
 		gt.setThreadId(this.threadId);
 		gt.setThreadMethodId(this.threadMethodId);
 		gt.setThreadId(Thread.currentThread().getId());
+		gt.setObjId(this.objId);
 		gt.setMethodArgSize(this.methodArgSize);
 		gt.setMethodReturnSize(this.methodReturnSize);
 		gt.setStaticMethod(this.staticMethod);
-		gt.setMaxTime(this.maxTime);
+		//gt.setMaxTime(this.maxTime);
 		gt.setFirstReadLocalVars(this.firstReadLocalVars);
 		gt.setFirstReadFields(this.firstReadFields);
 		gt.setWriteFields(this.fieldRecorder);
+		gt.setLastBeforeReturn(this.lastBeforeReturn);
 		//gt.setPath(this.path);
-		
-		GraphUtil.transplantFirstSurrogate(this.pool);
 		
 		System.out.println("Instruction dependency:");
 		int depCount = 0;

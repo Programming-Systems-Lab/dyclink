@@ -9,7 +9,11 @@ public class GraphGroup extends HashMap<String, GraphTemplate>{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private static String groupKey(int nodeNum, int depNum) {
+	public static String groupKey(GraphTemplate graph) {
+		return groupKey(graph.getInstPool().size(), graph.getDepNum());
+	}
+	
+	public static String groupKey(int nodeNum, int depNum) {
 		return String.valueOf(nodeNum) + ":" + depNum;
 	}
 	

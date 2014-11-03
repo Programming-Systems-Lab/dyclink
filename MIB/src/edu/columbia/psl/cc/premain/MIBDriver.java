@@ -39,6 +39,7 @@ public class MIBDriver {
 			newArgs[i - 1] = args[i];
 		}
 		
+		System.out.println("Prepare class");
 		try {
 			Class targetClass = Class.forName(className);
 			System.out.println("Confirm class: " + targetClass);

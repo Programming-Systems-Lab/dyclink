@@ -317,9 +317,10 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 				InstNode i2 = allNodes.get(j);
 				String inst2Key = StringUtil.genIdxKey(i2.getFromMethod(), i2.getThreadId(), i2.getThreadMethodIdx(), i2.getIdx());
 				if (i1.getChildFreqMap().containsKey(inst2Key)) {
-					double rawVal = (double)1/i1.getChildFreqMap().get(inst2Key);
+					/*double rawVal = (double)1/i1.getChildFreqMap().get(inst2Key);
 					double roundVal = GraphUtil.roundValue(rawVal);
-					ret[i][j] = roundVal;
+					ret[i][j] = roundVal;*/
+					ret[i][j] = 1;
 				} else {
 					//ret[i][j] = MIBConfiguration.getCostLimit();
 					ret[i][j] = 0;

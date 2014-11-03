@@ -100,7 +100,20 @@ public class GraphUtil {
 			comp = new Comparator<InstNode>() {
 				@Override
 				public int compare(InstNode i1, InstNode i2) {
-					return i1.getStartTime() > i2.getStartTime()?1:(i1.getStartTime() < i2.getStartTime()?-1:0);
+					if (i1.getStartDigit() > i2.getStartDigit()) {
+						return 1;
+					} else if (i1.getStartDigit() < i2.getStartDigit()) {
+						return -1;
+					} else {
+						if (i1.getStartTime() > i2.getStartTime()) {
+							return 1;
+						} else if (i1.getStartTime() < i2.getStartTime()) {
+							return - 1;
+						} else {
+							//Impossible
+							return 0;
+						}
+					}
 				}
 			};
 		} else {
@@ -108,7 +121,19 @@ public class GraphUtil {
 				
 				@Override
 				public int compare(InstNode i1, InstNode i2) {
-					return i1.getUpdateTime() > i2.getUpdateTime()?1:(i2.getUpdateTime() > i1.getUpdateTime()?-1: 0);
+					if (i1.getUpdateDigit() > i2.getUpdateDigit()) {
+						return 1;
+					} else if (i1.getUpdateDigit() < i2.getUpdateDigit()) {
+						return -1;
+					} else {
+						if (i1.getUpdateTime() > i2.getUpdateTime()) {
+							return 1;
+						} else if (i1.getUpdateTime() < i2.getUpdateTime()) {
+							return -1;
+						} else {
+							return 0;
+						}
+					}
 				}
 			};
 		}
@@ -122,30 +147,67 @@ public class GraphUtil {
 		if (instPool.size() == 0)
 			return null;
 		
-		/*Comparator<InstNode> updateComp = new Comparator<InstNode>() {
-			
-			@Override
-			public int compare(InstNode i1, InstNode i2) {
-				return i1.getUpdateTime() > i2.getUpdateTime()?1:(i2.getUpdateTime() > i1.getUpdateTime()?-1: 0);
-			}
-		};
-		List<InstNode> sortedList = new ArrayList<InstNode>(instPool);
-		Collections.sort(sortedList, updateComp);*/
-		
 		List<InstNode> sortedList = sortInstPool(instPool, false);
 		return sortedList.get(sortedList.size() - 1);
 	}
 	
-	public static long reindexInstPool(long base, InstPool instPool) {
-		long maxUpdateTime = 0;
-		for (InstNode inst: instPool) {
-			inst.setStartTime(base + inst.getStartTime());
-			inst.setUpdateTime(base + inst.getUpdateTime());
-			
-			if (inst.getUpdateTime() > maxUpdateTime)
-				maxUpdateTime = inst.getUpdateTime();
+	public static void upgradeTime(InstNode inst, 
+			long baseDigit, 
+			long baseTime, 
+			boolean start) {
+		long residue = Long.MAX_VALUE - inst.getStartTime();
+		long val = baseTime - residue;
+		long ten = baseDigit + 1;
+		if (start) {
+			inst.setStartTime(val);
+			inst.setStartDigit(ten);
+		} else {
+			inst.setUpdateTime(val);
+			inst.setStartDigit(ten);
 		}
-		return maxUpdateTime + 1;
+		
+	}
+	
+	public static long[] reindexInstPool(long[] base, InstPool instPool) {
+		long maxUpdateDigit = 0;
+		long maxUpdateTime = 0;
+		
+		long baseDigit = base[1];
+		long baseTime = base[0];
+		for (InstNode inst: instPool) {
+			inst.setStartDigit(baseDigit + inst.getStartDigit());
+			if ((inst.getStartTime() + baseTime) < 0) {
+				//Means that long is not enough
+				upgradeTime(inst, baseDigit, baseTime, true);
+			} else {
+				inst.setStartTime(inst.getStartTime() + baseTime);
+				inst.setStartDigit(baseDigit);
+			}
+			
+			if ((inst.getUpdateTime() + baseTime) < 0) {
+				upgradeTime(inst, baseDigit, baseTime, false);
+			} else {
+				inst.setUpdateTime(inst.getUpdateTime() + baseTime);
+				inst.setUpdateDigit(baseDigit);
+			}
+			
+			if (inst.getUpdateDigit() > maxUpdateDigit) {
+				maxUpdateDigit = inst.getUpdateDigit();
+				maxUpdateTime = inst.getUpdateTime();
+			} else if (inst.getUpdateTime() > maxUpdateTime) {
+				maxUpdateTime = inst.getUpdateTime();
+			}
+		}
+		
+		long[] ret = new long[2];
+		if (maxUpdateTime + 1 < 0) {
+			ret[0] = 0;
+			ret[1] = maxUpdateDigit + 1;
+		} else {
+			ret[0] = maxUpdateTime + 1;
+			ret[1] = maxUpdateDigit;
+		}
+		return ret;
 	}
 	/**
 	 * 0 fromMethod, 1 threadId, 2 threadMethodId, 3 instId
@@ -160,11 +222,11 @@ public class GraphUtil {
 				Integer.valueOf(parentParsed[2]), 
 				Integer.valueOf(parentParsed[3]));
 		
-		/*if (inst == null) {
+		if (inst == null) {
 			System.out.println("Parent: " + parentKey);
 			System.out.println("Child " + removeKey);
 			System.exit(1);
-		}*/
+		}
 		
 		inst.getChildFreqMap().remove(removeKey);
 	}
@@ -297,7 +359,7 @@ public class GraphUtil {
 		return allParents;
 	}
 	
-	private static SurrogateInst generateSurrogate(InstNode inst, InstPool pool) {
+	/*private static SurrogateInst generateSurrogate(InstNode inst, InstPool pool) {
 		//possible read: xload, getfield, getstatic, all method calls from jvm
 		String instKey = StringUtil.genIdxKey(inst.getFromMethod(), inst.getThreadId(), inst.getThreadMethodIdx(), inst.getIdx());
 		
@@ -346,7 +408,7 @@ public class GraphUtil {
 		}
 		
 		return newSur;
-	}
+	}*/
 		
 	public static void dataDepFromParentToChild(Map<Integer, InstNode> parentMap, 
 			InstPool parentPool,
@@ -421,7 +483,7 @@ public class GraphUtil {
 	 * Transplant the surrogate to the real inst in pool
 	 * @param pool
 	 */
-	public static void transplantFirstSurrogate(InstPool pool) {
+	/*public static void transplantFirstSurrogate(InstPool pool) {
 		for (InstNode inst: pool) {
 			if (inst.getSurrogateInsts().size() == 0)
 				continue ;
@@ -448,14 +510,40 @@ public class GraphUtil {
 				}
 			}
 		}
-	}
+	}*/
 	
 	public static void fieldDataDepFromParentToChild(Map<String, InstNode> parentMap, 
 			GraphTemplate childGraph) {
-		HashSet<InstNode> firstReadFields = childGraph.getFirstReadFields();
+		//HashSet<InstNode> firstReadFields = childGraph.getFirstReadFields();
+		//Iterator<InstNode> frIterator = firstReadFields.iterator();
 		
-		Iterator<InstNode> frIterator = firstReadFields.iterator();
-		while (frIterator.hasNext()) {
+		Map<String, HashSet<InstNode>> firstReadFields = childGraph.getFirstReadFields();
+		HashSet<String> shouldRemove = new HashSet<String>();
+		for (String childKey: firstReadFields.keySet()) {
+			if (parentMap.containsKey(childKey)) {
+				HashSet<InstNode> childSet = childGraph.getFirstReadFields().get(childKey);
+				InstNode parentNode = parentMap.get(childKey);
+				for (InstNode fInst: childSet) {
+					parentNode.increChild(fInst.getFromMethod(),
+							fInst.getThreadId(), 
+							fInst.getThreadMethodIdx(), 
+							fInst.getIdx(), 
+							MIBConfiguration.getInstance().getWriteDataWeight());
+					fInst.registerParent(parentNode.getFromMethod(), 
+							parentNode.getThreadId(), 
+							parentNode.getThreadMethodIdx(), 
+							parentNode.getIdx(), 
+							MIBConfiguration.WRITE_DATA_DEP);
+				}
+				shouldRemove.add(childKey);
+			}
+		}
+		
+		for (String s: shouldRemove) {
+			firstReadFields.remove(s);
+		}
+		
+		/*while (frIterator.hasNext()) {
 			InstNode fInst = frIterator.next();
 			
 			if (parentMap.containsKey(fInst.getAddInfo())) {
@@ -474,15 +562,41 @@ public class GraphUtil {
 				
 				frIterator.remove();
 			}
-		}
+		}*/
 	}
 	
 	public static void fieldDataDepFromParentInstToChildGraph(Map<String, InstNode> parentMap, 
 			InstNode childMethodInst, 
 			GraphTemplate childGraph) {
-		HashSet<InstNode> firstReadFields = childGraph.getFirstReadFields();
+		//HashSet<InstNode> firstReadFields = childGraph.getFirstReadFields();
 		
-		Iterator<InstNode> frIterator = firstReadFields.iterator();
+		Map<String, HashSet<InstNode>> firstReadFields = childGraph.getFirstReadFields();
+		HashSet<String> shouldRemove = new HashSet<String>();
+		for (String childKey: firstReadFields.keySet()) {
+			if (parentMap.containsKey(childKey)) {
+				InstNode parentNode = parentMap.get(childKey);
+				
+				//Don't use inst, use the chidlMethodInst
+				parentNode.increChild(childMethodInst.getFromMethod(), 
+						childMethodInst.getThreadId(), 
+						childMethodInst.getThreadMethodIdx(), 
+						childMethodInst.getIdx(), 
+						MIBConfiguration.getInstance().getWriteDataWeight());
+				childMethodInst.registerParent(parentNode.getFromMethod(), 
+						parentNode.getThreadId(), 
+						parentNode.getThreadMethodIdx(), 
+						parentNode.getIdx(), 
+						MIBConfiguration.WRITE_DATA_DEP);
+				
+				shouldRemove.add(childKey);
+			}
+		}
+		
+		for (String s: shouldRemove) {
+			firstReadFields.remove(s);
+		}
+		
+		/*Iterator<InstNode> frIterator = firstReadFields.iterator();
 		while (frIterator.hasNext()) {
 			InstNode fInst = frIterator.next();
 			if (parentMap.containsKey(fInst.getAddInfo())) {
@@ -502,7 +616,7 @@ public class GraphUtil {
 				
 				frIterator.remove();
 			}
-		}
+		}*/
 	}
 	
 	public static void controlDepFromParentToChild(InstNode controlFromParent, InstPool childPool) {

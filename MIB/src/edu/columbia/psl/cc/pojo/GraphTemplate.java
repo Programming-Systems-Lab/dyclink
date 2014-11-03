@@ -1,6 +1,7 @@
 package edu.columbia.psl.cc.pojo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,8 @@ public class GraphTemplate {
 	
 	private int threadMethodId;
 	
+	private int objId;
+	
 	private int methodArgSize;
 	
 	private int methodReturnSize;
@@ -25,11 +28,15 @@ public class GraphTemplate {
 	
 	private InstPool pool;
 	
+	private InstNode lastBeforeReturn;
+	
 	private int depNum;
 	
 	private HashSet<InstNode> firstReadLocalVars;
 	
-	private HashSet<InstNode> firstReadFields;
+	//private HashSet<InstNode> firstReadFields;
+	
+	private Map<String, HashSet<InstNode>> firstReadFields;
 	
 	private Map<String, InstNode> writeFields;
 	
@@ -47,9 +54,10 @@ public class GraphTemplate {
 		this.threadMethodId = copy.getThreadMethodId();
 		this.depNum = copy.getDepNum();
 		this.staticMethod = copy.isStaticMethod();
-		this.firstReadFields = new HashSet<InstNode>(copy.getFirstReadFields());
+		//this.firstReadFields = new HashSet<InstNode>(copy.getFirstReadFields());
+		this.firstReadFields = new HashMap<String, HashSet<InstNode>>(copy.getFirstReadFields());
 		this.firstReadLocalVars = new HashSet<InstNode>(copy.getFirstReadLocalVars());
-		this.maxTime = copy.getMaxTime();
+		//this.maxTime = copy.getMaxTime();
 		
 		this.pool = new InstPool();
 		this.path = new ArrayList<InstNode>();
@@ -94,6 +102,14 @@ public class GraphTemplate {
 		return this.pool;
 	}
 	
+	public void setLastBeforeReturn(InstNode lastBeforeReturn) {
+		this.lastBeforeReturn = lastBeforeReturn;
+	}
+	
+	public InstNode getLastBeforeReturn() {
+		return this.lastBeforeReturn;
+	}
+	
 	public void setDepNum(int depNum) {
 		this.depNum = depNum;
 	}
@@ -134,13 +150,21 @@ public class GraphTemplate {
 		return this.firstReadLocalVars;
 	}
 	
-	public void setFirstReadFields(HashSet<InstNode> firstReadFields) {
+	public void setFirstReadFields(Map<String, HashSet<InstNode>> firstReadFields) {
+		this.firstReadFields = firstReadFields;
+	}
+	
+	public Map<String, HashSet<InstNode>> getFirstReadFields() {
+		return this.firstReadFields;
+	}
+	
+	/*public void setFirstReadFields(HashSet<InstNode> firstReadFields) {
 		this.firstReadFields = firstReadFields;
 	}
 	
 	public HashSet<InstNode> getFirstReadFields() {
 		return this.firstReadFields;
-	}
+	}*/
 	
 	public void setWriteFields(Map<String, InstNode> writeFields) {
 		this.writeFields = writeFields;
@@ -166,13 +190,21 @@ public class GraphTemplate {
 		return this.threadMethodId;
 	}
 	
-	public void setMaxTime(long maxTime) {
+	public void setObjId(int objId) {
+		this.objId = objId;
+	}
+	
+	public int getObjId() {
+		return this.objId;
+	}
+	
+	/*public void setMaxTime(long maxTime) {
 		this.maxTime = maxTime;
 	}
 	
 	public long getMaxTime() {
 		return this.maxTime;
-	}
+	}*/
 	
 	public void showGraph() {
 		for (InstNode inst: this.pool) {
