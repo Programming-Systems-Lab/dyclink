@@ -163,7 +163,7 @@ public class GraphUtil {
 			inst.setStartDigit(ten);
 		} else {
 			inst.setUpdateTime(val);
-			inst.setStartDigit(ten);
+			inst.setUpdateDigit(ten);
 		}
 		
 	}

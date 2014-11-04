@@ -44,7 +44,7 @@ public class TemplateMethod extends TemplateParent{
 		this.test = test1;
 	}
 	
-	public static void callee( Object A , double u[] , double gamma ,
+	public void callee( Object A , double u[] , double gamma ,
             int colA0,
             int w0, int w1 ,
             double _temp[] ) {
@@ -70,7 +70,7 @@ public class TemplateMethod extends TemplateParent{
 	public void caller() {
 		double gamma = 1;
 		int k = 8;
-		callee(UBV,u,gamma,k+1,k,m,this.b);
+		this.callee(UBV,u,gamma,k+1,k,m,this.b);
 	}
 	
 	private  static int classAdd(int i) {
@@ -242,8 +242,6 @@ public class TemplateMethod extends TemplateParent{
 	public int all3Methods(int a, int b) {
 		this.iVar = 5;
 		this.iDouble = 8;
-		//TemplateMethod tm2 = new TemplateMethod();
-		//tm2.iVar = 8;
 		double c = this.iDouble + a + b + this.iVar + sVar + pVar;
 		String ret = "";
 		if (c > 5) {
@@ -347,7 +345,7 @@ public class TemplateMethod extends TemplateParent{
 		
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
-		tm.caller();
+		//tm.caller();
 		//tm.call1();
 		//System.out.println(Integer.MAX_VALUE);
 		//System.out.println(Integer.MAX_VALUE + 1);
@@ -366,7 +364,7 @@ public class TemplateMethod extends TemplateParent{
 		//tm.setList(new ArrayList());
 		//tm.exampleMethod();
 		//tm.invokeParent(3, 5);
-		//System.out.println(tm.all3Methods(3, 5));
+		System.out.println(tm.all3Methods(3, 5));
 		//System.out.println(tm.sumArray(b));
 		//System.out.println(tm.simpleIf(1, 2));
 		//System.out.println(tm.instanceMethod(2, b));

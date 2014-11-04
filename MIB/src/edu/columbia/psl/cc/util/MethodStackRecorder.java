@@ -525,13 +525,15 @@ public class MethodStackRecorder {
 			
 			//Load the correct graph
 			Class<?> correctClass = null;
+			int objId = -1;
 			if (BytecodeCategory.staticMethod().contains(opcode)) {
 				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
-				//methodId = ObjectIdAllocater.getClassMethodIndex(owner, name, desc);
+				objId = 0;
 			} else {
 				InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
 				Object objOnStack = relatedInst.getRelatedObj();
 				//methodId = ObjectIdAllocater.parseObjId(objOnStack);
+				objId = ObjectIdAllocater.parseObjId(objOnStack);
 				
 				if (opcode == Opcodes.INVOKESPECIAL) {
 					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, true);
@@ -543,7 +545,7 @@ public class MethodStackRecorder {
 			System.out.println("Method owner: " + correctClass.getName());
 			String methodKey = StringUtil.genKey(correctClass.getName(), name, desc);
 			String searchKey = StringUtil.genKeyWithId(methodKey, String.valueOf(this.threadId));
-			//String searchKeyWithObjId = StringUtil.genKeyWithObjId(searchKey, this.objId);
+			String searchKeyWithObjId = StringUtil.genKeyWithObjId(searchKey, objId);
 			//System.out.println("Search key and obj id: " + searchKey + " " + this.objId);
 			InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, searchKey);
 			
@@ -601,15 +603,15 @@ public class MethodStackRecorder {
 				}
 				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 				return ;
-			} else if (this.calleeCache.containsKey(searchKey)) {
-				GraphGroup gGroup = this.calleeCache.get(searchKey);
+			} else if (this.calleeCache.containsKey(searchKeyWithObjId)) {
+				GraphGroup gGroup = this.calleeCache.get(searchKeyWithObjId);
 				//GraphGroup gGroup = GraphGroupController.getGraphGroup(searchKeyWithObjId);
 				
 				//Check if there is similar graph
 				GraphTemplate rep = gGroup.getGraph(childGraph);
 				
 				if (rep != null) {
-					System.out.println("Find similar graph in cache: " + searchKey);
+					System.out.println("Find similar graph in cache: " + searchKeyWithObjId);
 					System.out.println("nodeNum depNum: " + childGraph.getInstPool().size() + " " + childGraph.getDepNum());
 					System.out.println("All group keys now: " + gGroup.keySet());
 					
@@ -617,7 +619,7 @@ public class MethodStackRecorder {
 					childGraph = rep;
 					removeReturn = false;
 				} else {
-					System.out.println("Find no similar graph in cache: " + searchKey);
+					System.out.println("Find no similar graph in cache: " + searchKeyWithObjId);
 					System.out.println("Existing graph group key: " + gGroup.keySet());
 					System.out.println("Current graph key: " + GraphGroup.groupKey(childGraph));
 					gGroup.addGraph(childGraph);
@@ -627,7 +629,7 @@ public class MethodStackRecorder {
 				System.out.println("Create new graph group for: " + searchKey);
 				GraphGroup gGroup = new GraphGroup();
 				gGroup.addGraph(childGraph);
-				this.calleeCache.put(searchKey, gGroup);
+				this.calleeCache.put(searchKeyWithObjId, gGroup);
 				//GraphGroupController.insertNewGraphGroup(searchKeyWithObjId, gGroup);
 			}
 			
