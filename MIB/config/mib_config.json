@@ -19,7 +19,7 @@
     "instThreshold": 0,
     "annotGuard": false,
     "cleanTemplate": true,
-    "cleanTest": true,
+    "cleanTest": false,
     "templateMode": true,
     "overallAnalysis": false,
     "debug": true

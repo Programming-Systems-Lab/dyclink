@@ -200,14 +200,13 @@ public class TemplateMethod extends TemplateParent{
 	
 	@extractTemplate
 	public String fakeString(int input) {
-		int a = input + 5;
-		String ret = "ret > 5: " + input;
-		return ret;
+		//int a = input + 5;
+		//String ret = "ret > 5: " + input;
+		return "ret > 5";
 	}
 	
 	@extractTemplate
 	public void increArray(int[] input) {
-		int b = -32769;
 		for (int i = 0; i < input.length; i++) {
 			input[i] = 5;
 		}
@@ -217,7 +216,7 @@ public class TemplateMethod extends TemplateParent{
 	public int sumArray(int[] input) {
 		int sum = 0;
 		for (int i = 0; i < input.length; i++) {
-			sum += i;
+			sum += input[i];
 		}
 		return sum;
 	}
@@ -240,9 +239,10 @@ public class TemplateMethod extends TemplateParent{
 	
 	@extractTemplate
 	public int all3Methods(int a, int b) {
-		this.iVar = 5;
-		this.iDouble = 8;
-		double c = this.iDouble + a + b + this.iVar + sVar + pVar;
+		//this.iVar = 5;
+		//this.iDouble = 8;
+		//double c = this.iDouble + a + b + this.iVar + sVar + pVar;
+		int c = a + b;
 		String ret = "";
 		if (c > 5) {
 			ret = "ret > 5";
@@ -345,6 +345,7 @@ public class TemplateMethod extends TemplateParent{
 		
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
+		//tm.testAdd2(5);
 		//tm.caller();
 		//tm.call1();
 		//System.out.println(Integer.MAX_VALUE);
@@ -364,15 +365,15 @@ public class TemplateMethod extends TemplateParent{
 		//tm.setList(new ArrayList());
 		//tm.exampleMethod();
 		//tm.invokeParent(3, 5);
-		System.out.println(tm.all3Methods(3, 5));
+		//System.out.println(tm.all3Methods(3, 5));
 		//System.out.println(tm.sumArray(b));
 		//System.out.println(tm.simpleIf(1, 2));
 		//System.out.println(tm.instanceMethod(2, b));
 		//System.out.println("Test add: " + tm.testAdd(2));
 		//System.out.println("Test add2: " + tm.testAdd2(5));
-		//System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
-		/*System.out.println("TestMethod: " + tm.all3Methods(3, 5));
-		System.out.println("cc/testbase/TemplateMethod.iVar.I".split("\\.").length);
+		System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
+		//System.out.println("TestMethod: " + tm.all3Methods(3, 5));
+		/*System.out.println("cc/testbase/TemplateMethod.iVar.I".split("\\.").length);
 		System.out.println(Type.INT);
 		System.out.println(Type.INT_TYPE.getSort());
 		System.out.println(Type.getType("I").getSort());
