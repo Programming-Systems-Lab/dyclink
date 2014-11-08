@@ -84,6 +84,8 @@ public class MethodStackRecorder {
 	
 	public String curLabel = null;
 	
+	public int linenumber = 0;
+	
 	private InstPool pool = new InstPool();
 	
 	private InstNode lastBeforeReturn;

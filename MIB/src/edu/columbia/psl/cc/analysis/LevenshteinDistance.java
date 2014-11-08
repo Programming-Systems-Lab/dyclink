@@ -56,7 +56,7 @@ public class LevenshteinDistance implements MIBSimilarity<String>{
 	 
 	        // transformation cost for each letter in s0                                
 	        for(int i = 1; i < len0; i++) {                                             
-	            int match = (a0[i - 1] == a1[i - 1]) ? 0: 1;
+	            int match = (a0[i - 1] == a1[j - 1]) ? 0: 1;
 	 
 	            // computing cost for each transformation                               
 	            int cost_replace = cost[i - 1] + match;                                 

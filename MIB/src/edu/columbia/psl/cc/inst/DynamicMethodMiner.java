@@ -229,6 +229,12 @@ public class DynamicMethodMiner extends MethodVisitor {
 		
 	}
 	
+	private void handleLinenumber(int linenumber) {
+		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+		this.convertConst(linenumber);
+		this.mv.visitFieldInsn(Opcodes.PUTFIELD, methodStackRecorder, "linenumber", Type.INT_TYPE.getDescriptor());
+	}
+	
 	private void handlLabel(Label label) {
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.mv.visitLdcInsn(label.toString());
@@ -399,6 +405,9 @@ public class DynamicMethodMiner extends MethodVisitor {
 	public void visitLineNumber(int line, Label label) {
 		this.curLineNum = line;
 		this.mv.visitLineNumber(line, label);
+		
+		if (this.shouldInstrument() && !this.constructor)
+			this.handlLabel(label);
 	}
 	
 	@Override

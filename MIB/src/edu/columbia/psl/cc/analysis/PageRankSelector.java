@@ -18,6 +18,7 @@ import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
+import edu.columbia.psl.cc.pojo.HotZone;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.SearchUtil;
@@ -155,13 +156,13 @@ public class PageRankSelector {
 		return ret;
 	}
 	
-	public static HashMap<InstNode, InstPool> locateSegments(HashSet<InstNode> assignments, 
+	public static HashMap<InstNode, List<InstNode>> locateSegments(HashSet<InstNode> assignments, 
 			List<InstNode> sortedTarget, 
 			int before, 
 			int after) {
-		HashMap<InstNode, InstPool> candSegs = new HashMap<InstNode, InstPool>();
+		HashMap<InstNode, List<InstNode>> candSegs = new HashMap<InstNode, List<InstNode>>();
 		for (InstNode inst: assignments) {
-			InstPool seg = new InstPool();
+			List<InstNode> seg = new ArrayList<InstNode>();
 			
 			for (int i = 0; i < sortedTarget.size(); i++) {
 				InstNode curNode = sortedTarget.get(i);
@@ -184,7 +185,7 @@ public class PageRankSelector {
 		return candSegs;
 	}
 	
-	public static void subgraphSearch(GraphTemplate subGraph, GraphTemplate targetGraph) {
+	public static List<HotZone> subGraphSearch(GraphTemplate subGraph, GraphTemplate targetGraph) {
 		List<InstNode> sortedSub = GraphUtil.sortInstPool(subGraph.getInstPool(), true);
 		List<InstNode> sortedTarget = GraphUtil.sortInstPool(targetGraph.getInstPool(), true);
 		
@@ -193,6 +194,8 @@ public class PageRankSelector {
 		PageRankSelector subSelector = new PageRankSelector(subGraph.getInstPool(), false);
 		List<InstWrapper> subRank = subSelector.computePageRank();
 		int[] subPGRep = SearchUtil.generatePageRankRep(subRank);
+		System.out.println("Sub graph: " + subGraph.getMethodKey());
+		System.out.println("Sub graph PageRank: " + Arrays.toString(subPGRep));
 		
 		//Use the most important inst as the central to collect insts in target
 		InstNode mi = subRank.get(0).inst;
@@ -214,9 +217,17 @@ public class PageRankSelector {
 		}
 		
 		HashSet<InstNode> miAssignments = SearchUtil.possibleSingleAssignment(mi, targetGraph);
-		HashMap<InstNode, InstPool> candSegs = locateSegments(miAssignments, sortedTarget, before, after);
+		System.out.println("Target graph: " + targetGraph.getMethodKey());
+		System.out.println("Possible assignments: " + miAssignments);
+		HashMap<InstNode, List<InstNode>> candSegs = locateSegments(miAssignments, sortedTarget, before, after);
+		List<HotZone> hits = new ArrayList<HotZone>();
+		
 		for (InstNode cand: candSegs.keySet()) {
-			PageRankSelector ranker = new PageRankSelector(candSegs.get(cand), true);
+			List<InstNode> segments = candSegs.get(cand);
+			InstPool segPool = new InstPool();
+			segPool.addAll(segments);
+			
+			PageRankSelector ranker = new PageRankSelector(segPool, true);
 			List<InstWrapper> ranks = ranker.computePageRank();
 			int[] candPGRep = SearchUtil.generatePageRankRep(ranks);
 			
@@ -229,21 +240,66 @@ public class PageRankSelector {
 			
 			double sim = levenSimilarity(dist, segSize);
 			
-			System.out.println("Distance: " + dist);
-			System.out.println("Similarity: " + sim);
+			if (sim >= 0.7) {
+				HotZone zone = new HotZone();
+				zone.setStartInst(segments.get(0));
+				zone.setCentralInst(cand);
+				zone.setEndInst(segments.get(segments.size() - 1));
+				zone.setLevDist(dist);
+				zone.setSimilarity(sim);
+				hits.add(zone);
+			}
 		}
+		return hits;
 	}
 				
 	public static void main(String[] args) {
-		//File f = new File("./template/cc.testbase.TemplateMethod:increArray:([I):V:1.json");
-		File f = new File("./template/org.ejml.alg.dense.decomposition.bidiagonal.BidiagonalDecompositionRow_D64:_decompose:():Z:1.json");
+		/*File f = new File("./template/cc.testbase.TemplateMethod:increArray:([I):V:1.json");
+		//File f = new File("./template/org.ejml.alg.dense.decomposition.bidiagonal.BidiagonalDecompositionRow_D64:_decompose:():Z:1.json");
 		TypeToken<GraphTemplate> tt = new TypeToken<GraphTemplate>(){};
 		GraphTemplate template = TemplateLoader.loadTemplateFile(f, tt);
 		GraphUtil.removeReturnInst(template.getInstPool());
 		System.out.println("Template name: " + f.getName());
 		System.out.println("Inst node size: " + template.getInstPool().size());
 		
-		PageRankSelector templateSelect = new PageRankSelector(template.getInstPool(), false);
+		File f2 = new File("./test/cc.testbase.TemplateMethod:all3Methods:(II):I:1.json");
+		//File f2 = new File("./test/org.ejml.alg.dense.decomposition.bidiagonal.BidiagonalDecompositionRow_D64:decompose:(Lorg.ejml.data.DenseMatrix64F):Z:1.json");
+		GraphTemplate test = TemplateLoader.loadTemplateFile(f2, tt);
+		GraphUtil.removeReturnInst(test.getInstPool());
+		System.out.println("Test name: " + f2.getName());
+		System.out.println("Inst node size: " + test.getInstPool().size());
+		
+		List<HotZone> hits = subGraphSearch(template, test);*/
+		
+		TypeToken<GraphTemplate> tt = new TypeToken<GraphTemplate>(){};
+		HashMap<String, GraphTemplate> templates = TemplateLoader.loadTemplate(new File("./template"), tt);
+		HashMap<String, GraphTemplate> tests = TemplateLoader.loadTemplate(new File("./test"), tt);
+		
+		for (String templateName: templates.keySet()) {
+			GraphTemplate tempGraph = templates.get(templateName);
+			GraphUtil.removeReturnInst(tempGraph.getInstPool());
+			System.out.println("Template name: " + tempGraph.getMethodKey());
+			System.out.println("Inst node size: " + tempGraph.getInstPool().size());
+			
+			for (String testName: tests.keySet()) {
+				GraphTemplate testGraph = tests.get(testName);
+				System.out.println("Test name: " + testGraph.getMethodKey());
+				System.out.println("Inst node size: " + testGraph.getInstPool().size());
+				List<HotZone> hits = subGraphSearch(tempGraph, testGraph);
+				
+				for (HotZone hit: hits) {
+					System.out.println("Start inst: " + hit.getStartInst());
+					System.out.println("Centroid inst: " + hit.getCentralInst());
+					System.out.println("End inst: " + hit.getEndInst());
+					System.out.println("Distance: " + hit.getLevDist());
+					System.out.println("Similarity: " + hit.getSimilarity());
+				}
+				System.out.println();
+			}
+			System.out.println();
+		}
+		
+		/*PageRankSelector templateSelect = new PageRankSelector(template.getInstPool(), false);
 		List<InstWrapper> templateSorted = templateSelect.computePageRank();
 		System.out.println("Template rank");
 		int[] templatePGRep = SearchUtil.generatePageRankRep(templateSorted);
@@ -252,20 +308,13 @@ public class PageRankSelector {
 		System.out.println("Template bytecode freq: " + Arrays.toString(bytecodeFreq));
 		
 		double[] pgPrior = SearchUtil.generatePriorByPageRank(templateSorted);
-		System.out.println("Template pg prior: " + Arrays.toString(pgPrior));
+		System.out.println("Template pg prior: " + Arrays.toString(pgPrior));*/
 		
-		//File f2 = new File("./test/cc.testbase.TemplateMethod:all3Methods:(II):I:1.json");
-		File f2 = new File("./test/org.ejml.alg.dense.decomposition.bidiagonal.BidiagonalDecompositionRow_D64:decompose:(Lorg.ejml.data.DenseMatrix64F):Z:1.json");
-		GraphTemplate test = TemplateLoader.loadTemplateFile(f2, tt);
-		GraphUtil.removeReturnInst(test.getInstPool());
-		System.out.println("Test name: " + f2.getName());
-		System.out.println("Inst node size: " + test.getInstPool().size());
-		
-		PageRankSelector select = new PageRankSelector(test.getInstPool(), false);
+		/*PageRankSelector select = new PageRankSelector(test.getInstPool(), false);
 		List<InstWrapper> prSorted = select.computePageRank();
 		System.out.println("Show ranks");
 		int count = 0;
-		/*for (InstWrapper iw: prSorted) {
+		for (InstWrapper iw: prSorted) {
 			System.out.println(iw.inst);
 			System.out.println(count++ + " " + iw.pageRank);
 		}*/
@@ -286,55 +335,5 @@ public class PageRankSelector {
 			System.out.println(iw.inst);
 			System.out.println(count++ + " " + iw.pageRank);
 		}*/
-		
-		List<InstNode> sortedSub = GraphUtil.sortInstPool(template.getInstPool(), true);
-		List<InstNode> sortedTest = GraphUtil.sortInstPool(test.getInstPool(), true);
-		
-		int segmentSize = sortedSub.size();
-		HashSet<InstNode> possibleCands = SearchUtil.possibleSingleAssignment(sortedSub.get(0), test);
-		System.out.println("Possible assignments: " + possibleCands);
-		HashMap<InstNode, InstPool> candSegs = new HashMap<InstNode, InstPool>();
-		for (InstNode cand: possibleCands) {
-			InstPool seg = new InstPool();
-			int remained = segmentSize;
-			
-			//Retrieve the segment
-			boolean start = false;
-			for (InstNode t: sortedTest) {
-				if (t.equals(cand)) {
-					start = true;
-				}
-				
-				if (start) {
-					seg.add(t);
-					remained--;
-					
-					if (remained == 0)
-						break ;
-				}
-			}
-			start = false;
-			candSegs.put(cand, seg);
-		}
-		
-		//Generate pg rep
-		for(InstNode cand: candSegs.keySet()) {
-			PageRankSelector pgs = new PageRankSelector(candSegs.get(cand), true);
-			List<InstWrapper> sortedResults = pgs.computePageRank();
-			System.out.println("Cand rank: " + cand);
-			int[] candPGRep = SearchUtil.generatePageRankRep(sortedResults);
-			
-			int dist = 0;
-			if (candPGRep.length == 0) {
-				dist = segmentSize;
-			} else {
-				dist = LevenshteinDistance.calculateSimilarity(templatePGRep, candPGRep);
-			}
-			
-			double sim = levenSimilarity(dist, segmentSize);
-			
-			System.out.println("Distance: " + dist);
-			System.out.println("Similarity: " + sim);
-		}
 	}
 }
