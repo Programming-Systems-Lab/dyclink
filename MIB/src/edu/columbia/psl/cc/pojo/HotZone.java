@@ -4,6 +4,10 @@ import edu.columbia.psl.cc.datastruct.InstPool;
 
 public class HotZone {
 	
+	private InstNode subCentroid;
+	
+	private double subPgRank;
+	
 	private InstNode startInst;
 	
 	private InstNode centralInst;
@@ -17,6 +21,22 @@ public class HotZone {
 	private InstPool subGraph;
 	
 	private InstPool segs;
+	
+	public InstNode getSubCentroid() {
+		return this.subCentroid;
+	}
+	
+	public void setSubCentroid(InstNode subCentroid) {
+		this.subCentroid = subCentroid;
+	}
+	
+	public double getSubPgRank() {
+		return this.subPgRank;
+	}
+	
+	public void setSubPgRank(double subPgRank) {
+		this.subPgRank = subPgRank;
+	}
 
 	public InstNode getStartInst() {
 		return startInst;

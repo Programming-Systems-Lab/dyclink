@@ -91,6 +91,16 @@ public class MIBConfiguration {
 	
 	private int instThreshold;
 	
+	private int instLimit;
+	
+	private double pgAlpha;
+	
+	private int pgMaxIter;
+	
+	private double pgEpsilon;
+	
+	private double simThreshold;
+	
 	private boolean annotGuard;
 	
 	private boolean cleanTemplate;
@@ -291,8 +301,48 @@ public class MIBConfiguration {
 		this.instThreshold = instThreshold;
 	}
 	
+	public int getInstLimit() {
+		return this.instLimit;
+	}
+	
+	public void setInstLimit(int instLimit) {
+		this.instLimit = instLimit;
+	}
+	
+	public double getPgAlpha() {
+		return this.pgAlpha;
+	}
+	
+	public void segPgAlpha(double pgAlpha) {
+		this.pgAlpha = pgAlpha;
+	}
+	
+	public void setPgMaxIter(int pgMaxIter) {
+		this.pgMaxIter = pgMaxIter;
+	}
+	
+	public int getPgMaxIter() {
+		return this.pgMaxIter;
+	}
+	
+	public void setPgEpsilon(double pgEpsilon) {
+		this.pgEpsilon = pgEpsilon;
+	}
+	
+	public double getPgEpsilon() {
+		return this.pgEpsilon;
+	}
+	
 	public String getTemplateDir() {
 		return templateDir;
+	}
+	
+	public void setSimThreshold(double simThreshold) {
+		this.simThreshold = simThreshold;
+	}
+	
+	public double getSimThreshold() {
+		return this.simThreshold;
 	}
 
 	public void setTemplateDir(String templateDir) {
@@ -414,6 +464,11 @@ public class MIBConfiguration {
 		sb.append("idx expand factor: " + this.idxExpandFactor + "\n");
 		sb.append("precision digit: " + this.precisionDigit + "\n");
 		sb.append("parallel factor: " + this.parallelFactor + "\n");
+		sb.append("minimum inst number: " + this.instThreshold + "\n");
+		sb.append("inst selection number: " + this.instLimit + "\n");
+		sb.append("alpha of PageRank: " + this.pgAlpha + "\n");
+		sb.append("max iteration of PageRank: " + this.pgMaxIter + "\n");
+		sb.append("epsilon of PageRank: " + this.pgEpsilon + "\n");
 		sb.append("annotation guard: " + this.annotGuard + "\n");
 		sb.append("clean template: " + this.cleanTemplate + "\n");
 		sb.append("clean test: " + this.cleanTest + "\n");
