@@ -359,6 +359,14 @@ public class GraphUtil {
 		return allParents;
 	}
 	
+	public static HashSet<InstNode> retrieveAllParentInsts(InstNode inst, InstPool pool) {
+		HashSet<InstNode> ret = new HashSet<InstNode>();
+		ret.addAll(retrieveRequiredParentInsts(inst, pool, MIBConfiguration.CONTR_DEP));
+		ret.addAll(retrieveRequiredParentInsts(inst, pool, MIBConfiguration.INST_DATA_DEP));
+		ret.addAll(retrieveRequiredParentInsts(inst, pool, MIBConfiguration.WRITE_DATA_DEP));
+		return ret;
+	}
+	
 	/*private static SurrogateInst generateSurrogate(InstNode inst, InstPool pool) {
 		//possible read: xload, getfield, getstatic, all method calls from jvm
 		String instKey = StringUtil.genIdxKey(inst.getFromMethod(), inst.getThreadId(), inst.getThreadMethodIdx(), inst.getIdx());

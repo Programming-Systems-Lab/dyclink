@@ -41,6 +41,40 @@ public class LevenshteinDistance implements MIBSimilarity<String>{
 		}
 	}
 	
+	public static int calculateSimilarity(int[] a0, int[] a1) {
+		int len0 = a0.length + 1;
+		int len1 = a1.length + 1;
+		                                                     
+	    int[] cost = new int[len0];                                                     
+	    int[] newcost = new int[len0];                                                  
+	                              
+	    for (int i = 0; i < len0; i++) cost[i] = i;                                     
+	                                  
+	    for (int j = 1; j < len1; j++) {                                                
+	        // initial cost of skipping prefix in String s1                             
+	        newcost[0] = j;                                                             
+	 
+	        // transformation cost for each letter in s0                                
+	        for(int i = 1; i < len0; i++) {                                             
+	            int match = (a0[i - 1] == a1[i - 1]) ? 0: 1;
+	 
+	            // computing cost for each transformation                               
+	            int cost_replace = cost[i - 1] + match;                                 
+	            int cost_insert  = cost[i] + 1;                                         
+	            int cost_delete  = newcost[i - 1] + 1;                                  
+	 
+	            // keep minimum cost                                                    
+	            newcost[i] = Math.min(Math.min(cost_insert, cost_delete), cost_replace);
+	        }                                                                           
+	 
+	        // swap cost/newcost arrays                                                 
+	        int[] swap = cost; cost = newcost; newcost = swap;                          
+	    }                                                                               
+	 
+	    // the distance is the cost for transforming all letters in both strings        
+	    return cost[len0 - 1];     
+	}
+	
 	@Override
 	public double calculateSimilarity(String s0, String s1) {                          
 	    int len0 = s0.length() + 1;                                                     
@@ -88,6 +122,13 @@ public class LevenshteinDistance implements MIBSimilarity<String>{
 		
 		LevenshteinDistance ld = new LevenshteinDistance();
 		System.out.println("Test: " + ld.calculateSimilarity(s1, s2));
+		System.out.println("Test: "+ org.apache.commons.lang3.StringUtils.getLevenshteinDistance(s1, s2));
+		
+		//int[] a0 = {(int)'b', (int)'a', (int)'g', (int)'c', (int)'b', (int)'b', (int)'g', (int)'c', (int)'b', (int)'b', (int)'g', (int)'c', (int)'b', (int)'p'};
+		//int[] a1 = {(int)'b', (int)'b', (int)'g', (int)'c', (int)'b', (int)'a', (int)'g', (int)'c', (int)'b', (int)'b', (int)'g', (int)'c', (int)'b', (int)'p'};
+		int[] a0 = {2, 5, 4, 8, 9, 1, 2};
+		int[] a1 = {2, 4, 5, 9, 8, 1, 2};
+		System.out.println("Test array: " + calculateSimilarity(a0, a1));
 	}
 
 	@Override

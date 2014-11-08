@@ -102,8 +102,8 @@ public class GraphDecomposer {
 			InstNode i1 = this.instIndex.get(i);
 			int base = i1.getChildFreqMap().size();
 			for (int j = 0; j < this.instIndex.size(); j++) {
-				if (i == j)
-					continue ;
+				/*if (i == j)
+					continue ;*/
 				
 				if (base == 0)
 					continue ;
@@ -158,7 +158,7 @@ public class GraphDecomposer {
 	}
 	
 	public static void main(String[] args) {
-		File f = new File("./template/cc.testbase.TemplateMethod:all3Methods:(II):I:1.json");
+		File f = new File("./template/cc.testbase.TemplateMethod:increArray:([I):V:1.json");
 		TypeToken<GraphTemplate> type = new TypeToken<GraphTemplate>(){};
 		GraphTemplate g = TemplateLoader.loadTemplateFile(f, type);
 		System.out.println("Vertex num: " + g.getInstPool().size());
@@ -173,13 +173,21 @@ public class GraphDecomposer {
 		EigenDecomposition decompose = gd.decomposeGraph();
 		double[] eigenvalues = decompose.getRealEigenvalues();*/
 		
-		/*double[][] transMatrix = gd.getAdjMatrix();
+		double[][] transMatrix = gd.getAdjMatrix();
 		for (int i = 0; i < transMatrix.length; i++) {
 			System.out.println(Arrays.toString(transMatrix[i]));
-		}*/
+		}
 		
 		EigenDecomposition decompose = gd.decomposeGraphOnP();
-		double[] eigenvalues = decompose.getRealEigenvalues();
+		double[] realEigen = decompose.getRealEigenvalues();
+		double[] imagEigen = decompose.getImagEigenvalues();
+		double[] eigenvalues = new double[realEigen.length];
+		
+		for (int i = 0; i < realEigen.length; i++) {
+			double val1 = Math.pow(realEigen[i], 2);
+			double val2 = Math.pow(imagEigen[i], 2);
+			eigenvalues[i] = Math.sqrt(val1 + val2);
+		}
 		System.out.println("Eigen values: " + Arrays.toString(eigenvalues));
 		
 		int secondIdx = secondLargestIndex(eigenvalues);
@@ -194,7 +202,7 @@ public class GraphDecomposer {
 		ArrayList<InstNode> g1 = new ArrayList<InstNode>();
 		ArrayList<InstNode> g2 = new ArrayList<InstNode>();
 		for (int i = 0; i < fArray.length; i++) {
-			if (fArray[i] > 0) {
+			if (fArray[i] >= 0) {
 				g1.add(gd.getInstIndex().get(i));
 				System.out.println(gd.getInstIndex().get(i) + " f val " + fArray[i] + " g1");
 			} else {
