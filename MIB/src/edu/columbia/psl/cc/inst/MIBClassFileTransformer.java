@@ -42,7 +42,12 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 				&& !name.startsWith("com.apple.java")
 				&& !name.startsWith("org.objectweb.asm")
 				&& !name.startsWith("org.apache.commons.math3")
-				&& !name.startsWith("org.apache.log4j")) {
+				&& !name.startsWith("org.apache.log4j")
+				&& !name.startsWith("org.junit")
+				&& !name.startsWith("junit.runner")
+				&& !name.startsWith("org.hamcrest")
+				&& !name.startsWith("org.evosuite")
+				&& !name.startsWith("org.slf4j")) {
 			//Start the instrumentation here;
 			try {
 				ClassReader cr = new ClassReader(name);

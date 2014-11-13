@@ -238,6 +238,9 @@ public class PageRankSelector {
 	}
 	
 	public static GraphProfile profileGraph(GraphTemplate subGraph) {
+		if (subGraph.getInstPool().size() == 0) {
+			return null;
+		}
 		List<InstNode> sortedSub = GraphUtil.sortInstPool(subGraph.getInstPool(), true);
 		
 		//Pick the most important node from sorteSob
@@ -275,24 +278,49 @@ public class PageRankSelector {
 		return gp;
 	}
 	
-	public static void initiateSubGraphMining(String templateDir, String testDir) {
-		System.out.println("Start PageRank analysis for Bytecode subgraph mining");
-		System.out.println("Alpha: " + alpha);
-		System.out.println("Max iteration: " + maxIteration);
-		System.out.println("Epsilon: " + epsilon);
-		
+	public static void initiateSubGraphMining(String templateDir, String testDir) {		
 		StringBuilder sb = new StringBuilder();
 		sb.append(header);
 		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
-		HashMap<String, GraphTemplate> templates = TemplateLoader.loadTemplate(new File("./template"), graphToken);
-		HashMap<String, GraphTemplate> tests = TemplateLoader.loadTemplate(new File("./test"), graphToken);
+		
+		HashMap<String, GraphTemplate> templates = null;
+		HashMap<String, GraphTemplate> tests = null;
+		
+		boolean probeTemplate = TemplateLoader.probeDir("./template");
+		boolean probeTest = TemplateLoader.probeDir("./tests");
+		if (probeTemplate && probeTest) {
+			System.out.println("Comparison mode: template vs tests");
+			templates = TemplateLoader.loadTemplate(new File("./template"), graphToken);
+			tests = TemplateLoader.loadTemplate(new File("./test"), graphToken);
+		} else if (probeTemplate) {
+			System.out.println("Exhaustive mode: templates vs. templates");
+			templates = TemplateLoader.loadTemplate(new File("./template"), graphToken);
+			tests = TemplateLoader.loadTemplate(new File("./template"), graphToken);
+		} else if (probeTest) {
+			System.out.println("Exhaustive mode: tests vs. tests");
+			templates = TemplateLoader.loadTemplate(new File("./test"), graphToken);
+			tests = TemplateLoader.loadTemplate(new File("./test"), graphToken);
+		} else {
+			System.out.println("Empty repos for both templates and tests");
+			return ;
+		}
 		
 		for (String templateName: templates.keySet()) {
 			StringBuilder rawRecorder = new StringBuilder();
 			
 			GraphTemplate tempGraph = templates.get(templateName);
+			
+			if (tempGraph.getInstPool().size() < MIBConfiguration.getInstance().getInstThreshold()) {
+				continue ;
+			}
+			
 			GraphUtil.removeReturnInst(tempGraph.getInstPool());
 			GraphProfile tempProfile = profileGraph(tempGraph);
+			if (tempProfile == null) {
+				System.out.println("Empty graph: " + tempGraph.getMethodKey());
+				continue ;
+			}
+			
 			System.out.println("Template name: " + tempGraph.getMethodKey());
 			System.out.println("Inst node size: " + tempGraph.getInstPool().size());
 			
@@ -301,6 +329,7 @@ public class PageRankSelector {
 					new HashMap<String, Future<List<HotZone>>>();
 			for (String testName: tests.keySet()) {
 				GraphTemplate testGraph = tests.get(testName);
+				//GraphUtil.removeReturnInst(testGraph.getInstPool());
 				System.out.println("Test name: " + testGraph.getMethodKey());
 				System.out.println("Inst node size: " + testGraph.getInstPool().size());
 				
@@ -353,6 +382,13 @@ public class PageRankSelector {
 	public static void main(String[] args) {
 		String templateDir = MIBConfiguration.getInstance().getTemplateDir();
 		String testDir = MIBConfiguration.getInstance().getTestDir();
+		
+		System.out.println("Start PageRank analysis for Bytecode subgraph mining");
+		System.out.println("Similarity threshold: " + simThreshold);
+		System.out.println("Alpha: " + alpha);
+		System.out.println("Max iteration: " + maxIteration);
+		System.out.println("Epsilon: " + epsilon);
+		
 		initiateSubGraphMining(templateDir, testDir);
 		
 		/*File f = new File("./template/cc.testbase.TemplateMethod:increArray:([I):V:1.json");

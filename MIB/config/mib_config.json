@@ -21,10 +21,10 @@
     "pgAlpha": 0.15,
     "pgMaxIter": 50,
     "pgEpsilon": 1e-5,
-    "simThreshold": 0.7,
+    "simThreshold": 0.4,
     "annotGuard": false,
     "cleanTemplate": true,
-    "cleanTest": false,
+    "cleanTest": true,
     "templateMode": true,
     "overallAnalysis": false,
     "debug": true

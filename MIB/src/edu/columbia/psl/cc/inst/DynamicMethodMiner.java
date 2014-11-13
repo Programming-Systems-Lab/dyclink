@@ -550,6 +550,15 @@ public class DynamicMethodMiner extends MethodVisitor {
 			this.updateMethodRep(Opcodes.LDC);
 		}
 		this.mv.visitLdcInsn(cst);
+		
+		if (this.shouldInstrument() && !this.constructor) {
+			if (cst instanceof Type) {
+				int sort = ((Type)cst).getSort();
+				if (sort == Type.OBJECT) {
+					this.updateObjOnVStack();
+				}
+			}
+		}
 	}
 	
 	@Override
