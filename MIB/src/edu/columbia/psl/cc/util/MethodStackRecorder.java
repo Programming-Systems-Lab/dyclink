@@ -103,7 +103,7 @@ public class MethodStackRecorder {
 	public MethodStackRecorder(String className, 
 			String methodName, 
 			String methodDesc, 
-			Object obj) {
+			int objId) {
 		this.className = className;
 		this.methodName = methodName;
 		this.methodDesc = methodDesc;
@@ -121,11 +121,16 @@ public class MethodStackRecorder {
 				methodDesc, 
 				this.threadId);
 		
-		if (obj == null) {
+		/*if (obj == null) {
 			this.staticMethod = true;
 		} else {
 			this.objId = ObjectIdAllocater.parseObjId(obj);
-		}
+		}*/
+		
+		if (objId == 0)
+			this.staticMethod = true;
+		
+		this.objId = objId;
 		
 		int start = 0;
 		if (!this.staticMethod) {
@@ -224,11 +229,6 @@ public class MethodStackRecorder {
 		} else if (depType == MIBConfiguration.CONTR_DEP) {
 			parent.increChild(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getControlWeight());
 			child.registerParent(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
-		}
-		
-		if (child.toString().equals("org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64:makeSingularPositive:():V 1 0 55 103 dsub")) {
-			System.out.println("Get the target: " + child);
-			System.out.println("Its parent: " + parent);
 		}
 	}
 	

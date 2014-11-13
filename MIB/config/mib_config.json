@@ -1,4 +1,5 @@
 {
+    "excludeClass": ["java", "sun", "edu.columbia.psl.cc", "com.google.gson", "com.apple.java", "org.objectweb.asm", "org.apache.commons.math3", "org.apache.log4j", "org.junit", "junit.runner", "org.hamcrest", "org.evosuite", "org.slf4j"],
     "opTablePath": "opcodes/opcode_cats.csv",
     "opCodeCatId": "opcodes/opcode_ids.csv",
     "costTableDir": "./cost_tables/",

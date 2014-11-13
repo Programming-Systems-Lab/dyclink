@@ -34,6 +34,8 @@ public class ClassMiner extends ClassVisitor{
 	
 	private String owner;
 	
+	private String superName;
+	
 	private boolean isAnnot = false;
 	
 	private HashMap<String, int[]> totalRepVectors = new HashMap<String, int[]>();
@@ -70,6 +72,7 @@ public class ClassMiner extends ClassVisitor{
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		System.out.println(name + " extends " + superName + "{");
+		this.superName = superName;
 		this.cv.visit(version, access, name, signature, superName, interfaces);
 		this.isInterface = (access & Opcodes.ACC_INTERFACE) != 0;
 		if (!isInterface) {
@@ -114,7 +117,15 @@ public class ClassMiner extends ClassVisitor{
 				return mv;
 			}
 			
-			DynamicMethodMiner dmm =  new DynamicMethodMiner(mv, this.owner, access, name, desc, this.templateAnnot, this.testAnnot, this.annotGuard);
+			DynamicMethodMiner dmm =  new DynamicMethodMiner(mv, 
+					this.owner, 
+					this.superName, 
+					access, 
+					name, 
+					desc, 
+					this.templateAnnot, 
+					this.testAnnot, 
+					this.annotGuard);
 			LocalVariablesSorter lvs = new LocalVariablesSorter(access, desc, dmm);
 			
 			//See the comment from https://github.com/pmahoney/asm-bug/blob/master/src/main/java/Main.java

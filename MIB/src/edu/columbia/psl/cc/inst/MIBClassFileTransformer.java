@@ -16,7 +16,7 @@ import edu.columbia.psl.cc.annot.analyzeClass;
 import edu.columbia.psl.cc.annot.extractTemplate;
 import edu.columbia.psl.cc.annot.testTemplate;
 import edu.columbia.psl.cc.config.MIBConfiguration;
-import edu.columbia.psl.cc.premain.MIBDriver;
+import edu.columbia.psl.cc.util.StringUtil;
 
 public class MIBClassFileTransformer implements ClassFileTransformer {
 	
@@ -35,19 +35,7 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 		// TODO Auto-generated method stub
 		
 		String name = className.replace("/", ".");
-		if (!name.startsWith("java") 
-				&& !name.startsWith("sun") 
-				&& !name.startsWith("edu.columbia.psl.cc") 
-				&& !name.startsWith("com.google.gson") 
-				&& !name.startsWith("com.apple.java")
-				&& !name.startsWith("org.objectweb.asm")
-				&& !name.startsWith("org.apache.commons.math3")
-				&& !name.startsWith("org.apache.log4j")
-				&& !name.startsWith("org.junit")
-				&& !name.startsWith("junit.runner")
-				&& !name.startsWith("org.hamcrest")
-				&& !name.startsWith("org.evosuite")
-				&& !name.startsWith("org.slf4j")) {
+		if (StringUtil.shouldInclude(name)) {
 			//Start the instrumentation here;
 			try {
 				ClassReader cr = new ClassReader(name);

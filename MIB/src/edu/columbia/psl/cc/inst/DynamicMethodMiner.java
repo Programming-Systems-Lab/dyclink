@@ -67,6 +67,8 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	private String className;
 	
+	private String superName;
+	
 	private String myName;
 	
 	private String desc;
@@ -110,6 +112,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 	 
 	public DynamicMethodMiner(MethodVisitor mv, 
 			String className, 
+			String superName, 
 			int access, 
 			String myName, 
 			String desc, 
@@ -119,6 +122,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		//super(Opcodes.ASM4, mv, access, myName, desc);
 		super(Opcodes.ASM4, mv);
 		this.className = className;
+		this.superName = superName;
 		this.myName = myName;
 		this.desc = desc;
 		this.templateAnnot = templateAnnot;
@@ -308,6 +312,20 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMIBID(), "I");*/
 		
 		if (this.shouldInstrument()) {
+			String superReplace = this.superName.replace("/", ".");
+			if (StringUtil.shouldInclude(superReplace)) {
+				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+				this.mv.visitFieldInsn(Opcodes.GETFIELD, this.superName, MIBConfiguration.getMibId(), "I");
+				this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMibId(), "I");
+			} else {
+				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+				this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ObjectIdAllocater.class), 
+						"getIndex", 
+						"()I");
+				this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMibId(), "I");
+			}
+			
 			//Create the method stack recorder
 			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
 			System.out.println("Method Stack Recorder name: " + methodStackRecorder);
@@ -319,18 +337,18 @@ public class DynamicMethodMiner extends MethodVisitor {
 			
 			if (this.isStatic) {
 				//this.mv.visitInsn(Opcodes.ICONST_1);
-				this.mv.visitInsn(Opcodes.ACONST_NULL);
+				//this.mv.visitInsn(Opcodes.ACONST_NULL);
+				this.mv.visitInsn(Opcodes.ICONST_0);
 			} else {
-				//this.mv.visitInsn(Opcodes.ICONST_0);
 				//this.mv.visitVarInsn(Opcodes.ALOAD, 0);
-				//this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, MIBConfiguration.getMibId(), Type.INT_TYPE.getDescriptor());
 				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+				this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, MIBConfiguration.getMibId(), "I");
 			}
 			
 			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, 
 					methodStackRecorder, 
 					"<init>", 
-					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V");
+					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V");
 			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
 		}
 	}
@@ -340,10 +358,12 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.mv.visitCode();
 		if (this.constructor && !this.superVisited) {
 			//For some reasons, AdviceAdapter does not work. Do it by myself
-			//Give obj id before visit super class
-			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
-			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ObjectIdAllocater.class), "getIndex", "()I");
-			this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMibId(), "I");
+			//Give obj id before visit super class			
+			/*this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ObjectIdAllocater.class), 
+					"getIndex", 
+					"()I");
+			this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMibId(), "I");*/
 			return ; 
 		}
 		
@@ -360,19 +380,22 @@ public class DynamicMethodMiner extends MethodVisitor {
 			
 			if (this.isStatic) {
 				//this.mv.visitInsn(Opcodes.ICONST_1);
-				this.mv.visitInsn(Opcodes.ACONST_NULL);
+				//this.mv.visitInsn(Opcodes.ACONST_NULL);
+				this.mv.visitInsn(Opcodes.ICONST_0);
 			} else {
 				//this.mv.visitInsn(Opcodes.ICONST_0);
 				
 				//this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 				//this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, MIBConfiguration.getMibId(), Type.INT_TYPE.getDescriptor());
+				//this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+				this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, MIBConfiguration.getMibId(), "I");
 			}
 			
 			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, 
 					methodStackRecorder, 
 					"<init>", 
-					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V");
+					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V");
 			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
 		}
 	}

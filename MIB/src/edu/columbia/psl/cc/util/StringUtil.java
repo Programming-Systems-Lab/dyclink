@@ -1,15 +1,27 @@
 package edu.columbia.psl.cc.util;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.objectweb.asm.Type;
+
+import edu.columbia.psl.cc.config.MIBConfiguration;
 
 public class StringUtil {
 	
 	private static String pattern = ")";
 	
 	private static final Pattern shouldRemove = Pattern.compile("[](){},.;!?<>\\/%]");
+	
+	public static boolean shouldInclude(String name) {
+		List<String> excludeClass = MIBConfiguration.getInstance().getExcludeClass();
+		for (String exclude: excludeClass) {
+			if (name.startsWith(exclude))
+				return false;
+		}
+		return true;
+	}
 	
 	public static String genRelation(String s1, String s2) {
 		return s1 + "->" + s2;

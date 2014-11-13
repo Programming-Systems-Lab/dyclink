@@ -13,7 +13,9 @@ import org.objectweb.asm.Type;
 import edu.columbia.psl.cc.annot.analyzeClass;
 import edu.columbia.psl.cc.annot.extractTemplate;
 import edu.columbia.psl.cc.annot.testTemplate;
+import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.util.MethodStackRecorder;
+import edu.columbia.psl.cc.util.ObjectIdAllocater;
 
 @analyzeClass
 public class TemplateMethod extends TemplateParent{
@@ -344,7 +346,10 @@ public class TemplateMethod extends TemplateParent{
 	}
 		
 	public static void main(String[] args) {
+		System.out.println(MIBConfiguration.getInstance().getExcludeClass());
+		System.out.println(Type.getInternalName(Object.class).startsWith("java"));
 		TemplateMethod tm = new TemplateMethod();
+		tm.parentAdd(3, 5);
 		//tm.testAdd2(5);
 		//tm.caller();
 		//tm.call1();
@@ -371,7 +376,7 @@ public class TemplateMethod extends TemplateParent{
 		//System.out.println(tm.instanceMethod(2, b));
 		//System.out.println("Test add: " + tm.testAdd(2));
 		//System.out.println("Test add2: " + tm.testAdd2(5));
-		System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
+		//System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
 		//System.out.println("TestMethod: " + tm.all3Methods(3, 5));
 		/*System.out.println("cc/testbase/TemplateMethod.iVar.I".split("\\.").length);
 		System.out.println(Type.INT);

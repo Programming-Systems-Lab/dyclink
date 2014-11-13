@@ -1,6 +1,7 @@
 package edu.columbia.psl.cc.config;
 
 import java.io.File;
+import java.util.List;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -53,6 +54,8 @@ public class MIBConfiguration {
 	private static String objOnStack = "updateObjOnStack";
 	
 	private static String objOnStackDesc = "(Ljava/lang/Object;I)V";
+	
+	private List<String> excludeClass;
 	
 	private String opTablePath;
 	
@@ -211,6 +214,14 @@ public class MIBConfiguration {
 
 	public static String getObjOnStackDesc() {
 		return objOnStackDesc;
+	}
+	
+	public List<String> getExcludeClass() {
+		return this.excludeClass;
+	}
+	
+	public void setExcludeClass(List<String> excludeClass) {
+		this.excludeClass = excludeClass;
 	}
 	
 	public String getOpTablePath() {
