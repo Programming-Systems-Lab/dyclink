@@ -23,6 +23,13 @@ public class StringUtil {
 		return true;
 	}
 	
+	public static String removeUUID(String name) {
+		name = name.replace(".json", "");
+		int lastSemi = name.lastIndexOf(":");
+		name = name.substring(0, lastSemi);
+		return name;
+	}
+	
 	public static String genRelation(String s1, String s2) {
 		return s1 + "->" + s2;
 	}
@@ -141,6 +148,11 @@ public class StringUtil {
 			sb.append(s + " ");
 		}
 		return sb.substring(0, sb.length() - 1);
+	}
+	
+	public static void main (String[] args) {
+		String name = "1234:6.json";
+		System.out.println("Remove 6: " + removeUUID(name));
 	}
 
 }

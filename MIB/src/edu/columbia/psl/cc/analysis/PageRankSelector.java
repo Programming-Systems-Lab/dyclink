@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.collections15.Transformer;
+import org.apache.log4j.Logger;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -36,6 +37,8 @@ import edu.uci.ics.jung.graph.Hypergraph;
 
 
 public class PageRankSelector {
+	
+	private static Logger logger = Logger.getLogger(PageRankSelector.class);
 	
 	private static double alpha = MIBConfiguration.getInstance().getPgAlpha();
 	
@@ -123,15 +126,15 @@ public class PageRankSelector {
 	
 	public List<InstWrapper> computePageRank() {
 		Hypergraph<InstNode, Integer> jungGraph = this.convertToJungGraph();
-		System.out.println("Vertex size: " + jungGraph.getVertexCount());
-		System.out.println("Edge size: " + jungGraph.getEdgeCount());
+		logger.info("Vertex size: " + jungGraph.getVertexCount());
+		logger.info("Edge size: " + jungGraph.getEdgeCount());
 		
 		PageRankWithPriors<InstNode, Integer> ranker = null;
 		if (this.priors == null) {
-			System.out.println("Rank without priors");
+			logger.info("Rank withoug priors");
 			ranker = new PageRank<InstNode, Integer>(jungGraph, alpha);
 		} else {
-			System.out.println("Rank with priors");
+			logger.info("Rank with priors");
 			Transformer<InstNode, Double> transformer = new Transformer<InstNode, Double>() {
 				@Override
 				public Double transform(InstNode inst) {
@@ -198,8 +201,8 @@ public class PageRankSelector {
 		List<InstNode> sortedTarget = GraphUtil.sortInstPool(targetGraph.getInstPool(), true);
 		
 		HashSet<InstNode> miAssignments = SearchUtil.possibleSingleAssignment(subProfile.centroidWrapper.inst, targetGraph);
-		System.out.println("Target graph: " + targetGraph.getMethodKey());
-		System.out.println("Possible assignments: " + miAssignments);
+		logger.info("Target graph: " + targetGraph.getMethodKey());
+		logger.info("Possible assignments: " + miAssignments);
 		HashMap<InstNode, List<InstNode>> candSegs = locateSegments(miAssignments, sortedTarget, subProfile.before, subProfile.after);
 		List<HotZone> hits = new ArrayList<HotZone>();
 		
@@ -247,8 +250,8 @@ public class PageRankSelector {
 		PageRankSelector subSelector = new PageRankSelector(subGraph.getInstPool(), false);
 		List<InstWrapper> subRank = subSelector.computePageRank();
 		int[] subPGRep = SearchUtil.generatePageRankRep(subRank);
-		System.out.println("Sub graph: " + subGraph.getMethodKey());
-		System.out.println("Sub graph PageRank: " + Arrays.toString(subPGRep));
+		logger.info("Sub graph profile: " + subGraph.getMethodKey());
+		logger.info("Sub graph PageRank: " + Arrays.toString(subPGRep));
 		
 		//Use the most important inst as the central to collect insts in target
 		InstNode subCentroid = subRank.get(0).inst;
@@ -289,19 +292,19 @@ public class PageRankSelector {
 		boolean probeTemplate = TemplateLoader.probeDir("./template");
 		boolean probeTest = TemplateLoader.probeDir("./tests");
 		if (probeTemplate && probeTest) {
-			System.out.println("Comparison mode: template vs tests");
+			logger.info("Comparison mode: templates vs tests");
 			templates = TemplateLoader.loadTemplate(new File("./template"), graphToken);
 			tests = TemplateLoader.loadTemplate(new File("./test"), graphToken);
 		} else if (probeTemplate) {
-			System.out.println("Exhaustive mode: templates vs. templates");
+			logger.info("Exhaustive mode: templates vs. templates");
 			templates = TemplateLoader.loadTemplate(new File("./template"), graphToken);
 			tests = TemplateLoader.loadTemplate(new File("./template"), graphToken);
 		} else if (probeTest) {
-			System.out.println("Exhaustive mode: tests vs. tests");
+			logger.info("Exhaustive mode: tests vs. tests");
 			templates = TemplateLoader.loadTemplate(new File("./test"), graphToken);
 			tests = TemplateLoader.loadTemplate(new File("./test"), graphToken);
 		} else {
-			System.out.println("Empty repos for both templates and tests");
+			logger.info("Empty repos for both templates and tests");
 			return ;
 		}
 		
@@ -317,12 +320,12 @@ public class PageRankSelector {
 			GraphUtil.removeReturnInst(tempGraph.getInstPool());
 			GraphProfile tempProfile = profileGraph(tempGraph);
 			if (tempProfile == null) {
-				System.out.println("Empty graph: " + tempGraph.getMethodKey());
+				logger.warn("Empty graph: " + tempGraph.getMethodKey());
 				continue ;
 			}
 			
-			System.out.println("Template name: " + tempGraph.getMethodKey());
-			System.out.println("Inst node size: " + tempGraph.getInstPool().size());
+			logger.info("Template name: " + tempGraph.getMethodKey());
+			logger.info("Inst node size: " + tempGraph.getInstPool().size());
 			
 			ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
 			HashMap<String, Future<List<HotZone>>> resultRecorder = 
@@ -334,8 +337,8 @@ public class PageRankSelector {
 				
 				GraphTemplate testGraph = tests.get(testName);
 				//GraphUtil.removeReturnInst(testGraph.getInstPool());
-				System.out.println("Test name: " + testGraph.getMethodKey());
-				System.out.println("Inst node size: " + testGraph.getInstPool().size());
+				logger.info("Test name: " + testGraph.getMethodKey());
+				logger.info("Inst node size: " + testGraph.getInstPool().size());
 				
 				SubGraphCrawler crawler = new SubGraphCrawler();
 				crawler.subGraphProfile = tempProfile;
@@ -354,11 +357,11 @@ public class PageRankSelector {
 					List<HotZone> zones = resultRecorder.get(testName).get();
 					
 					for (HotZone hit: zones) {
-						System.out.println("Start inst: " + hit.getStartInst());
-						System.out.println("Centroid inst: " + hit.getCentralInst());
-						System.out.println("End inst: " + hit.getEndInst());
-						System.out.println("Distance: " + hit.getLevDist());
-						System.out.println("Similarity: " + hit.getSimilarity());
+						logger.info("Start inst: " + hit.getStartInst());
+						logger.info("Centroid inst: " + hit.getCentralInst());
+						logger.info("End inst: " + hit.getEndInst());
+						logger.info("Distance: " + hit.getLevDist());
+						logger.info("Similarity: " + hit.getSimilarity());
 						
 						rawRecorder.append(templateName + 
 								"," + testName + 
@@ -376,12 +379,9 @@ public class PageRankSelector {
 								"," + hit.getSimilarity() + "\n");
 					}
 				}
-				System.out.println();
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				logger.error(ex);
 			}
-			
-			System.out.println();
 			sb.append(rawRecorder.toString());
 		}
 		GsonManager.writeResult(sb);
@@ -390,68 +390,14 @@ public class PageRankSelector {
 	public static void main(String[] args) {
 		String templateDir = MIBConfiguration.getInstance().getTemplateDir();
 		String testDir = MIBConfiguration.getInstance().getTestDir();
-		
-		System.out.println("Start PageRank analysis for Bytecode subgraph mining");
-		System.out.println("Similarity threshold: " + simThreshold);
-		System.out.println("Alpha: " + alpha);
-		System.out.println("Max iteration: " + maxIteration);
-		System.out.println("Epsilon: " + epsilon);
+				
+		logger.info("Start PageRank analysis for Bytecode subgraph mining");
+		logger.info("Similarity threshold: " + simThreshold);
+		logger.info("Alpha: " + alpha);
+		logger.info("Max iteration: " + maxIteration);
+		logger.info("Epsilon: " + epsilon);
 		
 		initiateSubGraphMining(templateDir, testDir);
-		
-		/*File f = new File("./template/cc.testbase.TemplateMethod:increArray:([I):V:1.json");
-		//File f = new File("./template/org.ejml.alg.dense.decomposition.bidiagonal.BidiagonalDecompositionRow_D64:_decompose:():Z:1.json");
-		TypeToken<GraphTemplate> tt = new TypeToken<GraphTemplate>(){};
-		GraphTemplate template = TemplateLoader.loadTemplateFile(f, tt);
-		GraphUtil.removeReturnInst(template.getInstPool());
-		System.out.println("Template name: " + f.getName());
-		System.out.println("Inst node size: " + template.getInstPool().size());
-		
-		File f2 = new File("./test/cc.testbase.TemplateMethod:all3Methods:(II):I:1.json");
-		//File f2 = new File("./test/org.ejml.alg.dense.decomposition.bidiagonal.BidiagonalDecompositionRow_D64:decompose:(Lorg.ejml.data.DenseMatrix64F):Z:1.json");
-		GraphTemplate test = TemplateLoader.loadTemplateFile(f2, tt);
-		GraphUtil.removeReturnInst(test.getInstPool());
-		System.out.println("Test name: " + f2.getName());
-		System.out.println("Inst node size: " + test.getInstPool().size());
-		
-		List<HotZone> hits = subGraphSearch(template, test);*/
-		
-		/*PageRankSelector templateSelect = new PageRankSelector(template.getInstPool(), false);
-		List<InstWrapper> templateSorted = templateSelect.computePageRank();
-		System.out.println("Template rank");
-		int[] templatePGRep = SearchUtil.generatePageRankRep(templateSorted);
-		
-		int[] bytecodeFreq = SearchUtil.generateBytecodeFreq(template.getInstPool());
-		System.out.println("Template bytecode freq: " + Arrays.toString(bytecodeFreq));
-		
-		double[] pgPrior = SearchUtil.generatePriorByPageRank(templateSorted);
-		System.out.println("Template pg prior: " + Arrays.toString(pgPrior));*/
-		
-		/*PageRankSelector select = new PageRankSelector(test.getInstPool(), false);
-		List<InstWrapper> prSorted = select.computePageRank();
-		System.out.println("Show ranks");
-		int count = 0;
-		for (InstWrapper iw: prSorted) {
-			System.out.println(iw.inst);
-			System.out.println(count++ + " " + iw.pageRank);
-		}*/
-		
-		/*PageRankSelector selectWithPrior = new PageRankSelector(test.getInstPool(), false);
-		HashMap<InstNode, Double> priors = SearchUtil.redistribute(pgPrior, test.getInstPool());
-		System.out.println("Priors: ");
-		for (InstNode inst: priors.keySet()) {
-			System.out.println("Inst: " + inst);
-			System.out.println("Prior: " + priors.get(inst));
-		}
-		
-		selectWithPrior.setPriors(priors);
-		List<InstWrapper> prSortedWithPriors = selectWithPrior.computePageRank();
-		System.out.println("Show ranks");
-		count = 0;
-		for (InstWrapper iw: prSortedWithPriors) {
-			System.out.println(iw.inst);
-			System.out.println(count++ + " " + iw.pageRank);
-		}*/
 	}
 	
 	private static class GraphProfile {

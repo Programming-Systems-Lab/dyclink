@@ -346,10 +346,8 @@ public class TemplateMethod extends TemplateParent{
 	}
 		
 	public static void main(String[] args) {
-		System.out.println(MIBConfiguration.getInstance().getExcludeClass());
-		System.out.println(Type.getInternalName(Object.class).startsWith("java"));
 		TemplateMethod tm = new TemplateMethod();
-		tm.parentAdd(3, 5);
+		//tm.parentAdd(3, 5);
 		//tm.testAdd2(5);
 		//tm.caller();
 		//tm.call1();
@@ -358,7 +356,7 @@ public class TemplateMethod extends TemplateParent{
 		//classAdd(5);
 		//int a = 2;
 		//int[] b = {3, 4, 7};
-		//tm.forMethod();
+		tm.forMethod();
 		//tm.forClassMethod();
 		/*TemplateParent tp = new TemplateMethod();
 		tp.interestingMethod();*/
