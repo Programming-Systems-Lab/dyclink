@@ -33,6 +33,7 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		long threadId = object.get("threadId").getAsLong();
 		int threadMethodIdx = object.get("threadMethodIdx").getAsInt();
 		int idx = object.get("idx").getAsInt();
+		int linenumber = object.get("linenumber").getAsInt();
 		long startDigit = object.get("startDigit").getAsLong();
 		long startTime = object.get("startTime").getAsLong();
 		long updateDigit = object.get("updateDigit").getAsLong();
@@ -78,6 +79,7 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		inst.setStartTime(startTime);
 		inst.setUpdateDigit(updateDigit);
 		inst.setUpdateTime(updateTime);
+		inst.setLinenumber(linenumber);
 		//inst.setChildFreqMap((TreeMap<Integer, Double>)context.deserialize(object.get("childFreqpMap"), childToken.getType()));
 		//inst.setParentList((ArrayList<Integer>)context.deserialize(object.get("parentList"), parentToken.getType()));
 		return inst;
@@ -95,6 +97,7 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		result.addProperty("startTime", inst.getStartTime());
 		result.addProperty("updateDigit", inst.getUpdateDigit());
 		result.addProperty("updateTime", inst.getUpdateTime());
+		result.addProperty("linenumber", inst.getLinenumber());
 		result.addProperty("op", inst.getOp().getOpcode());
 		//For debuggin purpose, or we only need opcode
 		result.addProperty("inst", inst.getOp().getInstruction());

@@ -157,7 +157,7 @@ public class GraphUtil {
 			boolean start) {
 		long residue = Long.MAX_VALUE - inst.getStartTime();
 		long val = baseTime - residue;
-		long ten = baseDigit + 1;
+		long ten = baseDigit + inst.getStartDigit() + 1;
 		if (start) {
 			inst.setStartTime(val);
 			inst.setStartDigit(ten);
@@ -168,27 +168,39 @@ public class GraphUtil {
 		
 	}
 	
-	public static long[] reindexInstPool(long[] base, InstPool instPool) {
-		long maxUpdateDigit = 0;
-		long maxUpdateTime = 0;
+	public static long[] reindexInstPool(long[] base, InstPool instPool, boolean updateAll) {
+		long maxUpdateDigit = base[1];
+		long maxUpdateTime = base[0];
 		
 		long baseDigit = base[1];
 		long baseTime = base[0];
 		for (InstNode inst: instPool) {
-			inst.setStartDigit(baseDigit + inst.getStartDigit());
-			if ((inst.getStartTime() + baseTime) < 0) {
-				//Means that long is not enough
-				upgradeTime(inst, baseDigit, baseTime, true);
+			if (updateAll) {
+				if ((inst.getStartTime() + baseTime) < 0) {
+					//Means that long is not enough
+					upgradeTime(inst, baseDigit, baseTime, true);
+				} else {
+					inst.setStartTime(baseTime + inst.getStartTime());
+					inst.setStartDigit(baseDigit + inst.getStartDigit());
+				}
+				
+				if ((inst.getUpdateTime() + baseTime) < 0) {
+					upgradeTime(inst, baseDigit, baseTime, false);
+				} else {
+					inst.setUpdateTime(baseTime + inst.getUpdateTime());
+					inst.setUpdateDigit(baseDigit + inst.getUpdateDigit());
+				}
 			} else {
-				inst.setStartTime(inst.getStartTime() + baseTime);
-				inst.setStartDigit(baseDigit);
-			}
-			
-			if ((inst.getUpdateTime() + baseTime) < 0) {
-				upgradeTime(inst, baseDigit, baseTime, false);
-			} else {
-				inst.setUpdateTime(inst.getUpdateTime() + baseTime);
+				//Just increment by one
+				inst.setUpdateTime(baseTime);
 				inst.setUpdateDigit(baseDigit);
+				
+				if (baseTime + 1 < 0) {
+					baseTime = 0;
+					baseDigit++;
+				} else {
+					baseTime++;
+				}
 			}
 			
 			if (inst.getUpdateDigit() > maxUpdateDigit) {

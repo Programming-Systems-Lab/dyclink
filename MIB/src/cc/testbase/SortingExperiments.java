@@ -260,12 +260,13 @@ public class SortingExperiments {
 	}
 	
 	public static void main(String[] args) {
-		int size = 10;
+		/*int size = 4;
 		Random randomGenerator = new Random();
 		int[] inputData = new int[size];
 		for (int i = 0; i < size; i++) {
 			inputData[i] = randomGenerator.nextInt(100);
-		}
+		}*/
+		int[] inputData = {4, 83, 32, 15};
 		
 		SortingExperiments se = new SortingExperiments();
 		

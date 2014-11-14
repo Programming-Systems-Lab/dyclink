@@ -254,6 +254,7 @@ public class MethodStackRecorder {
 	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {
 		System.out.println("Handling now: " + opcode + " " + instIdx + " " + addInfo);
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, addInfo);
+		fullInst.setLinenumber(this.linenumber);
 		this.updateTime(fullInst);
 		
 		this.updateControlRelation(fullInst);
@@ -293,6 +294,7 @@ public class MethodStackRecorder {
 		}
 		
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, fieldKey);
+		fullInst.setLinenumber(this.linenumber);
 		this.updateTime(fullInst);
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
@@ -343,6 +345,7 @@ public class MethodStackRecorder {
 		int opcat = oo.getCatId();
 		
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, addInfo);
+		fullInst.setLinenumber(this.linenumber);
 		this.updateTime(fullInst);
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
@@ -379,6 +382,7 @@ public class MethodStackRecorder {
 		} else {
 			fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, "");
 		}
+		fullInst.setLinenumber(this.linenumber);
 		this.updateTime(fullInst);
 		
 		int opcat = fullInst.getOp().getCatId();
@@ -457,6 +461,7 @@ public class MethodStackRecorder {
 		System.out.println("Handling now: " + desc + " " + dim + " " + instIdx);
 		String addInfo = desc + " " + dim;
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, Opcodes.MULTIANEWARRAY, addInfo);
+		fullInst.setLinenumber(this.linenumber);
 		this.updateTime(fullInst);
 		
 		this.updateControlRelation(fullInst);
@@ -472,8 +477,8 @@ public class MethodStackRecorder {
 	
 	private void handleUninstrumentedMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc, InstNode fullInst) {
 		System.out.println("Handling uninstrumented/undersize method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+		fullInst.setLinenumber(this.linenumber);
 		this.updateTime(fullInst);
-		
 		this.updateControlRelation(fullInst);
 		
 		Type methodType = Type.getMethodType(desc);
@@ -607,13 +612,13 @@ public class MethodStackRecorder {
 				return ;
 			} else if (this.calleeCache.containsKey(searchKeyWithObjId)) {
 				GraphGroup gGroup = this.calleeCache.get(searchKeyWithObjId);
-				//GraphGroup gGroup = GraphGroupController.getGraphGroup(searchKeyWithObjId);
 				
 				//Check if there is similar graph
 				GraphTemplate rep = gGroup.getGraph(childGraph);
 				
 				if (rep != null) {
 					System.out.println("Find similar graph in cache: " + searchKeyWithObjId);
+					System.out.println(childGraph.getThreadMethodId() + " replaced by " + rep.getThreadMethodId());
 					System.out.println("nodeNum depNum: " + childGraph.getInstPool().size() + " " + childGraph.getDepNum());
 					System.out.println("All group keys now: " + gGroup.keySet());
 					
@@ -632,19 +637,22 @@ public class MethodStackRecorder {
 				GraphGroup gGroup = new GraphGroup();
 				gGroup.addGraph(childGraph);
 				this.calleeCache.put(searchKeyWithObjId, gGroup);
-				//GraphGroupController.insertNewGraphGroup(searchKeyWithObjId, gGroup);
 			}
 			
 			System.out.println("Child graph analysis: " + childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
 			System.out.println("Child graph size: " + childGraph.getInstPool().size());
 						
+			//Remove return and rebase
 			InstPool childPool = childGraph.getInstPool();
-			if (removeReturn)
-				GraphUtil.removeReturnInst(childPool);
-			
-			//Reindex child
 			long[] baseTime = this.getCurTime();
-			long[] reBase = GraphUtil.reindexInstPool(baseTime, childPool);
+			long[] reBase = null;
+			if (removeReturn) {
+				GraphUtil.removeReturnInst(childPool);
+				reBase = GraphUtil.reindexInstPool(baseTime, childPool, true);
+			} else {
+				reBase = GraphUtil.reindexInstPool(baseTime, childPool, false);
+			}
+			
 			this.curDigit.set(reBase[1]);
 			this.curTime.set(reBase[0]);
 			

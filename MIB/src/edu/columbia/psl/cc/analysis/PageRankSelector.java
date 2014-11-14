@@ -47,7 +47,7 @@ public class PageRankSelector {
 	
 	private static double simThreshold = MIBConfiguration.getInstance().getSimThreshold();
 	
-	private static String header = "template,test,pgrank_template,centroid_template,start_test,centroid_test,end_test,seg_size,dist,similarity\n";
+	private static String header = "template,test,pgrank_template,c_template,ct_line,s_test,s_line,c_test,c_line,e_test,e_line,seg_size,dist,similarity\n";
 	
 	private static Comparator<InstWrapper> pageRankSorter = new Comparator<InstWrapper>() {
 		public int compare(InstWrapper i1, InstWrapper i2) {
@@ -328,6 +328,10 @@ public class PageRankSelector {
 			HashMap<String, Future<List<HotZone>>> resultRecorder = 
 					new HashMap<String, Future<List<HotZone>>>();
 			for (String testName: tests.keySet()) {
+				if (testName.equals(templateName)) {
+					continue ;
+				}
+				
 				GraphTemplate testGraph = tests.get(testName);
 				//GraphUtil.removeReturnInst(testGraph.getInstPool());
 				System.out.println("Test name: " + testGraph.getMethodKey());
@@ -360,9 +364,13 @@ public class PageRankSelector {
 								"," + testName + 
 								"," + hit.getSubPgRank() +
 								"," + hit.getSubCentroid() + 
+								"," + hit.getSubCentroid().getLinenumber() +
 								"," + hit.getStartInst() + 
+								"," + hit.getStartInst().getLinenumber() + 
 								"," + hit.getCentralInst() + 
+								"," + hit.getCentralInst().getLinenumber() +
 								"," + hit.getEndInst() + 
+								"," + hit.getEndInst().getLinenumber() +
 								"," + hit.getSegs().size() + 
 								"," + hit.getLevDist() + 
 								"," + hit.getSimilarity() + "\n");

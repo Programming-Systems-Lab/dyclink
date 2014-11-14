@@ -430,7 +430,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.mv.visitLineNumber(line, label);
 		
 		if (this.shouldInstrument() && !this.constructor)
-			this.handlLabel(label);
+			this.handleLinenumber(line);
 	}
 	
 	@Override
