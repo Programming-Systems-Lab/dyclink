@@ -4,9 +4,13 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.HashMap;
 
+import org.apache.log4j.Logger;
+
 import com.google.gson.reflect.TypeToken;
 
 public class TemplateLoader {
+	
+	private static Logger logger = Logger.getLogger(TemplateLoader.class);
 	
 	private static String skipMethod = "main:([Ljava.lang.String)";
 	
@@ -58,10 +62,9 @@ public class TemplateLoader {
 	public static <T> T loadTemplateFile(String fileName, TypeToken<T> typeToken) {
 		File f = new File(fileName);
 		if (f.exists()) {
-			System.out.println("Start loading graph: " + fileName);
 			return loadTemplateFile(f, typeToken);
 		} else {
-			System.out.println("File not exist: " + f.getName());
+			logger.warn("File not exist: " + f.getName());
 			return null;
 		}
 	}

@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.log4j.Logger;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -21,6 +23,8 @@ import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class GsonManager {
+	
+	private static Logger logger = Logger.getLogger(GsonManager.class);
 	
 	public static void writePath(String fileName, List<InstNode> path) {
 		StringBuilder sb = new StringBuilder();
@@ -37,7 +41,7 @@ public class GsonManager {
 			bw.write(sb.toString());
 			bw.close();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error(ex);
 		}
 	}
 	
@@ -58,7 +62,7 @@ public class GsonManager {
 			bw.write(toWrite);
 			bw.close();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error(ex);
 		}
 	}
 	
@@ -73,7 +77,7 @@ public class GsonManager {
 			jr.close();
 			return ret;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error(ex);
 		}
 		return null;
 	}
@@ -104,7 +108,7 @@ public class GsonManager {
 			bw.write(toWrite);
 			bw.close();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error(ex);
 		}
 	}
 	
@@ -125,10 +129,10 @@ public class GsonManager {
 				String newFileName = StringUtil.genKeyWithId(fileName, UUID.randomUUID().toString());
 				//String newFileName = StringUtil.genKeyWithId(fileName, String.valueOf(g.getThreadMethodId()));
 				if (!f.renameTo(new File(MIBConfiguration.getInstance().getCacheDir() + "/" + newFileName + ".json"))) {
-					System.err.println("Warning: faile to move file: " + f.getName());
+					logger.warn("Warning: fail to move file: " + f.getName());
 				}
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				logger.error(ex);
 			}
 		}
 	}
@@ -145,7 +149,7 @@ public class GsonManager {
 			jr.close();
 			return ret;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error(ex);
 		}
 		return null;
 	}
@@ -206,7 +210,7 @@ public class GsonManager {
 			bw.write(resultString);
 			bw.close();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error(ex);
 		}
 	}
 

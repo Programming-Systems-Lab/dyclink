@@ -2,6 +2,8 @@ package edu.columbia.psl.cc.datastruct;
 
 import java.util.TreeSet;
 
+import org.apache.log4j.Logger;
+
 import edu.columbia.psl.cc.pojo.InstNode;
 
 public class InstPool extends TreeSet<InstNode> {
@@ -10,6 +12,8 @@ public class InstPool extends TreeSet<InstNode> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private static Logger logger = Logger.getLogger(InstPool.class);
 	
 	public InstPool() {
 		
@@ -53,7 +57,7 @@ public class InstPool extends TreeSet<InstNode> {
 				return inst;
 		}
 		
-		System.err.println("Cannot find inst by method key and idx: " +  methodKey + " " + threadId + " " + threadMethodIdx + " " + idx);
+		logger.warn("Cannot find inst by method key and idx: " +  methodKey + " " + threadId + " " + threadMethodIdx + " " + idx);
 		return null;
 	}
 }

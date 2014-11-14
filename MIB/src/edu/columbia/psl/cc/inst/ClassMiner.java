@@ -1,30 +1,24 @@
 package edu.columbia.psl.cc.inst;
 
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import edu.columbia.psl.cc.analysis.LevenshteinDistance;
 import edu.columbia.psl.cc.config.MIBConfiguration;
-import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
-import edu.columbia.psl.cc.util.MethodStackRecorder;
-import edu.columbia.psl.cc.util.StringUtil;
 
+import org.apache.log4j.Logger;
 import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Type;
 
 public class ClassMiner extends ClassVisitor{
+	
+	private static Logger logger = Logger.getLogger(ClassMiner.class);
 	
 	private String classAnnot;
 	
@@ -71,22 +65,21 @@ public class ClassMiner extends ClassVisitor{
 	
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-		System.out.println(name + " extends " + superName + "{");
 		this.superName = superName;
 		this.cv.visit(version, access, name, signature, superName, interfaces);
 		this.isInterface = (access & Opcodes.ACC_INTERFACE) != 0;
 		if (!isInterface) {
+			logger.info("Instrumenting class " + name + " extends " + superName);
 			this.cv.visitField(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, 
 					MIBConfiguration.getMibIdGen(), "I", null, 1);
 			this.cv.visitField(Opcodes.ACC_PUBLIC, MIBConfiguration.getMibId(), "I", null, null);
 		} else {
-			System.out.println("Not instrument interface: " + name);
+			logger.info("Not instrument interface: " + name);
 		}
 	}
 	
 	@Override
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-		System.out.println("Annotation: " + desc);
 		if (desc.equals(this.classAnnot)) {
 			this.isAnnot = true;
 		}
@@ -107,8 +100,7 @@ public class ClassMiner extends ClassVisitor{
 		if (this.shouldInstrument()) {
 			if (name.equals("<init>")) {
 				constructVisit = true;
-				System.out.println("Constructor visit code");
-				//mv.visitCode();
+				//System.out.println("Constructor visit code");
 			} else if (name.equals("toString") && Type.getReturnType(desc).equals(Type.getType(String.class))) {
 				return mv;
 			} else if (name.equals("equals") && Type.getReturnType(desc).equals(Type.BOOLEAN_TYPE)) {
@@ -145,8 +137,6 @@ public class ClassMiner extends ClassVisitor{
 	
 	@Override
 	public void visitEnd() {
-		System.out.println("}");
-		
 		if (this.shouldInstrument()) {
 			//Create the static id generator
 			MethodVisitor mv = this.cv.visitMethod(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC + Opcodes.ACC_SYNCHRONIZED, 
@@ -158,6 +148,7 @@ public class ClassMiner extends ClassVisitor{
 			
 			//Create constructor if there is no constructor
 			if (!constructVisit) {
+				logger.info("Create new constructor: " + this.owner);
 				MethodVisitor constMV = this.cv.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
 				constMV = new MIBConstructVisitor(constMV, this.owner);
 				constMV.visitCode();

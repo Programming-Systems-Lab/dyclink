@@ -5,9 +5,13 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
+
 import edu.columbia.psl.cc.config.MIBConfiguration;
 
 public class ObjectIdAllocater {
+	
+	private static Logger logger = Logger.getLogger(ObjectIdAllocater.class);
 
 	//Save 0 for method stack recorder to identify static method
 	private static AtomicInteger indexer = new AtomicInteger(1);
@@ -67,7 +71,8 @@ public class ObjectIdAllocater {
 			return objId;
 		} catch (Exception ex) {
 			//ex.printStackTrace();
-			System.out.println("Warning: object " + valueClass + " is not MIB-instrumented");
+			//System.out.println("Warning: object " + valueClass + " is not MIB-instrumented");
+			logger.warn("Warning: object " + valueClass + " is not MIB-instrumented");
 			return -1;
 		}
 	}

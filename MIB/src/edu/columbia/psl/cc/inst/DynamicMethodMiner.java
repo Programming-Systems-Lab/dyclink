@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -36,6 +37,8 @@ import edu.columbia.psl.cc.util.ObjectIdAllocater;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class DynamicMethodMiner extends MethodVisitor {
+	
+	private static Logger logger = Logger.getLogger(DynamicMethodMiner.class);
 	
 	private static String methodStackRecorder = Type.getInternalName(MethodStackRecorder.class);
 	
@@ -193,7 +196,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		if (catId >= 0 ) {
 			updateSingleCat(catId, opcode);
 		} else {
-			System.err.println("Cannot find category for: " + opcode);
+			logger.error("Cannot find category for: " + opcode);
 		}
 		return catId;
 	}
@@ -305,11 +308,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 	}
 	
 	public void initConstructor() {
-		System.out.println("Initialize constructor: " + this.myName + " " + this.shouldInstrument());
-		/*this.mv.visitVarInsn(Opcodes.ALOAD, 0);
-		//this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, this.className, MIBConfiguration.getMIBIDGenMethod(), "()I");
-		this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ObjectIdAllocater.class), "getIndex", "()I");
-		this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMIBID(), "I");*/
+		logger.info("Visit constructor: " + this.className + " " + this.myName + " " + this.shouldInstrument());
 		
 		if (this.shouldInstrument()) {
 			String superReplace = this.superName.replace("/", ".");
@@ -328,7 +327,6 @@ public class DynamicMethodMiner extends MethodVisitor {
 			
 			//Create the method stack recorder
 			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
-			System.out.println("Method Stack Recorder name: " + methodStackRecorder);
 			this.mv.visitTypeInsn(Opcodes.NEW, methodStackRecorder);
 			this.mv.visitInsn(Opcodes.DUP);
 			this.mv.visitLdcInsn(this.className);
@@ -367,11 +365,11 @@ public class DynamicMethodMiner extends MethodVisitor {
 			return ; 
 		}
 		
-		if (this.shouldInstrument() && this.localMsrId < 0) {			
-			System.out.println("Visit code: " + this.myName + " " + this.shouldInstrument());
+		if (this.shouldInstrument() && this.localMsrId < 0) {
+			logger.info("Visit method: " + this.myName + " " + this.shouldInstrument());
+			
 			//Create the method stack recorder
 			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
-			System.out.println("Method Stack Recorder name: " + methodStackRecorder);
 			this.mv.visitTypeInsn(Opcodes.NEW, methodStackRecorder);
 			this.mv.visitInsn(Opcodes.DUP);
 			this.mv.visitLdcInsn(this.className);
@@ -512,7 +510,6 @@ public class DynamicMethodMiner extends MethodVisitor {
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 		//For merging the graph on the fly, need to visit method before recording them
 		this.mv.visitMethodInsn(opcode, owner, name, desc);
-		//System.out.println("Method should instrument: " + opcode + " " + owner + " " + name + " " + this.shouldInstrument() + " " + this.constructor);
 		if (this.shouldInstrument() && !this.constructor) {
 			if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
 				Type[] argTypes = Type.getMethodType(desc).getArgumentTypes();

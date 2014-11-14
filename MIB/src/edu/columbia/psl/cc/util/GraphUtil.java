@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.math3.util.MathUtils;
 import org.apache.commons.math3.util.Precision;
+import org.apache.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 
 import com.google.gson.reflect.TypeToken;
@@ -41,6 +42,8 @@ import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.pojo.VarPair;
 
 public class GraphUtil {
+	
+	private static Logger logger = Logger.getLogger(GraphUtil.class);
 	
 	/*public static ArrayList<String> replaceMethodKeyInParentList(ArrayList<String> parents, String methodKey, int cMethodInvokeId) {
 		ArrayList<String> ret = new ArrayList<String>();
@@ -228,19 +231,19 @@ public class GraphUtil {
 	 * @param removeKey
 	 */
 	private static void _parentRemove(String parentKey, InstPool pool, String removeKey) {
-		String[] parentParsed = StringUtil.parseIdxKey(parentKey);
-		InstNode inst = pool.searchAndGet(parentParsed[0], 
-				Long.valueOf(parentParsed[1]), 
-				Integer.valueOf(parentParsed[2]), 
-				Integer.valueOf(parentParsed[3]));
-		
-		if (inst == null) {
-			System.out.println("Parent: " + parentKey);
-			System.out.println("Child " + removeKey);
-			System.exit(1);
+		try {
+			String[] parentParsed = StringUtil.parseIdxKey(parentKey);
+			InstNode inst = pool.searchAndGet(parentParsed[0], 
+					Long.valueOf(parentParsed[1]), 
+					Integer.valueOf(parentParsed[2]), 
+					Integer.valueOf(parentParsed[3]));
+			
+			inst.getChildFreqMap().remove(removeKey);
+		} catch (Exception ex) {
+			logger.error(ex);
+			logger.error("Parent: " + parentKey);
+			logger.error("Child:" + removeKey);
 		}
-		
-		inst.getChildFreqMap().remove(removeKey);
 	}
 	
 	private static InstNode _retrieveRealInst(String instKey, InstPool pool) {
@@ -249,6 +252,7 @@ public class GraphUtil {
 				Long.valueOf(instKeys[1]), 
 				Integer.valueOf(instKeys[2]), 
 				Integer.valueOf(instKeys[3]));
+		
 		return instNode;
 	}
 	
