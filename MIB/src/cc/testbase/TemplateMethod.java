@@ -342,7 +342,7 @@ public class TemplateMethod extends TemplateParent{
 	public void call1() {
 		this.iDouble = 5.0;
 		this.call2();
-		int ret = 5 + this.pVar;
+		int ret = 5 + this.pVar + this.iVar;
 	}
 		
 	public static void main(String[] args) {
@@ -350,16 +350,16 @@ public class TemplateMethod extends TemplateParent{
 		//tm.parentAdd(3, 5);
 		//tm.testAdd2(5);
 		//tm.caller();
-		//tm.call1();
+		tm.call1();
 		//System.out.println(Integer.MAX_VALUE);
 		//System.out.println(Integer.MAX_VALUE + 1);
 		//classAdd(5);
 		//int a = 2;
 		//int[] b = {3, 4, 7};
-		tm.forMethod();
+		//tm.forMethod();
 		//tm.forClassMethod();
-		/*TemplateParent tp = new TemplateMethod();
-		tp.interestingMethod();*/
+		//TemplateParent tp = new TemplateMethod();
+		//tp.interestingMethod();
 		
 		/*TemplateInterface ti = new TemplateMethod();
 		Integer i = new Integer(1);
