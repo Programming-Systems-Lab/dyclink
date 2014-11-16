@@ -185,7 +185,7 @@ public class MethodStackRecorder {
 	}*/
 		
 	private void updatePath(InstNode fullInst) {
-		this.path.add(fullInst);
+		//this.path.add(fullInst);
 	}
 	
 	private void updateTime(InstNode fullInst) {
@@ -548,6 +548,7 @@ public class MethodStackRecorder {
 				}
 			}
 			
+			logger.info("Original owner: " + owner);
 			logger.info("Method owner: " + correctClass.getName());
 			String methodKey = StringUtil.genKey(correctClass.getName(), name, desc);
 			String searchKey = StringUtil.genKeyWithId(methodKey, String.valueOf(this.threadId));
@@ -926,7 +927,7 @@ public class MethodStackRecorder {
 			GsonManager.cacheGraph(dumpKey, 1);
 			GsonManager.writeJsonGeneric(gt, dumpKey, typeToken, 1);
 		}
-		GsonManager.writePath(dumpKey, this.path);
+		//GsonManager.writePath(dumpKey, this.path);
 		
 		//Debuggin, check graph group
 		logger.info("Graph groups:");

@@ -446,6 +446,9 @@ public class DynamicMethodMiner extends MethodVisitor {
 			
 			//For static analysis
 			this.updateMethodRep(opcode);
+			if (opcode == Opcodes.AALOAD) {
+				this.updateObjOnVStack();
+			}
 		} else {
 			this.mv.visitInsn(opcode);
 		}
@@ -499,9 +502,10 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.mv.visitFieldInsn(opcode, owner, name, desc);
 		
 		if (this.shouldInstrument() && !this.constructor) {
-			if ((opcode == Opcodes.GETFIELD || opcode == Opcodes.GETSTATIC) 
-					&& Type.getType(desc).getSort() == Type.OBJECT) {
-				this.updateObjOnVStack();
+			if ((opcode == Opcodes.GETFIELD || opcode == Opcodes.GETSTATIC)) {
+				int sort = Type.getType(desc).getSort();
+				if (sort == Type.OBJECT || sort == Type.ARRAY)
+					this.updateObjOnVStack();
 			}
 		}
 	}
@@ -535,12 +539,19 @@ public class DynamicMethodMiner extends MethodVisitor {
 			this.handleMethod(opcode, owner, name, desc);
 			this.updateMethodRep(opcode);
 			
-			if (Type.getMethodType(desc).getReturnType().getSort() == Type.OBJECT)
+			int returnSort = Type.getMethodType(desc).getReturnType().getSort();
+			if (returnSort == Type.OBJECT || returnSort == Type.ARRAY)
 				this.updateObjOnVStack();
 		}
 		
 		//If the INVOKESPECIAL is visited, start instrument constructor
-		if (this.constructor && opcode == Opcodes.INVOKESPECIAL && !this.superVisited) {
+		if (this.constructor 
+				&& opcode == Opcodes.INVOKESPECIAL 
+				&& owner.equals(this.superName)
+				&& name.equals("<init>")
+				&& !this.superVisited) {
+			logger.info("Super class is visited: " + owner + " " + name);
+			logger.info("Start constructor instrumentation: " + this.className + " " + this.myName);
 			this.initConstructor();
 			this.superVisited = true;
 			this.constructor = false;
@@ -572,9 +583,11 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.mv.visitLdcInsn(cst);
 		
 		if (this.shouldInstrument() && !this.constructor) {
-			if (cst instanceof Type) {
+			if (cst instanceof String) {
+				this.updateObjOnVStack();
+			} else if (cst instanceof Type) {
 				int sort = ((Type)cst).getSort();
-				if (sort == Type.OBJECT) {
+				if (sort == Type.OBJECT || sort == Type.ARRAY) {
 					this.updateObjOnVStack();
 				}
 			}

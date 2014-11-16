@@ -21,7 +21,7 @@ public class SortingExperiments {
 	    return numbers;
 	}
 		
-	public void insertionSortWhile(int[] numbers) {
+	public void insertionSort(int[] numbers) {
 	    for (int i = 0; i < numbers.length; i++) {
 	        int copyNumber = numbers[i];
 	        int j = i;
@@ -32,18 +32,7 @@ public class SortingExperiments {
 	        numbers[j] = copyNumber;
 	    }
 	}
-	
-	public void insertionSortFor(int[] numbers) {
-	    for (int i = 0; i < numbers.length; i++) {
-	        int copyNumber = numbers[i];
-	        int j = i - 1;
-	        for (; j >= 0 && numbers[j] > copyNumber; j--) {
-	        	numbers[j + 1] = numbers[j];
-	        }
-	        numbers[j + 1] = copyNumber;
-	    }
-	}
-	
+		
 	public int[] bubbleSort(int[] data){
 		int lenD = data.length;
 		int tmp = 0;
@@ -260,13 +249,13 @@ public class SortingExperiments {
 	}
 	
 	public static void main(String[] args) {
-		/*int size = 4;
+		int size = 2000;
 		Random randomGenerator = new Random();
 		int[] inputData = new int[size];
 		for (int i = 0; i < size; i++) {
-			inputData[i] = randomGenerator.nextInt(100);
-		}*/
-		int[] inputData = {4, 83, 32, 15};
+			inputData[i] = randomGenerator.nextInt(10000);
+		}
+		//int[] inputData = {4, 83, 32, 15};
 		
 		SortingExperiments se = new SortingExperiments();
 		
@@ -275,12 +264,8 @@ public class SortingExperiments {
 		System.out.println("Selection sort: " + Arrays.toString(selectionResult));
 		
 		int[] insertInput = copyData(inputData);
-		se.insertionSortWhile(insertInput);
+		se.insertionSort(insertInput);
 		System.out.println("Insertion sort: " + Arrays.toString(insertInput));
-		
-		int[] insertInput2 = copyData(inputData);
-		se.insertionSortFor(insertInput2);
-		System.out.println("Insertion sort2: " + Arrays.toString(insertInput2));
 		
 		int[] bubbleInput = copyData(inputData);
 		int[] bubbleResult = se.bubbleSort(bubbleInput);
