@@ -16,9 +16,22 @@ public class ObjectIdAllocater {
 	//Save 0 for method stack recorder to identify static method
 	private static AtomicInteger indexer = new AtomicInteger(1);
 	
+	private static AtomicInteger threadCounter = new AtomicInteger();
+	
+	private static ThreadLocal<Integer> threadIndexer = new ThreadLocal<Integer>() {
+		@Override
+		public Integer initialValue() {
+			return threadCounter.getAndIncrement();
+		}
+	};
+	
 	private static ConcurrentHashMap<String, AtomicInteger> classMethodIndexer = new ConcurrentHashMap<String, AtomicInteger>();
 	
 	private static ConcurrentHashMap<String, AtomicInteger> threadMethodIndexer = new ConcurrentHashMap<String, AtomicInteger>();
+	
+	public static int getThreadId() {
+		return threadIndexer.get();
+	}
 	
 	public static int getIndex() {
 		return indexer.getAndIncrement();
@@ -41,6 +54,10 @@ public class ObjectIdAllocater {
 			correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(className, methodName, desc, true);
 		} else {
 			correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(className, methodName, desc, false);
+		}
+		
+		if (correctClass == null) {
+			System.out.println("Cannot retrieve correct class: " + className + " " + methodName);
 		}
 		String methodKey = StringUtil.genKey(correctClass.getName(), methodName, desc);
 		String threadMethodKey = StringUtil.genKeyWithId(methodKey, String.valueOf(threadId));

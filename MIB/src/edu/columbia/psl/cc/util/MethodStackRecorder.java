@@ -548,7 +548,6 @@ public class MethodStackRecorder {
 				}
 			}
 			
-			logger.info("Original owner: " + owner);
 			logger.info("Method owner: " + correctClass.getName());
 			String methodKey = StringUtil.genKey(correctClass.getName(), name, desc);
 			String searchKey = StringUtil.genKeyWithId(methodKey, String.valueOf(this.threadId));

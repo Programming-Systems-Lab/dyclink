@@ -315,6 +315,8 @@ public class TemplateMethod extends TemplateParent{
 	@Override
 	public void interestingMethod() {
         System.out.println("Subclass's interesting method.");
+        super.interestingMethod();
+        this.interestingMethod();
     }
 	
 	public void forMethod() {
@@ -346,11 +348,11 @@ public class TemplateMethod extends TemplateParent{
 	}
 		
 	public static void main(String[] args) {
-		TemplateMethod tm = new TemplateMethod();
+		//TemplateMethod tm = new TemplateMethod();
 		//tm.parentAdd(3, 5);
 		//tm.testAdd2(5);
 		//tm.caller();
-		tm.call1();
+		//tm.call1();
 		//System.out.println(Integer.MAX_VALUE);
 		//System.out.println(Integer.MAX_VALUE + 1);
 		//classAdd(5);
@@ -361,9 +363,9 @@ public class TemplateMethod extends TemplateParent{
 		//TemplateParent tp = new TemplateMethod();
 		//tp.interestingMethod();
 		
-		/*TemplateInterface ti = new TemplateMethod();
+		TemplateInterface ti = new TemplateMethod();
 		Integer i = new Integer(1);
-		ti.doIt(i);*/
+		ti.doIt(i);
 		
 		//tm.setList(new ArrayList());
 		//tm.exampleMethod();

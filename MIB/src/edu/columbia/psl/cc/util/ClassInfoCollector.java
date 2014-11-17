@@ -40,16 +40,21 @@ public class ClassInfoCollector {
 			
 			Type targetMethodType = Type.getMethodType(methodDescriptor);
 			Type[] targetArgs = targetMethodType.getArgumentTypes();
+			Type targetReturn = targetMethodType.getReturnType();
 			while (calledClass != null) {
 				for (Method m: calledClass.getDeclaredMethods()) {
-					if (m.isBridge() || m.isSynthetic())
-						continue ;
+					/*if (m.isBridge() || m.isSynthetic())
+						continue ;*/
 					
 					if (m.getName().equals(methodName)) {
 						Type[] mArgs = Type.getArgumentTypes(m);
+						Type mReturn = Type.getReturnType(m);
+						
+						if (!targetReturn.equals(mReturn))
+							continue ;
 						
 						if (mArgs.length != targetArgs.length)
-							continue;
+							continue ;
 						
 						for (int i =0; i < targetArgs.length; i++) {
 							if (!targetArgs[i].equals(mArgs[i]))
