@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 
@@ -16,11 +17,11 @@ public class ObjectIdAllocater {
 	//Save 0 for method stack recorder to identify static method
 	private static AtomicInteger indexer = new AtomicInteger(1);
 	
-	private static AtomicInteger threadCounter = new AtomicInteger();
+	private static AtomicLong threadCounter = new AtomicLong();
 	
-	private static ThreadLocal<Integer> threadIndexer = new ThreadLocal<Integer>() {
+	private static ThreadLocal<Long> threadIndexer = new ThreadLocal<Long>() {
 		@Override
-		public Integer initialValue() {
+		public Long initialValue() {
 			return threadCounter.getAndIncrement();
 		}
 	};
@@ -29,7 +30,7 @@ public class ObjectIdAllocater {
 	
 	private static ConcurrentHashMap<String, AtomicInteger> threadMethodIndexer = new ConcurrentHashMap<String, AtomicInteger>();
 	
-	public static int getThreadId() {
+	public static long getThreadId() {
 		return threadIndexer.get();
 	}
 	

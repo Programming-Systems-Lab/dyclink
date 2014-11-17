@@ -348,7 +348,15 @@ public class TemplateMethod extends TemplateParent{
 	}
 		
 	public static void main(String[] args) {
-		//TemplateMethod tm = new TemplateMethod();
+		TemplateMethod tm = new TemplateMethod();
+		byte a = 1;
+		double b = 2.0;
+		long c = 3;
+		int d = 4;
+		Object e = new Object();
+		double[] dArray = new double[4];
+		String f = "abc";
+		tm.byteTest(a, b, c, d, e, dArray, f);
 		//tm.parentAdd(3, 5);
 		//tm.testAdd2(5);
 		//tm.caller();
@@ -363,9 +371,9 @@ public class TemplateMethod extends TemplateParent{
 		//TemplateParent tp = new TemplateMethod();
 		//tp.interestingMethod();
 		
-		TemplateInterface ti = new TemplateMethod();
+		/*TemplateInterface ti = new TemplateMethod();
 		Integer i = new Integer(1);
-		ti.doIt(i);
+		ti.doIt(i);*/
 		
 		//tm.setList(new ArrayList());
 		//tm.exampleMethod();

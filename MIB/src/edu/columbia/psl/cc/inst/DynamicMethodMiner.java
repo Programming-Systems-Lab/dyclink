@@ -489,6 +489,8 @@ public class DynamicMethodMiner extends MethodVisitor {
 		if (this.shouldInstrument() && !this.constructor) {
 			if (opcode == Opcodes.NEW) {
 				this.mv.visitInsn(Opcodes.DUP);
+			} else if (opcode == Opcodes.CHECKCAST) {
+				this.updateObjOnVStack();
 			}
 		}
 	}

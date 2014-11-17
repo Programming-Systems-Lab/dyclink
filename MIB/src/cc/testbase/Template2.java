@@ -43,29 +43,14 @@ public final class Template2 extends TemplateParent{
 		executor.execute(new Runnable() {
 			public void run() {
 				long result = OR.op(3, 5);
-				System.out.println("Thread id: " + Thread.currentThread().getId());
-				System.out.println(ObjectIdAllocater.getThreadId());
-				System.out.println("Result: " + result);
 			}
 		});
 		
-		executor.execute(new Runnable() {
+		/*executor.execute(new Runnable() {
 			public void run() {
 				long result = OR.op(4, 6);
-				System.out.println("Thread id: " + Thread.currentThread().getId());
-				System.out.println(ObjectIdAllocater.getThreadId());
-				System.out.println("Result: " + result);
 			}
-		});
-		
-		executor.execute(new Runnable() {
-			public void run() {
-				long result = OR.op(7, 3);
-				System.out.println("Thread id: " + Thread.currentThread().getId());
-				System.out.println(ObjectIdAllocater.getThreadId());
-				System.out.println("Result: " + result);
-			}
-		});
+		});*/
 		
 		executor.shutdown();
 		while(!executor.isTerminated());

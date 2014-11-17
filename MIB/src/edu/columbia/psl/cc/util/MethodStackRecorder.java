@@ -100,7 +100,8 @@ public class MethodStackRecorder {
 			this.methodReturnSize = 1;
 		}
 		
-		this.threadId = Thread.currentThread().getId();
+		//this.threadId = Thread.currentThread().getId();
+		this.threadId = ObjectIdAllocater.getThreadId();
 		this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(className, 
 				methodName, 
 				methodDesc, 
@@ -479,7 +480,7 @@ public class MethodStackRecorder {
 		Type methodType = Type.getMethodType(desc);
 		//+1 for object reference, if instance method
 		Type[] args = methodType.getArgumentTypes();
-		int argSize = 0;
+		/*int argSize = 0;
 		for (int i = 0; i < args.length; i++) {
 			Type t = args[i];
 			if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
@@ -491,17 +492,29 @@ public class MethodStackRecorder {
 		
 		if (!BytecodeCategory.staticMethod().contains(opcode)) {
 			argSize++;
-		}
+		}*/
 		
 		//System.out.println("Arg size: " + argSize);
-		logger.info("Arg size: " + argSize);
-		String returnType = methodType.getReturnType().getDescriptor();
-		for (int i = 0; i < argSize; i++) {
-			InstNode tmpInst = this.safePop();
-			this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
-			//this.updateInvokeMethod(methodKey, tmpInst);
+		logger.info("Arg size: " + args.length);
+		
+		for (int i = args.length - 1; i >= 0; i--) {
+			Type t = args[i];
+			if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
+				this.safePop();
+				InstNode tmpInst = this.safePop();
+				this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
+			} else {
+				InstNode tmpInst = this.safePop();
+				this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
+			}
 		}
 		
+		if (!BytecodeCategory.staticMethod().contains(opcode)) {
+			InstNode objRef = this.safePop();
+			this.updateCachedMap(objRef, fullInst, MIBConfiguration.INST_DATA_DEP);
+		}
+		
+		String returnType = methodType.getReturnType().getDescriptor();
 		if (!returnType.equals("V")) {
 			if (returnType.equals("D") || returnType.equals("J")) {
 				this.updateStackSimulator(2, fullInst);
@@ -540,6 +553,10 @@ public class MethodStackRecorder {
 				Object objOnStack = relatedInst.getRelatedObj();
 				//methodId = ObjectIdAllocater.parseObjId(objOnStack);
 				objId = ObjectIdAllocater.parseObjId(objOnStack);
+				
+				if (objOnStack == null) {
+					logger.info("Responsible inst for null obj: " + relatedInst);
+				}
 				
 				if (opcode == Opcodes.INVOKESPECIAL) {
 					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, true);
@@ -665,7 +682,7 @@ public class MethodStackRecorder {
 					startIdx = 1;
 				}
 				//int endIdx = startIdx + args.length - 1;
-				
+								
 				int endIdx = startIdx;
 				for (int i = args.length - 1; i >= 0; i--) {
 					Type t = args[i];
@@ -693,7 +710,6 @@ public class MethodStackRecorder {
 						
 						endIdx -= 1;
 					}
-					//parentFromCaller.put(endIdx--, targetNode);
 				}
 			}
 			
@@ -892,7 +908,8 @@ public class MethodStackRecorder {
 		gt.setMethodKey(this.methodKey);
 		gt.setThreadId(this.threadId);
 		gt.setThreadMethodId(this.threadMethodId);
-		gt.setThreadId(Thread.currentThread().getId());
+		//gt.setThreadId(Thread.currentThread().getId());
+		gt.setThreadId(this.threadId);
 		gt.setObjId(this.objId);
 		gt.setMethodArgSize(this.methodArgSize);
 		gt.setMethodReturnSize(this.methodReturnSize);
