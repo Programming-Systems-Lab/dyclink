@@ -64,6 +64,10 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	private static String srHandleMethodDesc = MIBConfiguration.getSrHandleMethodDesc();
 	
+	private static String srLoadParent = MIBConfiguration.getSrLoadParent();
+	
+	private static String srLoadParentDesc = MIBConfiguration.getSrLoadParentDesc();
+	
 	private static String srGraphDump = MIBConfiguration.getSrGraphDump();
 	
 	private static String srGraphDumpDesc = MIBConfiguration.getSrGraphDumpDesc();
@@ -550,6 +554,15 @@ public class DynamicMethodMiner extends MethodVisitor {
 			this.initConstructor();
 			this.superVisited = true;
 			this.constructor = false;
+			
+			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+			this.mv.visitLdcInsn(owner);
+			this.mv.visitLdcInsn(name);
+			this.mv.visitLdcInsn(desc);
+			this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
+					methodStackRecorder, 
+					srLoadParent, 
+					srLoadParentDesc);
 		}
 	}
 	

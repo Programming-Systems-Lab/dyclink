@@ -530,6 +530,40 @@ public class MethodStackRecorder {
 		this.showStackSimulator();
 	}
 	
+	public void loadParent(String owner, String name, String desc) {
+		String methodKey = StringUtil.genKey(owner, name, desc);
+		String searchKey = StringUtil.genKeyWithId(methodKey, String.valueOf(this.threadId));
+		
+		String filePath = "";
+		if (MIBConfiguration.getInstance().isTemplateMode()) {
+			filePath = MIBConfiguration.getInstance().getTemplateDir() + "/" + searchKey + ".json";
+		} else {
+			filePath = MIBConfiguration.getInstance().getTestDir() + "/" + searchKey + ".json";
+		}
+		GraphTemplate parentGraph = TemplateLoader.loadTemplateFile(filePath, GRAPH_TOKEN);
+		
+		if (parentGraph == null) {
+			logger.warn("Load no parent graph: " + searchKey);
+			return ;
+		}
+		
+		InstPool parentPool = parentGraph.getInstPool();
+		
+		long[] baseTime = this.getCurTime();
+		long[] reBase = null;
+		GraphUtil.removeReturnInst(parentGraph.getInstPool());
+		reBase = GraphUtil.reindexInstPool(baseTime, parentPool, true);
+		
+		this.curDigit.set(reBase[1]);
+		this.curTime.set(reBase[0]);
+		
+		if (parentGraph.getWriteFields().size() > 0) {
+			this.fieldRecorder.putAll(parentGraph.getWriteFields());
+		}
+		
+		GraphUtil.unionInstPools(this.pool, parentPool);
+	}
+	
 	public void handleMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc) {
 		//System.out.println("Handling now: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		logger.info("Handle method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);

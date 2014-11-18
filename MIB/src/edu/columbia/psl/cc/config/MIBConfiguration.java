@@ -41,6 +41,10 @@ public class MIBConfiguration {
 	
 	private static String srGraphDumpDesc = "()V";
 	
+	private static String srLoadParent = "loadParent";
+	
+	private static String srLoadParentDesc = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
+	
 	private static String __mib_id_gen = "__MIB_ID_GEN";
 	
 	private static String __mib_id_gen_method = "__getMIBIDGen";
@@ -186,6 +190,14 @@ public class MIBConfiguration {
 
 	public static String getSrGraphDumpDesc() {
 		return srGraphDumpDesc;
+	}
+	
+	public static String getSrLoadParent() {
+		return srLoadParent;
+	}
+	
+	public static String getSrLoadParentDesc() {
+		return srLoadParentDesc;
 	}
 
 	public static String getMibIdGen() {
