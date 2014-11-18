@@ -158,7 +158,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 	}
 	
 	public boolean shouldInstrument() {
-		return !this.annotGuard || this.isTemplate || this.isTest;
+		return !this.annotGuard || this.isTemplate || this.isTest;	
 	}
 	
 	private boolean isReturn(int opcode) {
@@ -355,13 +355,6 @@ public class DynamicMethodMiner extends MethodVisitor {
 	public void visitCode() {
 		this.mv.visitCode();
 		if (this.constructor && !this.superVisited) {
-			//For some reasons, AdviceAdapter does not work. Do it by myself
-			//Give obj id before visit super class			
-			/*this.mv.visitVarInsn(Opcodes.ALOAD, 0);
-			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ObjectIdAllocater.class), 
-					"getIndex", 
-					"()I");
-			this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMibId(), "I");*/
 			return ; 
 		}
 		
@@ -549,7 +542,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		//If the INVOKESPECIAL is visited, start instrument constructor
 		if (this.constructor 
 				&& opcode == Opcodes.INVOKESPECIAL 
-				&& owner.equals(this.superName)
+				&& (owner.equals(this.superName) || owner.equals(this.className))
 				&& name.equals("<init>")
 				&& !this.superVisited) {
 			logger.info("Super class is visited: " + owner + " " + name);

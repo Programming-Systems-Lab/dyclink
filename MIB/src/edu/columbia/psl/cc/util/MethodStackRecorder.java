@@ -75,7 +75,7 @@ public class MethodStackRecorder {
 	
 	private InstPool pool = new InstPool();
 	
-	private InstNode lastBeforeReturn;
+	private InstNode beforeReturn;
 	
 	private long threadId = -1;
 	
@@ -209,7 +209,7 @@ public class MethodStackRecorder {
 	private void updateCachedMap(InstNode parent, InstNode child, int depType) {
 		if (depType == MIBConfiguration.INST_DATA_DEP) {
 			parent.increChild(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
-			child.registerParent(parent.getFromMethod(), parent.getThreadId(), child.getThreadMethodIdx(), parent.getIdx(), depType);
+			child.registerParent(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
 		} else if (depType == MIBConfiguration.WRITE_DATA_DEP) {
 			//write data dep only needs to be recorded once
 			String childIdxKey = StringUtil.genIdxKey(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx());
@@ -438,8 +438,13 @@ public class MethodStackRecorder {
 				for (int i = 0; i < inputSize; i++) {
 					//Should not return null here
 					InstNode tmpInst = this.safePop();
-					if (!tmpInst.equals(lastTmp))
+					if (!tmpInst.equals(lastTmp)) {
 						this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
+						
+						if (BytecodeCategory.returnOps().contains(fullInst.getOp().getOpcode())) {
+							this.beforeReturn = tmpInst;
+						}
+					}
 					
 					lastTmp = tmpInst;
 				}
@@ -731,13 +736,13 @@ public class MethodStackRecorder {
 			//Update field data dep
 			if (this.fieldRecorder.size() > 0) {
 				GraphUtil.fieldDataDepFromParentToChild(this.fieldRecorder, childGraph);
-				//this.firstReadFields.addAll(childGraph.getFirstReadFields());
-				for (String key: childGraph.getFirstReadFields().keySet()) {
-					if (this.firstReadFields.containsKey(key)) {
-						this.firstReadFields.get(key).addAll(childGraph.getFirstReadFields().get(key));
-					} else {
-						this.firstReadFields.put(key, childGraph.getFirstReadFields().get(key));
-					}
+			}
+			
+			for (String key: childGraph.getFirstReadFields().keySet()) {
+				if (this.firstReadFields.containsKey(key)) {
+					this.firstReadFields.get(key).addAll(childGraph.getFirstReadFields().get(key));
+				} else {
+					this.firstReadFields.put(key, childGraph.getFirstReadFields().get(key));
 				}
 			}
 			
@@ -853,9 +858,9 @@ public class MethodStackRecorder {
 			this.stackSimulator.push(fullInst);
 		}
 		
-		if (!BytecodeCategory.returnOps().contains(fullInst.getOp().getOpcode())) {
-			this.lastBeforeReturn = fullInst;
-		}
+		/*if (!BytecodeCategory.returnOps().contains(fullInst.getOp().getOpcode())) {
+			this.beforeReturn = fullInst;
+		}*/
 	}
 	
 	private void showStackSimulator() {
@@ -918,7 +923,13 @@ public class MethodStackRecorder {
 		gt.setFirstReadLocalVars(this.firstReadLocalVars);
 		gt.setFirstReadFields(this.firstReadFields);
 		gt.setWriteFields(this.fieldRecorder);
-		gt.setLastBeforeReturn(this.lastBeforeReturn);
+		
+		if (this.beforeReturn != null) {
+			gt.setLastBeforeReturn(this.beforeReturn);
+			logger.info("Before return inst: " + this.beforeReturn);
+		} else {
+			logger.info("No before return inst");
+		}
 		//gt.setPath(this.path);
 		
 		int depCount = 0;
