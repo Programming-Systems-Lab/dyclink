@@ -9,6 +9,8 @@ import org.apache.commons.math3.util.CompositeFormat;
 
 public class TemplateParent implements TemplateInterface{
 	
+	private static int parentVar = 10000;
+	
 	public int sVar = 0;
 	
 	public int pVar = 0;

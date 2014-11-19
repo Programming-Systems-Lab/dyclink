@@ -10,7 +10,7 @@ import edu.columbia.psl.cc.util.ObjectIdAllocater;
 
 public final class Template2 extends TemplateParent{
 	
-	private static int staticInt = 0;
+	public static int staticInt = 0;
 
 	public Template2() {
 		

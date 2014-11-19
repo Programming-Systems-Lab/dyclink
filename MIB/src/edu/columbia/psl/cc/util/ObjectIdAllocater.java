@@ -34,8 +34,21 @@ public class ObjectIdAllocater {
 		return threadIndexer.get();
 	}
 	
-	public static int getIndex() {
+	/*public static int getIndex() {
 		return indexer.getAndIncrement();
+	}*/
+	
+	public static int getIndex(Object target) {
+		Class<?> targetClass = target.getClass();
+		try {
+			int newId = indexer.getAndIncrement();
+			Field idField = targetClass.getDeclaredField(MIBConfiguration.getMibId());
+			idField.setInt(target, newId);
+			return newId;
+		} catch (Exception ex) {
+			logger.error(ex);
+		}
+		return - 1;
 	}
 	
 	public static int getClassMethodIndex(String className, String methodName, String desc) {
@@ -97,7 +110,7 @@ public class ObjectIdAllocater {
 	
 	public static void main(String[] args) {
 		Object o = new Object();
-		System.out.println(getIndex());
+		//System.out.println(getIndex());
 		//System.out.println(getClassMethodIndex("a", "b", "c"));
 	}
 }

@@ -30,7 +30,7 @@ public class TemplateObjMethod {
 	public TemplateObjMethod() {
 		//__mib_id = __gen_mib_id();
 		testObj = new Object();
-		__mib_id = ObjectIdAllocater.getIndex();
+		//__mib_id = ObjectIdAllocater.getIndex();
 	}
 	
 	public void acceptObject(Object obj) {

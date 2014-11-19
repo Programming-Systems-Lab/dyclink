@@ -23,6 +23,7 @@ import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
+import edu.columbia.psl.cc.pojo.StaticInitGraphTemplate;
 
 public class MethodStackRecorder {
 	
@@ -107,12 +108,6 @@ public class MethodStackRecorder {
 				methodDesc, 
 				this.threadId);
 		
-		/*if (obj == null) {
-			this.staticMethod = true;
-		} else {
-			this.objId = ObjectIdAllocater.parseObjId(obj);
-		}*/
-		
 		if (objId == 0)
 			this.staticMethod = true;
 		
@@ -133,7 +128,7 @@ public class MethodStackRecorder {
 				start += 1;
 			}
 		}
-		
+				
 		logger.info("Enter " + this.className + 
 				" " + this.methodName + 
 				" " + this.methodKey + 
@@ -322,10 +317,14 @@ public class MethodStackRecorder {
 		
 		int inputSize = oo.getInList().size() + addInput;
 		if (inputSize > 0) {
+			InstNode curInst = null;
 			for (int i = 0; i < inputSize; i++) {
 				//Should not return null here
 				InstNode tmpInst = this.safePop();
-				this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
+				if (!tmpInst.equals(curInst)) {
+					this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
+				}
+				curInst = tmpInst;
 			}
 		}
 		this.updateStackSimulator(fullInst, addOutput);
@@ -940,20 +939,17 @@ public class MethodStackRecorder {
 		}
 	}
 	
-	public void dumpGraph() {		
-		//For serilization
+	public void dumpGraph() {
 		GraphTemplate gt = new GraphTemplate();
 		
 		gt.setMethodKey(this.methodKey);
 		gt.setThreadId(this.threadId);
 		gt.setThreadMethodId(this.threadMethodId);
-		//gt.setThreadId(Thread.currentThread().getId());
 		gt.setThreadId(this.threadId);
 		gt.setObjId(this.objId);
 		gt.setMethodArgSize(this.methodArgSize);
 		gt.setMethodReturnSize(this.methodReturnSize);
 		gt.setStaticMethod(this.staticMethod);
-		//gt.setMaxTime(this.maxTime);
 		gt.setFirstReadLocalVars(this.firstReadLocalVars);
 		gt.setFirstReadFields(this.firstReadFields);
 		gt.setWriteFields(this.fieldRecorder);
@@ -978,9 +974,8 @@ public class MethodStackRecorder {
 		gt.setDepNum(depCount);
 		gt.setInstPool(this.pool);
 		
-		TypeToken<GraphTemplate> typeToken = new TypeToken<GraphTemplate>(){};
-		//String dumpKey = StringUtil.genKeyWithMethodId(this.methodKey, this.id);
 		String dumpKey = StringUtil.genKeyWithId(this.methodKey, String.valueOf(this.threadId));
+		TypeToken<GraphTemplate> typeToken = new TypeToken<GraphTemplate>(){};
 		if (MIBConfiguration.getInstance().isTemplateMode()) {
 			GsonManager.cacheGraph(dumpKey, 0);
 			GsonManager.writeJsonGeneric(gt, dumpKey, typeToken, 0);
