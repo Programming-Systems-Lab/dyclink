@@ -18,11 +18,9 @@ import edu.columbia.psl.cc.util.MethodStackRecorder;
 import edu.columbia.psl.cc.util.ObjectIdAllocater;
 
 @analyzeClass
-public class TemplateMethod extends TemplateParent{
+public class TemplateMethod extends TemplateParent {
 	
-	private static int parentVar = 10000;
-	
-	private static int sVar = 10000;;
+	private static int sVar;
 	
 	private int iVar;
 	
@@ -40,8 +38,8 @@ public class TemplateMethod extends TemplateParent{
 	
 	public int m = 5;
 	
-	{
-		test = "123";
+	static {
+		sVar = 10000;
 	}
  	
 	public TemplateMethod() {
@@ -355,8 +353,8 @@ public class TemplateMethod extends TemplateParent{
 	}
 		
 	public static void main(String[] args) {
-		TemplateMethod tm = new TemplateMethod();
-		tm.call1();
+		//TemplateMethod tm = new TemplateMethod();
+		//tm.call1();
 		/*byte a = 1;
 		double b = 2.0;
 		long c = 3;

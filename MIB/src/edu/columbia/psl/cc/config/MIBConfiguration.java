@@ -45,6 +45,10 @@ public class MIBConfiguration {
 	
 	private static String srLoadParentDesc = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
 	
+	private static String srCheckClInit = "checkNGetClInit";
+	
+	private static String srCheckClInitDesc = "(Ljava/lang/String;)V";
+	
 	private static String __mib_id_gen = "__MIB_ID_GEN";
 	
 	private static String __mib_id_gen_method = "__getMIBIDGen";
@@ -198,6 +202,14 @@ public class MIBConfiguration {
 	
 	public static String getSrLoadParentDesc() {
 		return srLoadParentDesc;
+	}
+	
+	public static String getSrCheckClInit() {
+		return srCheckClInit;
+	}
+	
+	public static String getSrCheckClInitDesc() {
+		return srCheckClInitDesc;
 	}
 
 	public static String getMibIdGen() {

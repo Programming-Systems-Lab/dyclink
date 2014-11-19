@@ -10,13 +10,8 @@ public class YAMethod {
 	}
 	
 	public static void main(String[] ars) {
-		Stack<Integer> testStack = new Stack<Integer>();
-		testStack.push(0);
-		testStack.push(1);
-		testStack.push(2);
-		System.out.println(testStack.get(2));
-		System.out.println(testStack.peek());
-		(new Stack()).push(1);
+		YAMethod ym = new YAMethod();
+		int b = TemplateMethod.parentVar;
 	}
 
 }

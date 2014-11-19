@@ -31,6 +31,10 @@ public class MethodStackRecorder {
 		
 	private static TypeToken<GraphTemplate> GRAPH_TOKEN = new TypeToken<GraphTemplate>(){};
 	
+	private static String init = "<init>";
+	
+	private static String clinit = "<clinit>";
+	
 	private AtomicLong curDigit = new AtomicLong();
 	
 	private AtomicLong curTime = new AtomicLong();
@@ -128,12 +132,22 @@ public class MethodStackRecorder {
 				start += 1;
 			}
 		}
-				
+		
 		logger.info("Enter " + this.className + 
 				" " + this.methodName + 
 				" " + this.methodKey + 
 				" " + this.threadId + 
 				" " + this.threadMethodId);
+		
+		//Load possible parent clinit
+		if (this.staticMethod 
+				&& this.methodName.equals("main") 
+				&& this.methodDesc.equals("([Ljava/lang/String;)V")) {
+			this.blindGetClInit();
+		} else if (this.methodName.equals(init)) {
+			//Instead of using NEW, let init to attempt loading clinit
+			this.checkNGetClInit(this.methodName);
+		}
 	}
 	
 	private long[] getCurTime() {
@@ -169,16 +183,6 @@ public class MethodStackRecorder {
 		}
 		//this.firstReadFields.add(fieldNode);
 	}
-	
-	/*private void removeReadFields(String field) {
-		Iterator<InstNode> frIterator = this.firstReadFields.iterator();
-		while (frIterator.hasNext()) {
-			InstNode inst = frIterator.next();
-			
-			if (inst.getAddInfo().equals(field))
-				frIterator.remove();
-		}
-	}*/
 		
 	private void updatePath(InstNode fullInst) {
 		//this.path.add(fullInst);
@@ -259,9 +263,7 @@ public class MethodStackRecorder {
 		int opcat = oo.getCatId();
 		int typeSort = Type.getType(desc).getSort();
 		
-		//int objId = parseObjId(this.objOnStack);
 		int objId = 0;
-		
 		if (opcode == Opcodes.GETFIELD) {
 			objId = ObjectIdAllocater.parseObjId(this.stackSimulator.peek().getRelatedObj());
 		} else if (opcode == Opcodes.PUTFIELD) {
@@ -275,6 +277,12 @@ public class MethodStackRecorder {
 		//Search the real owner of the field
 		Class<?> targetClass = ClassInfoCollector.retrieveCorrectClassByField(owner, name);
 		logger.info("Class owner of field with objId: " + targetClass + " " + desc + " " + objId);
+		
+		if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC) {
+			//JVM will load the owner, not the exact class
+			this.checkNGetClInit(owner);
+		}
+		
 		String fieldKey = targetClass.getName() + "." + name + "." + desc;
 		
 		if (objId > 0) {
@@ -529,10 +537,45 @@ public class MethodStackRecorder {
 		this.showStackSimulator();
 	}
 	
+	private void blindGetClInit() {
+		String curDumpKey = ClassLoadingRecorder.getLatestLoadedClass();
+		if (curDumpKey != null) {
+			logger.info("Main loads latest touched class: " + curDumpKey);
+			this.doLoadParent(curDumpKey);
+		}
+	}
+	
+	public void checkNGetClInit(String targetName) {
+		String targetKey = StringUtil.genKey(targetName, "<clinit>", "()V");
+		String curDumpKey = ClassLoadingRecorder.getLatestLoadedClass();
+		
+		if (curDumpKey == null) {
+			logger.info("Empty class loading recorder");
+			return ;
+		}
+		
+		//Try to remove thread id here
+		int idx = curDumpKey.lastIndexOf(":");
+		String curDumpKeyNoThread = curDumpKey.substring(0, idx);
+		
+		if (curDumpKeyNoThread.equals(targetKey)) {
+			logger.info("Attempt to load touched class: " + curDumpKey);
+			this.doLoadParent(curDumpKey);
+		} else {
+			logger.info("Mis-matched class");
+			logger.info("Target: " + targetKey);
+			logger.info("Real: " + curDumpKey);
+		}
+	}
+		
 	public void loadParent(String owner, String name, String desc) {
 		String methodKey = StringUtil.genKey(owner, name, desc);
 		String searchKey = StringUtil.genKeyWithId(methodKey, String.valueOf(this.threadId));
 		
+		this.doLoadParent(searchKey);
+	}
+	
+	private void doLoadParent(String searchKey) {
 		String filePath = "";
 		if (MIBConfiguration.getInstance().isTemplateMode()) {
 			filePath = MIBConfiguration.getInstance().getTemplateDir() + "/" + searchKey + ".json";
@@ -542,7 +585,7 @@ public class MethodStackRecorder {
 		GraphTemplate parentGraph = TemplateLoader.loadTemplateFile(filePath, GRAPH_TOKEN);
 		
 		if (parentGraph == null) {
-			logger.warn("Load no parent graph: " + searchKey);
+			logger.warn("Load no parent/clinit graph: " + searchKey);
 			return ;
 		}
 		
@@ -603,7 +646,7 @@ public class MethodStackRecorder {
 				}
 			}
 			
-			logger.info("Method owner: " + correctClass.getName());
+			logger.info("Method owner: " + correctClass.getName());			
 			String methodKey = StringUtil.genKey(correctClass.getName(), name, desc);
 			String searchKey = StringUtil.genKeyWithId(methodKey, String.valueOf(this.threadId));
 			String searchKeyWithObjId = StringUtil.genKeyWithObjId(searchKey, objId);
@@ -985,6 +1028,10 @@ public class MethodStackRecorder {
 		}
 		//GsonManager.writePath(dumpKey, this.path);
 		
+		if (this.methodName.equals(clinit)) {
+			ClassLoadingRecorder.setLatestLoadedClass(dumpKey);
+		}
+		
 		//Debuggin, check graph group
 		logger.info("Graph groups:");
 		for (String searchKey: calleeCache.keySet()) {
@@ -992,6 +1039,12 @@ public class MethodStackRecorder {
 			GraphGroup gGroup = calleeCache.get(searchKey);
 			logger.info(gGroup.keySet());
 		}
+		
+		logger.info("Leave " + this.className + 
+				" " + this.methodName + 
+				" " + this.methodKey + 
+				" " + this.threadId + 
+				" " + this.threadMethodId);
 	}
 
 }

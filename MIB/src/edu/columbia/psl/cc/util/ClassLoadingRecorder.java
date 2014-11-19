@@ -1,18 +1,16 @@
 package edu.columbia.psl.cc.util;
 
-import java.util.HashSet;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class ClassLoadingRecorder {
 	
-	//Key: thread id, String: clinit rep string
-	private static ConcurrentHashMap<Integer, String> classRecorder = new ConcurrentHashMap<Integer, String>();
+	private static String latestLoadedClass;
 	
-	public static synchronized void addClass(int threadId, String clazz) {
-		classRecorder.put(threadId, clazz);
+	public static synchronized void setLatestLoadedClass(String clazz) {
+		latestLoadedClass = clazz;
 	}
 	
-	public static String getCurrentClass(int threadId) {
-		return classRecorder.get(threadId);
+	public static synchronized String getLatestLoadedClass() {
+		String ret = latestLoadedClass;
+		latestLoadedClass = null;
+		return ret;
 	}
 }

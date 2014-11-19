@@ -68,6 +68,10 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	private static String srLoadParentDesc = MIBConfiguration.getSrLoadParentDesc();
 	
+	private static String srCheckClInit = MIBConfiguration.getSrCheckClInit();
+	
+	private static String srCheckClInitDesc = MIBConfiguration.getSrCheckClInitDesc();
+	
 	private static String srGraphDump = MIBConfiguration.getSrGraphDump();
 	
 	private static String srGraphDumpDesc = MIBConfiguration.getSrGraphDumpDesc();
@@ -393,9 +397,28 @@ public class DynamicMethodMiner extends MethodVisitor {
 					"<init>", 
 					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V");
 			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
+			
+			if (this.myName.equals("<clinit>")) {
+				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+				this.mv.visitLdcInsn(this.superName);
+				this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
+						methodStackRecorder, 
+						srCheckClInit, 
+						srCheckClInitDesc);
+			}
 		}
 	}
 	
+	@Override
+	public void visitLabel(Label label) {
+		this.curLabel = label;
+		this.allLabels.add(label);
+		this.mv.visitLabel(label);
+		
+		if (this.shouldInstrument() && !this.constructor)
+			this.handlLabel(label);
+	}
+
 	@Override
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
 		if (desc.equals(this.templateAnnot)) {
@@ -408,16 +431,6 @@ public class DynamicMethodMiner extends MethodVisitor {
 			System.out.println("Method name: " + this.myName);
 		}
 		return this.mv.visitAnnotation(desc, visible);
-	}
-	
-	@Override
-	public void visitLabel(Label label) {
-		this.curLabel = label;
-		this.allLabels.add(label);
-		this.mv.visitLabel(label);
-		
-		if (this.shouldInstrument() && !this.constructor)
-			this.handlLabel(label);
 	}
 	
 	@Override
