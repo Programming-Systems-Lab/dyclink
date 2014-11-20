@@ -34,13 +34,13 @@ public class GraphTemplate {
 	
 	private HashSet<InstNode> firstReadLocalVars;
 	
-	//private HashSet<InstNode> firstReadFields;
+	private HashMap<String, InstNode> latestWriteFields;
 	
-	private Map<String, HashSet<InstNode>> firstReadFields;
+	/*private Map<String, HashSet<InstNode>> firstReadFields;
 	
 	private Map<String, InstNode> writeFields;
 	
-	private long maxTime;
+	private long maxTime;*/
 	
 	public GraphTemplate() {
 		
@@ -54,10 +54,8 @@ public class GraphTemplate {
 		this.threadMethodId = copy.getThreadMethodId();
 		this.depNum = copy.getDepNum();
 		this.staticMethod = copy.isStaticMethod();
-		//this.firstReadFields = new HashSet<InstNode>(copy.getFirstReadFields());
-		this.firstReadFields = new HashMap<String, HashSet<InstNode>>(copy.getFirstReadFields());
 		this.firstReadLocalVars = new HashSet<InstNode>(copy.getFirstReadLocalVars());
-		//this.maxTime = copy.getMaxTime();
+		this.latestWriteFields = new HashMap<String, InstNode>(copy.getLatestWriteFields());
 		
 		this.pool = new InstPool();
 		this.path = new ArrayList<InstNode>();
@@ -71,11 +69,11 @@ public class GraphTemplate {
 			this.path.add(this.pool.searchAndGet(pathNode.getFromMethod(), pathNode.getThreadId(), pathNode.getThreadMethodIdx(), pathNode.getIdx()));
 		}
 		
-		for (String field: copy.getWriteFields().keySet()) {
+		/*for (String field: copy.getWriteFields().keySet()) {
 			InstNode copyNode = copy.getWriteFields().get(field);
 			InstNode fieldNode = this.pool.searchAndGet(copyNode.getFromMethod(), copyNode.getThreadId(), copyNode.getThreadMethodIdx(), copyNode.getIdx());
 			this.writeFields.put(field, fieldNode);
-		}
+		}*/
 	}
 		
 	public void setMethodKey(String methodKey) {
@@ -150,7 +148,15 @@ public class GraphTemplate {
 		return this.firstReadLocalVars;
 	}
 	
-	public void setFirstReadFields(Map<String, HashSet<InstNode>> firstReadFields) {
+	public void setLatestWriteFields(HashMap<String, InstNode> latestWriteFields) {
+		this.latestWriteFields = latestWriteFields;
+	}
+	
+	public HashMap<String, InstNode> getLatestWriteFields() {
+		return this.latestWriteFields;
+	}
+	
+	/*public void setFirstReadFields(Map<String, HashSet<InstNode>> firstReadFields) {
 		this.firstReadFields = firstReadFields;
 	}
 	
@@ -158,21 +164,13 @@ public class GraphTemplate {
 		return this.firstReadFields;
 	}
 	
-	/*public void setFirstReadFields(HashSet<InstNode> firstReadFields) {
-		this.firstReadFields = firstReadFields;
-	}
-	
-	public HashSet<InstNode> getFirstReadFields() {
-		return this.firstReadFields;
-	}*/
-	
 	public void setWriteFields(Map<String, InstNode> writeFields) {
 		this.writeFields = writeFields;
 	}
 	
 	public Map<String, InstNode> getWriteFields() {
 		return writeFields;
-	}
+	}*/
 	
 	public void setThreadId(long threadId) {
 		this.threadId = threadId;

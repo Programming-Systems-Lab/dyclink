@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.apache.log4j.Logger;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -22,6 +24,8 @@ import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 
 public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializer<InstNode>{
+	
+	private Logger logger = Logger.getLogger(InstNodeAdapter.class);
 	
 	private InstPool pool = new InstPool();
 	
@@ -71,6 +75,17 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		//TypeToken<ArrayList<Integer>> parentToken = new TypeToken<ArrayList<Integer>>(){};
 		
 		InstNode inst = this.pool.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo);
+		
+		if (BytecodeCategory.writeFieldCategory().contains(inst.getOp().getCatId())) {
+			InstNode nodeInMemory = GlobalRecorder.getWriteFieldNode(inst.getAddInfo());
+			
+			if (nodeInMemory != null) {
+				logger.info("Find inst in global recorder: " + nodeInMemory);
+				this.pool.add(nodeInMemory);
+				return nodeInMemory;
+			}
+		}
+		
 		inst.setInstDataParentList(instDataParentList);
 		inst.setWriteDataParentList(writeDataParentList);
 		inst.setControlParentList(controlParentList);

@@ -37,10 +37,6 @@ public class TemplateMethod extends TemplateParent {
 	public double[] b = new double[3];
 	
 	public int m = 5;
-	
-	static {
-		sVar = 10000;
-	}
  	
 	public TemplateMethod() {
 		
@@ -346,15 +342,14 @@ public class TemplateMethod extends TemplateParent {
 	}
 	
 	public void call1() {
-		Template2.staticInt = 18;
 		this.iDouble = 5.0 + this.pVar;
 		this.call2();
 		int ret = 5 + this.pVar + this.iVar;
 	}
 		
 	public static void main(String[] args) {
-		//TemplateMethod tm = new TemplateMethod();
-		//tm.call1();
+		TemplateMethod tm = new TemplateMethod();
+		tm.call1();
 		/*byte a = 1;
 		double b = 2.0;
 		long c = 3;

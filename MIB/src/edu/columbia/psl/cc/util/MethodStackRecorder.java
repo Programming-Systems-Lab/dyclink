@@ -34,10 +34,6 @@ public class MethodStackRecorder {
 	private static String init = "<init>";
 	
 	private static String clinit = "<clinit>";
-	
-	private AtomicLong curDigit = new AtomicLong();
-	
-	private AtomicLong curTime = new AtomicLong();
 		
 	private String className;
 	
@@ -61,11 +57,9 @@ public class MethodStackRecorder {
 	private Map<Integer, InstNode> localVarRecorder = new HashMap<Integer, InstNode>();
 	
 	//Key: field name, Val: inst node
-	private Map<String, InstNode> fieldRecorder = new HashMap<String, InstNode>();
+	private HashMap<String, InstNode> latestWriteFieldRecorder = new HashMap<String, InstNode>();
 	
-	//Record which insts might be affected by input params
-	//private HashSet<InstNode> firstReadFields = new HashSet<InstNode>();
-	private HashMap<String, HashSet<InstNode>> firstReadFields = new HashMap<String, HashSet<InstNode>>();
+	//private HashMap<String, HashSet<InstNode>> firstReadFields = new HashMap<String, HashSet<InstNode>>();
 	
 	//Record which insts might be affecte by field written by parent method
 	private HashSet<InstNode> firstReadLocalVars = new HashSet<InstNode>();
@@ -139,26 +133,17 @@ public class MethodStackRecorder {
 				" " + this.threadId + 
 				" " + this.threadMethodId);
 		
-		//Load possible parent clinit
-		if (this.staticMethod 
+		//Load possible clinit
+		if (this.methodName.equals(init)) {
+			//Instead of using NEW, let init to attempt loading clinit
+			this.checkNGetClInit(this.className);
+		}
+		
+		/*if (this.staticMethod 
 				&& this.methodName.equals("main") 
 				&& this.methodDesc.equals("([Ljava/lang/String;)V")) {
 			this.blindGetClInit();
-		} else if (this.methodName.equals(init)) {
-			//Instead of using NEW, let init to attempt loading clinit
-			this.checkNGetClInit(this.methodName);
-		}
-	}
-	
-	private long[] getCurTime() {
-		long uni = this.curTime.getAndIncrement();
-		long ten = this.curDigit.get();
-		if (uni == Long.MAX_VALUE) {
-			this.curTime.set(0);
-			this.curDigit.getAndIncrement();
-		}
-		long[] ret = {uni, ten};
-		return ret;
+		}*/ 
 	}
 	
 	private void stopLocalVar(int localVarId) {
@@ -172,7 +157,7 @@ public class MethodStackRecorder {
 		}
 	}
 	
-	private void updateReadField(InstNode fieldNode) {
+	/*private void updateReadField(InstNode fieldNode) {
 		String key = fieldNode.getAddInfo();
 		if (this.firstReadFields.keySet().contains(key)) {
 			this.firstReadFields.get(key).add(fieldNode);
@@ -181,15 +166,14 @@ public class MethodStackRecorder {
 			nodeSet.add(fieldNode);
 			this.firstReadFields.put(key, nodeSet);
 		}
-		//this.firstReadFields.add(fieldNode);
-	}
+	}*/
 		
 	private void updatePath(InstNode fullInst) {
 		//this.path.add(fullInst);
 	}
 	
 	private void updateTime(InstNode fullInst) {
-		long[] curTime = this.getCurTime();
+		long[] curTime = GlobalRecorder.getCurTime();
 		if (fullInst.getStartTime() < 0) {
 			fullInst.setStartDigit(curTime[1]);
 			fullInst.setStartTime(curTime[0]);
@@ -199,10 +183,6 @@ public class MethodStackRecorder {
 			fullInst.setUpdateDigit(curTime[1]);
 			fullInst.setUpdateTime(curTime[0]);
 		}
-		
-		/*if (curTime > this.maxTime) {
-			maxTime = curTime;
-		}*/
  	}
 	
 	private void updateCachedMap(InstNode parent, InstNode child, int depType) {
@@ -299,16 +279,21 @@ public class MethodStackRecorder {
 			//Add info for field: owner + name + desc + objId
 			//Only record static or the instrumented object
 			if (opcode == Opcodes.GETSTATIC || objId > 0) {
-				InstNode parent = this.fieldRecorder.get(fieldKey);
-				if (parent != null)
+				//InstNode parent = this.fieldRecorder.get(fieldKey);
+				InstNode parent = GlobalRecorder.getWriteFieldNode(fieldKey);
+				logger.info("Update read field inst");
+				logger.info("Read field inst: " + fullInst);
+				logger.info("Write field parent: " + parent);
+				if (parent != null) {
 					this.updateCachedMap(parent, fullInst, MIBConfiguration.WRITE_DATA_DEP);
-				else
-					this.updateReadField(fullInst);
+				}
+				logger.info("Read field inst parents: " + fullInst.getWriteDataParentList());
+				logger.info("Write field inst children: " + parent.getChildFreqMap());
 			}
 		} else if (BytecodeCategory.writeFieldCategory().contains(opcat)) {
 			if (opcode == Opcodes.PUTSTATIC || objId > 0) {
-				this.fieldRecorder.put(fieldKey, fullInst);
-				//this.removeReadFields(fieldKey);
+				GlobalRecorder.updateGlobalWriteFieldRecorder(fieldKey, fullInst);
+				this.latestWriteFieldRecorder.put(fieldKey, fullInst);
 			}
 		}
 		
@@ -490,25 +475,9 @@ public class MethodStackRecorder {
 		this.updateControlRelation(fullInst);
 		
 		Type methodType = Type.getMethodType(desc);
-		//+1 for object reference, if instance method
 		Type[] args = methodType.getArgumentTypes();
-		/*int argSize = 0;
-		for (int i = 0; i < args.length; i++) {
-			Type t = args[i];
-			if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
-				argSize += 2;
-			} else {
-				argSize += 1;
-			}
-		}
 		
-		if (!BytecodeCategory.staticMethod().contains(opcode)) {
-			argSize++;
-		}*/
-		
-		//System.out.println("Arg size: " + argSize);
 		logger.info("Arg size: " + args.length);
-		
 		for (int i = args.length - 1; i >= 0; i--) {
 			Type t = args[i];
 			if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
@@ -538,7 +507,7 @@ public class MethodStackRecorder {
 	}
 	
 	private void blindGetClInit() {
-		String curDumpKey = ClassLoadingRecorder.getLatestLoadedClass();
+		String curDumpKey = GlobalRecorder.getLatestLoadedClass();
 		if (curDumpKey != null) {
 			logger.info("Main loads latest touched class: " + curDumpKey);
 			this.doLoadParent(curDumpKey);
@@ -547,7 +516,7 @@ public class MethodStackRecorder {
 	
 	public void checkNGetClInit(String targetName) {
 		String targetKey = StringUtil.genKey(targetName, "<clinit>", "()V");
-		String curDumpKey = ClassLoadingRecorder.getLatestLoadedClass();
+		String curDumpKey = GlobalRecorder.getLatestLoadedClass();
 		
 		if (curDumpKey == null) {
 			logger.info("Empty class loading recorder");
@@ -571,7 +540,7 @@ public class MethodStackRecorder {
 	public void loadParent(String owner, String name, String desc) {
 		String methodKey = StringUtil.genKey(owner, name, desc);
 		String searchKey = StringUtil.genKeyWithId(methodKey, String.valueOf(this.threadId));
-		
+		logger.info("Attempt to load parent constructor: " + searchKey);
 		this.doLoadParent(searchKey);
 	}
 	
@@ -591,17 +560,11 @@ public class MethodStackRecorder {
 		
 		InstPool parentPool = parentGraph.getInstPool();
 		
-		long[] baseTime = this.getCurTime();
-		long[] reBase = null;
 		GraphUtil.removeReturnInst(parentGraph.getInstPool());
-		reBase = GraphUtil.reindexInstPool(baseTime, parentPool, true);
 		
-		this.curDigit.set(reBase[1]);
-		this.curTime.set(reBase[0]);
-		
-		if (parentGraph.getWriteFields().size() > 0) {
+		/*if (parentGraph.getWriteFields().size() > 0) {
 			this.fieldRecorder.putAll(parentGraph.getWriteFields());
-		}
+		}*/
 		
 		GraphUtil.unionInstPools(this.pool, parentPool);
 	}
@@ -680,14 +643,18 @@ public class MethodStackRecorder {
 				this.pool.remove(fullInst);
 				fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, newInstIdx, opcode, searchKey);
 				
+				//if any field in global record id written by this child, change it to the rep inst
+				if (childGraph.getLatestWriteFields().size() > 0) {
+					GlobalRecorder.replaceWriteFieldNodes(childGraph, fullInst);
+				}
+				
 				//Only update field data deps
-				if (this.fieldRecorder.size() > 0) {
+				/*if (this.fieldRecorder.size() > 0) {
 					GraphUtil.fieldDataDepFromParentInstToChildGraph(this.fieldRecorder, fullInst, childGraph);
 				}
 				
 				if (childGraph.getFirstReadFields().size() > 0) {
 					//Change all inst to method inst
-					//this.firstReadFields.addAll(childGraph.getFirstReadFields());
 					for (String key: childGraph.getFirstReadFields().keySet()) {
 						if (this.firstReadFields.containsKey(key)) {
 							this.firstReadFields.get(key).add(fullInst);
@@ -700,11 +667,10 @@ public class MethodStackRecorder {
 				}
 				
 				if (childGraph.getWriteFields().size() > 0) {
-					//this.fieldRecorder.putAll(childGraph.getWriteFields());
 					for (String key: childGraph.getWriteFields().keySet()) {
 						this.fieldRecorder.put(key, fullInst);
 					}
-				}
+				}*/
 				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 				return ;
 			} else if (this.calleeCache.containsKey(searchKeyWithObjId)) {
@@ -739,23 +705,21 @@ public class MethodStackRecorder {
 			logger.info("Child graph analysis: " + childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
 			logger.info("Child graph size: " + childGraph.getInstPool().size());
 						
-			//Remove return and rebase
+			//Remove return
 			InstPool childPool = childGraph.getInstPool();
-			long[] baseTime = this.getCurTime();
-			long[] reBase = null;
 			if (removeReturn) {
 				GraphUtil.removeReturnInst(childPool);
-				reBase = GraphUtil.reindexInstPool(baseTime, childPool, true);
 			} else {
-				reBase = GraphUtil.reindexInstPool(baseTime, childPool, false);
+				for (InstNode cInst: childPool) {
+					this.updateTime(cInst);
+				}
+				
+				if (childGraph.getLatestWriteFields().size() > 0) {
+					GlobalRecorder.replaceWriteFieldNodes(childGraph);
+				}
 			}
 			
-			this.curDigit.set(reBase[1]);
-			this.curTime.set(reBase[0]);
-			
-			//GraphUtil.synchronizeInstPools(this.pool, childPool);
-			
-			//Search correct inst, update local data dep dependency
+			//Search for correct inst, update local data dep dependency
 			HashMap<Integer, InstNode> parentFromCaller = new HashMap<Integer, InstNode>();
 			if (args.length > 0) {
 				int startIdx = 0;
@@ -801,7 +765,6 @@ public class MethodStackRecorder {
 			}
 			
 			//System.out.println("Check parent map: " + parentFromCaller);
-			
 			GraphUtil.dataDepFromParentToChild(parentFromCaller, this.pool, childGraph);
 			
 			//Update control dep
@@ -810,7 +773,7 @@ public class MethodStackRecorder {
 			}
 			
 			//Update field data dep
-			if (this.fieldRecorder.size() > 0) {
+			/*if (this.fieldRecorder.size() > 0) {
 				GraphUtil.fieldDataDepFromParentToChild(this.fieldRecorder, childGraph);
 			}
 			
@@ -824,7 +787,7 @@ public class MethodStackRecorder {
 			
 			if (childGraph.getWriteFields().size() > 0) {
 				this.fieldRecorder.putAll(childGraph.getWriteFields());
-			}
+			}*/
 			
 			String returnType = methodType.getReturnType().getDescriptor();
 			if (!returnType.equals("V")) {
@@ -994,8 +957,9 @@ public class MethodStackRecorder {
 		gt.setMethodReturnSize(this.methodReturnSize);
 		gt.setStaticMethod(this.staticMethod);
 		gt.setFirstReadLocalVars(this.firstReadLocalVars);
-		gt.setFirstReadFields(this.firstReadFields);
-		gt.setWriteFields(this.fieldRecorder);
+		gt.setLatestWriteFields(this.latestWriteFieldRecorder);
+		//gt.setFirstReadFields(this.firstReadFields);
+		//gt.setWriteFields(this.fieldRecorder);
 		
 		if (this.beforeReturn != null) {
 			gt.setLastBeforeReturn(this.beforeReturn);
@@ -1029,7 +993,7 @@ public class MethodStackRecorder {
 		//GsonManager.writePath(dumpKey, this.path);
 		
 		if (this.methodName.equals(clinit)) {
-			ClassLoadingRecorder.setLatestLoadedClass(dumpKey);
+			GlobalRecorder.setLatestLoadedClass(dumpKey);
 		}
 		
 		//Debuggin, check graph group

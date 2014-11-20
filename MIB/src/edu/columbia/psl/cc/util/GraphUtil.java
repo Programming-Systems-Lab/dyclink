@@ -168,7 +168,6 @@ public class GraphUtil {
 			inst.setUpdateTime(val);
 			inst.setUpdateDigit(ten);
 		}
-		
 	}
 	
 	public static long[] reindexInstPool(long[] base, InstPool instPool, boolean updateAll) {
@@ -479,26 +478,6 @@ public class GraphUtil {
 						parentNode.getIdx(), 
 						MIBConfiguration.INST_DATA_DEP);
 			}
-			
-			
-			/*if (parentNode != null) {
-				for (InstNode cInst: childInsts) {
-					String cInstKey = StringUtil.genIdxKey(cInst.getFromMethod(), 
-							cInst.getThreadId(), 
-							cInst.getThreadMethodIdx(), 
-							cInst.getIdx());
-					
-					//Check if the surrogate exists in parent pool
-					SurrogateInst surrogate = parentNode.searchSurrogateInst(cInstKey);
-					if (surrogate != null) {
-						transplantCalleeDepToCaller(surrogate, cInst, childPool);
-					} else {
-						surrogate = generateSurrogate(parentNode, parentPool);
-						surrogate.setRelatedChildMethodInst(cInstKey);
-						transplantCalleeDepToCaller(surrogate, cInst, childPool);
-					}
-				}
-			}*/
 		}
 	}
 	
@@ -536,10 +515,8 @@ public class GraphUtil {
 		}
 	}*/
 	
-	public static void fieldDataDepFromParentToChild(Map<String, InstNode> parentMap, 
+	/*public static void fieldDataDepFromParentToChild(Map<String, InstNode> parentMap, 
 			GraphTemplate childGraph) {
-		//HashSet<InstNode> firstReadFields = childGraph.getFirstReadFields();
-		//Iterator<InstNode> frIterator = firstReadFields.iterator();
 		
 		Map<String, HashSet<InstNode>> firstReadFields = childGraph.getFirstReadFields();
 		HashSet<String> shouldRemove = new HashSet<String>();
@@ -566,34 +543,11 @@ public class GraphUtil {
 		for (String s: shouldRemove) {
 			firstReadFields.remove(s);
 		}
-		
-		/*while (frIterator.hasNext()) {
-			InstNode fInst = frIterator.next();
-			
-			if (parentMap.containsKey(fInst.getAddInfo())) {
-				InstNode parentNode = parentMap.get(fInst.getAddInfo());
-				
-				parentNode.increChild(fInst.getFromMethod(),
-						fInst.getThreadId(), 
-						fInst.getThreadMethodIdx(), 
-						fInst.getIdx(), 
-						MIBConfiguration.getInstance().getWriteDataWeight());
-				fInst.registerParent(parentNode.getFromMethod(), 
-						parentNode.getThreadId(), 
-						parentNode.getThreadMethodIdx(), 
-						parentNode.getIdx(), 
-						MIBConfiguration.WRITE_DATA_DEP);
-				
-				frIterator.remove();
-			}
-		}*/
-	}
+	}*/
 	
-	public static void fieldDataDepFromParentInstToChildGraph(Map<String, InstNode> parentMap, 
+	/*public static void fieldDataDepFromParentInstToChildGraph(Map<String, InstNode> parentMap, 
 			InstNode childMethodInst, 
-			GraphTemplate childGraph) {
-		//HashSet<InstNode> firstReadFields = childGraph.getFirstReadFields();
-		
+			GraphTemplate childGraph) {		
 		Map<String, HashSet<InstNode>> firstReadFields = childGraph.getFirstReadFields();
 		HashSet<String> shouldRemove = new HashSet<String>();
 		for (String childKey: firstReadFields.keySet()) {
@@ -619,29 +573,7 @@ public class GraphUtil {
 		for (String s: shouldRemove) {
 			firstReadFields.remove(s);
 		}
-		
-		/*Iterator<InstNode> frIterator = firstReadFields.iterator();
-		while (frIterator.hasNext()) {
-			InstNode fInst = frIterator.next();
-			if (parentMap.containsKey(fInst.getAddInfo())) {
-				InstNode parentNode = parentMap.get(fInst.getAddInfo());
-				
-				//Don't use inst, use the chidlMethodInst
-				parentNode.increChild(childMethodInst.getFromMethod(), 
-						childMethodInst.getThreadId(), 
-						childMethodInst.getThreadMethodIdx(), 
-						childMethodInst.getIdx(), 
-						MIBConfiguration.getInstance().getWriteDataWeight());
-				childMethodInst.registerParent(parentNode.getFromMethod(), 
-						parentNode.getThreadId(), 
-						parentNode.getThreadMethodIdx(), 
-						parentNode.getIdx(), 
-						MIBConfiguration.WRITE_DATA_DEP);
-				
-				frIterator.remove();
-			}
-		}*/
-	}
+	}*/
 	
 	public static void controlDepFromParentToChild(InstNode controlFromParent, InstPool childPool) {
 		List<InstNode> sortedChild = sortInstPool(childPool, true);
