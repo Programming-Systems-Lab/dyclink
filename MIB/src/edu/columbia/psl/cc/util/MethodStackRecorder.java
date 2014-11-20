@@ -281,14 +281,9 @@ public class MethodStackRecorder {
 			if (opcode == Opcodes.GETSTATIC || objId > 0) {
 				//InstNode parent = this.fieldRecorder.get(fieldKey);
 				InstNode parent = GlobalRecorder.getWriteFieldNode(fieldKey);
-				logger.info("Update read field inst");
-				logger.info("Read field inst: " + fullInst);
-				logger.info("Write field parent: " + parent);
 				if (parent != null) {
 					this.updateCachedMap(parent, fullInst, MIBConfiguration.WRITE_DATA_DEP);
 				}
-				logger.info("Read field inst parents: " + fullInst.getWriteDataParentList());
-				logger.info("Write field inst children: " + parent.getChildFreqMap());
 			}
 		} else if (BytecodeCategory.writeFieldCategory().contains(opcat)) {
 			if (opcode == Opcodes.PUTSTATIC || objId > 0) {
@@ -689,7 +684,7 @@ public class MethodStackRecorder {
 					childGraph = rep;
 					removeReturn = false;
 				} else {
-					logger.info("Find no simialr graph in cache: " + searchKeyWithObjId);
+					logger.info("Find no similar graph in cache: " + searchKeyWithObjId);
 					logger.info("Existing graph group key: " + gGroup.keySet());
 					logger.info("Current graph key: " + GraphGroup.groupKey(childGraph));
 					gGroup.addGraph(childGraph);

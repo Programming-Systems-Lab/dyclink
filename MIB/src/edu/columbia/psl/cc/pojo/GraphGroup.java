@@ -27,7 +27,7 @@ public class GraphGroup extends HashMap<String, GraphTemplate>{
 		
 		if (existGraph == null) {
 			return null;
-		} else if (existGraph.getLatestWriteFields().keySet().equals(graph.getLatestWriteFields().keySet())) {
+		} else if (!existGraph.getLatestWriteFields().keySet().equals(graph.getLatestWriteFields().keySet())) {
 			logger.info("Capture similar graph but write fields not matched");
 			logger.info("Exist graph: " + existGraph.getLatestWriteFields().keySet());
 			logger.info("Current graph: " + graph.getLatestWriteFields().keySet());

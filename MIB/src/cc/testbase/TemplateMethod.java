@@ -349,7 +349,7 @@ public class TemplateMethod extends TemplateParent {
 		
 	public static void main(String[] args) {
 		TemplateMethod tm = new TemplateMethod();
-		tm.call1();
+		//tm.call1();
 		/*byte a = 1;
 		double b = 2.0;
 		long c = 3;
@@ -361,13 +361,12 @@ public class TemplateMethod extends TemplateParent {
 		//tm.parentAdd(3, 5);
 		//tm.testAdd2(5);
 		//tm.caller();
-		//tm.call1();
 		//System.out.println(Integer.MAX_VALUE);
 		//System.out.println(Integer.MAX_VALUE + 1);
 		//classAdd(5);
 		//int a = 2;
 		//int[] b = {3, 4, 7};
-		//tm.forMethod();
+		tm.forMethod();
 		//tm.forClassMethod();
 		//TemplateParent tp = new TemplateMethod();
 		//tp.interestingMethod();
