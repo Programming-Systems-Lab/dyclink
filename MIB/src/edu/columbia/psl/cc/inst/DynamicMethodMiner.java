@@ -1,6 +1,7 @@
 package edu.columbia.psl.cc.inst;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -254,7 +255,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.mv.visitFieldInsn(Opcodes.PUTFIELD, methodStackRecorder, "linenumber", Type.INT_TYPE.getDescriptor());
 	}
 	
-	private void handlLabel(Label label) {
+	private void handleLabel(Label label) {
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.mv.visitLdcInsn(label.toString());
 		this.mv.visitFieldInsn(Opcodes.PUTFIELD, methodStackRecorder, "curLabel", Type.getDescriptor(String.class));
@@ -428,7 +429,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.mv.visitLabel(label);
 		
 		if (this.shouldInstrument() && !this.constructor) {
-			this.handlLabel(label);
+			this.handleLabel(label);
 		}
 		this.blockAnalyzer.setCurLabel(label);
 	}
@@ -611,6 +612,16 @@ public class DynamicMethodMiner extends MethodVisitor {
 			this.blockAnalyzer.registerInst(instIdx, opcode, label);
 		}
 		this.mv.visitJumpInsn(opcode, label);
+		
+		if (this.shouldInstrument() && !this.constructor) {
+			if (opcode != Opcodes.GOTO && opcode != Opcodes.JSR) {
+				Label breakLabel = new Label();
+				this.mv.visitLabel(breakLabel);
+				this.blockAnalyzer.setCurLabel(breakLabel);
+				this.handleLabel(breakLabel);
+				logger.info("Break label: " + breakLabel);
+			}
+		}
 	}
 	
 	@Override
@@ -747,6 +758,11 @@ public class DynamicMethodMiner extends MethodVisitor {
 			for (Block b: blockList) {
 				logger.info("Block " + b.startLabel);
 				logger.info("Child block: " + b.childBlocks);
+				logger.info("Cond map: " + b.condMap.keySet());
+				for (String labelKey: b.condMap.keySet()) {
+					logger.info("Cond label: " + labelKey);
+					logger.info("Tag: " + Arrays.toString(b.condMap.get(labelKey)));
+				}
 				for (InstTuple it: b.instList) {
 					System.out.println(it.instIdx + " " + it.opcode + BytecodeCategory.getOpcodeObj(it.opcode).getInstruction());
 				}

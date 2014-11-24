@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,17 +28,72 @@ public class BlockAnalyzer {
 	
 	private LabelBlock curLb;
 	
+	public static boolean unionTags(boolean[] parentTags, boolean[] childTags) {
+		int trueCount = 0;
+		for (int i = 0; i < childTags.length; i++) {
+			boolean curVal = parentTags[i] | childTags[i];
+			childTags[i] = curVal;
+			
+			if (curVal)
+				trueCount++;
+		}
+		
+		if (trueCount == childTags.length)
+			return true;
+		else
+			return false;
+	}
+	
+	public static void unionCondMap(Map<String, boolean[]>parentMap, Map<String, boolean[]>childMap) {
+		for (String pKey: parentMap.keySet()) {
+			boolean[] parentTags = parentMap.get(pKey);
+			if (childMap.containsKey(pKey)) {
+				boolean[] childTags = childMap.get(pKey);
+				
+				boolean shouldRemoveTag = unionTags(parentTags, childTags);
+				if (shouldRemoveTag) {
+					childMap.remove(pKey);
+				}
+			} else {
+				boolean[] copyTags = new boolean[parentTags.length];
+				System.arraycopy(parentTags, 0, copyTags, 0, parentTags.length);
+				childMap.put(pKey, copyTags);
+			}
+		}
+	}
+	
 	public void setCurLabel(Label label) {
 		String labelString = label.toString();
 		if (this.labelList.size() == 0) {
+			//First label shoud be a start of block
 			this.blockStarts.add(labelString);
 		}
 		
 		LabelBlock lb = new LabelBlock();
 		lb.label = labelString;
 		
+		LabelBlock lastLb = null;
+		if (this.curLb != null) {
+			lastLb = this.curLb;
+		}
+		
 		this.curLb = lb;
 		labelList.add(lb);
+		
+		if (lastLb != null) {
+			if (lastLb.instList.size() == 0)
+				return ;
+			
+			InstTuple lastInst = lastLb.instList.get(lastLb.instList.size() - 1);
+			
+			OpcodeObj oo = BytecodeCategory.getOpcodeObj(lastInst.opcode);
+			if (BytecodeCategory.controlCategory().contains(oo.getCatId()) 
+					|| lastInst.opcode == Opcodes.TABLESWITCH 
+					|| lastInst.opcode == Opcodes.LOOKUPSWITCH) {
+				//If the end of last lable is control, this label should be the block start
+				this.blockStarts.add(labelString);
+			}
+		}
 	}
 	
 	public void registerInst(int instIdx, int opcode, Label...pointToLabels) {
@@ -50,8 +106,9 @@ public class BlockAnalyzer {
 				|| opcode == Opcodes.TABLESWITCH 
 				|| opcode == Opcodes.LOOKUPSWITCH) {
 			for (Label p: pointToLabels) {
+				//All labels pointed by a control inst should be the start of block
 				String pString = p.toString();
-				blockStarts.add(pString);
+				this.blockStarts.add(pString);
 				it.pointTos.add(pString);
 			}
 		}
@@ -61,6 +118,7 @@ public class BlockAnalyzer {
 	
 	public void analyzeBlocks() {
 		Block curBlock = null;
+		logger.info("Block starts: " + this.blockStarts);
 		for (LabelBlock lb: this.labelList) {
 			if (this.blockStarts.contains(lb.label)) {				
 				Block lastBlock = curBlock;
@@ -70,11 +128,16 @@ public class BlockAnalyzer {
 				
 				if (lastBlock != null) {
 					//Construct relations
-					lastBlock.childBlocks.add(curBlock.startLabel);
-					InstTuple lastInst = lastBlock.instList.get(lastBlock.instList.size() - 1);
+					lastBlock.lastInst = lastBlock.instList.get(lastBlock.instList.size() - 1);
 					
-					if (lastInst.pointTos.size() > 0) {
-						lastBlock.childBlocks.addAll(lastInst.pointTos);
+					if (lastBlock.lastInst.pointTos.size() > 0) {
+						lastBlock.childBlocks.addAll(lastBlock.lastInst.pointTos);
+					}
+					
+					if (lastBlock.lastInst.opcode != Opcodes.GOTO 
+							&& lastBlock.lastInst.opcode != Opcodes.TABLESWITCH 
+							&& lastBlock.lastInst.opcode != Opcodes.LOOKUPSWITCH) {
+						lastBlock.childBlocks.add(curBlock.startLabel);
 					}
 				}
 			}
@@ -82,6 +145,44 @@ public class BlockAnalyzer {
 			curBlock.labels.add(lb.label);
 			curBlock.instList.addAll(lb.instList);
 		}
+		
+		HashMap<String, Block> blockCache = new HashMap<String, Block>();
+		for (Block b: this.blockList) {
+			boolean propogate = b.childBlocks.size() > 1?true: false;
+			
+			int count = 0;
+			for (String cLabel: b.childBlocks) {
+				Block childBlock = null;
+				if (blockCache.containsKey(cLabel)) {
+					childBlock = blockCache.get(cLabel);
+				} else {
+					childBlock = this.searchBlock(cLabel);
+					blockCache.put(cLabel, childBlock);
+				}
+				
+				//Merge children tag with parents
+				if (b.condMap.size() > 0) {
+					unionCondMap(b.condMap, childBlock.condMap);
+				}
+				
+				//Propagate new tags from parent
+				if (propogate) {
+					boolean[] tags = new boolean[b.childBlocks.size()];
+					tags[count++] = true;
+					childBlock.condMap.put(b.startLabel, tags);
+				}
+			}
+		}
+	}
+	
+	public Block searchBlock(String label) {
+		for (Block b: this.blockList) {
+			if (b.startLabel.equals(label)) {
+				return b;
+			}
+		}
+		//Not possible
+		return null;
 	}
 	
 	public List<Block> getBlockList() {
@@ -112,6 +213,10 @@ public class BlockAnalyzer {
 		public List<InstTuple> instList = new ArrayList<InstTuple>();
 		
 		public Set<String> childBlocks = new HashSet<String>();
+		
+		public Map<String, boolean[]> condMap = new HashMap<String, boolean[]>();
+		
+		public InstTuple lastInst;
 	}
 
 }

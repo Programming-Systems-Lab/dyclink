@@ -613,11 +613,6 @@ public class TemplateMethod extends TemplateParent {
 		switch(a) {
 			case 0:
 				b[0] = 0;
-				if (ret > 8) {
-					this.iVar = 8;
-				} else {
-					this.iVar =19;
-				}
 				break ;
 			case 2:
 				b[0] = 1;
@@ -629,6 +624,7 @@ public class TemplateMethod extends TemplateParent {
 				b[0] = 6;
 				break ;
 		}
+		int d = 89;
 		return ret;
 	}
 	
