@@ -21,7 +21,8 @@ import com.google.gson.reflect.TypeToken;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.VarPool;
-import edu.columbia.psl.cc.inst.StaticControlDepAnalyzer.ControlInst;
+import edu.columbia.psl.cc.inst.BlockAnalyzer.Block;
+import edu.columbia.psl.cc.inst.BlockAnalyzer.InstTuple;
 import edu.columbia.psl.cc.pojo.BlockNode;
 import edu.columbia.psl.cc.pojo.CondNode;
 import edu.columbia.psl.cc.pojo.InstNode;
@@ -122,7 +123,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	private boolean superVisited = false;
 	
-	private StaticControlDepAnalyzer controlDepAnalyzer = new StaticControlDepAnalyzer();
+	private BlockAnalyzer blockAnalyzer = new BlockAnalyzer();
 	 
 	public DynamicMethodMiner(MethodVisitor mv, 
 			String className, 
@@ -428,8 +429,8 @@ public class DynamicMethodMiner extends MethodVisitor {
 		
 		if (this.shouldInstrument() && !this.constructor) {
 			this.handlLabel(label);
-			this.controlDepAnalyzer.registerLabel(label);
 		}
+		this.blockAnalyzer.setCurLabel(label);
 	}
 
 	@Override
@@ -458,21 +459,24 @@ public class DynamicMethodMiner extends MethodVisitor {
 	@Override
 	public void visitInsn(int opcode) {
 		if (this.shouldInstrument() && !this.constructor) {
+			int instIdx = -1;
 			if (!isReturn(opcode)) {
-				this.handleOpcode(opcode);
+				instIdx = this.handleOpcode(opcode);
 				this.mv.visitInsn(opcode);
 			} else {
-				this.handleOpcode(opcode);
+				instIdx = this.handleOpcode(opcode);
 				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 				this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srGraphDump, srGraphDumpDesc);
 				this.mv.visitInsn(opcode);
 			}
 			
-			//For static analysis
-			this.updateMethodRep(opcode);
 			if (opcode == Opcodes.AALOAD) {
 				this.updateObjOnVStack();
 			}
+			
+			//For static analysis
+			this.updateMethodRep(opcode);
+			this.blockAnalyzer.registerInst(instIdx, opcode);
 		} else {
 			this.mv.visitInsn(opcode);
 		}
@@ -481,8 +485,9 @@ public class DynamicMethodMiner extends MethodVisitor {
 	@Override
 	public void visitIntInsn(int opcode, int operand) {
 		if (this.shouldInstrument() && !this.constructor) {
-			this.handleOpcode(opcode, operand);
+			int instIdx = this.handleOpcode(opcode, operand);
 			this.updateMethodRep(opcode);
+			this.blockAnalyzer.registerInst(instIdx, opcode);
 		}
 		this.mv.visitIntInsn(opcode, operand);
 	}
@@ -490,8 +495,9 @@ public class DynamicMethodMiner extends MethodVisitor {
 	@Override
 	public void visitVarInsn(int opcode, int var) {
 		if (this.shouldInstrument() && !this.constructor) {
-			this.handleOpcode(opcode, var);
+			int instIdx = this.handleOpcode(opcode, var);
 			this.updateMethodRep(opcode);
+			this.blockAnalyzer.registerInst(instIdx, opcode);
 		}
 		this.mv.visitVarInsn(opcode, var);
 		
@@ -505,8 +511,9 @@ public class DynamicMethodMiner extends MethodVisitor {
 	@Override
 	public void visitTypeInsn(int opcode, String type) {
 		if (this.shouldInstrument() && !this.constructor) {
-			this.handleOpcode(opcode, type);
+			int instIdx = this.handleOpcode(opcode, type);
 			this.updateMethodRep(opcode);
+			this.blockAnalyzer.registerInst(instIdx, opcode);
 		}
 		this.mv.visitTypeInsn(opcode, type);
 		
@@ -522,8 +529,9 @@ public class DynamicMethodMiner extends MethodVisitor {
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 		if (this.shouldInstrument() && !this.constructor) {
-			this.handleField(opcode, owner, name, desc);
+			int instIdx = this.handleField(opcode, owner, name, desc);
 			this.updateMethodRep(opcode);
+			this.blockAnalyzer.registerInst(instIdx, opcode);
 		}
 		this.mv.visitFieldInsn(opcode, owner, name, desc);
 		
@@ -562,8 +570,9 @@ public class DynamicMethodMiner extends MethodVisitor {
 				
 			}
 			
-			this.handleMethod(opcode, owner, name, desc);
+			int instIdx = this.handleMethod(opcode, owner, name, desc);
 			this.updateMethodRep(opcode);
+			this.blockAnalyzer.registerInst(instIdx, opcode);
 			
 			int returnSort = Type.getMethodType(desc).getReturnType().getSort();
 			if (returnSort == Type.OBJECT || returnSort == Type.ARRAY)
@@ -597,10 +606,9 @@ public class DynamicMethodMiner extends MethodVisitor {
 	public void visitJumpInsn(int opcode, Label label) {
 		String labelString = label.toString();
 		if (this.shouldInstrument() && !this.constructor) {
-			int idx = this.handleOpcode(opcode, labelString);
+			int instIdx = this.handleOpcode(opcode, labelString);
 			this.updateMethodRep(opcode);
-			
-			this.controlDepAnalyzer.registerControlInst(opcode, idx, label);
+			this.blockAnalyzer.registerInst(instIdx, opcode, label);
 		}
 		this.mv.visitJumpInsn(opcode, label);
 	}
@@ -608,13 +616,15 @@ public class DynamicMethodMiner extends MethodVisitor {
 	@Override
 	public void visitLdcInsn(Object cst) {
 		if (this.shouldInstrument() && !this.constructor) {
+			int instIdx = -1;
 			if (cst instanceof Double || cst instanceof Long) {
-				this.handleLdc(Opcodes.LDC, 2, cst.toString());
+				instIdx = this.handleLdc(Opcodes.LDC, 2, cst.toString());
 			} else {
-				this.handleLdc(Opcodes.LDC, 1, cst.toString());
+				instIdx = this.handleLdc(Opcodes.LDC, 1, cst.toString());
 			}
 			
 			this.updateMethodRep(Opcodes.LDC);
+			this.blockAnalyzer.registerInst(instIdx, Opcodes.LDC);
 		}
 		this.mv.visitLdcInsn(cst);
 		
@@ -633,8 +643,9 @@ public class DynamicMethodMiner extends MethodVisitor {
 	@Override
 	public void visitIincInsn(int var, int increment) {
 		if (this.shouldInstrument() && !this.constructor) {
-			this.handleOpcode(Opcodes.IINC, var);
+			int instIdx = this.handleOpcode(Opcodes.IINC, var);
 			this.updateMethodRep(Opcodes.IINC);
+			this.blockAnalyzer.registerInst(instIdx, Opcodes.IINC);
 		}
 		this.mv.visitIincInsn(var, increment);
 	}
@@ -648,11 +659,13 @@ public class DynamicMethodMiner extends MethodVisitor {
 			for (Label l: labels) {
 				sb.append(l.toString() + ",");
 			}
-			System.out.println("min max: " + min + " " + max);
-			System.out.println("default: " + defaultLabel);
-			System.out.println("all labels: " + sb.toString());
-			this.handleOpcode(Opcodes.TABLESWITCH, sb.substring(0, sb.length() - 1));
+			
+			//System.out.println("min max: " + min + " " + max);
+			//System.out.println("default: " + defaultLabel);
+			//System.out.println("all labels: " + sb.toString());
+			int instIdx = this.handleOpcode(Opcodes.TABLESWITCH, sb.substring(0, sb.length() - 1));
 			this.updateMethodRep(Opcodes.TABLESWITCH);
+			this.blockAnalyzer.registerInst(instIdx, Opcodes.TABLESWITCH, labels);
 		}
 		this.mv.visitTableSwitchInsn(min, max, dflt, labels);
 	}
@@ -665,8 +678,9 @@ public class DynamicMethodMiner extends MethodVisitor {
 			for (Label l: labels) {
 				sb.append(l.toString() + ",");
 			}
-			this.handleOpcode(Opcodes.LOOKUPSWITCH, sb.substring(0, sb.length() - 1));
+			int instIdx = this.handleOpcode(Opcodes.LOOKUPSWITCH, sb.substring(0, sb.length() - 1));
 			this.updateMethodRep(Opcodes.LOOKUPSWITCH);
+			this.blockAnalyzer.registerInst(instIdx, Opcodes.LOOKUPSWITCH, labels);
 		}
 		this.mv.visitLookupSwitchInsn(dflt, keys, labels);
 	}
@@ -674,8 +688,9 @@ public class DynamicMethodMiner extends MethodVisitor {
 	@Override
 	public void visitMultiANewArrayInsn(String desc, int dims) {
 		if (this.shouldInstrument() && !this.constructor) {
-			this.handleMultiNewArray(desc, dims);
+			int instIdx = this.handleMultiNewArray(desc, dims);
 			this.updateMethodRep(Opcodes.MULTIANEWARRAY);
+			this.blockAnalyzer.registerInst(instIdx, Opcodes.MULTIANEWARRAY);
 		}
 		this.mv.visitMultiANewArrayInsn(desc, dims);
 	}
@@ -723,17 +738,17 @@ public class DynamicMethodMiner extends MethodVisitor {
 			
 			String key = StringUtil.genKey(className, myName, desc) + "_map";
 			//TypeToken<HashMap<String, Integer>> typeToken = new TypeToken<HashMap<String, Integer>>(){};
-			TypeToken<StaticRep> typeToken = new TypeToken<StaticRep>(){};
+			TypeToken<StaticRep> typeToken  = new TypeToken<StaticRep>(){};
 			GsonManager.writeJsonGeneric(sr, key, typeToken, 2);
 			
-			this.controlDepAnalyzer.finalizeControlInsts();
-			List<ControlInst> controlResults = this.controlDepAnalyzer.getFinalizedControlInsts();
-			if (controlResults.size() > 0) {
-				logger.info("Report static control analysis");
-				for (ControlInst ci: controlResults) {
-					logger.info("Inst: " + ci.inst + " " + ci.idx + " " + ci.pointToLabel);
-					logger.info("True list: " + ci.trueCoverLabels);
-					logger.info("False list: " + ci.falseCoverLabels);
+			logger.info("Start block analysis: " + key);
+			this.blockAnalyzer.analyzeBlocks();
+			List<Block> blockList = this.blockAnalyzer.getBlockList();
+			for (Block b: blockList) {
+				logger.info("Block " + b.startLabel);
+				logger.info("Child block: " + b.childBlocks);
+				for (InstTuple it: b.instList) {
+					System.out.println(it.instIdx + " " + it.opcode + BytecodeCategory.getOpcodeObj(it.opcode).getInstruction());
 				}
 			}
 		}
