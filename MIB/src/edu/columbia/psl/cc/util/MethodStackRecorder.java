@@ -53,6 +53,8 @@ public class MethodStackRecorder {
 	
 	private InstNode curControlInst = null;
 	
+	private boolean checkControl = false;
+	
 	//Key: local var idx, Val: inst node
 	private Map<Integer, InstNode> localVarRecorder = new HashMap<Integer, InstNode>();
 	
@@ -212,7 +214,7 @@ public class MethodStackRecorder {
 	
 	private synchronized void updateControlInst(InstNode fullInst) {
 		this.curControlInst = fullInst;
-		//this.curControlInsts.add(fullInst);
+		this.checkControl = true;
 	}
 	
 	public void updateObjOnStack(Object obj, int traceBack) {
@@ -705,8 +707,30 @@ public class MethodStackRecorder {
 			if (removeReturn) {
 				GraphUtil.removeReturnInst(childPool);
 			} else {
+				HashMap<String, InstNode> instCached = new HashMap<String, InstNode>();
 				for (InstNode cInst: childPool) {
 					this.updateTime(cInst);
+					String instKey = StringUtil.genIdxKey(cInst.getFromMethod(), 
+							cInst.getThreadId(), 
+							cInst.getThreadMethodIdx(), 
+							cInst.getIdx());
+					instCached.put(instKey, cInst);
+				}
+				
+				for (InstNode cInst: childPool) {
+					
+					for (String parentKey: cInst.getInstDataParentList()) {
+						InstNode parentNode = instCached.get(parentKey);
+						
+						//Parnet node is null if it's the interface between two methods
+						if (parentNode != null) {
+							parentNode.increChild(cInst.getFromMethod(), 
+									cInst.getThreadId(), 
+									cInst.getThreadMethodIdx(), 
+									cInst.getIdx(), 
+									MIBConfiguration.getInstance().getInstDataWeight());
+						}
+					}
 				}
 				
 				if (childGraph.getLatestWriteFields().size() > 0) {
@@ -763,7 +787,7 @@ public class MethodStackRecorder {
 			GraphUtil.dataDepFromParentToChild(parentFromCaller, this.pool, childGraph);
 			
 			//Update control dep
-			if (this.curControlInst != null) {
+			if (this.passControlTest()) {
 				GraphUtil.controlDepFromParentToChild(this.curControlInst, childPool);
 			}
 			
@@ -902,22 +926,15 @@ public class MethodStackRecorder {
 		logger.info(this.stackSimulator);
 	}
 	
-	private void updateControlRelation(InstNode fullInst) {		
-		if (this.curControlInst != null) {
+	private boolean passControlTest() {
+		if (this.checkControl) {
 			int cCatId = curControlInst.getOp().getCatId();
-			
-			//Get the last second, because the current node is in the pool
-			InstNode lastNode = null;
-			if (this.path.size() > 0)
-				lastNode = this.path.get(this.path.size() - 1);
-			
 			if (BytecodeCategory.controlCategory().contains(cCatId)) {
-				if (lastNode != null && lastNode.equals(this.curControlInst)) {
-					if (!this.curControlInst.getAddInfo().equals(this.curLabel)) {
-						this.curControlInst = null;
-						return ;
-					}
+				if (!this.curControlInst.getAddInfo().equals(this.curLabel)) {
+					this.curControlInst = null;
+					return false;
 				}
+				this.checkControl = false;
 			} else {
 				//TableSwitch and LookupSwitch
 				String[] allLabels = curControlInst.getAddInfo().split(",");
@@ -931,13 +948,23 @@ public class MethodStackRecorder {
 				
 				if (!found) {
 					this.curControlInst = null;
-					return ;
+					this.checkControl = false;
+					return false;
 				}
 			}
-			
-			if (!BytecodeCategory.dupCategory().contains(fullInst.getOp().getCatId()))
-				this.updateCachedMap(this.curControlInst, fullInst, MIBConfiguration.CONTR_DEP);
+			return true;
+		} else if (this.curControlInst == null) {
+			return false;
+		} else {
+			return true;
 		}
+	}
+	
+	private void updateControlRelation(InstNode fullInst) {
+		if (this.passControlTest() 
+				&& !BytecodeCategory.dupCategory().contains(fullInst.getOp().getCatId())) {
+			this.updateCachedMap(this.curControlInst, fullInst, MIBConfiguration.CONTR_DEP);
+		}		
 	}
 	
 	public void dumpGraph() {

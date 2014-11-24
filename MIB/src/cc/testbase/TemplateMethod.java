@@ -137,7 +137,11 @@ public class TemplateMethod extends TemplateParent {
 				ret = "Test456";
 			}
 		} else {
-			ret = "Test789";
+			if (b < 5) {
+				ret = "Testaaa";
+			} else {
+				ret = "Testbbb";
+			}
 		}
 	}
 	
@@ -315,8 +319,6 @@ public class TemplateMethod extends TemplateParent {
 	@Override
 	public void interestingMethod() {
         System.out.println("Subclass's interesting method.");
-        super.interestingMethod();
-        this.interestingMethod();
     }
 	
 	public void forMethod() {
@@ -365,8 +367,8 @@ public class TemplateMethod extends TemplateParent {
 		//System.out.println(Integer.MAX_VALUE + 1);
 		//classAdd(5);
 		//int a = 2;
-		//int[] b = {3, 4, 7};
-		tm.forMethod();
+		int[] b = {3, 4, 7};
+		//tm.forMethod();
 		//tm.forClassMethod();
 		//TemplateParent tp = new TemplateMethod();
 		//tp.interestingMethod();
@@ -381,7 +383,7 @@ public class TemplateMethod extends TemplateParent {
 		//System.out.println(tm.all3Methods(3, 5));
 		//System.out.println(tm.sumArray(b));
 		//System.out.println(tm.simpleIf(1, 2));
-		//System.out.println(tm.instanceMethod(2, b));
+		System.out.println(tm.instanceMethod(0, b));
 		//System.out.println("Test add: " + tm.testAdd(2));
 		//System.out.println("Test add2: " + tm.testAdd2(5));
 		//System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
@@ -521,26 +523,112 @@ public class TemplateMethod extends TemplateParent {
 		}
 	}
 	
+	public void ifTest(int a, int b) {
+		int d = 0;
+		if (a > 5) {
+			if (b > 5) {
+				d = 5;
+			} else {
+				d = 3;
+			}
+		}
+		int e = 8;
+	}
+	
+	public void tryCatchTest(int[] a) {
+		try {
+			a[5] = 8;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			a[0] = 0;
+		}
+	}
+	
+	public void forTest(int[] b) {
+		for (int i = 0; i < b.length; i++) {
+			if (i == 0)
+				b[i] = 5;
+			else
+				b[i] = 8;
+		}
+		
+		int count = 0;
+		while (true) {
+			b[count++] = 10;
+			
+			if (count == 10)
+				break;
+		}
+		
+		count = 0;
+		do {
+			b[count++] = 19;
+		} while (b.length < 10);
+	}
+	
 	public void fakeInstanceMethod(int a, int b) {
 		int c = a + 5;
 		int d = 6;
 		int e = b + c;
-	} 
+	}
+	
+	public void multipleControl(int a, int b) {
+		int c = 0;
+		if (a == 5) {
+			c = 8;
+		}
+		
+		int efg = 678;
+		
+		if (a < 6) {
+			if (a >3) {
+				c = 32;
+			}
+		} else {
+			c = 38;
+		}
+		
+		if (a < 5) {
+			int ab = 900;
+			int cd = 100000;
+			double dkjl = 90000;
+			String kl = "ababababa";
+		} else if (a > 3) {
+			int ab = 345;
+			int de = 678;
+		} else {
+			int ab = 90;
+			int cd = 10000;
+			double dkjl = 9000;
+			String kl = "abababa";
+		}
+		
+		int k = 300;
+	}
 	
 	public int instanceMethod(int a, int[] b) {
-		int ret = a + this.iVar + sVar + this.pVar + super.sVar;
-		this.iVar = 5;
+		int ret = a + 5;
+		//this.iVar = 5;
 		switch(a) {
 			case 0:
 				b[0] = 0;
+				if (ret > 8) {
+					this.iVar = 8;
+				} else {
+					this.iVar =19;
+				}
+				break ;
 			case 2:
 				b[0] = 1;
+				break ;
+			default:
+				b[0] = 7;
+				break ;
 			case 6:
 				b[0] = 6;
-			default:
-				b[0] = 5;
+				break ;
 		}
-		System.out.println("Visit end lol");
 		return ret;
 	}
 	

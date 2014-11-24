@@ -245,7 +245,7 @@ public class GraphUtil {
 		}
 	}
 	
-	private static InstNode _retrieveRealInst(String instKey, InstPool pool) {
+	public static InstNode _retrieveRealInst(String instKey, InstPool pool) {
 		String[] instKeys = StringUtil.parseIdxKey(instKey);
 		InstNode instNode = pool.searchAndGet(instKeys[0], 
 				Long.valueOf(instKeys[1]), 
