@@ -868,6 +868,10 @@ public class MethodStackRecorder {
 	public void updateCurLabel(String curLabel) {
 		this.curLabel = curLabel;
 		Block curBlock = this.smm.getBlockMap().get(curLabel);
+		if (curBlock == null) {
+			logger.error("Missed label: " + curLabel);
+			logger.error("Method: " + this.methodKey);
+		}
 		Set<String> possibleConds = curBlock.condMap.keySet();
 		this.curControlInsts.clear();
 		

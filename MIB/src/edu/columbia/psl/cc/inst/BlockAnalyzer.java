@@ -78,7 +78,8 @@ public class BlockAnalyzer {
 		}
 		
 		this.curLb = lb;
-		labelList.add(lb);
+		this.labelList.add(lb);
+		logger.info("Log label: " + this.curLb.label);
 		
 		if (lastLb != null) {
 			if (lastLb.instList.size() == 0)
@@ -113,6 +114,9 @@ public class BlockAnalyzer {
 			}
 		}
 		
+		System.out.println("Cur label: " + this.curLb.label);
+		System.out.println("Inst: " + it.instIdx + " " + it.opcode);
+		
 		this.curLb.instList.add(it);
 	}
 	
@@ -120,30 +124,49 @@ public class BlockAnalyzer {
 		Block curBlock = null;
 		logger.info("Block starts: " + this.blockStarts);
 		for (LabelBlock lb: this.labelList) {
+			logger.info("Current lb: " + lb.label);
 			if (this.blockStarts.contains(lb.label)) {				
 				Block lastBlock = curBlock;
 				curBlock = new Block();
 				curBlock.startLabel = lb.label;
+				logger.info("New block: " + curBlock.startLabel);
 				this.blockList.add(curBlock);
 				
 				if (lastBlock != null) {
-					//Construct relations
-					lastBlock.lastInst = lastBlock.instList.get(lastBlock.instList.size() - 1);
+					logger.info("Last block: " + lastBlock.startLabel);
+					logger.info("Current block: " + curBlock.startLabel);
 					
-					if (lastBlock.lastInst.pointTos.size() > 0) {
-						lastBlock.childBlocks.addAll(lastBlock.lastInst.pointTos);
+					if (lastBlock.instList.size() == 0) {
+						logger.warn("Empty block: " + lastBlock.startLabel);
+					} else {
+						lastBlock.lastInst = lastBlock.instList.get(lastBlock.instList.size() - 1);
+						
+						if (lastBlock.lastInst.opcode != Opcodes.GOTO 
+								&& lastBlock.lastInst.opcode != Opcodes.TABLESWITCH 
+								&& lastBlock.lastInst.opcode != Opcodes.LOOKUPSWITCH) {
+							lastBlock.childBlocks.add(curBlock.startLabel);
+						}
+						
+						if (lastBlock.lastInst.pointTos.size() > 0) {
+							lastBlock.childBlocks.addAll(lastBlock.lastInst.pointTos);
+						}
 					}
 					
-					if (lastBlock.lastInst.opcode != Opcodes.GOTO 
-							&& lastBlock.lastInst.opcode != Opcodes.TABLESWITCH 
-							&& lastBlock.lastInst.opcode != Opcodes.LOOKUPSWITCH) {
-						lastBlock.childBlocks.add(curBlock.startLabel);
-					}
 				}
 			}
 			
 			curBlock.labels.add(lb.label);
-			curBlock.instList.addAll(lb.instList);
+			if (lb.instList.size() > 0) {
+				logger.info("Block " + curBlock.startLabel + " combines label " + lb.label);
+				curBlock.instList.addAll(lb.instList);
+			}
+		}
+		
+		for (Block b: this.blockList) {
+			logger.info("Check block: " + b.startLabel);
+			for (InstTuple it: b.instList) {
+				logger.info(it.instIdx + " " + it.opcode);
+			}
 		}
 		
 		HashMap<String, Block> blockCache = new HashMap<String, Block>();
@@ -159,15 +182,6 @@ public class BlockAnalyzer {
 					childBlock = this.searchBlock(cLabel);
 					blockCache.put(cLabel, childBlock);
 				}
-				
-				//Merge children tag with parents
-				/*logger.info("Parent label: " + b.startLabel + " " + b.condMap.size());
-				logger.info("Child label: " + childBlock.startLabel);
-				if (b.condMap.size() > 0) {
-					//Prevent concurrent modification error
-					if (!b.startLabel.equals(childBlock.startLabel))
-						unionCondMap(b.condMap, childBlock.condMap);
-				}*/
 				
 				//Propagate new tags from parent
 				if (propagate) {

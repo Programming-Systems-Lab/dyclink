@@ -160,7 +160,15 @@ public class DynamicMethodMiner extends MethodVisitor {
 	}
 	
 	public synchronized int getIndex() {
-		return indexer.getAndIncrement();
+		int ret = indexer.getAndIncrement();
+		if (ret == 0 && this.curLabel == null) {
+			Label newLabel = new Label();
+			logger.info("Create label for instructor: " + newLabel.toString());
+			this.mv.visitLabel(newLabel);
+			this.blockAnalyzer.setCurLabel(newLabel);
+			this.handleLabel(newLabel);
+		}
+		return ret;
 	}
 	
 	private static HashMap<Integer, ArrayList<OpcodeObj>> genRecordTemplate() {
@@ -442,6 +450,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		if (this.shouldInstrument() && !this.constructor) {
 			this.handleLabel(label);
 		}
+		logger.info("Visit label: " + label.toString());
 		this.blockAnalyzer.setCurLabel(label);
 	}
 
