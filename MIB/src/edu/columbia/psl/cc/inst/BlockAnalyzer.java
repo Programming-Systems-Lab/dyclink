@@ -148,7 +148,7 @@ public class BlockAnalyzer {
 		
 		HashMap<String, Block> blockCache = new HashMap<String, Block>();
 		for (Block b: this.blockList) {
-			boolean propogate = b.childBlocks.size() > 1?true: false;
+			boolean propagate = b.childBlocks.size() > 1?true: false;
 			
 			int count = 0;
 			for (String cLabel: b.childBlocks) {
@@ -161,15 +161,34 @@ public class BlockAnalyzer {
 				}
 				
 				//Merge children tag with parents
+				/*logger.info("Parent label: " + b.startLabel + " " + b.condMap.size());
+				logger.info("Child label: " + childBlock.startLabel);
 				if (b.condMap.size() > 0) {
-					unionCondMap(b.condMap, childBlock.condMap);
-				}
+					//Prevent concurrent modification error
+					if (!b.startLabel.equals(childBlock.startLabel))
+						unionCondMap(b.condMap, childBlock.condMap);
+				}*/
 				
 				//Propagate new tags from parent
-				if (propogate) {
+				if (propagate) {
 					boolean[] tags = new boolean[b.childBlocks.size()];
 					tags[count++] = true;
 					childBlock.condMap.put(b.startLabel, tags);
+				}
+			}
+		}
+		
+		for (Block b: this.blockList) {
+			for (String cLabel: b.childBlocks) {
+				Block childBlock = blockCache.get(cLabel);
+				
+				//Merge children tag with parents
+				//logger.info("Parent label: " + b.startLabel + " " + b.condMap.size());
+				//logger.info("Child label: " + childBlock.startLabel);
+				if (b.condMap.size() > 0) {
+					//Prevent concurrent modification error
+					if (!b.startLabel.equals(childBlock.startLabel))
+						unionCondMap(b.condMap, childBlock.condMap);
 				}
 			}
 		}

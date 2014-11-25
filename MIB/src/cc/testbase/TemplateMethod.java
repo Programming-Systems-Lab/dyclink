@@ -368,7 +368,7 @@ public class TemplateMethod extends TemplateParent {
 		//classAdd(5);
 		//int a = 2;
 		int[] b = {3, 4, 7};
-		//tm.forMethod();
+		tm.forMethod();
 		//tm.forClassMethod();
 		//TemplateParent tp = new TemplateMethod();
 		//tp.interestingMethod();
@@ -383,7 +383,7 @@ public class TemplateMethod extends TemplateParent {
 		//System.out.println(tm.all3Methods(3, 5));
 		//System.out.println(tm.sumArray(b));
 		//System.out.println(tm.simpleIf(1, 2));
-		System.out.println(tm.instanceMethod(0, b));
+		//System.out.println(tm.instanceMethod(0, b));
 		//System.out.println("Test add: " + tm.testAdd(2));
 		//System.out.println("Test add2: " + tm.testAdd2(5));
 		//System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
@@ -613,7 +613,6 @@ public class TemplateMethod extends TemplateParent {
 		switch(a) {
 			case 0:
 				b[0] = 0;
-				break ;
 			case 2:
 				b[0] = 1;
 				break ;
