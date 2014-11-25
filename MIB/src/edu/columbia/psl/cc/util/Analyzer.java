@@ -2,7 +2,7 @@ package edu.columbia.psl.cc.util;
 
 import java.util.HashMap;
 
-import edu.columbia.psl.cc.pojo.StaticRep;
+import edu.columbia.psl.cc.pojo.StaticMethodMiner;
 
 public interface Analyzer<T> {
 	

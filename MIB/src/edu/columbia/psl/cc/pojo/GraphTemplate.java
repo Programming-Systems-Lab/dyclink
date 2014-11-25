@@ -12,6 +12,8 @@ public class GraphTemplate {
 	
 	private String methodKey;
 	
+	private String shortMethodKey;
+	
 	private long threadId;
 	
 	private int threadMethodId;
@@ -48,6 +50,7 @@ public class GraphTemplate {
 	
 	public GraphTemplate(GraphTemplate copy) {
 		this.methodKey = copy.getMethodKey();
+		this.shortMethodKey = copy.getShortMethodKey();
 		this.methodArgSize = copy.getMethodArgSize();
 		this.methodReturnSize = copy.getMethodReturnSize();
 		this.threadId = copy.getThreadId();
@@ -82,6 +85,14 @@ public class GraphTemplate {
 	
 	public String getMethodKey() {
 		return this.methodKey;
+	}
+	
+	public void setShortMethodKey(String shortMethodKey) {
+		this.shortMethodKey = shortMethodKey;
+	}
+	
+	public String getShortMethodKey() {
+		return this.shortMethodKey;
 	}
 	
 	public void setPath(List<InstNode> path) {

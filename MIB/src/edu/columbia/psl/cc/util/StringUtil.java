@@ -12,7 +12,7 @@ public class StringUtil {
 	
 	private static String pattern = ")";
 	
-	private static final Pattern shouldRemove = Pattern.compile("[](){},.;!?<>\\/%]");
+	private static final Pattern shouldRemove = Pattern.compile("[](){},.;!?\\/%]");
 	
 	public static boolean shouldInclude(String name) {
 		List<String> excludeClass = MIBConfiguration.getInstance().getExcludeClass();
@@ -112,11 +112,6 @@ public class StringUtil {
 		return fromMethod + "-" + threadId + "-" + threadMethodIdx + "-" + idx;
 	}
 	
-	public static synchronized String genIdxKeyWithThreadId(String fromMethod) {
-		long threadId = Thread.currentThread().getId();
-		return fromMethod + "-" + threadId;
-	}
-	
 	public static String[] parseIdxKey(String idxKey) {
 		return idxKey.split("-");
 	}
@@ -132,6 +127,10 @@ public class StringUtil {
 		String npLabel = "L" + labelMap.get(opLabel);
 		String newInst = oriInst.replace(opLabel, npLabel);
 		return newInst;
+	}
+	
+	public static String appendMap(String key) {
+		return key + "_map";
 	}
 	
 	public String aggregateLoad(Object...info) {

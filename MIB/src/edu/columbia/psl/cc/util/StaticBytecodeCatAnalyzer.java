@@ -10,37 +10,37 @@ import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.analysis.LevenshteinDistance;
 import edu.columbia.psl.cc.config.MIBConfiguration;
-import edu.columbia.psl.cc.pojo.StaticRep;
+import edu.columbia.psl.cc.pojo.StaticMethodMiner;
 
-public class StaticBytecodeCatAnalyzer implements Analyzer<StaticRep>{
+public class StaticBytecodeCatAnalyzer implements Analyzer<StaticMethodMiner>{
 	
-	private HashMap<String, StaticRep> templates;
+	private HashMap<String, StaticMethodMiner> templates;
 	
-	private HashMap<String, StaticRep> tests;
+	private HashMap<String, StaticMethodMiner> tests;
 	
 	public void setAnnotGuard(boolean annotGuard) {
 		
 	}
 	
-	public void setTemplates(HashMap<String, StaticRep> templates) {
+	public void setTemplates(HashMap<String, StaticMethodMiner> templates) {
 		this.templates = templates;
 	}
 	
 	@Override
-	public HashMap<String, StaticRep> getTemplates() {
+	public HashMap<String, StaticMethodMiner> getTemplates() {
 		return this.templates;
 	}
 	
-	public void setTests(HashMap<String, StaticRep> tests) {
+	public void setTests(HashMap<String, StaticMethodMiner> tests) {
 		this.tests = tests;
 	}
 	
-	public HashMap<String, StaticRep> getTests() {
+	public HashMap<String, StaticMethodMiner> getTests() {
 		return this.tests;
 	}
 	
-	public HashMap<String, StaticRep> loadStaticMap(File dir) {
-		HashMap<String, StaticRep> ret = new HashMap<String, StaticRep>();
+	public HashMap<String, StaticMethodMiner> loadStaticMap(File dir) {
+		HashMap<String, StaticMethodMiner> ret = new HashMap<String, StaticMethodMiner>();
 		FilenameFilter filter = new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
@@ -48,15 +48,15 @@ public class StaticBytecodeCatAnalyzer implements Analyzer<StaticRep>{
 			}
 		};
 		
-		TypeToken<StaticRep> staticType = new TypeToken<StaticRep>(){};
+		TypeToken<StaticMethodMiner> staticType = new TypeToken<StaticMethodMiner>(){};
 		if (!dir.isDirectory()) {
 			String name = dir.getName().replace(".json", "");
-			StaticRep staticRep = GsonManager.readJsonGeneric(dir, staticType);
+			StaticMethodMiner staticRep = GsonManager.readJsonGeneric(dir, staticType);
 			ret.put(name, staticRep);
 		} else {
 			for (File f: dir.listFiles(filter)) {
 				String name = f.getName().replace(".json", "");
-				StaticRep staticRep = GsonManager.readJsonGeneric(f, staticType);
+				StaticMethodMiner staticRep = GsonManager.readJsonGeneric(f, staticType);
 				ret.put(name, staticRep);
 			}
 		}
@@ -69,9 +69,9 @@ public class StaticBytecodeCatAnalyzer implements Analyzer<StaticRep>{
 		
 		LevenshteinDistance dist = new LevenshteinDistance();
 		for (String tempName: this.templates.keySet()) {
-			StaticRep tempRep = this.templates.get(tempName);
+			StaticMethodMiner tempRep = this.templates.get(tempName);
 			for (String testName: this.tests.keySet()) {
-				StaticRep testRep = tests.get(testName);
+				StaticMethodMiner testRep = tests.get(testName);
 				System.out.println(tempName + " vs " + testName + " " + dist.calculateSimilarity(tempRep.getOpCatString(), testRep.getOpCatString()));
 				
 			}

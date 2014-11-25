@@ -31,9 +31,10 @@ import edu.columbia.psl.cc.pojo.LabelInterval;
 import edu.columbia.psl.cc.pojo.LocalVar;
 import edu.columbia.psl.cc.pojo.MultiNewArrayNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
-import edu.columbia.psl.cc.pojo.StaticRep;
+import edu.columbia.psl.cc.pojo.StaticMethodMiner;
 import edu.columbia.psl.cc.pojo.SwitchNode;
 import edu.columbia.psl.cc.pojo.Var;
+import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.MethodStackRecorder;
 import edu.columbia.psl.cc.util.ObjectIdAllocater;
@@ -75,6 +76,10 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	private static String srCheckClInitDesc = MIBConfiguration.getSrCheckClInitDesc();
 	
+	private static String srUpdateCurLabel = MIBConfiguration.getSrUpdateCurLabel();
+	
+	private static String srUpdateCurLabelDesc = MIBConfiguration.getSrUpdateCurLabelDesc();
+	
 	private static String srGraphDump = MIBConfiguration.getSrGraphDump();
 	
 	private static String srGraphDumpDesc = MIBConfiguration.getSrGraphDumpDesc();
@@ -86,6 +91,10 @@ public class DynamicMethodMiner extends MethodVisitor {
 	private String myName;
 	
 	private String desc;
+	
+	private String fullKey;
+	
+	private String shortKey;
 	
 	private String templateAnnot;
 	
@@ -141,6 +150,8 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.superName = superName;
 		this.myName = myName;
 		this.desc = desc;
+		this.fullKey = StringUtil.genKey(className, myName, desc);
+		this.shortKey = GlobalRecorder.registerGlobalName(className, myName, fullKey);
 		this.templateAnnot = templateAnnot;
 		this.testAnnot = testAnnot;
 		this.annotGuard = annotGuard;
@@ -258,7 +269,8 @@ public class DynamicMethodMiner extends MethodVisitor {
 	private void handleLabel(Label label) {
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.mv.visitLdcInsn(label.toString());
-		this.mv.visitFieldInsn(Opcodes.PUTFIELD, methodStackRecorder, "curLabel", Type.getDescriptor(String.class));
+		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srUpdateCurLabel, srUpdateCurLabelDesc);
+		//this.mv.visitFieldInsn(Opcodes.PUTFIELD, methodStackRecorder, "curLabel", Type.getDescriptor(String.class));
 	}
 		
 	private int handleOpcode(int opcode, int...addInfo) {		
@@ -269,7 +281,6 @@ public class DynamicMethodMiner extends MethodVisitor {
 		if (addInfo.length == 0) {
 			this.mv.visitInsn(Opcodes.ICONST_M1);
 		} else {
-			//this.mv.visitInsn(addInfo[0]);
 			this.convertConst(addInfo[0]);
 		}
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srHandleCommon, srHCDesc);
@@ -741,32 +752,39 @@ public class DynamicMethodMiner extends MethodVisitor {
 				labelMap.put(l.toString(), l.getOffset());
 			}
 			
-			StaticRep sr = new StaticRep();
-			sr.setTemplate(this.isTemplate);
+			StaticMethodMiner sr = new StaticMethodMiner();
 			sr.setOpCatString(sb.toString());
 			sr.setOpCatFreq(this.repVector);
 			sr.setLabelMap(labelMap);
 			
-			String key = StringUtil.genKey(className, myName, desc) + "_map";
-			//TypeToken<HashMap<String, Integer>> typeToken = new TypeToken<HashMap<String, Integer>>(){};
-			TypeToken<StaticRep> typeToken  = new TypeToken<StaticRep>(){};
-			GsonManager.writeJsonGeneric(sr, key, typeToken, 2);
+			String key = StringUtil.appendMap(shortKey);
 			
 			logger.info("Start block analysis: " + key);
 			this.blockAnalyzer.analyzeBlocks();
 			List<Block> blockList = this.blockAnalyzer.getBlockList();
+			HashMap<String, Block> blockMap = new HashMap<String, Block>();
+			sr.setBlockMap(blockMap);
 			for (Block b: blockList) {
 				logger.info("Block " + b.startLabel);
 				logger.info("Child block: " + b.childBlocks);
 				logger.info("Cond map: " + b.condMap.keySet());
+				
 				for (String labelKey: b.condMap.keySet()) {
 					logger.info("Cond label: " + labelKey);
 					logger.info("Tag: " + Arrays.toString(b.condMap.get(labelKey)));
 				}
+				
 				for (InstTuple it: b.instList) {
 					System.out.println(it.instIdx + " " + it.opcode + BytecodeCategory.getOpcodeObj(it.opcode).getInstruction());
 				}
+				
+				for (String label: b.labels) {
+					blockMap.put(label, b);
+				}
 			}
+			
+			TypeToken<StaticMethodMiner> typeToken  = new TypeToken<StaticMethodMiner>(){};
+			GsonManager.writeJsonGeneric(sr, key, typeToken, 2);
 		}
 		this.mv.visitEnd();
 	}

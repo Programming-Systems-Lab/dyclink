@@ -3,23 +3,17 @@ package edu.columbia.psl.cc.pojo;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StaticRep {
-	
-	private boolean template = false;
+import edu.columbia.psl.cc.inst.BlockAnalyzer.Block;
 
+public class StaticMethodMiner {
+	
 	private String opCatString;
 	
 	private int[] opCatFreq;
 	
 	private HashMap<String, Integer> labelMap;
 	
-	public void setTemplate(boolean template) {
-		this.template = template;
-	}
-	
-	public boolean isTemplate() {
-		return this.template;
-	}
+	private HashMap<String, Block> blockMap;
 	
 	public void setOpCatString(String opCatString) {
 		this.opCatString = opCatString;
@@ -43,6 +37,14 @@ public class StaticRep {
 	
 	public HashMap<String, Integer> getLabelMap() {
 		return this.labelMap;
+	}
+	
+	public void setBlockMap(HashMap<String, Block> blockMap) {
+		this.blockMap = blockMap;
+	}
+	
+	public HashMap<String, Block> getBlockMap() {
+		return this.blockMap;
 	}
 
 }

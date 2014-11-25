@@ -49,6 +49,10 @@ public class MIBConfiguration {
 	
 	private static String srCheckClInitDesc = "(Ljava/lang/String;)V";
 	
+	private static String srUpdateCurLabel = "updateCurLabel";
+	
+	private static String srUpdateCurLabelDesc = "(Ljava/lang/String;)V";
+	
 	private static String __mib_id_gen = "__MIB_ID_GEN";
 	
 	private static String __mib_id_gen_method = "__getMIBIDGen";
@@ -210,6 +214,14 @@ public class MIBConfiguration {
 	
 	public static String getSrCheckClInitDesc() {
 		return srCheckClInitDesc;
+	}
+	
+	public static String getSrUpdateCurLabel() {
+		return srUpdateCurLabel;
+	}
+	
+	public static String getSrUpdateCurLabelDesc() {
+		return srUpdateCurLabelDesc;
 	}
 
 	public static String getMibIdGen() {

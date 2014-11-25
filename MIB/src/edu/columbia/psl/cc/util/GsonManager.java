@@ -180,6 +180,7 @@ public class GsonManager {
 		File cacheDir = new File(MIBConfiguration.getInstance().getCacheDir());
 		File pathDir = new File(MIBConfiguration.getInstance().getPathDir());
 		File costDir = new File(MIBConfiguration.getInstance().getCostTableDir());
+		File labelmapDir = new File(MIBConfiguration.getInstance().getLabelmapDir());
 		
 		if (cleanTemp)
 			cleanDir(tempDir);
@@ -191,6 +192,7 @@ public class GsonManager {
 		cleanDir(cacheDir);
 		cleanDir(pathDir);
 		cleanDir(costDir);
+		cleanDir(labelmapDir);
 	}
 	
 	public static void writeResult(StringBuilder sb) {

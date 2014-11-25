@@ -575,32 +575,20 @@ public class GraphUtil {
 		}
 	}*/
 	
-	public static void controlDepFromParentToChild(InstNode controlFromParent, InstPool childPool) {
-		List<InstNode> sortedChild = sortInstPool(childPool, true);
-		
-		HashSet<InstNode> affectedSet = new HashSet<InstNode>();
-		for (InstNode inst: sortedChild) {
-			affectedSet.add(inst);
-			
-			//Stop at the first control node in child method
-			if (BytecodeCategory.controlCategory().contains(inst.getOp().getCatId()) 
-					|| inst.getOp().getOpcode() == Opcodes.TABLESWITCH 
-					|| inst.getOp().getOpcode() == Opcodes.LOOKUPSWITCH) {
-				break;
+	public static void controlDepFromParentToChild(HashSet<InstNode> controlFromParent, InstPool childPool) {
+		for (InstNode condFromParent: controlFromParent) {
+			for (InstNode childNode: childPool) {
+				condFromParent.increChild(childNode.getFromMethod(), 
+						childNode.getThreadId(), 
+						childNode.getThreadMethodIdx(), 
+						childNode.getIdx(), 
+						MIBConfiguration.getInstance().getControlWeight());
+				childNode.registerParent(condFromParent.getFromMethod(), 
+						condFromParent.getThreadId(), 
+						condFromParent.getThreadMethodIdx(), 
+						condFromParent.getIdx(), 
+						MIBConfiguration.CONTR_DEP);
 			}
-		}
-		
-		for (InstNode cNode: affectedSet) {
-			controlFromParent.increChild(cNode.getFromMethod(), 
-					cNode.getThreadId(), 
-					cNode.getThreadMethodIdx(), 
-					cNode.getIdx(), 
-					MIBConfiguration.getInstance().getControlWeight());
-			cNode.registerParent(controlFromParent.getFromMethod(), 
-					controlFromParent.getThreadId(), 
-					controlFromParent.getThreadMethodIdx(),  
-					controlFromParent.getIdx(), 
-					MIBConfiguration.CONTR_DEP);
 		}
 	}
 	
