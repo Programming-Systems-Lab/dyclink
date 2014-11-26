@@ -53,8 +53,13 @@ public class GlobalRecorder {
 	public static String getLatestLoadedClass() {
 		synchronized(loadClassLock) {
 			String ret = latestLoadedClass;
-			latestLoadedClass = null;
 			return ret;
+		}
+	}
+	
+	public static void clearLatestLoadedClass() {
+		synchronized(loadClassLock) {
+			latestLoadedClass = null;
 		}
 	}
 	

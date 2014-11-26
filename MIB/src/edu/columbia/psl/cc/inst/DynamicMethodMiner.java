@@ -447,12 +447,8 @@ public class DynamicMethodMiner extends MethodVisitor {
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
 		if (desc.equals(this.templateAnnot)) {
 			this.isTemplate = true;
-			System.out.println("Template annotated: " + desc);
-			System.out.println("Method name: " + this.myName);
 		} else if (desc.equals(this.testAnnot)) {
 			this.isTest = true;
-			System.out.println("Test annotated: " + desc);
-			System.out.println("Method name: " + this.myName);
 		}
 		return this.mv.visitAnnotation(desc, visible);
 	}

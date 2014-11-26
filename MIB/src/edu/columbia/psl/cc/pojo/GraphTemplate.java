@@ -26,6 +26,8 @@ public class GraphTemplate {
 	
 	private boolean staticMethod;
 	
+	private boolean recursive;
+	
 	private List<InstNode> path;
 	
 	private InstPool pool;
@@ -149,6 +151,14 @@ public class GraphTemplate {
 	
 	public boolean isStaticMethod() {
 		return this.staticMethod;
+	}
+	
+	public void setRecursive(boolean recursive) {
+		this.recursive = recursive;
+	}
+	
+	public boolean isRecursive() {
+		return this.recursive;
 	}
 	
 	public void setFirstReadLocalVars(HashSet<InstNode> firstReadLocalVars) {

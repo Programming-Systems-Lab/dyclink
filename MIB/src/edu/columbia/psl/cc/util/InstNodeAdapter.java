@@ -86,7 +86,7 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 				InstNode nodeInMemory = GlobalRecorder.getWriteFieldNode(inst.getAddInfo());
 				
 				if (nodeInMemory != null) {
-					logger.info("Find inst in global recorder: " + nodeInMemory);
+					//logger.info("Find inst in global recorder: " + nodeInMemory);
 					this.pool.add(nodeInMemory);
 					this.cached.add(nodeInMemory);
 					return nodeInMemory;

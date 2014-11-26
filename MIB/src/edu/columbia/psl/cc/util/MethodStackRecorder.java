@@ -49,6 +49,8 @@ public class MethodStackRecorder {
 	
 	private String shortMethodKey;
 	
+	private boolean recursive = false;
+	
 	private boolean staticMethod;
 	
 	private int methodArgSize = 0;
@@ -217,35 +219,9 @@ public class MethodStackRecorder {
 	
 	public void updateCurLabel(String curLabel) {
 		this.curLabel = curLabel;
-		/*Block curBlock = this.smm.getBlockMap().get(curLabel);
-		if (curBlock == null) {
-			logger.error("Missed label: " + curLabel);
-			logger.error("Method: " + this.methodKey);
-		}
-		Set<String> possibleConds = curBlock.condMap.keySet();
-		this.curControlInsts.clear();
-		
-		if (possibleConds.size() > 0) {
-			for (String pCond: possibleConds) {
-				Block condBlock = this.smm.getBlockMap().get(pCond);
-				InstTuple condIT = condBlock.lastInst;
-				
-				InstNode condNode = this.pool.searchAndGet(this.methodKey, 
-						this.threadId, 
-						this.threadMethodId, 
-						condIT.instIdx);
-				
-				//Dynamic execution, some inst may not be touched
-				if (condNode != null)
-					this.curControlInsts.add(condNode);
-			}
-		}*/
 	}
 	
 	private void updateControlRelation(InstNode fullInst) {
-		/*for (InstNode condNode: this.curControlInsts) {
-			this.updateCachedMap(condNode, fullInst, MIBConfiguration.CONTR_DEP);
-		}*/	
 		if (this.curControlInst != null)
 			this.updateCachedMap(this.curControlInst, fullInst, MIBConfiguration.CONTR_DEP);
 	}
@@ -253,10 +229,16 @@ public class MethodStackRecorder {
 	public void checkNGetClInit(String targetName) {
 		String targetFullKey = StringUtil.genKey(targetName, "<clinit>", "()V");
 		String targetShortKey = GlobalRecorder.getGlobalName(targetFullKey);
+		if (targetShortKey == null) {
+			//Because of Class.forName, the class has not been instrumented
+			logger.info("No record in global name space: " + targetFullKey);
+			return ;
+		}
+		
 		String curDumpKey = GlobalRecorder.getLatestLoadedClass();
 		
 		if (curDumpKey == null) {
-			logger.info("Empty class loading recorder");
+			logger.info("Empty class clinit: " + targetFullKey);
 			return ;
 		}
 		
@@ -264,8 +246,11 @@ public class MethodStackRecorder {
 		int idx = curDumpKey.lastIndexOf(":");
 		String curDumpKeyNoThread = curDumpKey.substring(0, idx);
 		
+		logger.info("Target shortKey: " + targetShortKey);
+		logger.info("cur dump key: " + curDumpKeyNoThread);
 		if (curDumpKeyNoThread.equals(targetShortKey)) {
 			logger.info("Attempt to load touched class: " + curDumpKey);
+			GlobalRecorder.clearLatestLoadedClass();
 			this.doLoadParent(curDumpKey);
 		} else {
 			logger.info("Mis-matched class");
@@ -276,10 +261,18 @@ public class MethodStackRecorder {
 		
 	public void loadParent(String owner, String name, String desc) {
 		String methodKey = StringUtil.genKey(owner, name, desc);
+		logger.info("Attempt to load parent/self constructor: " + methodKey);
+		
 		//String searchKey = StringUtil.genKeyWithId(methodKey, String.valueOf(this.threadId));
-		String searchKey = StringUtil.genKeyWithId(GlobalRecorder.getGlobalName(methodKey), String.valueOf(this.threadId));
-		logger.info("Attempt to load parent constructor: " + searchKey);
-		this.doLoadParent(searchKey);
+		String shortName = GlobalRecorder.getGlobalName(methodKey);
+		if (shortName != null) {
+			String searchKey = StringUtil.genKeyWithId(GlobalRecorder.getGlobalName(methodKey), String.valueOf(this.threadId));
+			logger.info("Search key: " + searchKey);
+			this.doLoadParent(searchKey);
+		} else {
+			logger.info("Null short name in record: " + methodKey);
+		}
+		
 	}
 	
 	private void doLoadParent(String searchKey) {
@@ -310,9 +303,11 @@ public class MethodStackRecorder {
 	}
 	
 	public void updateObjOnStack(Object obj, int traceBack) {
+		//logger.info("Logged obj: " + obj);
+		//logger.info("Trace back: " + traceBack);
+		//logger.info("Current statck: " + this.stackSimulator);
 		int idx = this.stackSimulator.size() - 1 - traceBack;
 		InstNode latestInst = this.stackSimulator.get(idx);
-		//InstNode latestInst = this.stackSimulator.peek();
 		latestInst.setRelatedObj(obj);
 	}
 	
@@ -600,10 +595,33 @@ public class MethodStackRecorder {
 			}
 			logger.info("Arg size: " + argSize);
 			
+			if (this.className.equals(owner) 
+					&& this.methodName.equals(name) 
+					&& this.methodDesc.equals(desc)) {
+				//To stop horizontal merge
+				this.recursive = true;
+			}
+			
 			//Load the correct graph
 			Class<?> correctClass = null;
 			int objId = -1;
-			if (BytecodeCategory.staticMethod().contains(opcode)) {
+			if (owner.equals("java/lang/Class") && name.equals("forName")) {
+				Object objOnStack = (this.stackSimulator.peek()).getRelatedObj();
+				String realOwner = objOnStack.toString();
+				this.checkNGetClInit(realOwner);
+				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
+			} else if (owner.equals("java/lang/Class") 
+					&& name.equals("newInstance") 
+					&& desc.equals("()Ljava/lang/Object;")) {
+				InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
+				Object objOnStack = relatedInst.getRelatedObj();
+				Class classOnStack = (Class)objOnStack;
+				//loadParent can load self constructor too
+				this.loadParent(classOnStack.getName(), "<init>", "()V");
+				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
+			} else if (BytecodeCategory.staticMethod().contains(opcode)) {
+				//Static member may load the clinit, Class.forName is anothr possible way
+				this.checkNGetClInit(owner);
 				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
 				objId = 0;
 			} else {
@@ -726,12 +744,22 @@ public class MethodStackRecorder {
 						InstNode parentNode = instCached.get(parentKey);
 						
 						//Parent node is null if it's the interface between two methods
+						if (parentNode == null) {
+							String[] parentArray = StringUtil.parseIdxKey(parentKey);
+							parentNode = this.pool.searchAndGet(parentArray[0], 
+									Long.valueOf(parentArray[1]), 
+									Integer.valueOf(parentArray[2]), 
+									Integer.valueOf(parentArray[2]));
+						}
+						
 						if (parentNode != null) {
 							parentNode.increChild(cInst.getFromMethod(), 
 									cInst.getThreadId(), 
 									cInst.getThreadMethodIdx(), 
 									cInst.getIdx(), 
 									MIBConfiguration.getInstance().getInstDataWeight());
+						} else {
+							logger.warn("Lost parent instruction " + parentKey + " for child " + cInst);
 						}
 					}
 				}

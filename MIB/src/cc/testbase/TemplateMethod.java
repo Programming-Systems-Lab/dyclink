@@ -350,7 +350,7 @@ public class TemplateMethod extends TemplateParent {
 	}
 		
 	public static void main(String[] args) {
-		TemplateMethod tm = new TemplateMethod();
+		//TemplateMethod tm = new TemplateMethod();
 		//tm.call1();
 		/*byte a = 1;
 		double b = 2.0;
@@ -367,15 +367,23 @@ public class TemplateMethod extends TemplateParent {
 		//System.out.println(Integer.MAX_VALUE + 1);
 		//classAdd(5);
 		//int a = 2;
-		int[] b = {3, 4, 7};
+		//int[] b = {3, 4, 7};
 		//tm.forMethod();
 		//tm.forClassMethod();
 		//TemplateParent tp = new TemplateMethod();
 		//tp.interestingMethod();
 		
-		/*TemplateInterface ti = new TemplateMethod();
-		Integer i = new Integer(1);
-		ti.doIt(i);*/
+		//TemplateInterface ti = new TemplateMethod();
+		//Integer i = new Integer(1);
+		//ti.doIt(i);
+		
+		try {
+			Class clazz = Class.forName("cc.testbase.DummySet");
+			DummySet ds = (DummySet)clazz.newInstance();
+			System.out.println(ds);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 		
 		//tm.setList(new ArrayList());
 		//tm.exampleMethod();
@@ -386,7 +394,7 @@ public class TemplateMethod extends TemplateParent {
 		//System.out.println(tm.instanceMethod(0, b));
 		//System.out.println("Test add: " + tm.testAdd(2));
 		//System.out.println("Test add2: " + tm.testAdd2(5));
-		System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
+		//System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
 		//System.out.println("TestMethod: " + tm.all3Methods(3, 5));
 		/*System.out.println("cc/testbase/TemplateMethod.iVar.I".split("\\.").length);
 		System.out.println(Type.INT);
