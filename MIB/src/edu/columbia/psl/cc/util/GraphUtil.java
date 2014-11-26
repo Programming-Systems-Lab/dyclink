@@ -577,18 +577,22 @@ public class GraphUtil {
 	
 	public static void controlDepFromParentToChild(HashSet<InstNode> controlFromParent, InstPool childPool) {
 		for (InstNode condFromParent: controlFromParent) {
-			for (InstNode childNode: childPool) {
-				condFromParent.increChild(childNode.getFromMethod(), 
-						childNode.getThreadId(), 
-						childNode.getThreadMethodIdx(), 
-						childNode.getIdx(), 
-						MIBConfiguration.getInstance().getControlWeight());
-				childNode.registerParent(condFromParent.getFromMethod(), 
-						condFromParent.getThreadId(), 
-						condFromParent.getThreadMethodIdx(), 
-						condFromParent.getIdx(), 
-						MIBConfiguration.CONTR_DEP);
-			}
+			controlDepFromParentToChild(condFromParent, childPool);
+		}
+	}
+	
+	public static void controlDepFromParentToChild(InstNode condFromParent, InstPool childPool) {
+		for (InstNode childNode: childPool) {
+			condFromParent.increChild(childNode.getFromMethod(), 
+					childNode.getThreadId(), 
+					childNode.getThreadMethodIdx(), 
+					childNode.getIdx(), 
+					MIBConfiguration.getInstance().getControlWeight());
+			childNode.registerParent(condFromParent.getFromMethod(), 
+					condFromParent.getThreadId(), 
+					condFromParent.getThreadMethodIdx(), 
+					condFromParent.getIdx(), 
+					MIBConfiguration.CONTR_DEP);
 		}
 	}
 	

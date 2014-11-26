@@ -55,11 +55,12 @@ public class MethodStackRecorder {
 	
 	private int methodReturnSize = 0;
 	
-	private StaticMethodMiner smm;
+	//private StaticMethodMiner smm;
 		
 	private Stack<InstNode> stackSimulator = new Stack<InstNode>();
 	
-	private HashSet<InstNode> curControlInsts= new HashSet<InstNode>();
+	//private HashSet<InstNode> curControlInsts= new HashSet<InstNode>();
+	private InstNode curControlInst;
 	
 	//Key: local var idx, Val: inst node
 	private Map<Integer, InstNode> localVarRecorder = new HashMap<Integer, InstNode>();
@@ -107,9 +108,10 @@ public class MethodStackRecorder {
 		if (!methodType.getReturnType().getDescriptor().equals("V")) {
 			this.methodReturnSize = 1;
 		}
-		this.smm = GlobalRecorder.getStaticMethodMiner(this.shortMethodKey);
 		
+		//this.smm = GlobalRecorder.getStaticMethodMiner(this.shortMethodKey);
 		//this.threadId = Thread.currentThread().getId();
+		
 		this.threadId = ObjectIdAllocater.getThreadId();
 		this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(className, 
 				methodName, 
@@ -196,12 +198,56 @@ public class MethodStackRecorder {
 		}
 	}
 	
-	private void blindGetClInit() {
-		String curDumpKey = GlobalRecorder.getLatestLoadedClass();
-		if (curDumpKey != null) {
-			logger.info("Main loads latest touched class: " + curDumpKey);
-			this.doLoadParent(curDumpKey);
+	private void updateStackSimulator(InstNode fullInst, int addOutput) {
+		int outputSize = fullInst.getOp().getOutList().size() + addOutput;
+		this.updateStackSimulator(outputSize, fullInst);
+	}
+	
+	private void updateStackSimulator(int times, InstNode fullInst) {
+		//System.out.println("Stack push: " + fullInst + " " + times);
+		for (int i = 0; i < times; i++) {
+			this.stackSimulator.push(fullInst);
 		}
+	}
+	
+	private void showStackSimulator() {
+		//System.out.println(this.stackSimulator);
+		logger.info(this.stackSimulator);
+	}
+	
+	public void updateCurLabel(String curLabel) {
+		this.curLabel = curLabel;
+		/*Block curBlock = this.smm.getBlockMap().get(curLabel);
+		if (curBlock == null) {
+			logger.error("Missed label: " + curLabel);
+			logger.error("Method: " + this.methodKey);
+		}
+		Set<String> possibleConds = curBlock.condMap.keySet();
+		this.curControlInsts.clear();
+		
+		if (possibleConds.size() > 0) {
+			for (String pCond: possibleConds) {
+				Block condBlock = this.smm.getBlockMap().get(pCond);
+				InstTuple condIT = condBlock.lastInst;
+				
+				InstNode condNode = this.pool.searchAndGet(this.methodKey, 
+						this.threadId, 
+						this.threadMethodId, 
+						condIT.instIdx);
+				
+				//Dynamic execution, some inst may not be touched
+				if (condNode != null)
+					this.curControlInsts.add(condNode);
+			}
+		}*/
+	}
+	
+	private void updateControlRelation(InstNode fullInst) {
+		/*for (InstNode condNode: this.curControlInsts) {
+			this.updateCachedMap(condNode, fullInst, MIBConfiguration.CONTR_DEP);
+		}*/	
+		if (this.curControlInst != null)
+			this.updateCachedMap(this.curControlInst, fullInst, MIBConfiguration.CONTR_DEP);
 	}
 	
 	public void checkNGetClInit(String targetName) {
@@ -271,7 +317,6 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {
-		//System.out.println("Handling now: " + opcode + " " + instIdx + " " + addInfo);
 		logger.info("Handle ldc: " + opcode + " " + instIdx + " " + addInfo);
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, addInfo);
 		fullInst.setLinenumber(this.linenumber);
@@ -285,7 +330,6 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleField(int opcode, int instIdx, String owner, String name, String desc) {
-		//System.out.println("Handling now: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		logger.info("Handle field: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
@@ -368,7 +412,6 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleOpcode(int opcode, int instIdx, String addInfo) {
-		//System.out.println("Handling now: " + opcode + " " + instIdx + " " + addInfo);
 		logger.info("Handle opcode: " + opcode + " " + instIdx + " " + addInfo);
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
@@ -389,6 +432,12 @@ public class MethodStackRecorder {
 		}
 		this.updateStackSimulator(fullInst, 0);
 		this.showStackSimulator();
+		
+		if (BytecodeCategory.controlCategory().contains(opcat) 
+				|| opcode == Opcodes.TABLESWITCH 
+				|| opcode == Opcodes.LOOKUPSWITCH) {
+			this.curControlInst = fullInst;
+		}
 	}
 	
 	/**
@@ -397,7 +446,6 @@ public class MethodStackRecorder {
 	 * @param localVarIdx
 	 */
 	public void handleOpcode(int opcode, int instIdx, int localVarIdx) {
-		//System.out.println("Handling now: " + opcode + " " + localVarIdx);
 		logger.info("Handle opcode: " + opcode + " " + localVarIdx);
 		
 		InstNode fullInst = null;
@@ -482,7 +530,6 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleMultiNewArray(String desc, int dim, int instIdx) {
-		//System.out.println("Handling now: " + desc + " " + dim + " " + instIdx);
 		logger.info("Handle MultiNewArray: " + desc + " " + dim + " " + instIdx);
 		String addInfo = desc + " " + dim;
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, Opcodes.MULTIANEWARRAY, addInfo);
@@ -501,7 +548,6 @@ public class MethodStackRecorder {
 	}
 	
 	private void handleUninstrumentedMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc, InstNode fullInst) {
-		//System.out.println("Handling uninstrumented/undersize method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		logger.info("Handling uninstrumented/undersize method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		fullInst.setLinenumber(this.linenumber);
 		this.updateTime(fullInst);
@@ -540,7 +586,6 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc) {
-		//System.out.println("Handling now: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		logger.info("Handle method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		try {
 			Type methodType = Type.getMethodType(desc);
@@ -553,7 +598,6 @@ public class MethodStackRecorder {
 					argSize++;
 				}
 			}
-			//System.out.println("Arg size: " + argSize);
 			logger.info("Arg size: " + argSize);
 			
 			//Load the correct graph
@@ -747,8 +791,8 @@ public class MethodStackRecorder {
 			}
 			
 			//Update control dep
-			if (this.curControlInsts.size() > 0) {
-				GraphUtil.controlDepFromParentToChild(this.curControlInsts, childPool);
+			if (this.curControlInst != null) {
+				GraphUtil.controlDepFromParentToChild(this.curControlInst, childPool);
 			}
 			
 			String returnType = methodType.getReturnType().getDescriptor();
@@ -846,56 +890,6 @@ public class MethodStackRecorder {
 				this.stackSimulator.push(dupInst2);
 				break ;
 		}
-	}
-	
-	private void updateStackSimulator(InstNode fullInst, int addOutput) {
-		int outputSize = fullInst.getOp().getOutList().size() + addOutput;
-		this.updateStackSimulator(outputSize, fullInst);
-	}
-	
-	private void updateStackSimulator(int times, InstNode fullInst) {
-		//System.out.println("Stack push: " + fullInst + " " + times);
-		for (int i = 0; i < times; i++) {
-			this.stackSimulator.push(fullInst);
-		}
-	}
-	
-	private void showStackSimulator() {
-		//System.out.println(this.stackSimulator);
-		logger.info(this.stackSimulator);
-	}
-	
-	public void updateCurLabel(String curLabel) {
-		this.curLabel = curLabel;
-		Block curBlock = this.smm.getBlockMap().get(curLabel);
-		if (curBlock == null) {
-			logger.error("Missed label: " + curLabel);
-			logger.error("Method: " + this.methodKey);
-		}
-		Set<String> possibleConds = curBlock.condMap.keySet();
-		this.curControlInsts.clear();
-		
-		if (possibleConds.size() > 0) {
-			for (String pCond: possibleConds) {
-				Block condBlock = this.smm.getBlockMap().get(pCond);
-				InstTuple condIT = condBlock.lastInst;
-				
-				InstNode condNode = this.pool.searchAndGet(this.methodKey, 
-						this.threadId, 
-						this.threadMethodId, 
-						condIT.instIdx);
-				
-				//Dynamic execution, some inst may not be touched
-				if (condNode != null)
-					this.curControlInsts.add(condNode);
-			}
-		}
-	}
-	
-	private void updateControlRelation(InstNode fullInst) {
-		for (InstNode condNode: this.curControlInsts) {
-			this.updateCachedMap(condNode, fullInst, MIBConfiguration.CONTR_DEP);
-		}	
 	}
 	
 	public void dumpGraph() {

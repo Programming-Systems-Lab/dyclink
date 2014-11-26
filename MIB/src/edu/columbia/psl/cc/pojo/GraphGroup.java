@@ -31,8 +31,6 @@ public class GraphGroup extends HashMap<String, GraphTemplate>{
 			logger.info("Capture similar graph but write fields not matched");
 			logger.info("Exist graph: " + existGraph.getLatestWriteFields().keySet());
 			logger.info("Current graph: " + graph.getLatestWriteFields().keySet());
-			//Keep the latest one
-			this.addGraph(graph);
 			return null;
 		} else {
 			return existGraph;

@@ -368,7 +368,7 @@ public class TemplateMethod extends TemplateParent {
 		//classAdd(5);
 		//int a = 2;
 		int[] b = {3, 4, 7};
-		tm.forMethod();
+		//tm.forMethod();
 		//tm.forClassMethod();
 		//TemplateParent tp = new TemplateMethod();
 		//tp.interestingMethod();
@@ -386,7 +386,7 @@ public class TemplateMethod extends TemplateParent {
 		//System.out.println(tm.instanceMethod(0, b));
 		//System.out.println("Test add: " + tm.testAdd(2));
 		//System.out.println("Test add2: " + tm.testAdd2(5));
-		//System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
+		System.out.println("TemplateMethod: " + tm.invoke3Methods(3, 5));
 		//System.out.println("TestMethod: " + tm.all3Methods(3, 5));
 		/*System.out.println("cc/testbase/TemplateMethod.iVar.I".split("\\.").length);
 		System.out.println(Type.INT);
