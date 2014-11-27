@@ -474,10 +474,88 @@ public class GraphUtil {
 		}
 	}
 	
-	public static void mergeGraph(GraphTemplate target, GraphTemplate toAppend) {
-		HashMap<InstNode, InstNode> instMapping = new HashMap<InstNode, InstNode>();
-		HashMap<String, InstNode> appendCache = new HashMap<String, InstNode>();
+	public static void doMerge(InstNode app, InstPool targetPool, InstPool appendPool, int depType) {
+		//Map self
+		InstNode mapApp = searchSimilarInst(app, targetPool);
 		
+		String appKey = StringUtil.genIdxKey(app.getFromMethod(), 
+				app.getThreadId(), 
+				app.getThreadMethodIdx(), 
+				app.getIdx());
+		List<String> parentList = null;
+		
+		if (depType == MIBConfiguration.CONTR_DEP) {
+			parentList = app.getControlParentList();
+		} else if (depType == MIBConfiguration.INST_DATA_DEP) {
+			parentList = app.getInstDataParentList();
+		} else if (depType == MIBConfiguration.WRITE_DATA_DEP) {
+			parentList = app.getWriteDataParentList();
+		}
+		
+		if (mapApp == null) {
+			targetPool.add(app);
+		}
+		
+		List<String> toRemove = new ArrayList<String>();
+		for (String cpKey: parentList) {
+			InstNode parentNode = _retrieveRealInst(cpKey, appendPool);
+			if (mapApp != null) {
+				if (parentNode != null) {
+					double amount = parentNode.getChildFreqMap().get(appKey);
+					InstNode mapParent = searchSimilarInst(parentNode, targetPool);
+					
+					if (mapParent != null) {
+						mapParent.increChild(mapApp.getFromMethod(), 
+								mapApp.getThreadId(), 
+								mapApp.getThreadMethodIdx(), 
+								mapApp.getIdx(), amount);
+						mapApp.registerParent(mapParent.getFromMethod(), 
+								mapParent.getThreadId(), 
+								mapParent.getThreadMethodIdx(), 
+								mapParent.getIdx(), depType);
+					} else {
+						targetPool.add(parentNode);
+						parentNode.increChild(mapApp.getFromMethod(), 
+								mapApp.getThreadId(), 
+								mapApp.getThreadMethodIdx(), mapApp.getIdx(), amount);
+						mapApp.registerParent(parentNode.getFromMethod(), 
+								parentNode.getThreadId(), 
+								parentNode.getThreadMethodIdx(), 
+								parentNode.getIdx(), depType);
+						parentNode.getChildFreqMap().remove(appKey);
+					}
+				}
+			} else {
+				if (parentNode != null) {
+					double amount = parentNode.getChildFreqMap().get(appKey);
+					InstNode mapParent = searchSimilarInst(parentNode, targetPool);
+					
+					if (mapParent != null) {
+						mapParent.increChild(app.getFromMethod(), 
+								app.getThreadId(), 
+								app.getThreadMethodIdx(), 
+								app.getIdx(), amount);
+						app.registerParent(mapParent.getFromMethod(), 
+								mapParent.getThreadId(), 
+								mapParent.getThreadMethodIdx(), 
+								mapParent.getIdx(), depType);
+						
+						//Remove the original parent here
+						toRemove.add(cpKey);
+					} else {
+						targetPool.add(parentNode);
+					}
+				}
+			}	
+		}
+		
+		for (String p: toRemove) {
+			parentList.remove(p);
+		}
+		
+	}
+	
+	public static void mergeGraph(GraphTemplate target, GraphTemplate toAppend) {		
 		InstPool targetPool = toAppend.getInstPool();
 		InstPool appendPool = toAppend.getInstPool();
 		
@@ -486,36 +564,9 @@ public class GraphUtil {
 					app.getThreadId(), 
 					app.getThreadMethodIdx(), 
 					app.getIdx());
-			if (!appendCache.containsKey(appKey))
-				appendCache.put(appKey, app);
-			
-			//Map self
-			InstNode mapApp = searchSimilarInst(app, targetPool);
-			if (mapApp != null) {
-				instMapping.put(app, mapApp);
-				
-				for (String cpKey: app.getControlParentList()) {
-					InstNode parentNode = _retrieveRealInst(cpKey, appendPool);
-					if (parentNode != null) {
-						appendCache.put(cpKey, parentNode);
-						double amount = parentNode.getChildFreqMap().get(appKey);
-						InstNode mapParent = searchSimilarInst(parentNode, targetPool);
-						
-						if (mapParent != null) {
-							mapParent.increChild(mapApp.getFromMethod(), 
-									mapApp.getThreadId(), 
-									mapApp.getThreadMethodIdx(), 
-									mapApp.getIdx(), amount);
-							mapApp.registerParent(mapParent.getFromMethod(), 
-									mapParent.getThreadId(), 
-									mapParent.getThreadMethodIdx(), 
-									mapParent.getIdx(), MIBConfiguration.CONTR_DEP);
-						}
-					}
-				}
-			} else {
-				instMapping.put(app, app);
-			}
+			doMerge(app, targetPool, appendPool, MIBConfiguration.CONTR_DEP);
+			doMerge(app, targetPool, appendPool, MIBConfiguration.INST_DATA_DEP);
+			doMerge(app, targetPool, appendPool, MIBConfiguration.WRITE_DATA_DEP);
 		}
 	}
 		

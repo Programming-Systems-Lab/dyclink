@@ -108,28 +108,11 @@ public class HorizontalMerger {
 		if (toMerge.size() > 1) {
 			for (int i = 1; i < toMerge.size(); i++) {
 				GraphTemplate g = toMerge.get(i);
+				GraphUtil.mergeGraph(repGraph, g);
 			}
 		}
 		
-		
-		int maxSize = 0;
-		String groupKey = "";
-		for (String gKey: stats.keySet()) {
-			List<GraphTemplate> gTemplates = stats.get(gKey);
-			if (gTemplates.size() > maxSize) {
-				maxSize = gTemplates.size();
-				groupKey = gKey;
-			}
-		}
-		
-		List<GraphTemplate> repList = stats.get(groupKey);
-		Collections.sort(repList, graphSorter);
-		GraphTemplate rep = stats.get(groupKey).get(0);
-		logger.info("Graph rep selection: " + rep.getMethodKey() + " " + rep.getThreadId());
-		logger.info("Max group: " + groupKey);
-		logger.info("Group size: " + maxSize);
-		logger.info("Latest graph: " + rep.getThreadMethodId());
-		return stats.get(groupKey).get(0);
+		return repGraph;
 	}
 	
 	public static void main(String[] args) {
