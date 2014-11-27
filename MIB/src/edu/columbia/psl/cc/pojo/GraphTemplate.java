@@ -26,15 +26,15 @@ public class GraphTemplate {
 	
 	private boolean staticMethod;
 	
-	private boolean recursive;
-	
 	private List<InstNode> path;
 	
 	private InstPool pool;
 	
 	private InstNode lastBeforeReturn;
 	
-	private int depNum;
+	private int edgeNum;
+	
+	private int vertexNum;
 	
 	private HashSet<InstNode> firstReadLocalVars;
 	
@@ -57,7 +57,7 @@ public class GraphTemplate {
 		this.methodReturnSize = copy.getMethodReturnSize();
 		this.threadId = copy.getThreadId();
 		this.threadMethodId = copy.getThreadMethodId();
-		this.depNum = copy.getDepNum();
+		this.edgeNum = copy.getEdgeNum();
 		this.staticMethod = copy.isStaticMethod();
 		this.firstReadLocalVars = new HashSet<InstNode>(copy.getFirstReadLocalVars());
 		this.latestWriteFields = new HashMap<String, InstNode>(copy.getLatestWriteFields());
@@ -121,12 +121,20 @@ public class GraphTemplate {
 		return this.lastBeforeReturn;
 	}
 	
-	public void setDepNum(int depNum) {
-		this.depNum = depNum;
+	public void setEdgeNum(int edgeNum) {
+		this.edgeNum = edgeNum;
 	}
 	
-	public int getDepNum() {
-		return this.depNum;
+	public int getEdgeNum() {
+		return this.edgeNum;
+	}
+	
+	public void setVertexNum(int vertexNum) {
+		this.vertexNum = vertexNum;
+	}
+	
+	public int getVertexNum() {
+		return this.vertexNum;
 	}
 	
 	public void setMethodArgSize(int methodArgSize) {
@@ -151,14 +159,6 @@ public class GraphTemplate {
 	
 	public boolean isStaticMethod() {
 		return this.staticMethod;
-	}
-	
-	public void setRecursive(boolean recursive) {
-		this.recursive = recursive;
-	}
-	
-	public boolean isRecursive() {
-		return this.recursive;
 	}
 	
 	public void setFirstReadLocalVars(HashSet<InstNode> firstReadLocalVars) {

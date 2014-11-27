@@ -74,21 +74,31 @@ public class TemplateLoader {
 	 * @param typeToken
 	 * @return
 	 */
-	public static <T> HashMap<String, HashSet<T>> loadCacheTemplates(File dir, final TypeToken<T> typeToken) {
+	public static <T> HashMap<String, HashSet<T>> loadCacheTemplates(File dir, 
+			final TypeToken<T> typeToken, 
+			HashSet<String> recursiveMethods) {
 		HashMap<String, HashSet<T>> ret = new HashMap<String, HashSet<T>>();
 		if (!dir.isDirectory()) {
+			//Remove uuid
+			String name = StringUtil.removeUUID(dir.getName());
+			if (recursiveMethods.contains(name))
+				return ret;
+			
 			T temp = GsonManager.readJsonGeneric(dir, typeToken);
 			HashSet<T> retSet = new HashSet<T>();
 			retSet.add(temp);
 			
-			//Remove uuid
-			String name = StringUtil.removeUUID(dir.getName());
 			ret.put(name, retSet);
+			return ret;
 		} else {
 			ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
 			HashMap<String, HashSet<Future<T>>> futureMap = new HashMap<String, HashSet<Future<T>>>();
 			for (final File f: dir.listFiles(nameFilter)) {
 				String name = StringUtil.removeUUID(f.getName());
+				
+				if (recursiveMethods.contains(name))
+					continue ;
+				
 				Future<T> worker = executor.submit(new Callable<T>() {
 
 					@Override
@@ -128,9 +138,9 @@ public class TemplateLoader {
 					}
 				}
 			}
+			
+			return ret;
 		}
-		
-		return ret;
 	}
 	
 	public static <T> T loadTemplateFile(File tempF, TypeToken<T> typeToken) {

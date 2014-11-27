@@ -340,7 +340,9 @@ public class GraphUtil {
 		HashSet<InstNode> allChildren = new HashSet<InstNode>();
 		for (String cKey: inst.getChildFreqMap().keySet()) {
 			InstNode cNode = _retrieveRealInst(cKey, pool);
-			allChildren.add(cNode);
+			
+			if (cNode != null)
+				allChildren.add(cNode);
 		}
 		return allChildren;
 	}
@@ -357,17 +359,20 @@ public class GraphUtil {
 		if (depType == MIBConfiguration.CONTR_DEP) {
 			for (String cPParent: inst.getControlParentList()) {
 				InstNode cpNode = _retrieveRealInst(cPParent, pool);
-				allParents.add(cpNode);
+				if (cpNode != null)
+					allParents.add(cpNode);
 			}
 		} else if (depType == MIBConfiguration.INST_DATA_DEP) {
 			for (String dPParent: inst.getInstDataParentList()) {
 				InstNode ppNode = _retrieveRealInst(dPParent, pool);
-				allParents.add(ppNode);
+				if (ppNode != null)
+					allParents.add(ppNode);
 			}
 		} else if (depType == MIBConfiguration.WRITE_DATA_DEP) {
 			for (String dPParent: inst.getWriteDataParentList()) {
 				InstNode ppNode = _retrieveRealInst(dPParent, pool);
-				allParents.add(ppNode);
+				if (ppNode != null)
+					allParents.add(ppNode);
 			}
 		}
 		
@@ -432,6 +437,87 @@ public class GraphUtil {
 		
 		return newSur;
 	}*/
+	
+	public static void multiplyGraph(GraphTemplate g, int times) {
+		for (InstNode inst: g.getInstPool()) {
+			TreeMap<String, Double> childMap = inst.getChildFreqMap();
+			
+			for (String cKey: childMap.keySet()) {
+				double val = childMap.get(cKey) * times;
+				childMap.put(cKey, val);
+			}
+		}
+	}
+	
+	public static InstNode searchSimilarInst(InstNode inst, InstPool toSearch) {
+		for (InstNode i: toSearch) {
+			if (i.getFromMethod().equals(inst.getFromMethod()) 
+					&& i.getIdx() == inst.getIdx()) {
+				return i;
+			}
+		}
+		
+		return null;
+	}
+	
+	public static void mapVertices(HashSet<InstNode> toMap, 
+			InstPool targetPool, 
+			HashMap<InstNode, InstNode> instMapping) {
+		for (InstNode i: toMap) {
+			InstNode mapped = searchSimilarInst(i, targetPool);
+			
+			if (mapped != null) {
+				instMapping.put(i, mapped);
+			} else {
+				instMapping.put(i, i);
+			}
+		}
+	}
+	
+	public static void mergeGraph(GraphTemplate target, GraphTemplate toAppend) {
+		HashMap<InstNode, InstNode> instMapping = new HashMap<InstNode, InstNode>();
+		HashMap<String, InstNode> appendCache = new HashMap<String, InstNode>();
+		
+		InstPool targetPool = toAppend.getInstPool();
+		InstPool appendPool = toAppend.getInstPool();
+		
+		for (InstNode app: appendPool) {
+			String appKey = StringUtil.genIdxKey(app.getFromMethod(), 
+					app.getThreadId(), 
+					app.getThreadMethodIdx(), 
+					app.getIdx());
+			if (!appendCache.containsKey(appKey))
+				appendCache.put(appKey, app);
+			
+			//Map self
+			InstNode mapApp = searchSimilarInst(app, targetPool);
+			if (mapApp != null) {
+				instMapping.put(app, mapApp);
+				
+				for (String cpKey: app.getControlParentList()) {
+					InstNode parentNode = _retrieveRealInst(cpKey, appendPool);
+					if (parentNode != null) {
+						appendCache.put(cpKey, parentNode);
+						double amount = parentNode.getChildFreqMap().get(appKey);
+						InstNode mapParent = searchSimilarInst(parentNode, targetPool);
+						
+						if (mapParent != null) {
+							mapParent.increChild(mapApp.getFromMethod(), 
+									mapApp.getThreadId(), 
+									mapApp.getThreadMethodIdx(), 
+									mapApp.getIdx(), amount);
+							mapApp.registerParent(mapParent.getFromMethod(), 
+									mapParent.getThreadId(), 
+									mapParent.getThreadMethodIdx(), 
+									mapParent.getIdx(), MIBConfiguration.CONTR_DEP);
+						}
+					}
+				}
+			} else {
+				instMapping.put(app, app);
+			}
+		}
+	}
 		
 	public static void dataDepFromParentToChild(Map<Integer, InstNode> parentMap, 
 			InstPool parentPool,
@@ -735,7 +821,11 @@ public class GraphUtil {
 		System.out.println(bd.setScale(3, RoundingMode.HALF_UP));
 		System.out.println(Precision.round(0.11111, 3));
 		System.out.println(Precision.round(0.1115,3));
-		int i = 0;
+		Double d = new Double(5);
+		int times = 4;
+		
+		double val = d * times;
+		System.out.println("Check val: " + val);
 		
 	}
 

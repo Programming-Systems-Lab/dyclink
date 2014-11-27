@@ -350,8 +350,8 @@ public class TemplateMethod extends TemplateParent {
 	}
 		
 	public static void main(String[] args) {
-		//TemplateMethod tm = new TemplateMethod();
-		//tm.call1();
+		TemplateMethod tm = new TemplateMethod();
+		tm.call1();
 		/*byte a = 1;
 		double b = 2.0;
 		long c = 3;
@@ -377,13 +377,13 @@ public class TemplateMethod extends TemplateParent {
 		//Integer i = new Integer(1);
 		//ti.doIt(i);
 		
-		try {
+		/*try {
 			Class clazz = Class.forName("cc.testbase.DummySet");
 			DummySet ds = (DummySet)clazz.newInstance();
 			System.out.println(ds);
 		} catch (Exception ex) {
 			ex.printStackTrace();
-		}
+		}*/
 		
 		//tm.setList(new ArrayList());
 		//tm.exampleMethod();

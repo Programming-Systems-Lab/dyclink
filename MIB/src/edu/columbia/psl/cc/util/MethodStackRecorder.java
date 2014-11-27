@@ -701,7 +701,7 @@ public class MethodStackRecorder {
 				if (rep != null) {
 					logger.info("Find similar graph in cache: " + fullKeyWithThreadObjId);
 					logger.info(childGraph.getThreadMethodId() + " replaced by " + rep.getThreadMethodId());
-					logger.info("Child graph feature (node dep): " + childGraph.getInstPool().size() + " " + childGraph.getDepNum());
+					logger.info("Child graph feature (node dep): " + childGraph.getInstPool().size() + " " + childGraph.getEdgeNum());
 					logger.info("All group keys now: " + gGroup.keySet());
 					
 					//Guess that this graph is the same
@@ -759,7 +759,7 @@ public class MethodStackRecorder {
 									cInst.getIdx(), 
 									MIBConfiguration.getInstance().getInstDataWeight());
 						} else {
-							logger.warn("Lost parent instruction " + parentKey + " for child " + cInst);
+							logger.warn("Parent instruction " + parentKey + " for child " + cInst);
 						}
 					}
 				}
@@ -945,32 +945,39 @@ public class MethodStackRecorder {
 		}
 		//gt.setPath(this.path);
 		
-		int depCount = 0;
+		int edgeCount = 0;
 		Iterator<InstNode> instIterator = this.pool.iterator();
 		while (instIterator.hasNext()) {
 			InstNode curInst = instIterator.next();
 			TreeMap<String, Double> children = curInst.getChildFreqMap();
-			depCount += children.size();
+			edgeCount += children.size();
 		}
 		
-		logger.info("Total dependency count: " + depCount);
-		gt.setDepNum(depCount);
+		gt.setEdgeNum(edgeCount);
+		gt.setVertexNum(this.pool.size());
 		gt.setInstPool(this.pool);
+		
+		logger.info("Total edge count: " + gt.getEdgeNum());
+		logger.info("Total vertex count: " + gt.getVertexNum());
 		
 		//String dumpKey = StringUtil.genKeyWithId(this.methodKey, String.valueOf(this.threadId));
 		String dumpKey = StringUtil.genKeyWithId(this.shortMethodKey, String.valueOf(this.threadId));
 		TypeToken<GraphTemplate> typeToken = new TypeToken<GraphTemplate>(){};
 		if (MIBConfiguration.getInstance().isTemplateMode()) {
-			GsonManager.cacheGraph(dumpKey, 0);
+			GsonManager.cacheGraph(dumpKey, 0, false);
 			GsonManager.writeJsonGeneric(gt, dumpKey, typeToken, 0);
 		} else {
-			GsonManager.cacheGraph(dumpKey, 1);
+			GsonManager.cacheGraph(dumpKey, 1, false);
 			GsonManager.writeJsonGeneric(gt, dumpKey, typeToken, 1);
 		}
 		//GsonManager.writePath(dumpKey, this.path);
 		
 		if (this.methodName.equals(clinit)) {
 			GlobalRecorder.setLatestLoadedClass(dumpKey);
+		}
+		
+		if (this.recursive) {
+			GlobalRecorder.registerRecursiveMethod(dumpKey);
 		}
 		
 		//Debuggin, check graph group

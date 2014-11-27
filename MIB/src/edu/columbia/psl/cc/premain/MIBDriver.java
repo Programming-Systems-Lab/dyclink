@@ -14,6 +14,7 @@ import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
+import edu.columbia.psl.cc.pojo.NameMap;
 import edu.columbia.psl.cc.pojo.StaticMethodMiner;
 import edu.columbia.psl.cc.util.Analyzer;
 import edu.columbia.psl.cc.util.DynamicGraphAnalyzer;
@@ -25,6 +26,8 @@ import edu.columbia.psl.cc.util.TemplateLoader;
 public class MIBDriver {
 	
 	private static Logger logger = Logger.getLogger(MIBDriver.class);
+	
+	private static TypeToken<NameMap> nameMapToken = new TypeToken<NameMap>(){};
 	
 	/**
 	 * @param args
@@ -52,8 +55,10 @@ public class MIBDriver {
 			mainMethod.invoke(null, (Object)newArgs);
 			
 			//Dump name map
-			TypeToken<HashMap<String, String>> mapToken = new TypeToken<HashMap<String, String>>(){};
-			GsonManager.writeJsonGeneric(GlobalRecorder.getGlobalNameMap(), "nameMap", mapToken, 2);
+			NameMap nameMap = new NameMap();
+			nameMap.setGlobalNameMap(GlobalRecorder.getGlobalNameMap());
+			nameMap.setRecursiveMethods(GlobalRecorder.getRecursiveMethods());
+			GsonManager.writeJsonGeneric(nameMap, "nameMap", nameMapToken, 2);
 			
 			if (mConfig.isOverallAnalysis()) {
 				AnalysisService.invokeFinalAnalysis(mConfig);

@@ -15,16 +15,31 @@ import com.google.gson.reflect.TypeToken;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
+import edu.columbia.psl.cc.pojo.NameMap;
+import edu.columbia.psl.cc.util.GlobalRecorder;
+import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.TemplateLoader;
 
-public class RepGraphSelector {
+public class HorizontalMerger {
 	
-	private static Logger logger = Logger.getLogger(RepGraphSelector.class);
+	private static Logger logger = Logger.getLogger(HorizontalMerger.class);
 	
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 	
-	private static HashSet<String> cacheLatestGraphs(int dirIdx) {
+	private static TypeToken<NameMap> nameMapToken = new TypeToken<NameMap>(){};
+	
+	private static Comparator<GraphTemplate> graphSizeSorter = new Comparator<GraphTemplate>() {
+		@Override
+		public int compare(GraphTemplate g1, GraphTemplate g2) {
+			int g1Size = g1.getInstPool().size();
+			int g2Size = g2.getInstPool().size();
+			return g1Size < g2Size?1: (g1Size> g2Size?-1: 0);
+		}
+	};
+	
+	private static HashSet<String> cacheLatestGraphs(int dirIdx, 
+			HashSet<String> recursiveMethods) {
 		String dirString = "";
 		if (dirIdx == 0) {
 			dirString = MIBConfiguration.getInstance().getTemplateDir();
@@ -39,12 +54,21 @@ public class RepGraphSelector {
 		
 		HashSet<String> allNames = TemplateLoader.loadAllFileNames(dir);
 		for (String name: allNames) {
-			GsonManager.cacheGraph(name, 0);
+			if (recursiveMethods.contains(name)) {
+				GsonManager.cacheGraph(name, dirIdx, true);
+			} else {
+				GsonManager.cacheGraph(name, dirIdx, false);
+			}
 		}
 		
 		return allNames;
 	}
 	
+	/**
+	 * Extract representative graph for a single method
+	 * @param graphSet
+	 * @return
+	 */
 	private static GraphTemplate extractRepGraph(HashSet<GraphTemplate> graphSet) {
 		HashMap<String, List<GraphTemplate>> stats = new HashMap<String, List<GraphTemplate>>();
 		for (GraphTemplate graph: graphSet) {
@@ -58,6 +82,36 @@ public class RepGraphSelector {
 			}
 		}
 		
+		//Pick the one with the latest graph id
+		List<GraphTemplate> toMerge = new ArrayList<GraphTemplate>();
+		for (String groupKey: stats.keySet()) {
+			List<GraphTemplate> statList = stats.get(groupKey);
+			
+			int maxId = -1;
+			GraphTemplate latest = null;
+			for (GraphTemplate g: statList) {
+				if (g.getThreadMethodId() > maxId) {
+					maxId = g.getThreadMethodId();
+					latest = g;
+				}
+			}
+			
+			int times = statList.size();
+			if (times > 1) {
+				GraphUtil.multiplyGraph(latest, times);
+			}
+			toMerge.add(latest);
+		}
+		Collections.sort(toMerge, graphSizeSorter);
+		
+		GraphTemplate repGraph = toMerge.get(0);
+		if (toMerge.size() > 1) {
+			for (int i = 1; i < toMerge.size(); i++) {
+				GraphTemplate g = toMerge.get(i);
+			}
+		}
+		
+		
 		int maxSize = 0;
 		String groupKey = "";
 		for (String gKey: stats.keySet()) {
@@ -68,20 +122,6 @@ public class RepGraphSelector {
 			}
 		}
 		
-		//Pick the one with the latest graph id
-		Comparator<GraphTemplate> graphSorter = new Comparator<GraphTemplate>() {
-			@Override
-			public int compare(GraphTemplate g1, GraphTemplate g2) {
-				if (g1.getThreadMethodId() < g2.getThreadMethodId()) {
-					return 1;
-				} else if (g1.getThreadMethodId() > g2.getThreadMethodId()) {
-					return - 1;
-				} else {
-					//Impossible
-					return 0;
-				}
-			}
-		};
 		List<GraphTemplate> repList = stats.get(groupKey);
 		Collections.sort(repList, graphSorter);
 		GraphTemplate rep = stats.get(groupKey).get(0);
@@ -93,16 +133,21 @@ public class RepGraphSelector {
 	}
 	
 	public static void main(String[] args) {
+		File nameMapFile = new File(MIBConfiguration.getInstance().getLabelmapDir() + "/nameMap.json");
+		NameMap nameMap = GsonManager.readJsonGeneric(nameMapFile, nameMapToken);
+		HashSet<String> recursiveMethods = nameMap.getRecursiveMethods();
+		
 		logger.info("Start caching latest template graphs");
-		HashSet<String> allTemplateNames = cacheLatestGraphs(0);
+		HashSet<String> allTemplateNames = cacheLatestGraphs(0, recursiveMethods);
 		
 		logger.info("Start caching latest test graphs");
-		HashSet<String> allTestNames = cacheLatestGraphs(1);
+		HashSet<String> allTestNames = cacheLatestGraphs(1, recursiveMethods);
 		
 		logger.info("Start loading all cached graphs");
 		String cacheDirString = MIBConfiguration.getInstance().getCacheDir();
 		File cacheDir = new File(cacheDirString);
-		HashMap<String, HashSet<GraphTemplate>> graphByNames = TemplateLoader.loadCacheTemplates(cacheDir, graphToken);
+		HashMap<String, HashSet<GraphTemplate>> graphByNames = 
+				TemplateLoader.loadCacheTemplates(cacheDir, graphToken, recursiveMethods);
 		
 		logger.info("Start select representative template graphs");
 		for (String name: allTemplateNames) {

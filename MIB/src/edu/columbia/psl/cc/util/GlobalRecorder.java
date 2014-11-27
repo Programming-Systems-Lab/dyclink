@@ -2,6 +2,7 @@ package edu.columbia.psl.cc.util;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -34,11 +35,15 @@ public class GlobalRecorder {
 	
 	private static HashMap<String, InstNode> globalWriteFieldRecorder = new HashMap<String, InstNode>();
 	
+	private static HashSet<String> recursiveMethodRecorder = new HashSet<String>();
+	
 	private static Object timeLock = new Object();
 	
 	private static Object loadClassLock = new Object();
 	
 	private static Object writeFieldLock = new Object();
+	
+	private static Object recursiveMethodLock = new Object();
 	
 	private static Object nameLock = new Object();
 	
@@ -146,6 +151,16 @@ public class GlobalRecorder {
 	
 	public static HashMap<String, String> getGlobalNameMap() {
 		return globalNameMap;
+	}
+	
+	public static void registerRecursiveMethod(String methodShortName) {
+		synchronized(recursiveMethodLock) {
+			recursiveMethodRecorder.add(methodShortName);
+		}
+	}
+	
+	public static HashSet<String> getRecursiveMethods() {
+		return recursiveMethodRecorder;
 	}
 	
 	public static StaticMethodMiner getStaticMethodMiner(String shortKey) {

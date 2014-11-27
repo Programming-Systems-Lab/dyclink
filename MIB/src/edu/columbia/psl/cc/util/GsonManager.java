@@ -2,8 +2,12 @@ package edu.columbia.psl.cc.util;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -112,7 +116,32 @@ public class GsonManager {
 		}
 	}
 	
-	public static void cacheGraph(String fileName, int dirIdx) {
+	public static boolean copyFile(File source, File cache) throws IOException{
+		if (!cache.exists()) {
+			cache.createNewFile();
+		}
+		
+		FileChannel sourceChannel = new FileInputStream(source).getChannel();
+		FileChannel cacheChannel = new FileOutputStream(cache).getChannel();
+		
+		try {
+			cacheChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
+			sourceChannel.close();
+			cacheChannel.close();
+			return true;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			if (sourceChannel != null)
+				sourceChannel.close();
+			
+			if (cacheChannel != null)
+				cacheChannel.close();
+		}
+		return false;
+	}
+	
+	public static void cacheGraph(String fileName, int dirIdx, boolean kept) {
 		File f;
 		if (dirIdx == 0) {
 			f = new File(MIBConfiguration.getInstance().getTemplateDir() + "/" + fileName + ".json");
@@ -124,12 +153,17 @@ public class GsonManager {
 		
 		if (f.exists()) {
 			try {
-				//Or we can read the existing graph first and use their threadMethodId
-				//GraphTemplate g = readJsonGeneric(f, new TypeToken<GraphTemplate>(){});
 				String newFileName = StringUtil.genKeyWithId(fileName, UUID.randomUUID().toString());
+				File cacheFile = new File(MIBConfiguration.getInstance().getCacheDir() + "/" + newFileName + ".json");
 				//String newFileName = StringUtil.genKeyWithId(fileName, String.valueOf(g.getThreadMethodId()));
-				if (!f.renameTo(new File(MIBConfiguration.getInstance().getCacheDir() + "/" + newFileName + ".json"))) {
-					logger.warn("Warning: fail to move file: " + f.getName());
+				if (kept) {
+					if (!copyFile(f, cacheFile)) {
+						logger.warn("Warning: fail to copy file: " + f.getName());
+					}
+				} else {
+					if (!f.renameTo(new File(MIBConfiguration.getInstance().getCacheDir() + "/" + newFileName + ".json"))) {
+						logger.warn("Warning: fail to move file: " + f.getName());
+					}
 				}
 			} catch (Exception ex) {
 				logger.error(ex);

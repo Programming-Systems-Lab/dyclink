@@ -14,7 +14,7 @@ public class GraphGroup extends HashMap<String, GraphTemplate>{
 	private static final long serialVersionUID = 1L;
 
 	public static String groupKey(GraphTemplate graph) {
-		return groupKey(graph.getInstPool().size(), graph.getDepNum());
+		return groupKey(graph.getVertexNum(), graph.getEdgeNum());
 	}
 	
 	public static String groupKey(int nodeNum, int depNum) {
@@ -22,7 +22,7 @@ public class GraphGroup extends HashMap<String, GraphTemplate>{
 	}
 	
 	public GraphTemplate getGraph(GraphTemplate graph) {
-		String groupKey = groupKey(graph.getInstPool().size(), graph.getDepNum());
+		String groupKey = groupKey(graph.getVertexNum(), graph.getEdgeNum());
 		GraphTemplate existGraph = this.get(groupKey);
 		
 		if (existGraph == null) {
@@ -38,7 +38,7 @@ public class GraphGroup extends HashMap<String, GraphTemplate>{
 	}
 
 	public void addGraph(GraphTemplate graph) {
-		String groupKey = groupKey(graph.getInstPool().size(), graph.getDepNum());
+		String groupKey = groupKey(graph.getVertexNum(), graph.getEdgeNum());
 		this.put(groupKey, graph);
 	}
 }
