@@ -20,7 +20,7 @@ import edu.columbia.psl.cc.util.ObjectIdAllocater;
 @analyzeClass
 public class TemplateMethod extends TemplateParent {
 	
-	private static int sVar;
+	public static int sVar;
 	
 	private int iVar;
 	
@@ -350,8 +350,9 @@ public class TemplateMethod extends TemplateParent {
 	}
 		
 	public static void main(String[] args) {
+		int i = TemplateMethod.parentVar;
 		TemplateMethod tm = new TemplateMethod();
-		tm.call1();
+		//tm.call1();
 		/*byte a = 1;
 		double b = 2.0;
 		long c = 3;

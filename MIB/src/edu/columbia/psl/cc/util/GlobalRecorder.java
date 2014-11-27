@@ -20,7 +20,8 @@ public class GlobalRecorder {
 	
 	private static TypeToken<StaticMethodMiner> smmToken = new TypeToken<StaticMethodMiner>(){};
 	
-	private static String latestLoadedClass;
+	//Key: class name, Val: short name + thread id of clinit
+	private static HashMap<String, String> loadedClass = new HashMap<String, String>();
 	
 	private static AtomicLong curDigit = new AtomicLong();
 	
@@ -49,23 +50,28 @@ public class GlobalRecorder {
 	
 	private static Object staticMethodMinerLock = new Object();
 	
-	public static void setLatestLoadedClass(String clazz) {
+	public static void registerLoadedClass(String className, String shortClinit) {
 		synchronized(loadClassLock) {
-			latestLoadedClass = clazz;
+			loadedClass.put(className, shortClinit);
 		}
 	}
 	
-	public static String getLatestLoadedClass() {
+	public static String getLoadedClass(String className) {
 		synchronized(loadClassLock) {
-			String ret = latestLoadedClass;
-			return ret;
+			if (!loadedClass.containsKey(className))
+				return null;
+			else {
+				return loadedClass.remove(className);
+			}
 		}
 	}
 	
-	public static void clearLatestLoadedClass() {
-		synchronized(loadClassLock) {
-			latestLoadedClass = null;
-		}
+	/**
+	 * No need for locking, just for observing
+	 * @return
+	 */
+	public static HashMap<String, String> getLoadedClasses() {
+		return loadedClass;
 	}
 	
 	public static long[] getCurTime() {

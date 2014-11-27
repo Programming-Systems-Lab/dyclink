@@ -226,37 +226,18 @@ public class MethodStackRecorder {
 			this.updateCachedMap(this.curControlInst, fullInst, MIBConfiguration.CONTR_DEP);
 	}
 	
-	public void checkNGetClInit(String targetName) {
-		String targetFullKey = StringUtil.genKey(targetName, "<clinit>", "()V");
-		String targetShortKey = GlobalRecorder.getGlobalName(targetFullKey);
-		if (targetShortKey == null) {
-			//Because of Class.forName, the class has not been instrumented
-			logger.info("No record in global name space: " + targetFullKey);
+	public void checkNGetClInit(String targetClass) {
+		String cleanClass = StringUtil.cleanPunc(targetClass, ".");
+		String targetDumpKey = GlobalRecorder.getLoadedClass(cleanClass);
+		if (targetDumpKey == null) {
+			logger.info("Current method: " + this.methodKey);
+			logger.info("No record for: " + cleanClass);
+			logger.info("Current map: " + GlobalRecorder.getLoadedClasses());
 			return ;
 		}
 		
-		String curDumpKey = GlobalRecorder.getLatestLoadedClass();
-		
-		if (curDumpKey == null) {
-			logger.info("Empty class clinit: " + targetFullKey);
-			return ;
-		}
-		
-		//Try to remove thread id here
-		int idx = curDumpKey.lastIndexOf(":");
-		String curDumpKeyNoThread = curDumpKey.substring(0, idx);
-		
-		logger.info("Target shortKey: " + targetShortKey);
-		logger.info("cur dump key: " + curDumpKeyNoThread);
-		if (curDumpKeyNoThread.equals(targetShortKey)) {
-			logger.info("Attempt to load touched class: " + curDumpKey);
-			GlobalRecorder.clearLatestLoadedClass();
-			this.doLoadParent(curDumpKey);
-		} else {
-			logger.info("Mis-matched class");
-			logger.info("Target: " + targetShortKey);
-			logger.info("Real: " + curDumpKey);
-		}
+		logger.info(this.methodKey + " is loading " + cleanClass);
+		this.doLoadParent(targetDumpKey);
 	}
 		
 	public void loadParent(String owner, String name, String desc) {
@@ -347,7 +328,8 @@ public class MethodStackRecorder {
 		
 		if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC) {
 			//JVM will load the owner, not the exact class
-			this.checkNGetClInit(owner);
+			if (!owner.equals(this.className))
+				this.checkNGetClInit(targetClass.getName());
 		}
 		
 		String fieldKey = targetClass.getName() + "." + name + "." + desc;
@@ -620,10 +602,10 @@ public class MethodStackRecorder {
 				this.loadParent(classOnStack.getName(), "<init>", "()V");
 				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
 			} else if (BytecodeCategory.staticMethod().contains(opcode)) {
-				//Static member may load the clinit, Class.forName is anothr possible way
-				this.checkNGetClInit(owner);
 				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
 				objId = 0;
+				//Static member may load the clinit, Class.forName is another possible way
+				this.checkNGetClInit(correctClass.getName());
 			} else {
 				InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
 				Object objOnStack = relatedInst.getRelatedObj();
@@ -973,7 +955,8 @@ public class MethodStackRecorder {
 		//GsonManager.writePath(dumpKey, this.path);
 		
 		if (this.methodName.equals(clinit)) {
-			GlobalRecorder.setLatestLoadedClass(dumpKey);
+			GlobalRecorder.registerLoadedClass(StringUtil.cleanPunc(this.className, "."), 
+					dumpKey);
 		}
 		
 		if (this.recursive) {
