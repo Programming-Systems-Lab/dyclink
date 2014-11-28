@@ -5,6 +5,14 @@ import java.util.HashMap;
 import java.util.Stack;
 
 public class YAMethod {
+	
+	public YAMethod() {
+		
+	}
+	
+	public YAMethod(int i) {
+		
+	}
 
 	public void addSomething(ArrayList<Integer> target) {
 		target.add(3);

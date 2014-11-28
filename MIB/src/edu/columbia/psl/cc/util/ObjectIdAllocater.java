@@ -30,12 +30,30 @@ public class ObjectIdAllocater {
 	
 	private static ConcurrentHashMap<String, AtomicInteger> threadMethodIndexer = new ConcurrentHashMap<String, AtomicInteger>();
 	
+	private static ConcurrentHashMap<Long, Integer> objectIdMemory = new ConcurrentHashMap<Long, Integer>();
+	
 	public static long getThreadId() {
 		return threadIndexer.get();
 	}
 	
 	/*public static int getIndex() {
 		return indexer.getAndIncrement();
+	}*/
+	
+	/*public static int getIndex() {
+		long curThreadId = getThreadId();
+		if (objectIdMemory.containsKey(curThreadId)) {
+			return objectIdMemory.get(curThreadId);
+		} else {
+			int newId = indexer.getAndIncrement();
+			objectIdMemory.put(curThreadId, newId);
+			return newId;
+		}
+	}
+	
+	public static void clearIndex() {
+		long curThreadId = getThreadId();
+		objectIdMemory.remove(curThreadId);
 	}*/
 	
 	public static int getIndex(Object target) {

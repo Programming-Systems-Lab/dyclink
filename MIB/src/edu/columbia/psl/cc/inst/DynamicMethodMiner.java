@@ -17,6 +17,8 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
+import sun.tools.tree.ThisExpression;
+
 import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
@@ -38,6 +40,7 @@ import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.MethodStackRecorder;
 import edu.columbia.psl.cc.util.ObjectIdAllocater;
+import edu.columbia.psl.cc.util.ReplayMethodStackRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class DynamicMethodMiner extends MethodVisitor {
@@ -45,6 +48,8 @@ public class DynamicMethodMiner extends MethodVisitor {
 	private static Logger logger = Logger.getLogger(DynamicMethodMiner.class);
 	
 	private static String methodStackRecorder = Type.getInternalName(MethodStackRecorder.class);
+	
+	//private static String virtualRecorder = Type.getInternalName(ReplayMethodStackRecorder.class);
 	
 	private static String srHandleCommon = MIBConfiguration.getSrHandleCommon();
 	
@@ -113,6 +118,8 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	private int localMsrId = -1;
 	
+	private int virtualMsrId = -1;
+	
 	private Label curLabel = null;
 	
 	private int curLineNum = -1;
@@ -127,9 +134,14 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	private AtomicInteger indexer = new AtomicInteger();
 	
+	//Enable all instrumentation, if this is a constructor
 	private boolean constructor = false;
 	
+	//Invoke the change of object id
 	private boolean superVisited = false;
+	
+	//Control if the constructor should start passing object to recorder
+	private boolean aload0Lock = false;
 	
 	//private BlockAnalyzer blockAnalyzer = new BlockAnalyzer();
 	 
@@ -155,6 +167,8 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.annotGuard = annotGuard;
 		this.isStatic = ((access & Opcodes.ACC_STATIC) != 0);
 		this.constructor = myName.equals("<init>");
+		if (this.constructor)
+			this.aload0Lock = true;
 	}
 	
 	public synchronized int getIndex() {
@@ -347,6 +361,30 @@ public class DynamicMethodMiner extends MethodVisitor {
 		return idx;
 	}
 	
+	public void initNoneIdRecorder() {
+		if (this.shouldInstrument()) {
+			//Create the method stack recorder
+			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
+			this.mv.visitTypeInsn(Opcodes.NEW, methodStackRecorder);
+			this.mv.visitInsn(Opcodes.DUP);
+			this.mv.visitLdcInsn(this.className);
+			this.mv.visitLdcInsn(this.myName);
+			this.mv.visitLdcInsn(this.desc);
+			
+			if (this.isStatic) {
+				this.mv.visitInsn(Opcodes.ICONST_0);
+			} else {
+				this.convertConst(MethodStackRecorder.CONSTRUCTOR_DEFAULT);
+			}
+			
+			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, 
+					methodStackRecorder, 
+					"<init>", 
+					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V");
+			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
+		}
+	}
+	
 	public void initConstructor() {
 		logger.info("Visit constructor: " + this.className + " " + this.myName + " " + this.shouldInstrument());
 		
@@ -366,8 +404,14 @@ public class DynamicMethodMiner extends MethodVisitor {
 				this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMibId(), "I");
 			}
 			
+			//Change the obj id of MethodStackRecorder
+			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+			this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, MIBConfiguration.getMibId(), "I");
+			this.mv.visitFieldInsn(Opcodes.PUTFIELD, methodStackRecorder, "objId", "I");
+			
 			//Create the method stack recorder
-			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
+			/*this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
 			this.mv.visitTypeInsn(Opcodes.NEW, methodStackRecorder);
 			this.mv.visitInsn(Opcodes.DUP);
 			this.mv.visitLdcInsn(this.className);
@@ -385,7 +429,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 					methodStackRecorder, 
 					"<init>", 
 					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V");
-			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
+			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);*/
 		}
 	}
 	
@@ -393,6 +437,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 	public void visitCode() {
 		this.mv.visitCode();
 		if (this.constructor && !this.superVisited) {
+			this.initNoneIdRecorder();
 			return ; 
 		}
 		
@@ -437,7 +482,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.allLabels.add(label);
 		this.mv.visitLabel(label);
 		
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			this.handleLabel(label);
 		}
 		//this.blockAnalyzer.setCurLabel(label);
@@ -458,13 +503,13 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.curLineNum = line;
 		this.mv.visitLineNumber(line, label);
 		
-		if (this.shouldInstrument() && !this.constructor)
+		if (this.shouldInstrument())
 			this.handleLinenumber(line);
 	}
 	
 	@Override
 	public void visitInsn(int opcode) {
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			int instIdx = -1;
 			if (!isReturn(opcode)) {
 				instIdx = this.handleOpcode(opcode);
@@ -490,7 +535,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	@Override
 	public void visitIntInsn(int opcode, int operand) {
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			int instIdx = this.handleOpcode(opcode, operand);
 			this.updateMethodRep(opcode);
 			//this.blockAnalyzer.registerInst(instIdx, opcode);
@@ -500,15 +545,17 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	@Override
 	public void visitVarInsn(int opcode, int var) {
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			int instIdx = this.handleOpcode(opcode, var);
 			this.updateMethodRep(opcode);
 			//this.blockAnalyzer.registerInst(instIdx, opcode);
 		}
 		this.mv.visitVarInsn(opcode, var);
 		
-		if (this.shouldInstrument() && !this.constructor) {
-			if (opcode == Opcodes.ALOAD) {
+		if (this.shouldInstrument()) {
+			if (opcode == Opcodes.ALOAD && var == 0 && this.aload0Lock) {
+				this.mv.visitInsn(Opcodes.DUP);
+			} else if (opcode == Opcodes.ALOAD) {
 				this.updateObjOnVStack();
 			}
 		}
@@ -516,14 +563,14 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	@Override
 	public void visitTypeInsn(int opcode, String type) {
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			int instIdx = this.handleOpcode(opcode, type);
 			this.updateMethodRep(opcode);
 			//this.blockAnalyzer.registerInst(instIdx, opcode);
 		}
 		this.mv.visitTypeInsn(opcode, type);
 		
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			if (opcode == Opcodes.NEW) {
 				this.mv.visitInsn(Opcodes.DUP);
 			} else if (opcode == Opcodes.CHECKCAST) {
@@ -534,14 +581,14 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			int instIdx = this.handleField(opcode, owner, name, desc);
 			this.updateMethodRep(opcode);
 			//this.blockAnalyzer.registerInst(instIdx, opcode);
 		}
 		this.mv.visitFieldInsn(opcode, owner, name, desc);
 		
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			if ((opcode == Opcodes.GETFIELD || opcode == Opcodes.GETSTATIC)) {
 				int sort = Type.getType(desc).getSort();
 				if (sort == Type.OBJECT || sort == Type.ARRAY)
@@ -554,7 +601,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 		//For merging the graph on the fly, need to visit method before recording them
 		this.mv.visitMethodInsn(opcode, owner, name, desc);
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
 				Type[] argTypes = Type.getMethodType(desc).getArgumentTypes();
 				int traceBack = 0;
@@ -587,31 +634,32 @@ public class DynamicMethodMiner extends MethodVisitor {
 		
 		//If the INVOKESPECIAL is visited, start instrument constructor
 		if (this.constructor 
-				&& opcode == Opcodes.INVOKESPECIAL 
+				&&opcode == Opcodes.INVOKESPECIAL 
 				&& (owner.equals(this.superName) || owner.equals(this.className))
 				&& name.equals("<init>")
 				&& !this.superVisited) {
 			logger.info("Super class is visited: " + owner + " " + name);
-			logger.info("Start constructor instrumentation: " + this.className + " " + this.myName);
+			logger.info("Start constructor recording: " + this.className + " " + this.myName);
 			this.initConstructor();
 			this.superVisited = true;
+			this.aload0Lock = false;
 			this.constructor = false;
 			
-			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+			/*this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 			this.mv.visitLdcInsn(owner);
 			this.mv.visitLdcInsn(name);
 			this.mv.visitLdcInsn(desc);
 			this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
 					methodStackRecorder, 
 					srLoadParent, 
-					srLoadParentDesc);
+					srLoadParentDesc);*/
 		}
 	}
 	
 	@Override
 	public void visitJumpInsn(int opcode, Label label) {
 		String labelString = label.toString();
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			int instIdx = this.handleOpcode(opcode, labelString);
 			this.updateMethodRep(opcode);
 			//this.blockAnalyzer.registerInst(instIdx, opcode, label);
@@ -631,7 +679,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	@Override
 	public void visitLdcInsn(Object cst) {
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			int instIdx = -1;
 			if (cst instanceof Double || cst instanceof Long) {
 				instIdx = this.handleLdc(Opcodes.LDC, 2, cst.toString());
@@ -644,7 +692,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		}
 		this.mv.visitLdcInsn(cst);
 		
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			if (cst instanceof String) {
 				this.updateObjOnVStack();
 			} else if (cst instanceof Type) {
@@ -658,7 +706,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	@Override
 	public void visitIincInsn(int var, int increment) {
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			int instIdx = this.handleOpcode(Opcodes.IINC, var);
 			this.updateMethodRep(Opcodes.IINC);
 			//this.blockAnalyzer.registerInst(instIdx, Opcodes.IINC);
@@ -668,7 +716,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	@Override
 	public void visitTableSwitchInsn(int min, int max, Label dflt, Label...labels) {
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			StringBuilder sb = new StringBuilder();
 			String defaultLabel = dflt.toString();
 			
@@ -688,7 +736,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	@Override
 	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			//String labelString = dflt.toString();
 			StringBuilder sb = new StringBuilder();
 			for (Label l: labels) {
@@ -703,7 +751,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	@Override
 	public void visitMultiANewArrayInsn(String desc, int dims) {
-		if (this.shouldInstrument() && !this.constructor) {
+		if (this.shouldInstrument()) {
 			int instIdx = this.handleMultiNewArray(desc, dims);
 			this.updateMethodRep(Opcodes.MULTIANEWARRAY);
 			//this.blockAnalyzer.registerInst(instIdx, Opcodes.MULTIANEWARRAY);

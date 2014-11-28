@@ -35,6 +35,8 @@ public class MethodStackRecorder {
 		
 	private static TypeToken<GraphTemplate> GRAPH_TOKEN = new TypeToken<GraphTemplate>(){};
 	
+	public static int CONSTRUCTOR_DEFAULT = -5;
+	
 	private static String init = "<init>";
 	
 	private static String clinit = "<clinit>";
@@ -79,11 +81,11 @@ public class MethodStackRecorder {
 	
 	private List<InstNode> path = new ArrayList<InstNode>();
 	
-	private String curLabel = null;
+	protected String curLabel = null;
 	
 	public int linenumber = 0;
 	
-	private InstPool pool = new InstPool();
+	protected InstPool pool = new InstPool();
 	
 	private InstNode beforeReturn;
 	
@@ -91,7 +93,7 @@ public class MethodStackRecorder {
 	
 	private int threadMethodId = -1;
 	
-	private int objId = 0;
+	public int objId = 0;
 	
 	private HashMap<String, GraphGroup> calleeCache = new HashMap<String, GraphGroup>();
 	
@@ -236,7 +238,7 @@ public class MethodStackRecorder {
 			return ;
 		}
 		
-		logger.info(this.methodKey + " is loading " + cleanClass);
+		logger.info(this.methodKey + " is loading " + cleanClass + " clinit");
 		this.doLoadParent(targetDumpKey);
 	}
 		
@@ -335,7 +337,8 @@ public class MethodStackRecorder {
 		String fieldKey = targetClass.getName() + "." + name + "." + desc;
 		
 		if (objId > 0) {
-			fieldKey += objId;
+			//fieldKey += objId;
+			fieldKey = fieldKey + ":" + objId;
 		}
 		
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, fieldKey);
@@ -612,7 +615,7 @@ public class MethodStackRecorder {
 				//methodId = ObjectIdAllocater.parseObjId(objOnStack);
 				objId = ObjectIdAllocater.parseObjId(objOnStack);
 				
-				if (objOnStack == null) {
+				if (objOnStack == null && this.objId != CONSTRUCTOR_DEFAULT) {
 					logger.info("Responsible inst for null obj: " + relatedInst);
 				}
 				
@@ -820,7 +823,7 @@ public class MethodStackRecorder {
 			this.pool.remove(fullInst);
 			GraphUtil.unionInstPools(this.pool, childPool);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error(ex);
 		}
 	}
 	

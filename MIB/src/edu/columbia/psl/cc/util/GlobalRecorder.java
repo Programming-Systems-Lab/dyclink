@@ -3,6 +3,7 @@ package edu.columbia.psl.cc.util;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -49,6 +50,8 @@ public class GlobalRecorder {
 	private static Object nameLock = new Object();
 	
 	private static Object staticMethodMinerLock = new Object();
+	
+	private static Object vRecorderLock = new Object();
 	
 	public static void registerLoadedClass(String className, String shortClinit) {
 		synchronized(loadClassLock) {

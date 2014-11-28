@@ -7,6 +7,15 @@ import edu.columbia.psl.cc.annot.testTemplate;
 @analyzeClass
 public class JohnExample {
 	
+	public void testArgs(String...input) {
+		
+	}
+	
+	public static void main(String[] args) {
+		JohnExample je = new JohnExample();
+		je.testArgs("abc");
+	}
+	
 	//@extractTemplate
 	public String foo0(int a, int b) {
 		int c = a + b;

@@ -39,10 +39,10 @@ public class TemplateMethod extends TemplateParent {
 	public int m = 5;
  	
 	public TemplateMethod() {
-		
+		this("12", 18, "34");
 	}
 	
-	public TemplateMethod(String test1, String test2, String test3) {
+	public TemplateMethod(String test1, int test2, String test3) {
 		this.test = test1;
 	}
 	
@@ -350,9 +350,9 @@ public class TemplateMethod extends TemplateParent {
 	}
 		
 	public static void main(String[] args) {
-		int i = TemplateMethod.parentVar;
+		//int i = TemplateMethod.parentVar;
 		TemplateMethod tm = new TemplateMethod();
-		//tm.call1();
+		tm.call1();
 		/*byte a = 1;
 		double b = 2.0;
 		long c = 3;

@@ -239,6 +239,7 @@ public class InstNode implements Comparable<InstNode>{
 	
 	@Override
 	public String toString() {
+		//return this.fromMethod + " " + this.threadId + " " + this.threadMethodIdx + " " + this.idx;
 		return this.fromMethod + " " + this.threadId + " " + this.threadMethodIdx + " " + this.idx + " " + this.op.getOpcode() + " " + this.op.getInstruction() + " " + this.getAddInfo();
 	}
 	
