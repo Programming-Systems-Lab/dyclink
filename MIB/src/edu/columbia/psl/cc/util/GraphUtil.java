@@ -732,8 +732,8 @@ public class GraphUtil {
 		}
 	}
 	
-	public static void controlDepFromParentToChild(InstNode condFromParent, InstPool childPool) {
-		for (InstNode childNode: childPool) {
+	public static void controlDepFromParentToChild(InstNode condFromParent, Collection<InstNode> childSet) {
+		for (InstNode childNode: childSet) {
 			condFromParent.increChild(childNode.getFromMethod(), 
 					childNode.getThreadId(), 
 					childNode.getThreadMethodIdx(), 

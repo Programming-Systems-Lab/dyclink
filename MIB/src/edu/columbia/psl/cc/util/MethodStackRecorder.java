@@ -347,7 +347,7 @@ public class MethodStackRecorder {
 		this.updateControlRelation(fullInst);
 		this.updatePath(fullInst);
 		
-		if (BytecodeCategory.readFieldCategory().contains(opcat)) {
+		if (BytecodeCategory.readFieldCategory().contains(opcat) && objId >= 0) {
 			//Add info for field: owner + name + desc + objId
 			//Only record static or the instrumented object
 			if (opcode == Opcodes.GETSTATIC || objId > 0) {
@@ -357,7 +357,7 @@ public class MethodStackRecorder {
 					this.updateCachedMap(parent, fullInst, MIBConfiguration.WRITE_DATA_DEP);
 				}
 			}
-		} else if (BytecodeCategory.writeFieldCategory().contains(opcat)) {
+		} else if (BytecodeCategory.writeFieldCategory().contains(opcat) && objId >= 0) {
 			if (opcode == Opcodes.PUTSTATIC || objId > 0) {
 				GlobalRecorder.updateGlobalWriteFieldRecorder(fieldKey, fullInst);
 				this.latestWriteFieldRecorder.put(fieldKey, fullInst);
@@ -749,7 +749,7 @@ public class MethodStackRecorder {
 					}
 				}
 				
-				if (childGraph.getLatestWriteFields().size() > 0) {
+				if (childGraph.getLatestWriteFields().size() > 0 && childGraph.getObjId() >= 0) {
 					GlobalRecorder.replaceWriteFieldNodes(childGraph);
 				}
 			}
@@ -805,7 +805,9 @@ public class MethodStackRecorder {
 			
 			//Update control dep
 			if (this.curControlInst != null) {
-				GraphUtil.controlDepFromParentToChild(this.curControlInst, childPool);
+				//GraphUtil.controlDepFromParentToChild(this.curControlInst, childPool);
+				//Just use input, or the graph volume will be too large
+				GraphUtil.controlDepFromParentToChild(this.curControlInst, childGraph.getFirstReadLocalVars());
 			}
 			
 			String returnType = methodType.getReturnType().getDescriptor();

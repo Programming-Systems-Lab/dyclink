@@ -45,7 +45,6 @@ public class ClassInfoCollector {
 				for (Method m: calledClass.getDeclaredMethods()) {
 					/*if (m.isBridge() || m.isSynthetic())
 						continue ;*/
-					
 					if (m.getName().equals(methodName)) {
 						Type[] mArgs = Type.getArgumentTypes(m);
 						Type mReturn = Type.getReturnType(m);
@@ -56,11 +55,15 @@ public class ClassInfoCollector {
 						if (mArgs.length != targetArgs.length)
 							continue ;
 						
+						int count = 0;
 						for (int i =0; i < targetArgs.length; i++) {
 							if (!targetArgs[i].equals(mArgs[i]))
 								continue ;
+							count++;
 						}
-						return calledClass;
+						
+						if (count == targetArgs.length)
+							return calledClass;
 					}
 				}
 				calledClass = calledClass.getSuperclass();
@@ -97,13 +100,25 @@ public class ClassInfoCollector {
 		return null;
 	}
 	
-	public static void main(String[] args) {
-		Class clazz = retrieveCorrectClassByField("cc/testbase/TemplateParent", "sVar");
-		Class<?> clazz2 = retrieveCorrectClassByMethod("java/util/ArrayList", "<init>", "()V", true);
-		System.out.println("Check class name: " + clazz.getName());
-		System.out.println("Check clazz2: " + clazz2);
+	public static void main(String[] args) throws ClassNotFoundException {
+		Class<?> testClass = retrieveCorrectClassByMethod("org/apache/xerces/parsers/AbstractSAXParser", 
+				"parse", 
+				"(Lorg/apache/xerces/xni/parser/XMLInputSource;)V", false);
+		System.out.println(testClass);
+		//Type targetMethodType = Type.getMethodType("(Lorg/apache/xerces/xniparser/XMLInputSource;)V");
+		//System.out.println(targetMethodType.getReturnType());
+		//System.out.println(targetMethodType.getArgumentTypes().length);
 		
-		ArrayList a = new ArrayList();
+		/*Class<?> theClazz = Class.forName("org.apache.xerces.parsers.AbstractSAXParser");
+		for (Method m: theClazz.getDeclaredMethods()) {
+			System.out.println(m.getName());
+			System.out.println("Args: ");
+			for (Class aClazz: m.getParameterTypes()) {
+				System.out.println(aClazz);
+			}
+			System.out.println("Return type: " + m.getReturnType());
+		}*/
+		
 	}
 
 }

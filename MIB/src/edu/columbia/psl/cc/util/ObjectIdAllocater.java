@@ -61,6 +61,7 @@ public class ObjectIdAllocater {
 		try {
 			int newId = indexer.getAndIncrement();
 			Field idField = targetClass.getDeclaredField(MIBConfiguration.getMibId());
+			idField.setAccessible(true);
 			idField.setInt(target, newId);
 			return newId;
 		} catch (Exception ex) {
