@@ -107,6 +107,7 @@ public class HorizontalMerger {
 		
 		//Pick the one with smallest thread method id
 		List<GraphTemplate> toMerge = new ArrayList<GraphTemplate>();
+		List<Integer> weights = new ArrayList<Integer>();
 		for (String groupKey: stats.keySet()) {
 			List<GraphTemplate> statList = stats.get(groupKey);
 			
@@ -124,9 +125,10 @@ public class HorizontalMerger {
 				GraphUtil.multiplyGraph(origin, times);
 			}
 			toMerge.add(origin);
+			weights.add(times);
 			logger.info("Rep for " + groupKey + ": " + origin.getMethodKey() + " " + origin.getThreadMethodId());
 		}
-		Collections.sort(toMerge, graphSizeSorter);
+		/*Collections.sort(toMerge, graphSizeSorter);
 		
 		GraphTemplate repGraph = toMerge.get(0);
 		if (toMerge.size() > 1) {
@@ -134,7 +136,8 @@ public class HorizontalMerger {
 				GraphTemplate g = toMerge.get(i);
 				GraphUtil.mergeGraph(repGraph, g);
 			}
-		}
+		}*/
+		GraphTemplate repGraph = GraphUtil.mergeGraphWithNormalization(toMerge, weights);
 		
 		return repGraph;
 	}

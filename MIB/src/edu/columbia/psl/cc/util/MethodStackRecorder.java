@@ -63,8 +63,10 @@ public class MethodStackRecorder {
 		
 	private Stack<InstNode> stackSimulator = new Stack<InstNode>();
 	
-	//private HashSet<InstNode> curControlInsts= new HashSet<InstNode>();
 	private InstNode curControlInst;
+	
+	//For goto, if next label is not correct, remove the control inst
+	//private boolean checkLabel = false;
 	
 	//Key: local var idx, Val: inst node
 	private Map<Integer, InstNode> localVarRecorder = new HashMap<Integer, InstNode>();
@@ -190,10 +192,9 @@ public class MethodStackRecorder {
 			child.registerParent(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
 		} else if (depType == MIBConfiguration.WRITE_DATA_DEP) {
 			//write data dep only needs to be recorded once
-			String childIdxKey = StringUtil.genIdxKey(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx());
+			/*String childIdxKey = StringUtil.genIdxKey(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx());
 			if (parent.getChildFreqMap().containsKey(childIdxKey))
-				return ;
-			
+				return ;*/
 			parent.increChild(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getWriteDataWeight());
 			child.registerParent(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
 		} else if (depType == MIBConfiguration.CONTR_DEP) {
@@ -221,6 +222,17 @@ public class MethodStackRecorder {
 	
 	public void updateCurLabel(String curLabel) {
 		this.curLabel = curLabel;
+		
+		/*if (this.checkLabel) {
+			if (this.curControlInst.getOp().getOpcode() != Opcodes.GOTO) {
+				logger.error("Control inst not goto: " + this.curControlInst);
+			}
+			String expectLabel = this.curControlInst.getAddInfo();
+			if (!this.curLabel.equals(expectLabel))
+				this.curControlInst = null;
+			
+			this.checkLabel = false;
+		}*/
 	}
 	
 	private void updateControlRelation(InstNode fullInst) {
@@ -417,6 +429,9 @@ public class MethodStackRecorder {
 				|| opcode == Opcodes.TABLESWITCH 
 				|| opcode == Opcodes.LOOKUPSWITCH) {
 			this.curControlInst = fullInst;
+			
+			/*if (this.curControlInst.getOp().getOpcode() == Opcodes.GOTO)
+				this.checkLabel = true;*/
 		}
 	}
 	

@@ -612,6 +612,116 @@ public class GraphUtil {
 			targetPool.add(add);
 		}
 	}
+	
+	public static void summarizeGraph(HashMap<String, List<InstEdge>> edges, InstPool pool) {
+		for (String edgeKey: edges.keySet()) {
+			List<InstEdge> instEdges = edges.get(edgeKey);
+			
+			if (instEdges.size() > 0) {
+				InstEdge protoEdge = instEdges.get(0);
+				InstNode protoFrom = protoEdge.from;
+				InstNode sumFrom = pool.searchAndGet(protoFrom.getFromMethod(), 
+						protoFrom.getThreadId(), 
+						0, 
+						protoFrom.getIdx(), 
+						protoFrom.getOp().getOpcode(), 
+						protoFrom.getAddInfo());
+				
+				InstNode protoTo = protoEdge.to;
+				InstNode sumTo = pool.searchAndGet(protoTo.getFromMethod(),
+						protoTo.getThreadId(),
+						0,
+						protoTo.getIdx(),
+						protoTo.getOp().getOpcode(),
+						protoTo.getAddInfo());
+				
+				double totalFreq = 0;
+				for (InstEdge ie: instEdges) {
+					totalFreq += ie.freq;
+				}
+				//No need to construct the parent relation, save some time
+				sumFrom.increChild(sumTo.getFromMethod(), 
+						sumTo.getThreadId(), sumTo.getThreadMethodIdx(), 
+						sumTo.getIdx(), 
+						totalFreq);
+			}
+		}
+	}
+	
+	public static GraphTemplate mergeGraphWithNormalization(List<GraphTemplate> toMerge, List<Integer> weights) {
+		if (toMerge == null || toMerge.size() == 0)
+			return null;
+		
+		if (toMerge.size() == 1)
+			return toMerge.get(0);
+		
+		//Pick one in toMerge for basic information
+		GraphTemplate sumTemplate = new GraphTemplate();
+		GraphTemplate oriTemplate = toMerge.get(0);
+		sumTemplate.setMethodKey(oriTemplate.getMethodKey());
+		sumTemplate.setShortMethodKey(oriTemplate.getShortMethodKey());
+		sumTemplate.setStaticMethod(oriTemplate.isStaticMethod());
+		sumTemplate.setMethodArgSize(oriTemplate.getMethodArgSize());
+		sumTemplate.setMethodReturnSize(oriTemplate.getMethodReturnSize());
+		
+		HashMap<String, List<InstEdge>> recorder = new HashMap<String, List<InstEdge>>();
+		for (int i = 0; i < toMerge.size(); i++) {
+			GraphTemplate g = toMerge.get(i);
+			int weight = weights.get(i);
+			for (InstNode inst: g.getInstPool()) {
+				for (String childKey: inst.getChildFreqMap().keySet()) {
+					double freq = inst.getChildFreqMap().get(childKey);
+					InstNode cNode = _retrieveRealInst(childKey, g.getInstPool());
+					
+					if (cNode != null) {
+						String edgeKey = StringUtil.genEdgeKey(inst, cNode);
+						InstEdge ie = new InstEdge();
+						ie.from = inst;
+						ie.to = cNode;
+						ie.freq = freq;
+						ie.weight = weight;
+						
+						if (recorder.containsKey(edgeKey)) {
+							recorder.get(edgeKey).add(ie);
+						} else {
+							List<InstEdge> edges = new ArrayList<InstEdge>();
+							edges.add(ie);
+							recorder.put(edgeKey, edges);
+						}
+					}
+				}
+			}
+		}
+		
+		//1st stage, Filter out edges that only less than half graphs have
+		int totalTimes = 0;
+		for (int i = 0; i< weights.size(); i++) {
+			totalTimes += weights.get(i).intValue();
+		}
+		int edgeThresh = totalTimes/2;
+		
+		Iterator<String> edgeIT = recorder.keySet().iterator();
+		while (edgeIT.hasNext()) {
+			String edgeKey = edgeIT.next();
+			List<InstEdge> curEdges = recorder.get(edgeKey);
+			
+			double edgeSum = 0;
+			for (InstEdge ce: curEdges) {
+				edgeSum += ce.weight;
+			}
+			
+			if (edgeSum < edgeThresh) {
+				edgeIT.remove();
+			}
+		}
+		
+		//Generate a summarized graph
+		InstPool sumPool = new InstPool();
+		summarizeGraph(recorder, sumPool);
+		sumTemplate.setInstPool(sumPool);
+		
+		return sumTemplate;
+	}
 		
 	public static void dataDepFromParentToChild(Map<Integer, InstNode> parentMap, 
 			InstPool parentPool,
@@ -930,7 +1040,8 @@ public class GraphUtil {
 		
 		double freq;
 		
+		int weight;
+		
 		int depType;
 	}
-
 }

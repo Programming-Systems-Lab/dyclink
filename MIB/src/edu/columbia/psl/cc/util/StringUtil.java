@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.objectweb.asm.Type;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.pojo.InstNode;
 
 public class StringUtil {
 	
@@ -110,6 +111,12 @@ public class StringUtil {
 	
 	public static String genIdxKey(String fromMethod, long threadId, int threadMethodIdx, int idx) {
 		return fromMethod + "-" + threadId + "-" + threadMethodIdx + "-" + idx;
+	}
+	
+	public static String genEdgeKey(InstNode from, InstNode to) {
+		String fromKey = from.getFromMethod() + "-" + from.getThreadId() + "-" + from.getIdx();
+		String toKey = to.getFromMethod() + "-" + to.getThreadId() + "-" + to.getIdx();
+		return fromKey + "=>" + toKey;
 	}
 	
 	public static String[] parseIdxKey(String idxKey) {
