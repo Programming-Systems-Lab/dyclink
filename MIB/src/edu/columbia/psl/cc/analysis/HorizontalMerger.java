@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -31,10 +32,20 @@ public class HorizontalMerger {
 	
 	private static Comparator<GraphTemplate> graphSizeSorter = new Comparator<GraphTemplate>() {
 		@Override
-		public int compare(GraphTemplate g1, GraphTemplate g2) {
-			int g1Size = g1.getInstPool().size();
-			int g2Size = g2.getInstPool().size();
-			return g1Size < g2Size?1: (g1Size> g2Size?-1: 0);
+		public int compare(GraphTemplate g1, GraphTemplate g2) {			
+			if (g1.getVertexNum() < g2.getVertexNum()) {
+				return 1;
+			} else if (g1.getVertexNum() > g2.getVertexNum()) {
+				return -1;
+			} else {
+				if (g1.getEdgeNum() < g2.getEdgeNum())
+					return 1;
+				else if (g1.getEdgeNum() > g2.getEdgeNum())
+					return -1;
+				else {
+					return 0;
+				}
+			}
 		}
 	};
 	
@@ -53,14 +64,17 @@ public class HorizontalMerger {
 		File dir = new File(dirString);
 		
 		HashSet<String> allNames = TemplateLoader.loadAllFileNames(dir);
-		for (String name: allNames) {
+		Iterator<String> allNameIt = allNames.iterator();
+		while (allNameIt.hasNext()) {
+			String name = allNameIt.next();
 			if (recursiveMethods.contains(name)) {
+				logger.info("Recursive method: " + name + ", no need for extraction");
 				GsonManager.cacheGraph(name, dirIdx, true);
+				allNameIt.remove();
 			} else {
 				GsonManager.cacheGraph(name, dirIdx, false);
 			}
-		}
-		
+		}		
 		return allNames;
 	}
 	
@@ -70,6 +84,11 @@ public class HorizontalMerger {
 	 * @return
 	 */
 	private static GraphTemplate extractRepGraph(HashSet<GraphTemplate> graphSet) {
+		if (graphSet.size() == 1) {
+			GraphTemplate ret = graphSet.iterator().next();
+			return ret;
+		}
+		
 		HashMap<String, List<GraphTemplate>> stats = new HashMap<String, List<GraphTemplate>>();
 		for (GraphTemplate graph: graphSet) {
 			String groupKey = GraphGroup.groupKey(graph);
@@ -81,26 +100,31 @@ public class HorizontalMerger {
 				stats.put(groupKey, statList);
 			}
 		}
+		logger.info("Graph groups with freq: ");
+		for (String groupKey: stats.keySet()) {
+			logger.info(groupKey + ": " + stats.get(groupKey).size());
+		}
 		
-		//Pick the one with the latest graph id
+		//Pick the one with smallest thread method id
 		List<GraphTemplate> toMerge = new ArrayList<GraphTemplate>();
 		for (String groupKey: stats.keySet()) {
 			List<GraphTemplate> statList = stats.get(groupKey);
 			
-			int maxId = -1;
-			GraphTemplate latest = null;
+			int minId = Integer.MAX_VALUE;
+			GraphTemplate origin = null;
 			for (GraphTemplate g: statList) {
-				if (g.getThreadMethodId() > maxId) {
-					maxId = g.getThreadMethodId();
-					latest = g;
+				if (g.getThreadMethodId() < minId) {
+					minId = g.getThreadMethodId();
+					origin = g;
 				}
 			}
 			
 			int times = statList.size();
 			if (times > 1) {
-				GraphUtil.multiplyGraph(latest, times);
+				GraphUtil.multiplyGraph(origin, times);
 			}
-			toMerge.add(latest);
+			toMerge.add(origin);
+			logger.info("Rep for " + groupKey + ": " + origin.getMethodKey() + " " + origin.getThreadMethodId());
 		}
 		Collections.sort(toMerge, graphSizeSorter);
 		
@@ -134,15 +158,19 @@ public class HorizontalMerger {
 		
 		logger.info("Start select representative template graphs");
 		for (String name: allTemplateNames) {
+			logger.info("Extracting rep graph for: " + name);
 			HashSet<GraphTemplate> allGraphs = graphByNames.get(name);
 			GraphTemplate rep = extractRepGraph(allGraphs);
+			logger.info("Merge result: " + rep.getInstPool().size());
 			GsonManager.writeJsonGeneric(rep, name, graphToken, 0);
 		}
 		
 		logger.info("Start select representative test graphs");
 		for (String name: allTestNames) {
+			logger.info("Extracting rep graph for: " + name);
 			HashSet<GraphTemplate> allGraphs = graphByNames.get(name);
 			GraphTemplate rep = extractRepGraph(allGraphs);
+			logger.info("Merge result: " + rep.getInstPool().size());
 			GsonManager.writeJsonGeneric(rep, name, graphToken, 1);
 		}
 		

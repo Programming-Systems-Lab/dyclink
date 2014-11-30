@@ -2,6 +2,8 @@ package cc.testbase;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SortingExperiments {
 	
@@ -249,17 +251,47 @@ public class SortingExperiments {
 	}
 	
 	public static void main(String[] args) {
-		int size = 2000;
+		int size = 10;
 		Random randomGenerator = new Random();
-		int[] inputData = new int[size];
+		final int[] inputData = new int[size];
 		for (int i = 0; i < size; i++) {
-			inputData[i] = randomGenerator.nextInt(10000);
+			inputData[i] = randomGenerator.nextInt(100);
 		}
 		//int[] inputData = {4, 83, 32, 15};
 		
-		SortingExperiments se = new SortingExperiments();
+		final SortingExperiments se = new SortingExperiments();
 		
-		int[] selectionInput = copyData(inputData);
+		ExecutorService executor = Executors.newFixedThreadPool(3);
+		/*executor.execute(new Runnable() {
+			public void run() {
+				int[] selectionInput = copyData(inputData);
+				int[] selectionResult = se.selectionSort(selectionInput);
+				System.out.println("Selection sort: " + Arrays.toString(selectionResult));
+			}
+		});*/
+		
+		/*executor.execute(new Runnable() {
+			public void run() {
+				int[] quickInput = copyData(inputData);
+				int[] quickResult = se.quickSort(quickInput);
+				System.out.println("Quick sort: " + Arrays.toString(quickResult));
+			}
+		});*/
+		
+		executor.execute(new Runnable() {
+			public void run() {
+				int[] mergeInput = copyData(inputData);
+				int[] mergeResult = se.mergeSort(mergeInput);
+				System.out.println("Merge sort: " + Arrays.toString(mergeResult));
+			}
+		});
+		
+		executor.shutdown();
+		while (!executor.isTerminated());
+		
+		System.out.println("Sorting experiment ends");
+		
+		/*int[] selectionInput = copyData(inputData);
 		int[] selectionResult = se.selectionSort(selectionInput);
 		System.out.println("Selection sort: " + Arrays.toString(selectionResult));
 		
@@ -300,6 +332,6 @@ public class SortingExperiments {
 		
 		int[] gnomeInput = copyData(inputData);
 		se.gnomeSort(gnomeInput);
-		System.out.println("Gnome sort: " + Arrays.toString(gnomeInput));
+		System.out.println("Gnome sort: " + Arrays.toString(gnomeInput));*/
 	}
 }

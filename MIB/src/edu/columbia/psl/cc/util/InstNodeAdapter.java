@@ -30,8 +30,6 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 	
 	private InstPool pool = new InstPool();
 	
-	private HashSet<InstNode> cached = new HashSet<InstNode>();
-	
 	@Override
 	public InstNode deserialize(JsonElement json, Type typeOfT,
 			JsonDeserializationContext context) throws JsonParseException {
@@ -78,35 +76,27 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		//TypeToken<ArrayList<Integer>> parentToken = new TypeToken<ArrayList<Integer>>(){};
 		
 		InstNode inst = this.pool.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo);
-		
-		if (cached.contains(inst)) {
-			return inst;
-		} else {
-			if (BytecodeCategory.writeFieldCategory().contains(inst.getOp().getCatId())) {
-				InstNode nodeInMemory = GlobalRecorder.getWriteFieldNode(inst.getAddInfo());
-				
-				if (nodeInMemory != null) {
-					//logger.info("Find inst in global recorder: " + nodeInMemory);
-					this.pool.add(nodeInMemory);
-					this.cached.add(nodeInMemory);
-					return nodeInMemory;
-				}
+		if (BytecodeCategory.writeFieldCategory().contains(inst.getOp().getCatId())) {
+			InstNode nodeInMemory = GlobalRecorder.getWriteFieldNode(inst.getAddInfo());
+			if (nodeInMemory != null && nodeInMemory.equals(inst)) {
+				this.pool.remove(inst);
+				this.pool.add(nodeInMemory);
+				return nodeInMemory;
 			}
-			
-			inst.setInstDataParentList(instDataParentList);
-			inst.setWriteDataParentList(writeDataParentList);
-			inst.setControlParentList(controlParentList);
-			inst.setChildFreqMap(childFreqMap);
-			inst.setStartDigit(startDigit);
-			inst.setStartTime(startTime);
-			inst.setUpdateDigit(updateDigit);
-			inst.setUpdateTime(updateTime);
-			inst.setLinenumber(linenumber);
-			//inst.setChildFreqMap((TreeMap<Integer, Double>)context.deserialize(object.get("childFreqpMap"), childToken.getType()));
-			//inst.setParentList((ArrayList<Integer>)context.deserialize(object.get("parentList"), parentToken.getType()));
-			this.cached.add(inst);
-			return inst;
 		}
+		
+		inst.setInstDataParentList(instDataParentList);
+		inst.setWriteDataParentList(writeDataParentList);
+		inst.setControlParentList(controlParentList);
+		inst.setChildFreqMap(childFreqMap);
+		inst.setStartDigit(startDigit);
+		inst.setStartTime(startTime);
+		inst.setUpdateDigit(updateDigit);
+		inst.setUpdateTime(updateTime);
+		inst.setLinenumber(linenumber);
+		//inst.setChildFreqMap((TreeMap<Integer, Double>)context.deserialize(object.get("childFreqpMap"), childToken.getType()));
+		//inst.setParentList((ArrayList<Integer>)context.deserialize(object.get("parentList"), parentToken.getType()));
+		return inst;
 	}
 
 	@Override

@@ -20,9 +20,10 @@ public class InstPool extends TreeSet<InstNode> {
 	}
 	
 	public InstPool(InstPool contents) {
-		for (InstNode c: contents) {
+		this.addAll(contents);
+		/*for (InstNode c: contents) {
 			this.searchAndGet(c.getFromMethod(), c.getThreadId(), c.getThreadMethodIdx(), c.getIdx(), c.getOp().getOpcode(), c.getAddInfo());
-		}
+		}*/
 	}
 
 	public InstNode searchAndGet(String methodKey, long threadId, int threadMethodIdx, int idx, int opcode, String addInfo) {

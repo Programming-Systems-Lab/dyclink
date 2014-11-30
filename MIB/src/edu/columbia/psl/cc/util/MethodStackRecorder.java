@@ -682,7 +682,6 @@ public class MethodStackRecorder {
 				
 				//Check if there is similar graph
 				GraphTemplate rep = gGroup.getGraph(childGraph);
-				
 				if (rep != null) {
 					logger.info("Find similar graph in cache: " + fullKeyWithThreadObjId);
 					logger.info(childGraph.getThreadMethodId() + " replaced by " + rep.getThreadMethodId());
@@ -708,6 +707,7 @@ public class MethodStackRecorder {
 			
 			logger.info("Child graph analysis: " + childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
 			logger.info("Child graph size: " + childGraph.getInstPool().size());
+			logger.info("Recorded vertex edge size: " + childGraph.getVertexNum() + " " + childGraph.getEdgeNum());
 						
 			//Remove return
 			InstPool childPool = childGraph.getInstPool();

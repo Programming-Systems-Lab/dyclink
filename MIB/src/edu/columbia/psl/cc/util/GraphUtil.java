@@ -387,57 +387,6 @@ public class GraphUtil {
 		return ret;
 	}
 	
-	/*private static SurrogateInst generateSurrogate(InstNode inst, InstPool pool) {
-		//possible read: xload, getfield, getstatic, all method calls from jvm
-		String instKey = StringUtil.genIdxKey(inst.getFromMethod(), inst.getThreadId(), inst.getThreadMethodIdx(), inst.getIdx());
-		
-		//For the first surrogate, don't copy parent for it. It's for storing children in method
-		boolean shouldCopyParent = true;
-		SurrogateInst newSur = new SurrogateInst(inst);
-		if (inst.probeSurrogate() == 0) {
-			inst.setMaxSurrogate((inst.getIdx() + 1 ) * MIBConfiguration.getInstance().getIdxExpandFactor());
-			shouldCopyParent = false;
-			
-			newSur.getInstDataParentList().clear();
-			newSur.getWriteDataParentList().clear();
-			newSur.getControlParentList().clear();
-			newSur.getChildFreqMap().clear();
-			newSur.setIdx(inst.getIdx());
-		} else {
-			newSur.setIdx(inst.getMaxSurrogate());
-			newSur.getInstDataParentList().clear();
-			pool.add(newSur);
-		}
-		
-		inst.addSurrogateInst(newSur);
-		
-		if (shouldCopyParent) {
-			HashSet<InstNode> controlSet = retrieveRequiredParentInsts(inst, pool, MIBConfiguration.CONTR_DEP);
-			for (InstNode instNode: controlSet) {
-				double freq = instNode.getChildFreqMap().get(instKey);
-				instNode.increChild(newSur.getFromMethod(), newSur.getThreadId(), newSur.getThreadMethodIdx(), newSur.getIdx(), freq);
-				newSur.registerParent(instNode.getFromMethod(), instNode.getThreadId(), instNode.getThreadMethodIdx(), instNode.getIdx(), MIBConfiguration.CONTR_DEP);
-			}
-			
-			HashSet<InstNode> writeSet = retrieveRequiredParentInsts(inst, pool, MIBConfiguration.WRITE_DATA_DEP);
-			for (InstNode instNode: writeSet) {
-				double freq = instNode.getChildFreqMap().get(instKey);
-				instNode.increChild(newSur.getFromMethod(), newSur.getThreadId(), newSur.getThreadMethodIdx(), newSur.getIdx(), freq);
-				newSur.registerParent(instNode.getFromMethod(), instNode.getThreadId(), inst.getThreadMethodIdx(), instNode.getIdx(), MIBConfiguration.WRITE_DATA_DEP);
-			}
-			
-			HashSet<InstNode> instParents = retrieveRequiredParentInsts(inst, pool, MIBConfiguration.INST_DATA_DEP);
-			for (InstNode instParent: instParents) {
-				SurrogateInst surParent = generateSurrogate(instParent, pool);
-				
-				surParent.increChild(newSur.getFromMethod(), newSur.getThreadId(), newSur.getThreadMethodIdx(), newSur.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
-				newSur.registerParent(surParent.getFromMethod(), surParent.getThreadId(), surParent.getThreadMethodIdx(), surParent.getIdx(), MIBConfiguration.INST_DATA_DEP);
-			}
-		}
-		
-		return newSur;
-	}*/
-	
 	public static void multiplyGraph(GraphTemplate g, int times) {
 		for (InstNode inst: g.getInstPool()) {
 			TreeMap<String, Double> childMap = inst.getChildFreqMap();
@@ -474,7 +423,10 @@ public class GraphUtil {
 		}
 	}
 	
-	public static void doMerge(InstNode app, InstPool targetPool, InstPool appendPool, int depType) {
+	public static void doMerge(InstNode app, 
+			HashMap<String, InstNode> appLookup, 
+			InstPool targetPool,
+			int depType) {
 		List<String> parentList = null;
 		
 		if (depType == MIBConfiguration.CONTR_DEP) {
@@ -485,12 +437,9 @@ public class GraphUtil {
 			parentList = app.getWriteDataParentList();
 		}
 		
-		if (parentList == null || parentList.size() == 0)
-			return ;
-		
 		//Map self
 		InstNode mapApp = searchSimilarInst(app, targetPool);
-				
+		
 		String appKey = StringUtil.genIdxKey(app.getFromMethod(), 
 				app.getThreadId(), 
 				app.getThreadMethodIdx(), 
@@ -503,7 +452,7 @@ public class GraphUtil {
 		}
 		
 		for (String cpKey: parentList) {
-			InstNode parentNode = _retrieveRealInst(cpKey, appendPool);
+			InstNode parentNode = appLookup.get(cpKey);
 			if (mapApp != null) {
 				//Null parent is from parent (data dep interface, control dep, field written by parent)
 				if (parentNode != null) {
@@ -573,14 +522,94 @@ public class GraphUtil {
 		
 	}
 	
+	private static void genInstEdge(InstNode app, 
+			List<String> parents, 
+			HashMap<String, InstNode> lookup, 
+			List<InstEdge> container, 
+			int depType) {		
+		String appKey = StringUtil.genIdxKey(app.getFromMethod(), 
+				app.getThreadId(), 
+				app.getThreadMethodIdx(), 
+				app.getIdx());
+		for (String p: parents) {
+			InstNode pNode = lookup.get(p);
+			if (pNode != null) {
+				InstEdge ie = new InstEdge();
+				ie.from = pNode;
+				ie.to = app;
+				ie.freq = pNode.getChildFreqMap().get(appKey);
+				ie.depType = depType;
+				container.add(ie);
+			}
+		}
+	}
+	
+	public static void removeEdge(InstNode parent, InstNode child, int depType) {
+		String parentKey = StringUtil.genIdxKey(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx());
+		String childKey = StringUtil.genIdxKey(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx());
+		if (depType == MIBConfiguration.CONTR_DEP) {
+			child.getControlParentList().remove(parentKey);
+			parent.getChildFreqMap().remove(childKey);
+		} else if (depType == MIBConfiguration.INST_DATA_DEP) {
+			child.getInstDataParentList().remove(parentKey);
+			parent.getChildFreqMap().remove(childKey);
+		} else if (depType == MIBConfiguration.WRITE_DATA_DEP) {
+			child.getWriteDataParentList().remove(parentKey);
+			parent.getChildFreqMap().remove(childKey);
+		}
+	}
+	
 	public static void mergeGraph(GraphTemplate target, GraphTemplate toAppend) {		
-		InstPool targetPool = toAppend.getInstPool();
+		InstPool targetPool = target.getInstPool();
 		InstPool appendPool = toAppend.getInstPool();
 		
+		List<InstEdge> allAppRelations = new ArrayList<InstEdge>();
+		HashMap<String, InstNode> appLookup = new HashMap<String, InstNode>();
 		for (InstNode app: appendPool) {
-			doMerge(app, targetPool, appendPool, MIBConfiguration.CONTR_DEP);
-			doMerge(app, targetPool, appendPool, MIBConfiguration.INST_DATA_DEP);
-			doMerge(app, targetPool, appendPool, MIBConfiguration.WRITE_DATA_DEP);
+			String appKey = StringUtil.genIdxKey(app.getFromMethod(), 
+					app.getThreadId(), 
+					app.getThreadMethodIdx(), 
+					app.getIdx());
+			appLookup.put(appKey, app);
+		}
+		
+		for (InstNode app: appendPool) {
+			List<String> cps = app.getControlParentList();
+			genInstEdge(app, cps, appLookup, allAppRelations, MIBConfiguration.CONTR_DEP);
+			
+			List<String> ips = app.getInstDataParentList();
+			genInstEdge(app, ips, appLookup, allAppRelations, MIBConfiguration.INST_DATA_DEP);
+			
+			List<String> wps = app.getWriteDataParentList();
+			genInstEdge(app, wps, appLookup, allAppRelations, MIBConfiguration.WRITE_DATA_DEP);
+		}
+		
+		HashSet<InstNode> toAdd = new HashSet<InstNode>();
+		for (InstEdge ie: allAppRelations) {
+			InstNode mapFrom = searchSimilarInst(ie.from, targetPool);
+			InstNode mapTo = searchSimilarInst(ie.to, targetPool);
+			
+			if (mapFrom != null && mapTo != null) {
+				mapFrom.increChild(mapTo.getFromMethod(), mapTo.getThreadId(), mapTo.getThreadMethodIdx(), mapTo.getIdx(), ie.freq);
+				mapTo.registerParent(mapFrom.getFromMethod(), mapFrom.getThreadId(), mapFrom.getThreadMethodIdx(), mapFrom.getIdx(), ie.depType);
+			} else if (mapFrom != null && mapTo == null) {
+				toAdd.add(ie.to);
+				removeEdge(ie.from, ie.to, ie.depType);
+				mapFrom.increChild(ie.to.getFromMethod(), ie.to.getThreadId(), ie.to.getThreadMethodIdx(), ie.to.getIdx(), ie.freq);
+				ie.to.registerParent(mapFrom.getFromMethod(), mapFrom.getThreadId(), mapFrom.getThreadMethodIdx(), mapFrom.getIdx(), ie.depType);
+			} else if (mapFrom == null && mapTo != null) {
+				toAdd.add(ie.from);
+				removeEdge(ie.from, ie.to, ie.depType);
+				ie.from.increChild(mapTo.getFromMethod(), mapTo.getThreadId(), mapTo.getThreadMethodIdx(), mapTo.getIdx(), ie.freq);
+				mapTo.registerParent(ie.from.getFromMethod(), ie.from.getThreadId(), ie.from.getThreadMethodIdx(), ie.from.getIdx(), ie.depType);
+			} else if (mapFrom == null && mapTo == null) {
+				toAdd.add(ie.from);
+				toAdd.add(ie.to);
+			}
+		}
+		
+		for (InstNode add: toAdd) {
+			targetPool.add(add);
 		}
 	}
 		
@@ -892,6 +921,16 @@ public class GraphUtil {
 		double val = d * times;
 		System.out.println("Check val: " + val);
 		
+	}
+	
+	public static class InstEdge {
+		InstNode from;
+		
+		InstNode to;
+		
+		double freq;
+		
+		int depType;
 	}
 
 }

@@ -352,7 +352,7 @@ public class TemplateMethod extends TemplateParent {
 	public static void main(String[] args) {
 		//int i = TemplateMethod.parentVar;
 		TemplateMethod tm = new TemplateMethod();
-		tm.call1();
+		//tm.call1();
 		/*byte a = 1;
 		double b = 2.0;
 		long c = 3;
@@ -369,7 +369,7 @@ public class TemplateMethod extends TemplateParent {
 		//classAdd(5);
 		//int a = 2;
 		//int[] b = {3, 4, 7};
-		//tm.forMethod();
+		tm.forMethod();
 		//tm.forClassMethod();
 		//TemplateParent tp = new TemplateMethod();
 		//tp.interestingMethod();
