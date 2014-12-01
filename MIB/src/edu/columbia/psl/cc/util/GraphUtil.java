@@ -668,6 +668,7 @@ public class GraphUtil {
 		for (int i = 0; i < toMerge.size(); i++) {
 			GraphTemplate g = toMerge.get(i);
 			int weight = weights.get(i);
+			logger.info("Traversing graph: " + g.getMethodKey() + " " + g.getThreadMethodId());
 			for (InstNode inst: g.getInstPool()) {
 				for (String childKey: inst.getChildFreqMap().keySet()) {
 					double freq = inst.getChildFreqMap().get(childKey);
@@ -691,6 +692,7 @@ public class GraphUtil {
 					}
 				}
 			}
+			logger.info("Finish traversing: " + g.getMethodKey() + " " + g.getThreadMethodId());
 		}
 		
 		//1st stage, Filter out edges that only less than half graphs have

@@ -40,6 +40,8 @@ public class GraphTemplate {
 	
 	private HashMap<String, InstNode> latestWriteFields;
 	
+	private List<String> methodCalls;
+	
 	/*private Map<String, HashSet<InstNode>> firstReadFields;
 	
 	private Map<String, InstNode> writeFields;
@@ -175,6 +177,14 @@ public class GraphTemplate {
 	
 	public HashMap<String, InstNode> getLatestWriteFields() {
 		return this.latestWriteFields;
+	}
+	
+	public void setMethodCalls(List<String> methodCalls) {
+		this.methodCalls = methodCalls;
+	}
+	
+	public List<String> getMethodCalls() {
+		return this.methodCalls;
 	}
 	
 	/*public void setFirstReadFields(Map<String, HashSet<InstNode>> firstReadFields) {

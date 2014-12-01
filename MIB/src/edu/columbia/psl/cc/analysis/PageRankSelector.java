@@ -247,10 +247,10 @@ public class PageRankSelector {
 		List<InstNode> sortedSub = GraphUtil.sortInstPool(subGraph.getInstPool(), true);
 		
 		//Pick the most important node from sorteSob
-		PageRankSelector subSelector = new PageRankSelector(subGraph.getInstPool(), false);
+		logger.info("Sub graph profile: " + subGraph.getMethodKey());
+		PageRankSelector subSelector = new PageRankSelector(subGraph.getInstPool(), true);
 		List<InstWrapper> subRank = subSelector.computePageRank();
 		int[] subPGRep = SearchUtil.generatePageRankRep(subRank);
-		logger.info("Sub graph profile: " + subGraph.getMethodKey());
 		logger.info("Sub graph PageRank: " + Arrays.toString(subPGRep));
 		
 		//Use the most important inst as the central to collect insts in target
@@ -290,7 +290,7 @@ public class PageRankSelector {
 		HashMap<String, GraphTemplate> tests = null;
 		
 		boolean probeTemplate = TemplateLoader.probeDir("./template");
-		boolean probeTest = TemplateLoader.probeDir("./tests");
+		boolean probeTest = TemplateLoader.probeDir("./test");
 		if (probeTemplate && probeTest) {
 			logger.info("Comparison mode: templates vs tests");
 			templates = TemplateLoader.loadTemplate(new File("./template"), graphToken);

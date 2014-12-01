@@ -124,12 +124,28 @@ public class GlobalRecorder {
 			HashMap<String, InstNode> writeNodes = graph.getLatestWriteFields();
 			
 			logger.info("Replacement for graph group: " + graph.getMethodKey());
+			HashSet<String> toRemove = new HashSet<String>();
 			for (String writeField: writeNodes.keySet()) {
 				InstNode curNode = writeNodes.get(writeField);
 				InstNode globalNode = globalWriteFieldRecorder.get(writeField);
 				
+				String globalId = StringUtil.genIdxKey(globalNode.getFromMethod(), 
+						globalNode.getThreadId(), globalNode.getThreadMethodIdx(), globalNode.getIdx());
+				toRemove.add(globalId);
+				
 				globalWriteFieldRecorder.put(writeField, curNode);
 				logger.info(globalNode + " => " + curNode);
+			}
+			
+			//Ensure the removed node not exist in global record
+			for (String existField: globalWriteFieldRecorder.keySet()) {
+				InstNode existNode = globalWriteFieldRecorder.get(existField);
+				
+				for (String remove: toRemove) {
+					if (existNode.getChildFreqMap().containsKey(remove)) {
+						existNode.getChildFreqMap().remove(remove);
+					}
+				}
 			}
 		}
 	}

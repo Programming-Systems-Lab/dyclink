@@ -83,6 +83,8 @@ public class MethodStackRecorder {
 	
 	private List<InstNode> path = new ArrayList<InstNode>();
 	
+	private List<String> methodCalls = new ArrayList<String>();
+	
 	protected String curLabel = null;
 	
 	public int linenumber = 0;
@@ -695,6 +697,9 @@ public class MethodStackRecorder {
 			} else if (this.calleeCache.containsKey(fullKeyWithThreadObjId)) {
 				GraphGroup gGroup = this.calleeCache.get(fullKeyWithThreadObjId);
 				
+				//Record the original, not the one from group
+				this.methodCalls.add(childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
+				
 				//Check if there is similar graph
 				GraphTemplate rep = gGroup.getGraph(childGraph);
 				if (rep != null) {
@@ -713,6 +718,9 @@ public class MethodStackRecorder {
 					gGroup.addGraph(childGraph);
 				}
 			} else {
+				//Record the original, not the one from group
+				this.methodCalls.add(childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
+				
 				logger.info("Caller " + this.methodKey + " " + this.threadId + " " + this.threadMethodId);
 				logger.info("creates new graph group for: " + fullKeyWithThreadObjId);
 				GraphGroup gGroup = new GraphGroup();
@@ -759,7 +767,7 @@ public class MethodStackRecorder {
 									cInst.getIdx(), 
 									MIBConfiguration.getInstance().getInstDataWeight());
 						} else {
-							logger.warn("Parent instruction " + parentKey + " for child " + cInst);
+							logger.warn("Parent instruction " + parentKey + " for child " + cInst + " missed");
 						}
 					}
 				}
@@ -768,6 +776,7 @@ public class MethodStackRecorder {
 					GlobalRecorder.replaceWriteFieldNodes(childGraph);
 				}
 			}
+			this.latestWriteFieldRecorder.putAll(childGraph.getLatestWriteFields());
 			
 			//Search for correct inst, update local data dep dependency
 			HashMap<Integer, InstNode> parentFromCaller = new HashMap<Integer, InstNode>();
@@ -936,6 +945,7 @@ public class MethodStackRecorder {
 		gt.setStaticMethod(this.staticMethod);
 		gt.setFirstReadLocalVars(this.firstReadLocalVars);
 		gt.setLatestWriteFields(this.latestWriteFieldRecorder);
+		gt.setMethodCalls(this.methodCalls);
 		//gt.setFirstReadFields(this.firstReadFields);
 		//gt.setWriteFields(this.fieldRecorder);
 		
