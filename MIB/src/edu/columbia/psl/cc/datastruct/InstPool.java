@@ -4,6 +4,7 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
+import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.InstNode;
 
 public class InstPool extends TreeSet<InstNode> {
@@ -14,6 +15,8 @@ public class InstPool extends TreeSet<InstNode> {
 	private static final long serialVersionUID = 1L;
 	
 	private static Logger logger = Logger.getLogger(InstPool.class);
+	
+	private static boolean DEBUG = MIBConfiguration.getInstance().isDebug();
 	
 	public InstPool() {
 		
@@ -58,7 +61,9 @@ public class InstPool extends TreeSet<InstNode> {
 				return inst;
 		}
 		
-		logger.warn("Cannot find inst by method key and idx: " +  methodKey + " " + threadId + " " + threadMethodIdx + " " + idx);
+		if (DEBUG) {
+			logger.warn("Cannot find inst by method key and idx: " +  methodKey + " " + threadId + " " + threadMethodIdx + " " + idx);
+		}
 		return null;
 	}
 }

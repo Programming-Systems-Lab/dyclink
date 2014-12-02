@@ -3,6 +3,7 @@ package edu.columbia.psl.cc.util;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -124,14 +125,20 @@ public class GlobalRecorder {
 			HashMap<String, InstNode> writeNodes = graph.getLatestWriteFields();
 			
 			logger.info("Replacement for graph group: " + graph.getMethodKey());
-			HashSet<String> toRemove = new HashSet<String>();
+			//HashSet<String> toRemove = new HashSet<String>();
+			HashSet<InstNode> toRemove = new HashSet<InstNode>();
 			for (String writeField: writeNodes.keySet()) {
 				InstNode curNode = writeNodes.get(writeField);
 				InstNode globalNode = globalWriteFieldRecorder.get(writeField);
 				
-				String globalId = StringUtil.genIdxKey(globalNode.getFromMethod(), 
+				InstNode remove = new InstNode();
+				remove.setFromMethod(globalNode.getFromMethod());
+				remove.setThreadId(globalNode.getThreadId());
+				remove.setThreadMethodIdx(globalNode.getThreadMethodIdx());
+				toRemove.add(remove);
+				/*String globalId = StringUtil.genIdxKey(globalNode.getFromMethod(), 
 						globalNode.getThreadId(), globalNode.getThreadMethodIdx(), globalNode.getIdx());
-				toRemove.add(globalId);
+				toRemove.add(globalId);*/
 				
 				globalWriteFieldRecorder.put(writeField, curNode);
 				logger.info(globalNode + " => " + curNode);
@@ -141,9 +148,16 @@ public class GlobalRecorder {
 			for (String existField: globalWriteFieldRecorder.keySet()) {
 				InstNode existNode = globalWriteFieldRecorder.get(existField);
 				
-				for (String remove: toRemove) {
-					if (existNode.getChildFreqMap().containsKey(remove)) {
-						existNode.getChildFreqMap().remove(remove);
+				for (InstNode remove: toRemove) {
+					Iterator<String> childKeyIT = existNode.getChildFreqMap().keySet().iterator();
+					while (childKeyIT.hasNext()) {
+						String childKey = childKeyIT.next();
+						String[] parsed = StringUtil.parseIdxKey(childKey);
+						if (parsed[0].equals(remove.getFromMethod()) 
+								&& Long.valueOf(parsed[1]) == remove.getThreadId() 
+								&& Integer.valueOf(parsed[2]) == remove.getThreadMethodIdx()) {
+							childKeyIT.remove();
+						}
 					}
 				}
 			}

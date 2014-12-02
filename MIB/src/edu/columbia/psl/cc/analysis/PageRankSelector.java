@@ -81,9 +81,12 @@ public class PageRankSelector {
 	
 	private boolean partialPool;
 	
-	public PageRankSelector(InstPool myPool, boolean partialPool) {
+	private boolean weighted;
+	
+	public PageRankSelector(InstPool myPool, boolean partialPool, boolean weighted) {
 		this.myPool = myPool;
 		this.partialPool = partialPool;
+		this.weighted = weighted;
 	}
 	
 	/**
@@ -93,15 +96,15 @@ public class PageRankSelector {
 	public void setPriors(HashMap<InstNode, Double> priors) {
 		this.priors = priors;
 	}
-	
-	public DirectedSparseGraph<InstNode, Integer> convertToJungGraph() {
-		DirectedSparseGraph<InstNode, Integer> retGraph = new DirectedSparseGraph<InstNode, Integer>();
+		
+	public DirectedSparseGraph<InstNode, WeightedEdge> convertToJungGraph() {
+		DirectedSparseGraph<InstNode, WeightedEdge> retGraph = new DirectedSparseGraph<InstNode, WeightedEdge>();
 		
 		int edgeId = 0;
 		HashMap<String, InstNode> cache = new HashMap<String, InstNode>();
 		for (InstNode inst: myPool) {
 			retGraph.addVertex(inst);
-			
+			int childCount = inst.getChildFreqMap().size();
 			for (String childKey: inst.getChildFreqMap().keySet()) {
 				InstNode childNode = null;
 				if (cache.containsKey(childKey)) {
@@ -110,13 +113,77 @@ public class PageRankSelector {
 					String[] keys = StringUtil.parseIdxKey(childKey);
 					childNode = myPool.searchAndGet(keys[0], 
 							Long.valueOf(keys[1]), Integer.valueOf(keys[2]), Integer.valueOf(keys[3]));
+					
+					cache.put(childKey, childNode);
 				}
 				
-				if (!partialPool)
-					retGraph.addEdge(new Integer(edgeId++), inst, childNode);
-				else {
-					if (childNode != null)
+				if (!partialPool) {
+					if (childNode != null) {
+						WeightedEdge we = new WeightedEdge();
+						we.edgeId = edgeId++;
+						
+						if (this.weighted) {
+							we.edgeWeight = inst.getChildFreqMap().get(childKey);
+						} else {
+							we.edgeWeight = (double)1/childCount;
+						}
+						
+						retGraph.addEdge(we, inst, childNode);
+					} else {
+						logger.warn("Empty child of " + inst);
+						logger.warn("Please check if " + childKey + " is get/set static/field");
+					}
+				} else {
+					if (childNode != null) {
+						WeightedEdge we =new WeightedEdge();
+						we.edgeId = edgeId++;
+						
+						if (this.weighted) {
+							we.edgeWeight = inst.getChildFreqMap().get(childKey);
+						} else {
+							we.edgeWeight = 1/childCount;
+						}
+						 
+						retGraph.addEdge(we, inst, childNode);
+					}
+				}
+			}
+		}
+		
+		return retGraph;
+	}
+	
+	public DirectedSparseGraph<InstNode, Integer> convertToJungGraph2() {
+		DirectedSparseGraph<InstNode, Integer> retGraph = new DirectedSparseGraph<InstNode, Integer>();
+		
+		int edgeId = 0;
+		HashMap<String, InstNode> cache = new HashMap<String, InstNode>();
+		for (InstNode inst: myPool) {
+			retGraph.addVertex(inst);
+			int childCount = inst.getChildFreqMap().size();
+			for (String childKey: inst.getChildFreqMap().keySet()) {
+				InstNode childNode = null;
+				if (cache.containsKey(childKey)) {
+					childNode = cache.get(childKey);
+				} else {
+					String[] keys = StringUtil.parseIdxKey(childKey);
+					childNode = myPool.searchAndGet(keys[0], 
+							Long.valueOf(keys[1]), Integer.valueOf(keys[2]), Integer.valueOf(keys[3]));
+					
+					cache.put(childKey, childNode);
+				}
+				
+				if (!partialPool) {
+					if (childNode != null) {
 						retGraph.addEdge(new Integer(edgeId++), inst, childNode);
+					} else {
+						logger.warn("Empty child of " + inst);
+						logger.warn("Please check if " + childKey + " is get/set static/field");
+					}
+				} else {
+					if (childNode != null) {
+						retGraph.addEdge(new Integer(edgeId++), inst, childNode);
+					}
 				}
 			}
 		}
@@ -125,13 +192,22 @@ public class PageRankSelector {
 	}
 	
 	public List<InstWrapper> computePageRank() {
-		Hypergraph<InstNode, Integer> jungGraph = this.convertToJungGraph();
+		//Hypergraph<InstNode, WeightedEdge> jungGraph = this.convertToJungGraph();
+		Hypergraph<InstNode, Integer> jungGraph = this.convertToJungGraph2();
 		logger.info("Vertex size: " + jungGraph.getVertexCount());
 		logger.info("Edge size: " + jungGraph.getEdgeCount());
 		
+		Transformer<WeightedEdge, Double> edgeWeights = new Transformer<WeightedEdge, Double>() {
+			public Double transform(final WeightedEdge edge) {
+				return edge.edgeWeight;
+			}
+		};
+		
 		PageRankWithPriors<InstNode, Integer> ranker = null;
 		if (this.priors == null) {
-			logger.info("Rank withoug priors");
+			logger.info("Rank without priors");
+			/*ranker = new PageRank<InstNode, WeightedEdge>(jungGraph, alpha);
+			ranker.setEdgeWeights(edgeWeights);*/
 			ranker = new PageRank<InstNode, Integer>(jungGraph, alpha);
 		} else {
 			logger.info("Rank with priors");
@@ -142,6 +218,8 @@ public class PageRankSelector {
 					return prior;
 				}
 			};
+			/*ranker = new PageRankWithPriors<InstNode, WeightedEdge>(jungGraph, transformer, alpha);
+			ranker.setEdgeWeights(edgeWeights);*/
 			ranker = new PageRankWithPriors<InstNode, Integer>(jungGraph, transformer, alpha);
 		}
 		
@@ -170,8 +248,7 @@ public class PageRankSelector {
 	
 	public static HashMap<InstNode, List<InstNode>> locateSegments(HashSet<InstNode> assignments, 
 			List<InstNode> sortedTarget, 
-			int before, 
-			int after) {
+			GraphProfile subProfile) {
 		HashMap<InstNode, List<InstNode>> candSegs = new HashMap<InstNode, List<InstNode>>();
 		for (InstNode inst: assignments) {
 			List<InstNode> seg = new ArrayList<InstNode>();
@@ -180,11 +257,11 @@ public class PageRankSelector {
 				InstNode curNode = sortedTarget.get(i);
 				if (curNode.equals(inst)) {
 					//collect backward
-					int start = i - before;
+					int start = i - subProfile.before;
 					if (start < 0)
 						start = 0;
 					
-					int end = i + after;
+					int end = i + subProfile.after;
 					if (end > sortedTarget.size() - 1)
 						end = sortedTarget.size() - 1;
 					
@@ -192,6 +269,13 @@ public class PageRankSelector {
 					break ;
 				}
 			}
+			
+			//Temporarily set it as 0.8. Not consider the too-short assignment
+			if (seg.size() < subProfile.pgRep.length * 0.8) {
+				logger.info("Give up too-short assignment: " + inst + " size " + seg.size());
+				continue ;
+			}
+			
 			candSegs.put(inst, seg);
 		}
 		return candSegs;
@@ -202,8 +286,10 @@ public class PageRankSelector {
 		
 		HashSet<InstNode> miAssignments = SearchUtil.possibleSingleAssignment(subProfile.centroidWrapper.inst, targetGraph);
 		logger.info("Target graph: " + targetGraph.getMethodKey());
-		logger.info("Possible assignments: " + miAssignments);
-		HashMap<InstNode, List<InstNode>> candSegs = locateSegments(miAssignments, sortedTarget, subProfile.before, subProfile.after);
+		logger.info("Possible assignments: " + miAssignments.size());
+		logger.info("Sub-graph size: " + subProfile.pgRep.length);
+		HashMap<InstNode, List<InstNode>> candSegs = locateSegments(miAssignments, sortedTarget, subProfile);
+		logger.info("Real assignments: " + candSegs.size());
 		List<HotZone> hits = new ArrayList<HotZone>();
 		
 		for (InstNode cand: candSegs.keySet()) {
@@ -211,7 +297,7 @@ public class PageRankSelector {
 			InstPool segPool = new InstPool();
 			segPool.addAll(segments);
 			
-			PageRankSelector ranker = new PageRankSelector(segPool, true);
+			PageRankSelector ranker = new PageRankSelector(segPool, true, false);
 			List<InstWrapper> ranks = ranker.computePageRank();
 			int[] candPGRep = SearchUtil.generatePageRankRep(ranks);
 			
@@ -248,7 +334,7 @@ public class PageRankSelector {
 		
 		//Pick the most important node from sorteSob
 		logger.info("Sub graph profile: " + subGraph.getMethodKey());
-		PageRankSelector subSelector = new PageRankSelector(subGraph.getInstPool(), true);
+		PageRankSelector subSelector = new PageRankSelector(subGraph.getInstPool(), false, false);
 		List<InstWrapper> subRank = subSelector.computePageRank();
 		int[] subPGRep = SearchUtil.generatePageRankRep(subRank);
 		logger.info("Sub graph PageRank: " + Arrays.toString(subPGRep));
@@ -317,7 +403,8 @@ public class PageRankSelector {
 				continue ;
 			}
 			
-			GraphUtil.removeReturnInst(tempGraph.getInstPool());
+			//GraphUtil.removeReturnInst(tempGraph.getInstPool());
+			GraphUtil.removeReturnInst(tempGraph);
 			GraphProfile tempProfile = profileGraph(tempGraph);
 			if (tempProfile == null) {
 				logger.warn("Empty graph: " + tempGraph.getMethodKey());
@@ -408,6 +495,12 @@ public class PageRankSelector {
 		int after; 
 		
 		int[] pgRep;
+	}
+	
+	private static class WeightedEdge {
+		int edgeId;
+		
+		double edgeWeight;
 	}
 	
 	private static class SubGraphCrawler implements Callable<List<HotZone>>{

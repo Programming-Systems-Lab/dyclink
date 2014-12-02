@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -16,6 +17,7 @@ import com.google.gson.reflect.TypeToken;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
+import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.NameMap;
 import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.GraphUtil;
@@ -128,18 +130,49 @@ public class HorizontalMerger {
 			weights.add(times);
 			logger.info("Rep for " + groupKey + ": " + origin.getMethodKey() + " " + origin.getThreadMethodId());
 		}
-		/*Collections.sort(toMerge, graphSizeSorter);
+		//Collections.sort(toMerge, graphSizeSorter);
 		
-		GraphTemplate repGraph = toMerge.get(0);
-		if (toMerge.size() > 1) {
+		int totalTimes = 0;
+		for (int i = 0; i< weights.size(); i++) {
+			totalTimes += weights.get(i).intValue();
+		}
+		int edgeThresh = totalTimes/2;
+		
+		int maxWeight = Integer.MIN_VALUE;
+		int dominantIdx = -1;
+		for (int i = 0; i < weights.size(); i++) {
+			int weight = weights.get(i);
+			if (weight > maxWeight) {
+				maxWeight = weight;
+				dominantIdx = i;
+			}
+		}
+		
+		GraphTemplate dominant = toMerge.get(dominantIdx);
+		/*if (toMerge.size() > 1) {
 			for (int i = 1; i < toMerge.size(); i++) {
+				if (i == dominantIdx)
+					continue ;
+				
 				GraphTemplate g = toMerge.get(i);
-				GraphUtil.mergeGraph(repGraph, g);
+				GraphUtil.mergeGraph(dominant, g);
+			}
+		}
+		
+		for (InstNode inst: dominant.getInstPool()) {
+			Map<String, Double> childMap =  inst.getChildFreqMap();
+			Iterator<String> keyIT = childMap.keySet().iterator();
+			while (keyIT.hasNext()) {
+				String childKey = keyIT.next();
+				double freq = childMap.get(childKey);
+				
+				if (freq < edgeThresh)
+					keyIT.remove();
 			}
 		}*/
-		GraphTemplate repGraph = GraphUtil.mergeGraphWithNormalization(toMerge, weights);
+		//GraphTemplate repGraph = GraphUtil.mergeGraphWithNormalization(toMerge, weights);
 		
-		return repGraph;
+		return dominant;
 	}
 	
 	public static void main(String[] args) {

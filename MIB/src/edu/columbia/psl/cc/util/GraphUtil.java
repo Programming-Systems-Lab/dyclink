@@ -146,6 +146,39 @@ public class GraphUtil {
 		return sortedList;
 	}
 	
+	public static long[] extractBaseTime(InstPool instPool) {
+		long startDigit = Long.MAX_VALUE;
+		long startTime = Long.MAX_VALUE;
+		for (InstNode inst: instPool) {
+			if (inst.getStartDigit() < startDigit) {
+				startDigit = inst.getStartDigit();
+				startTime = inst.getStartTime();
+			} else if (inst.getStartDigit() == startDigit  && inst.getStartTime() < startTime) {
+				startTime = inst.getStartTime();
+			}
+		}
+		long[] baseTime = {startDigit, startTime};
+		return baseTime;
+	}
+	
+	public static void baseTimize(InstPool instPool) {
+		long[] baseTime = extractBaseTime(instPool);
+		long startDigit = 0;
+		long startTime = 0;
+		for (InstNode inst: instPool) {
+			if (inst.getStartTime() - baseTime[0] < 0) {
+				startDigit = inst.getStartDigit() - 1;
+				startTime = Long.MAX_VALUE - baseTime[0] + inst.getStartTime();
+			} else {
+				startDigit = inst.getStartDigit();
+				startTime = inst.getStartTime() - baseTime[0];
+			}
+			
+			inst.setStartDigit(startDigit);
+			inst.setStartTime(startTime);
+		}
+	}
+	
 	public static InstNode lastSecondInst(InstPool instPool) {
 		if (instPool.size() == 0)
 			return null;
@@ -597,11 +630,36 @@ public class GraphUtil {
 				removeEdge(ie.from, ie.to, ie.depType);
 				mapFrom.increChild(ie.to.getFromMethod(), ie.to.getThreadId(), ie.to.getThreadMethodIdx(), ie.to.getIdx(), ie.freq);
 				ie.to.registerParent(mapFrom.getFromMethod(), mapFrom.getThreadId(), mapFrom.getThreadMethodIdx(), mapFrom.getIdx(), ie.depType);
+				
+				long startDigit = -1;
+				long startTime = -1;
+				if (mapFrom.getStartTime() + 1 == Long.MAX_VALUE) {
+					startDigit = mapFrom.getStartDigit() + 1;
+					startTime = 0;
+				} else {
+					startDigit = mapFrom.getStartDigit();
+					startTime = mapFrom.getStartTime() + 1;
+				}
+				
+				ie.to.setStartDigit(startDigit);
+				ie.to.setStartTime(startTime);
 			} else if (mapFrom == null && mapTo != null) {
 				toAdd.add(ie.from);
 				removeEdge(ie.from, ie.to, ie.depType);
 				ie.from.increChild(mapTo.getFromMethod(), mapTo.getThreadId(), mapTo.getThreadMethodIdx(), mapTo.getIdx(), ie.freq);
 				mapTo.registerParent(ie.from.getFromMethod(), ie.from.getThreadId(), ie.from.getThreadMethodIdx(), ie.from.getIdx(), ie.depType);
+				
+				long startDigit = -1;
+				long startTime = -1;
+				if (mapTo.getStartTime() - 1 < 0) {
+					startDigit = mapTo.getStartDigit() - 1;
+					startTime = Long.MAX_VALUE;
+				} else {
+					startDigit = mapTo.getStartDigit();
+					startTime = mapTo.getStartTime();
+				}
+				ie.from.setStartDigit(startDigit);
+				ie.from.setStartTime(startTime);
 			} else if (mapFrom == null && mapTo == null) {
 				toAdd.add(ie.from);
 				toAdd.add(ie.to);
@@ -614,26 +672,68 @@ public class GraphUtil {
 	}
 	
 	public static void summarizeGraph(HashMap<String, List<InstEdge>> edges, InstPool pool) {
+		Comparator<InstEdge> edgeComp = new Comparator<InstEdge>() {
+			public int compare(InstEdge ie1, InstEdge ie2) {
+				InstNode oneFrom = ie1.from;
+				InstNode toFrom = ie2.from;
+				
+				if (ie1.weight < ie2.weight) {
+					return 1;
+				} else if (ie1.weight > ie2.weight) {
+					return -1;
+				} else {
+					if (oneFrom.getThreadMethodIdx() > toFrom.getThreadMethodIdx()) {
+						return 1;
+					} else if (oneFrom.getThreadMethodIdx() < toFrom.getThreadMethodIdx()) {
+						return -1;
+					} else {
+						return 0;
+					}
+				}
+			}
+		};
+		
 		for (String edgeKey: edges.keySet()) {
 			List<InstEdge> instEdges = edges.get(edgeKey);
+			Collections.sort(instEdges, edgeComp);
+			System.out.println("Edge key: " + edgeKey);
+			for (InstEdge ie: instEdges) {
+				System.out.println("Check edge: " + ie.from.getFromMethod() + " " + ie.from.getThreadMethodIdx() + " " + ie.weight);
+			}
 			
 			if (instEdges.size() > 0) {
 				InstEdge protoEdge = instEdges.get(0);
 				InstNode protoFrom = protoEdge.from;
+				System.out.println("Proto from: " + protoFrom.getFromMethod() + " " + protoFrom.getThreadMethodIdx());
 				InstNode sumFrom = pool.searchAndGet(protoFrom.getFromMethod(), 
 						protoFrom.getThreadId(), 
 						0, 
 						protoFrom.getIdx(), 
 						protoFrom.getOp().getOpcode(), 
 						protoFrom.getAddInfo());
+				sumFrom.setLinenumber(protoFrom.getLinenumber());
+				if (sumFrom.getStartTime() < 0) {
+					sumFrom.setStartDigit(protoFrom.getStartDigit());
+					sumFrom.setStartTime(protoFrom.getStartTime());
+					sumFrom.setUpdateDigit(protoFrom.getUpdateDigit());
+					sumFrom.setUpdateTime(protoFrom.getUpdateTime());
+				}
 				
 				InstNode protoTo = protoEdge.to;
+				System.out.println("Proto to: " + protoTo.getFromMethod() + " " + protoTo.getThreadMethodIdx());
 				InstNode sumTo = pool.searchAndGet(protoTo.getFromMethod(),
 						protoTo.getThreadId(),
 						0,
 						protoTo.getIdx(),
 						protoTo.getOp().getOpcode(),
 						protoTo.getAddInfo());
+				sumTo.setLinenumber(protoTo.getLinenumber());
+				if (sumTo.getStartTime() < 0) {
+					sumTo.setStartDigit(protoTo.getStartDigit());
+					sumTo.setStartTime(protoTo.getStartTime());
+					sumTo.setUpdateDigit(protoTo.getUpdateDigit());
+					sumTo.setUpdateTime(protoTo.getUpdateTime());
+				}
 				
 				double totalFreq = 0;
 				for (InstEdge ie: instEdges) {
@@ -641,9 +741,55 @@ public class GraphUtil {
 				}
 				//No need to construct the parent relation, save some time
 				sumFrom.increChild(sumTo.getFromMethod(), 
-						sumTo.getThreadId(), sumTo.getThreadMethodIdx(), 
+						sumTo.getThreadId(), 
+						sumTo.getThreadMethodIdx(), 
 						sumTo.getIdx(), 
 						totalFreq);
+			}
+		}
+	}
+	
+	public static void decomposeGraph(GraphTemplate g, int weight, HashMap<String, List<InstEdge>> recorder) {
+		logger.info("Traversing: " + g.getMethodKey() + " " + g.getThreadId() + " " + g.getThreadMethodId());for (InstNode inst: g.getInstPool()) {
+			for (String childKey: inst.getChildFreqMap().keySet()) {
+				double freq = inst.getChildFreqMap().get(childKey);
+				InstNode cNode = _retrieveRealInst(childKey, g.getInstPool());
+				
+				if (cNode != null) {
+					String edgeKey = StringUtil.genEdgeKey(inst, cNode);
+					//logger.info(edgeKey + " " + freq);
+					InstEdge ie = new InstEdge();
+					ie.from = inst;
+					ie.to = cNode;
+					ie.freq = freq;
+					ie.weight = weight;
+					
+					if (recorder.containsKey(edgeKey)) {
+						recorder.get(edgeKey).add(ie);
+					} else {
+						List<InstEdge> edges = new ArrayList<InstEdge>();
+						edges.add(ie);
+						recorder.put(edgeKey, edges);
+					}
+				}
+			}
+		}
+		logger.info("Finish traversing: " + g.getMethodKey() + " " + g.getThreadId() + " " + g.getThreadMethodId());
+	}
+	
+	public static void cleanEdges(HashMap<String, List<InstEdge>> recorder, int threshold) {
+		Iterator<String> edgeIT = recorder.keySet().iterator();
+		while (edgeIT.hasNext()) {
+			String edgeKey = edgeIT.next();
+			List<InstEdge> curEdges = recorder.get(edgeKey);
+			
+			double edgeSum = 0;
+			for (InstEdge ce: curEdges) {
+				edgeSum += ce.weight;
+			}
+			
+			if (edgeSum < threshold) {
+				edgeIT.remove();
 			}
 		}
 	}
@@ -655,20 +801,56 @@ public class GraphUtil {
 		if (toMerge.size() == 1)
 			return toMerge.get(0);
 		
+		//Pick dominant graph (with highest weight)
+		int maxWeight = Integer.MIN_VALUE;
+		int dominantIdx = -1;
+		for (int i = 0; i < weights.size(); i++) {
+			int weight = weights.get(i);
+			if (weight > maxWeight) {
+				maxWeight = weight;
+				dominantIdx = i;
+			}
+		}
+		
+		GraphTemplate dominant = toMerge.get(dominantIdx);
+		int dominantWeight = weights.get(dominantIdx);
+		
 		//Pick one in toMerge for basic information
 		GraphTemplate sumTemplate = new GraphTemplate();
-		GraphTemplate oriTemplate = toMerge.get(0);
-		sumTemplate.setMethodKey(oriTemplate.getMethodKey());
-		sumTemplate.setShortMethodKey(oriTemplate.getShortMethodKey());
-		sumTemplate.setStaticMethod(oriTemplate.isStaticMethod());
-		sumTemplate.setMethodArgSize(oriTemplate.getMethodArgSize());
-		sumTemplate.setMethodReturnSize(oriTemplate.getMethodReturnSize());
+		sumTemplate.setMethodKey(dominant.getMethodKey());
+		sumTemplate.setShortMethodKey(dominant.getShortMethodKey());
+		sumTemplate.setStaticMethod(dominant.isStaticMethod());
+		sumTemplate.setMethodArgSize(dominant.getMethodArgSize());
+		sumTemplate.setMethodReturnSize(dominant.getMethodReturnSize());
+		
+		//1st stage, Filter out edges that only less than half graphs have
+		int totalTimes = 0;
+		for (int i = 0; i< weights.size(); i++) {
+			totalTimes += weights.get(i).intValue();
+		}
+		int edgeThresh = totalTimes/2;
+		
+		/*HashMap<String, List<InstEdge>> recorder = new HashMap<String, List<InstEdge>>();
+		logger.info("Dominant graph: " + dominant.getMethodKey() + " " + dominant.getThreadId() + " " + dominant.getThreadMethodId());
+		decomposeGraph(dominant, dominantWeight, recorder);
+		cleanEdges(recorder, edgeThresh);
+		
+		//Generate a summarized graph based on dominant graph
+		InstPool sumPool = new InstPool();
+		summarizeGraph(recorder, sumPool);
+		for (int i = 0; i < toMerge.size(); i++) {
+			if (i == dominantIdx)
+				continue ;
+			GraphTemplate g = toMerge.get(i);
+			int weight = weights.get(i);
+		}*/
+		
 		
 		HashMap<String, List<InstEdge>> recorder = new HashMap<String, List<InstEdge>>();
 		for (int i = 0; i < toMerge.size(); i++) {
 			GraphTemplate g = toMerge.get(i);
 			int weight = weights.get(i);
-			logger.info("Traversing graph: " + g.getMethodKey() + " " + g.getThreadMethodId());
+			logger.info("Traversing graph: " + g.getMethodKey() + " " + g.getThreadId() + " " + g.getThreadMethodId());
 			for (InstNode inst: g.getInstPool()) {
 				for (String childKey: inst.getChildFreqMap().keySet()) {
 					double freq = inst.getChildFreqMap().get(childKey);
@@ -676,6 +858,7 @@ public class GraphUtil {
 					
 					if (cNode != null) {
 						String edgeKey = StringUtil.genEdgeKey(inst, cNode);
+						//logger.info(edgeKey + " " + freq);
 						InstEdge ie = new InstEdge();
 						ie.from = inst;
 						ie.to = cNode;
@@ -692,15 +875,8 @@ public class GraphUtil {
 					}
 				}
 			}
-			logger.info("Finish traversing: " + g.getMethodKey() + " " + g.getThreadMethodId());
+			logger.info("Finish traversing: " + g.getMethodKey() + " " + g.getThreadId() + " " + g.getThreadMethodId());
 		}
-		
-		//1st stage, Filter out edges that only less than half graphs have
-		int totalTimes = 0;
-		for (int i = 0; i< weights.size(); i++) {
-			totalTimes += weights.get(i).intValue();
-		}
-		int edgeThresh = totalTimes/2;
 		
 		Iterator<String> edgeIT = recorder.keySet().iterator();
 		while (edgeIT.hasNext()) {
@@ -721,6 +897,13 @@ public class GraphUtil {
 		InstPool sumPool = new InstPool();
 		summarizeGraph(recorder, sumPool);
 		sumTemplate.setInstPool(sumPool);
+		
+		int edgeCount = 0;
+		for (InstNode i: sumPool) {
+			edgeCount += i.getChildFreqMap().size();
+		} 
+		sumTemplate.setVertexNum(sumPool.size());
+		sumTemplate.setEdgeNum(edgeCount);
 		
 		return sumTemplate;
 	}
@@ -888,7 +1071,14 @@ public class GraphUtil {
 		}
 	}
 	
-	public static void removeReturnInst(InstPool pool) {
+	public static void removeReturnInst(GraphTemplate graph) {
+		boolean remove = removeReturnInst(graph.getInstPool());
+		if (!remove) {
+			logger.info("No return to remove: " + graph.getMethodKey() + " " + graph.getThreadId() + " " + graph.getThreadMethodId());
+		}
+	}
+	
+	public static boolean removeReturnInst(InstPool pool) {
 		Iterator<InstNode> poolIt = pool.iterator();
 		InstNode returnInst = null;
 		while (poolIt.hasNext()) {
@@ -897,9 +1087,13 @@ public class GraphUtil {
 				returnInst = inst;
 			}
 		}
+		
+		if (returnInst == null)
+			return false;
+		
 		String returnInstKey = StringUtil.genIdxKey(returnInst.getFromMethod(), returnInst.getThreadId(), returnInst.getThreadMethodIdx(), returnInst.getIdx());
 		parentRemove(returnInst, pool, returnInstKey);
-		pool.remove(returnInst);
+		return pool.remove(returnInst);
 	}
 	
 	public static <T> ArrayList<T> unionList(ArrayList<T> c1, ArrayList<T> c2) {

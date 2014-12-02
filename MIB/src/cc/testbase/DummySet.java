@@ -20,6 +20,14 @@ public class DummySet {
 	public static void main(String[] args) {
 		DummySet dSet = new DummySet();
 		dSet.stupidMethod();
+		
+		int i = 6;
+		int j = 0;
+		if (i > 6) {
+			j = 7;
+		} else {
+			j = 9;
+		}
 	}
 
 }

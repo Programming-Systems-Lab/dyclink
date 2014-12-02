@@ -140,7 +140,7 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 			if (instPool.size() > 3000) {
 				System.out.println("Graph is too large: " + instPool.size());
 				System.out.println("Conduct PageRank selection");
-				PageRankSelector pgs = new PageRankSelector(instPool, false);
+				PageRankSelector pgs = new PageRankSelector(instPool, false, false);
 				InstPool selectedPool = pgs.selectRepPool();
 				adjMatrix = this.constructCostTable(key1, selectedPool);
 			} else {
@@ -160,7 +160,7 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 			if (instPool.size() > 3000) {
 				System.out.println("Graph is too large: " + instPool.size());
 				System.out.println("Conduct PageRank selection");
-				PageRankSelector pgs = new PageRankSelector(instPool, false);
+				PageRankSelector pgs = new PageRankSelector(instPool, false, false);
 				InstPool selectedPool = pgs.selectRepPool();
 				adjMatrix = this.constructCostTable(key2, selectedPool);
 			} else {

@@ -772,9 +772,9 @@ public class MethodStackRecorder {
 					}
 				}
 				
-				if (childGraph.getLatestWriteFields().size() > 0 && childGraph.getObjId() >= 0) {
+				/*if (childGraph.getLatestWriteFields().size() > 0 && childGraph.getObjId() >= 0) {
 					GlobalRecorder.replaceWriteFieldNodes(childGraph);
-				}
+				}*/
 			}
 			this.latestWriteFieldRecorder.putAll(childGraph.getLatestWriteFields());
 			
@@ -849,7 +849,7 @@ public class MethodStackRecorder {
 			this.pool.remove(fullInst);
 			GraphUtil.unionInstPools(this.pool, childPool);
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error(ex.getMessage());
 		}
 	}
 	

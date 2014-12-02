@@ -22,10 +22,21 @@ public class GraphGroup extends HashMap<String, GraphTemplate>{
 	}
 	
 	public GraphTemplate getGraph(GraphTemplate graph) {
+		if (graph.getLatestWriteFields().size() > 0) {
+			logger.info("Graph writes fields. Choose not to replace: " + graph.getMethodKey() + " " + graph.getThreadId() + " " + graph.getThreadMethodId());
+			return null;
+		}
+		
 		String groupKey = groupKey(graph.getVertexNum(), graph.getEdgeNum());
 		GraphTemplate existGraph = this.get(groupKey);
 		
 		if (existGraph == null) {
+			return null;
+		} else {
+			return existGraph;
+		}
+		
+		/*if (existGraph == null) {
 			return null;
 		} else if (!existGraph.getLatestWriteFields().keySet().equals(graph.getLatestWriteFields().keySet())) {
 			logger.info("Capture similar graph but write fields not matched");
@@ -34,7 +45,7 @@ public class GraphGroup extends HashMap<String, GraphTemplate>{
 			return null;
 		} else {
 			return existGraph;
-		}
+		}*/
 	}
 
 	public void addGraph(GraphTemplate graph) {
