@@ -22,6 +22,10 @@ public class HotZone {
 	
 	private InstPool segs;
 	
+	private String subGraphName;
+	
+	private String targetGraphName;
+	
 	public InstNode getSubCentroid() {
 		return this.subCentroid;
 	}
@@ -92,5 +96,21 @@ public class HotZone {
 
 	public void setSegs(InstPool segs) {
 		this.segs = segs;
+	}
+	
+	public void setSubGraphName(String subGraphName) {
+		this.subGraphName = subGraphName;
+	}
+	
+	public String getSubGraphName() {
+		return this.subGraphName;
+	}
+	
+	public void setTargetGraphName(String targetGraphName) {
+		this.targetGraphName = targetGraphName;
+	}
+	
+	public String getTargetGraphName() {
+		return this.targetGraphName;
 	}
 }

@@ -45,7 +45,8 @@ public class TemplateParent implements TemplateInterface{
     }
 
     void exampleMethod() {
-        interestingMethod();
+    	int i = 5;
+        this.interestingMethod();
     }
 
 	/**

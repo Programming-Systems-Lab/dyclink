@@ -25,6 +25,7 @@ import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.HotZone;
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.pojo.NameMap;
 import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.SearchUtil;
@@ -105,6 +106,8 @@ public class PageRankSelector {
 		for (InstNode inst: myPool) {
 			retGraph.addVertex(inst);
 			int childCount = inst.getChildFreqMap().size();
+			double totalFreq = 0;
+			
 			for (String childKey: inst.getChildFreqMap().keySet()) {
 				InstNode childNode = null;
 				if (cache.containsKey(childKey)) {
@@ -117,35 +120,34 @@ public class PageRankSelector {
 					cache.put(childKey, childNode);
 				}
 				
+				double childFreq = inst.getChildFreqMap().get(childKey);
 				if (!partialPool) {
 					if (childNode != null) {
-						WeightedEdge we = new WeightedEdge();
-						we.edgeId = edgeId++;
-						
-						if (this.weighted) {
-							we.edgeWeight = inst.getChildFreqMap().get(childKey);
-						} else {
-							we.edgeWeight = (double)1/childCount;
-						}
-						
-						retGraph.addEdge(we, inst, childNode);
+						totalFreq += childFreq;
 					} else {
 						logger.warn("Empty child of " + inst);
 						logger.warn("Please check if " + childKey + " is get/set static/field");
 					}
 				} else {
 					if (childNode != null) {
-						WeightedEdge we =new WeightedEdge();
-						we.edgeId = edgeId++;
-						
-						if (this.weighted) {
-							we.edgeWeight = inst.getChildFreqMap().get(childKey);
-						} else {
-							we.edgeWeight = 1/childCount;
-						}
-						 
-						retGraph.addEdge(we, inst, childNode);
+						totalFreq += childFreq;
 					}
+				}
+			}
+			
+			for (String childKey: inst.getChildFreqMap().keySet()) {
+				InstNode childNode = cache.get(childKey);
+				
+				if (childNode != null) {
+					double childFreq = inst.getChildFreqMap().get(childKey);
+					WeightedEdge we = new WeightedEdge();
+					we.edgeId = edgeId++;
+					if (this.weighted) {
+						we.edgeWeight = childFreq/totalFreq;
+					} else {
+						we.edgeWeight = ((double)1)/childCount;
+					}
+					retGraph.addEdge(we, inst, childNode);
 				}
 			}
 		}
@@ -192,23 +194,32 @@ public class PageRankSelector {
 	}
 	
 	public List<InstWrapper> computePageRank() {
-		//Hypergraph<InstNode, WeightedEdge> jungGraph = this.convertToJungGraph();
-		Hypergraph<InstNode, Integer> jungGraph = this.convertToJungGraph2();
+		Hypergraph<InstNode, WeightedEdge> jungGraph = this.convertToJungGraph();
+		//Hypergraph<InstNode, Integer> jungGraph = this.convertToJungGraph2();
 		logger.info("Vertex size: " + jungGraph.getVertexCount());
 		logger.info("Edge size: " + jungGraph.getEdgeCount());
 		
+		/*System.out.println("Check edge");
+		for (WeightedEdge we: jungGraph.getEdges()) {
+			System.out.println("Source: " + jungGraph.getSource(we));
+			System.out.println("Sink: " + jungGraph.getDest(we));
+			System.out.println("Edge: " + we.edgeId + " " + we.edgeWeight);
+		}*/
+		
 		Transformer<WeightedEdge, Double> edgeWeights = new Transformer<WeightedEdge, Double>() {
 			public Double transform(final WeightedEdge edge) {
+				//System.out.println("Weighted edge: " + edge.edgeId + " " + edge.edgeWeight);
 				return edge.edgeWeight;
 			}
 		};
 		
-		PageRankWithPriors<InstNode, Integer> ranker = null;
+		//PageRankWithPriors<InstNode, Integer> ranker = null;
+		PageRankWithPriors<InstNode, WeightedEdge> ranker = null;
 		if (this.priors == null) {
 			logger.info("Rank without priors");
-			/*ranker = new PageRank<InstNode, WeightedEdge>(jungGraph, alpha);
-			ranker.setEdgeWeights(edgeWeights);*/
-			ranker = new PageRank<InstNode, Integer>(jungGraph, alpha);
+			ranker = new PageRank<InstNode, WeightedEdge>(jungGraph, edgeWeights, alpha);
+			//ranker.setEdgeWeights(edgeWeights);
+			//ranker = new PageRank<InstNode, Integer>(jungGraph, alpha);
 		} else {
 			logger.info("Rank with priors");
 			Transformer<InstNode, Double> transformer = new Transformer<InstNode, Double>() {
@@ -218,9 +229,9 @@ public class PageRankSelector {
 					return prior;
 				}
 			};
-			/*ranker = new PageRankWithPriors<InstNode, WeightedEdge>(jungGraph, transformer, alpha);
-			ranker.setEdgeWeights(edgeWeights);*/
-			ranker = new PageRankWithPriors<InstNode, Integer>(jungGraph, transformer, alpha);
+			ranker = new PageRankWithPriors<InstNode, WeightedEdge>(jungGraph, transformer, alpha);
+			ranker.setEdgeWeights(edgeWeights);
+			//ranker = new PageRankWithPriors<InstNode, Integer>(jungGraph, transformer, alpha);
 		}
 		
 		List<InstWrapper> rankList = new ArrayList<InstWrapper>();
@@ -281,7 +292,10 @@ public class PageRankSelector {
 		return candSegs;
 	}
 	
-	public static List<HotZone> subGraphSearch(GraphProfile subProfile, GraphTemplate targetGraph) {
+	public static List<HotZone> subGraphSearch(GraphProfile subProfile, 
+			GraphTemplate targetGraph, 
+			String subGraphName, 
+			String targetGraphName) {
 		List<InstNode> sortedTarget = GraphUtil.sortInstPool(targetGraph.getInstPool(), true);
 		
 		HashSet<InstNode> miAssignments = SearchUtil.possibleSingleAssignment(subProfile.centroidWrapper.inst, targetGraph);
@@ -297,7 +311,7 @@ public class PageRankSelector {
 			InstPool segPool = new InstPool();
 			segPool.addAll(segments);
 			
-			PageRankSelector ranker = new PageRankSelector(segPool, true, false);
+			PageRankSelector ranker = new PageRankSelector(segPool, true, true);
 			List<InstWrapper> ranks = ranker.computePageRank();
 			int[] candPGRep = SearchUtil.generatePageRankRep(ranks);
 			
@@ -320,6 +334,8 @@ public class PageRankSelector {
 				zone.setLevDist(dist);
 				zone.setSimilarity(sim);
 				zone.setSegs(segPool);
+				zone.setSubGraphName(subGraphName);
+				zone.setTargetGraphName(targetGraphName);
 				hits.add(zone);
 			}
 		}
@@ -334,7 +350,7 @@ public class PageRankSelector {
 		
 		//Pick the most important node from sorteSob
 		logger.info("Sub graph profile: " + subGraph.getMethodKey());
-		PageRankSelector subSelector = new PageRankSelector(subGraph.getInstPool(), false, false);
+		PageRankSelector subSelector = new PageRankSelector(subGraph.getInstPool(), false, true);
 		List<InstWrapper> subRank = subSelector.computePageRank();
 		int[] subPGRep = SearchUtil.generatePageRankRep(subRank);
 		logger.info("Sub graph PageRank: " + Arrays.toString(subPGRep));
@@ -367,6 +383,8 @@ public class PageRankSelector {
 		return gp;
 	}
 	
+	
+	
 	public static void initiateSubGraphMining(String templateDir, String testDir) {		
 		StringBuilder sb = new StringBuilder();
 		sb.append(header);
@@ -394,16 +412,14 @@ public class PageRankSelector {
 			return ;
 		}
 		
+		List<SubGraphCrawler> crawlers = new ArrayList<SubGraphCrawler>();
 		for (String templateName: templates.keySet()) {
-			StringBuilder rawRecorder = new StringBuilder();
-			
 			GraphTemplate tempGraph = templates.get(templateName);
 			
 			if (tempGraph.getInstPool().size() < MIBConfiguration.getInstance().getInstThreshold()) {
 				continue ;
 			}
 			
-			//GraphUtil.removeReturnInst(tempGraph.getInstPool());
 			GraphUtil.removeReturnInst(tempGraph);
 			GraphProfile tempProfile = profileGraph(tempGraph);
 			if (tempProfile == null) {
@@ -414,9 +430,6 @@ public class PageRankSelector {
 			logger.info("Template name: " + tempGraph.getMethodKey());
 			logger.info("Inst node size: " + tempGraph.getInstPool().size());
 			
-			ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
-			HashMap<String, Future<List<HotZone>>> resultRecorder = 
-					new HashMap<String, Future<List<HotZone>>>();
 			for (String testName: tests.keySet()) {
 				if (testName.equals(templateName)) {
 					continue ;
@@ -424,53 +437,62 @@ public class PageRankSelector {
 				
 				GraphTemplate testGraph = tests.get(testName);
 				//GraphUtil.removeReturnInst(testGraph.getInstPool());
+				GraphUtil.removeReturnInst(testGraph);
 				logger.info("Test name: " + testGraph.getMethodKey());
 				logger.info("Inst node size: " + testGraph.getInstPool().size());
 				
 				SubGraphCrawler crawler = new SubGraphCrawler();
+				crawler.subGraphName = testGraph.getMethodKey();
+				crawler.targetGraphName = tempGraph.getMethodKey();
 				crawler.subGraphProfile = tempProfile;
 				crawler.targetGraph = testGraph;
-				
-				Future<List<HotZone>> hits = executor.submit(crawler);
-				resultRecorder.put(testName, hits);
+				crawlers.add(crawler);
 			}
-			
-			executor.shutdown();
-			while (!executor.isTerminated());
-			System.out.println("Subgraph crawling is completed for: " + templateName);
-			
-			try {
-				for (String testName: resultRecorder.keySet()) {
-					List<HotZone> zones = resultRecorder.get(testName).get();
-					
-					for (HotZone hit: zones) {
-						logger.info("Start inst: " + hit.getStartInst());
-						logger.info("Centroid inst: " + hit.getCentralInst());
-						logger.info("End inst: " + hit.getEndInst());
-						logger.info("Distance: " + hit.getLevDist());
-						logger.info("Similarity: " + hit.getSimilarity());
-						
-						rawRecorder.append(templateName + 
-								"," + testName + 
-								"," + hit.getSubPgRank() +
-								"," + hit.getSubCentroid() + 
-								"," + hit.getSubCentroid().getLinenumber() +
-								"," + hit.getStartInst() + 
-								"," + hit.getStartInst().getLinenumber() + 
-								"," + hit.getCentralInst() + 
-								"," + hit.getCentralInst().getLinenumber() +
-								"," + hit.getEndInst() + 
-								"," + hit.getEndInst().getLinenumber() +
-								"," + hit.getSegs().size() + 
-								"," + hit.getLevDist() + 
-								"," + hit.getSimilarity() + "\n");
-					}
-				}
-			} catch (Exception ex) {
-				logger.error(ex);
-			}
-			sb.append(rawRecorder.toString());
 		}
+		
+		ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
+		List<Future<List<HotZone>>> resultRecorder = new ArrayList<Future<List<HotZone>>>();
+		
+		for (SubGraphCrawler crawler: crawlers) {
+			Future<List<HotZone>> hits = executor.submit(crawler);
+			resultRecorder.add(hits);
+		}
+		executor.shutdown();
+		while (!executor.isTerminated());
+		
+		try {
+			for (Future<List<HotZone>> future: resultRecorder) {
+				List<HotZone> zones = future.get();
+				
+				for (HotZone hit: zones) {
+					logger.info("Start inst: " + hit.getStartInst());
+					logger.info("Centroid inst: " + hit.getCentralInst());
+					logger.info("End inst: " + hit.getEndInst());
+					logger.info("Distance: " + hit.getLevDist());
+					logger.info("Similarity: " + hit.getSimilarity());
+					
+					StringBuilder rawRecorder = new StringBuilder();
+					rawRecorder.append(hit.getSubGraphName() + 
+							"," + hit.getTargetGraphName() + 
+							"," + hit.getSubPgRank() +
+							"," + hit.getSubCentroid() + 
+							"," + hit.getSubCentroid().getLinenumber() +
+							"," + hit.getStartInst() + 
+							"," + hit.getStartInst().getLinenumber() + 
+							"," + hit.getCentralInst() + 
+							"," + hit.getCentralInst().getLinenumber() +
+							"," + hit.getEndInst() + 
+							"," + hit.getEndInst().getLinenumber() +
+							"," + hit.getSegs().size() + 
+							"," + hit.getLevDist() + 
+							"," + hit.getSimilarity() + "\n");
+					sb.append(rawRecorder);
+				}
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
 		GsonManager.writeResult(sb);
 	}
 				
@@ -504,13 +526,18 @@ public class PageRankSelector {
 	}
 	
 	private static class SubGraphCrawler implements Callable<List<HotZone>>{
+		
+		String subGraphName;
+		
+		String targetGraphName;
+		
 		GraphProfile subGraphProfile;
 		
 		GraphTemplate targetGraph;
 		
 		@Override
 		public List<HotZone> call() throws Exception {
-			List<HotZone> hits = subGraphSearch(subGraphProfile, targetGraph);
+			List<HotZone> hits = subGraphSearch(subGraphProfile, targetGraph, subGraphName, targetGraphName);
 			return hits;
 		}
 	}

@@ -636,9 +636,17 @@ public class MethodStackRecorder {
 					logger.info("Responsible inst for null obj: " + relatedInst);
 				}
 				
-				if (opcode == Opcodes.INVOKESPECIAL) {
+				if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
+					//constructor
 					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, true);
-				} else {
+				} else if (opcode == Opcodes.INVOKESPECIAL && owner.equals(this.className)) {
+					//private method
+					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, true);
+				} else if (opcode == Opcodes.INVOKESPECIAL) {
+					//super method, may be in grand parents
+					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
+				}else {
+					//logger.info("Retrieve method by class name: " + name + objOnStack.getClass().getName());
 					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(objOnStack.getClass().getName(), name, desc, false);
 				}
 			}

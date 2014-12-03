@@ -348,10 +348,18 @@ public class TemplateMethod extends TemplateParent {
 		this.call2();
 		int ret = 5 + this.pVar + this.iVar;
 	}
+	
+	public void doObject(TemplateParent tp) {
+		
+	}
 		
 	public static void main(String[] args) {
 		//int i = TemplateMethod.parentVar;
+		System.out.println("<init>");
+		String init = "<init>";
+		System.out.println(init.equals("<init>"));
 		TemplateMethod tm = new TemplateMethod();
+		tm.doObject(tm);
 		//tm.call1();
 		/*byte a = 1;
 		double b = 2.0;
@@ -371,8 +379,8 @@ public class TemplateMethod extends TemplateParent {
 		//int[] b = {3, 4, 7};
 		tm.forMethod();
 		//tm.forClassMethod();
-		//TemplateParent tp = new TemplateMethod();
-		//tp.interestingMethod();
+		TemplateParent tp = new TemplateMethod();
+		tp.interestingMethod();
 		
 		//TemplateInterface ti = new TemplateMethod();
 		//Integer i = new Integer(1);
@@ -438,8 +446,8 @@ public class TemplateMethod extends TemplateParent {
 		return c;
 	}
 	
-	public void setBoolean(boolean a) {
-		
+	private void setBoolean(boolean a) {
+		super.interestingMethod();
 	}
 	
 	//@extractTemplate
