@@ -373,8 +373,10 @@ public class MethodStackRecorder {
 			}
 		} else if (BytecodeCategory.writeFieldCategory().contains(opcat) && objId >= 0) {
 			if (opcode == Opcodes.PUTSTATIC || objId > 0) {
-				GlobalRecorder.updateGlobalWriteFieldRecorder(fieldKey, fullInst);
-				this.latestWriteFieldRecorder.put(fieldKey, fullInst);
+				if (MIBConfiguration.getInstance().isFieldTrack()) {
+					GlobalRecorder.updateGlobalWriteFieldRecorder(fieldKey, fullInst);
+					this.latestWriteFieldRecorder.put(fieldKey, fullInst);
+				}
 			}
 		}
 		

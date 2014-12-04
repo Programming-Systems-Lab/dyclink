@@ -14,6 +14,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.collections15.Transformer;
 import org.apache.log4j.Logger;
@@ -38,6 +39,8 @@ import edu.uci.ics.jung.graph.Hypergraph;
 
 
 public class PageRankSelector {
+	
+	private static AtomicInteger threadIndex = new AtomicInteger();
 	
 	private static Logger logger = Logger.getLogger(PageRankSelector.class);
 	
@@ -291,57 +294,7 @@ public class PageRankSelector {
 		}
 		return candSegs;
 	}
-	
-	public static List<HotZone> subGraphSearch(GraphProfile subProfile, 
-			GraphTemplate targetGraph, 
-			String subGraphName, 
-			String targetGraphName) {
-		List<InstNode> sortedTarget = GraphUtil.sortInstPool(targetGraph.getInstPool(), true);
 		
-		HashSet<InstNode> miAssignments = SearchUtil.possibleSingleAssignment(subProfile.centroidWrapper.inst, targetGraph);
-		logger.info("Target graph: " + targetGraph.getMethodKey());
-		logger.info("Possible assignments: " + miAssignments.size());
-		logger.info("Sub-graph size: " + subProfile.pgRep.length);
-		HashMap<InstNode, List<InstNode>> candSegs = locateSegments(miAssignments, sortedTarget, subProfile);
-		logger.info("Real assignments: " + candSegs.size());
-		List<HotZone> hits = new ArrayList<HotZone>();
-		
-		for (InstNode cand: candSegs.keySet()) {
-			List<InstNode> segments = candSegs.get(cand);
-			InstPool segPool = new InstPool();
-			segPool.addAll(segments);
-			
-			PageRankSelector ranker = new PageRankSelector(segPool, true, true);
-			List<InstWrapper> ranks = ranker.computePageRank();
-			int[] candPGRep = SearchUtil.generatePageRankRep(ranks);
-			
-			int dist = 0;
-			if (candPGRep.length == 0) {
-				dist = subProfile.pgRep.length;
-			} else {
-				dist = LevenshteinDistance.calculateSimilarity(subProfile.pgRep, candPGRep);
-			}
-			
-			double sim = levenSimilarity(dist, subProfile.pgRep.length);
-			
-			if (sim >= simThreshold) {
-				HotZone zone = new HotZone();
-				zone.setSubCentroid(subProfile.centroidWrapper.inst);
-				zone.setSubPgRank(subProfile.centroidWrapper.pageRank);
-				zone.setStartInst(segments.get(0));
-				zone.setCentralInst(cand);
-				zone.setEndInst(segments.get(segments.size() - 1));
-				zone.setLevDist(dist);
-				zone.setSimilarity(sim);
-				zone.setSegs(segPool);
-				zone.setSubGraphName(subGraphName);
-				zone.setTargetGraphName(targetGraphName);
-				hits.add(zone);
-			}
-		}
-		return hits;
-	}
-	
 	public static GraphProfile profileGraph(GraphTemplate subGraph) {
 		if (subGraph.getInstPool().size() == 0) {
 			return null;
@@ -442,8 +395,8 @@ public class PageRankSelector {
 				logger.info("Inst node size: " + testGraph.getInstPool().size());
 				
 				SubGraphCrawler crawler = new SubGraphCrawler();
-				crawler.subGraphName = testGraph.getMethodKey();
-				crawler.targetGraphName = tempGraph.getMethodKey();
+				crawler.subGraphName = tempGraph.getMethodKey();
+				crawler.targetGraphName = testGraph.getMethodKey();
 				crawler.subGraphProfile = tempProfile;
 				crawler.targetGraph = testGraph;
 				crawlers.add(crawler);
@@ -535,9 +488,63 @@ public class PageRankSelector {
 		
 		GraphTemplate targetGraph;
 		
+		int crawlerId = threadIndex.getAndIncrement();;
+		
 		@Override
 		public List<HotZone> call() throws Exception {
-			List<HotZone> hits = subGraphSearch(subGraphProfile, targetGraph, subGraphName, targetGraphName);
+			List<HotZone> hits = this.subGraphSearch(subGraphProfile, targetGraph, subGraphName, targetGraphName);
+			return hits;
+		}
+		
+		public List<HotZone> subGraphSearch(GraphProfile subProfile, 
+				GraphTemplate targetGraph, 
+				String subGraphName, 
+				String targetGraphName) {
+			List<InstNode> sortedTarget = GraphUtil.sortInstPool(targetGraph.getInstPool(), true);
+			
+			HashSet<InstNode> miAssignments = SearchUtil.possibleSingleAssignment(subProfile.centroidWrapper.inst, targetGraph);
+			logger.info("Target graph vs Sub graph: " + targetGraphName + " " + subGraphName);
+			logger.info("Thread index: " + crawlerId);
+			logger.info("Possible assignments: " + miAssignments.size());
+			logger.info("Sub-graph size: " + subProfile.pgRep.length);
+			HashMap<InstNode, List<InstNode>> candSegs = locateSegments(miAssignments, sortedTarget, subProfile);
+			logger.info("Real assignments: " + candSegs.size());
+			List<HotZone> hits = new ArrayList<HotZone>();
+			
+			for (InstNode cand: candSegs.keySet()) {
+				List<InstNode> segments = candSegs.get(cand);
+				InstPool segPool = new InstPool();
+				segPool.addAll(segments);
+				
+				PageRankSelector ranker = new PageRankSelector(segPool, true, true);
+				List<InstWrapper> ranks = ranker.computePageRank();
+				int[] candPGRep = SearchUtil.generatePageRankRep(ranks);
+				
+				int dist = 0;
+				if (candPGRep.length == 0) {
+					dist = subProfile.pgRep.length;
+				} else {
+					dist = LevenshteinDistance.calculateSimilarity(subProfile.pgRep, candPGRep);
+				}
+				
+				double sim = levenSimilarity(dist, subProfile.pgRep.length);
+				
+				if (sim >= simThreshold) {
+					HotZone zone = new HotZone();
+					zone.setSubCentroid(subProfile.centroidWrapper.inst);
+					zone.setSubPgRank(subProfile.centroidWrapper.pageRank);
+					zone.setStartInst(segments.get(0));
+					zone.setCentralInst(cand);
+					zone.setEndInst(segments.get(segments.size() - 1));
+					zone.setLevDist(dist);
+					zone.setSimilarity(sim);
+					zone.setSegs(segPool);
+					zone.setSubGraphName(subGraphName);
+					zone.setTargetGraphName(targetGraphName);
+					hits.add(zone);
+				}
+			}
+			logger.info("Crawler ends: " + this.crawlerId);
 			return hits;
 		}
 	}

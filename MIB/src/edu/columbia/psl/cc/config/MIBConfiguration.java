@@ -118,6 +118,8 @@ public class MIBConfiguration {
 	
 	private boolean annotGuard;
 	
+	private boolean fieldTrack;
+	
 	private boolean cleanTemplate;
 	
 	private boolean cleanTest;
@@ -451,6 +453,14 @@ public class MIBConfiguration {
 	public void setAnnotGuard(boolean annotGuard) {
 		this.annotGuard = annotGuard;
 	}
+	
+	public boolean isFieldTrack() {
+		return this.fieldTrack;
+	}
+	
+	public void setFieldTrack(boolean fieldTrack) {
+		this.fieldTrack = fieldTrack;
+	}
 
 	public boolean isCleanTemplate() {
 		return cleanTemplate;
@@ -517,6 +527,7 @@ public class MIBConfiguration {
 		sb.append("max iteration of PageRank: " + this.pgMaxIter + "\n");
 		sb.append("epsilon of PageRank: " + this.pgEpsilon + "\n");
 		sb.append("annotation guard: " + this.annotGuard + "\n");
+		sb.append("field track: " + this.fieldTrack + "\n");
 		sb.append("clean template: " + this.cleanTemplate + "\n");
 		sb.append("clean test: " + this.cleanTest + "\n");
 		sb.append("template mode: " + this.templateMode + "\n");

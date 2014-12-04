@@ -7,9 +7,17 @@ import edu.columbia.psl.cc.annot.testTemplate;
 @analyzeClass
 public class JohnExample {
 	
+	public Object barrierLock = new Object();
+	
 	public void testArgs(String...input) {
 		
 	}
+	
+	protected final void recordModification(Object x) {
+         synchronized (barrierLock) {
+             Object a = x;
+         }
+    }
 	
 	public static void main(String[] args) {
 		JohnExample je = new JohnExample();

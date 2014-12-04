@@ -120,6 +120,10 @@ public class GlobalRecorder {
 		}
 	}
 	
+	/**
+	 * Consider to use observer pattern in next version
+	 * @param graph
+	 */
 	public static void replaceWriteFieldNodes(GraphTemplate graph) {
 		synchronized(writeFieldLock) {
 			HashMap<String, InstNode> writeNodes = graph.getLatestWriteFields();
