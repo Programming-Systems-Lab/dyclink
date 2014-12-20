@@ -101,12 +101,14 @@ public class GsonManager {
 		String toWrite = gson.toJson(obj, typeToken.getType());
 		try {
 			File f;
-			if (dirIdx == 0) {
+			if (dirIdx == MIBConfiguration.TEMPLATE_DIR) {
 				f = new File(MIBConfiguration.getInstance().getTemplateDir() + "/" + fileName + ".json");
-			} else if (dirIdx == 1) {
+			} else if (dirIdx == MIBConfiguration.TEST_DIR) {
 				f = new File(MIBConfiguration.getInstance().getTestDir() + "/" + fileName + ".json");
-			} else {
+			} else if (dirIdx == MIBConfiguration.LABEL_MAP_DIR) {
 				f = new File(MIBConfiguration.getInstance().getLabelmapDir() + "/" + fileName + ".json");
+			} else {
+				f = new File(MIBConfiguration.getInstance().getCacheDir() + "/" + fileName);
 			}
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
 			bw.write(toWrite);
@@ -168,6 +170,14 @@ public class GsonManager {
 			} catch (Exception ex) {
 				logger.error(ex);
 			}
+		}
+	}
+	
+	public static void cacheDirectGraphs(String fileName, List<GraphTemplate> graphs) {
+		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
+		for (GraphTemplate g: graphs) {
+			String fullFileName = StringUtil.genKeyWithId(fileName, String.valueOf(g.getThreadMethodId()));
+			writeJsonGeneric(g, fullFileName, graphToken, MIBConfiguration.CACHE_DIR);
 		}
 	}
 	

@@ -198,7 +198,7 @@ public class HorizontalMerger {
 			HashSet<GraphTemplate> allGraphs = graphByNames.get(name);
 			GraphTemplate rep = extractRepGraph(allGraphs);
 			logger.info("Merge result: " + rep.getInstPool().size());
-			GsonManager.writeJsonGeneric(rep, name, graphToken, 0);
+			GsonManager.writeJsonGeneric(rep, name, graphToken, MIBConfiguration.TEMPLATE_DIR);
 		}
 		
 		logger.info("Start select representative test graphs");
@@ -207,7 +207,7 @@ public class HorizontalMerger {
 			HashSet<GraphTemplate> allGraphs = graphByNames.get(name);
 			GraphTemplate rep = extractRepGraph(allGraphs);
 			logger.info("Merge result: " + rep.getInstPool().size());
-			GsonManager.writeJsonGeneric(rep, name, graphToken, 1);
+			GsonManager.writeJsonGeneric(rep, name, graphToken, MIBConfiguration.TEST_DIR);
 		}
 		
 		logger.info("Representative graph selection ends");

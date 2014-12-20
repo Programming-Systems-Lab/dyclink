@@ -67,6 +67,14 @@ public class MIBConfiguration {
 	
 	private static String objOnStackDesc = "(Ljava/lang/Object;I)V";
 	
+	public static int TEMPLATE_DIR = 0;
+	
+	public static int TEST_DIR = 1;
+	
+	public static int LABEL_MAP_DIR = 2;
+	
+	public static int CACHE_DIR = 3;
+	
 	private List<String> excludeClass;
 	
 	private String opTablePath;

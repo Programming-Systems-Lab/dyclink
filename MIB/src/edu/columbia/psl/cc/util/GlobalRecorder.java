@@ -1,9 +1,11 @@
 package edu.columbia.psl.cc.util;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -40,6 +42,8 @@ public class GlobalRecorder {
 	
 	private static HashSet<String> recursiveMethodRecorder = new HashSet<String>();
 	
+	private static HashMap<String, List<GraphTemplate>> graphRecorder = new HashMap<String, List<GraphTemplate>>();
+	
 	private static Object timeLock = new Object();
 	
 	private static Object loadClassLock = new Object();
@@ -53,6 +57,8 @@ public class GlobalRecorder {
 	private static Object staticMethodMinerLock = new Object();
 	
 	private static Object vRecorderLock = new Object();
+	
+	private static Object graphRecorderLock = new Object();
 	
 	public static void registerLoadedClass(String className, String shortClinit) {
 		synchronized(loadClassLock) {
@@ -217,5 +223,32 @@ public class GlobalRecorder {
 				return smm; 
 			}
 		}
+	}
+	
+	public static void registerGraph(String shortKey, GraphTemplate graph) {
+		synchronized(graphRecorderLock) {
+			if (graphRecorder.containsKey(shortKey)) {
+				graphRecorder.get(shortKey).add(graph);
+			} else {
+				List<GraphTemplate> gQueue = new ArrayList<GraphTemplate>();
+				gQueue.add(graph);
+				graphRecorder.put(shortKey, gQueue);
+			}
+		}
+	}
+	
+	public static GraphTemplate getLatestGraph(String shortKey) {
+		synchronized(graphRecorderLock) {
+			List<GraphTemplate> gQueue = graphRecorder.get(shortKey);
+			if (gQueue == null || gQueue.size() == 0)
+				return null;
+			else {
+				return gQueue.get(gQueue.size() - 1);
+			}
+		}
+	}
+	
+	public static HashMap<String, List<GraphTemplate>> getGraphs() {
+		return graphRecorder;
 	}
 }

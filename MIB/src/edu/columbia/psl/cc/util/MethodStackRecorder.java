@@ -674,13 +674,14 @@ public class MethodStackRecorder {
 			//this.updateControlRelation(fullInst);
 			this.updatePath(fullInst);
 			
-			String filePath = "";
+			/*String filePath = "";
 			if (MIBConfiguration.getInstance().isTemplateMode()) {
 				filePath = MIBConfiguration.getInstance().getTemplateDir() + "/" + shortKeyWithThreadId + ".json";
 			} else {
 				filePath = MIBConfiguration.getInstance().getTestDir() + "/" + shortKeyWithThreadId + ".json";
 			}
-			GraphTemplate childGraph = TemplateLoader.loadTemplateFile(filePath, GRAPH_TOKEN);
+			GraphTemplate childGraph = TemplateLoader.loadTemplateFile(filePath, GRAPH_TOKEN);*/
+			GraphTemplate childGraph = GlobalRecorder.getLatestGraph(shortKeyWithThreadId);
 			
 			//This means that the callee method is from jvm, keep the method inst in graph
 			boolean removeReturn = true;
@@ -984,15 +985,7 @@ public class MethodStackRecorder {
 		
 		//String dumpKey = StringUtil.genKeyWithId(this.methodKey, String.valueOf(this.threadId));
 		String dumpKey = StringUtil.genKeyWithId(this.shortMethodKey, String.valueOf(this.threadId));
-		TypeToken<GraphTemplate> typeToken = new TypeToken<GraphTemplate>(){};
-		if (MIBConfiguration.getInstance().isTemplateMode()) {
-			GsonManager.cacheGraph(dumpKey, 0, false);
-			GsonManager.writeJsonGeneric(gt, dumpKey, typeToken, 0);
-		} else {
-			GsonManager.cacheGraph(dumpKey, 1, false);
-			GsonManager.writeJsonGeneric(gt, dumpKey, typeToken, 1);
-		}
-		//GsonManager.writePath(dumpKey, this.path);
+		GlobalRecorder.registerGraph(dumpKey, gt);
 		
 		if (this.methodName.equals(clinit)) {
 			GlobalRecorder.registerLoadedClass(StringUtil.cleanPunc(this.className, "."), 
@@ -1003,12 +996,16 @@ public class MethodStackRecorder {
 			GlobalRecorder.registerRecursiveMethod(dumpKey);
 		}
 		
-		//Debuggin, check graph group
-		logger.info("Graph groups:");
-		for (String searchKey: this.calleeCache.keySet()) {
-			logger.info("Group name: " + searchKey);
-			GraphGroup gGroup = this.calleeCache.get(searchKey);
-			logger.info(gGroup.keySet());
+		//Debugging, check graph group
+		if (MIBConfiguration.getInstance().isDebug()) {
+			this.serializeGraphs(dumpKey, gt);
+			
+			logger.info("Graph groups:");
+			for (String searchKey: this.calleeCache.keySet()) {
+				logger.info("Group name: " + searchKey);
+				GraphGroup gGroup = this.calleeCache.get(searchKey);
+				logger.info(gGroup.keySet());
+			}
 		}
 		
 		logger.info("Leave " + this.className + 
@@ -1017,5 +1014,16 @@ public class MethodStackRecorder {
 				" " + this.threadId + 
 				" " + this.threadMethodId);
 	}
-
+	
+	private void serializeGraphs(String dumpKey, GraphTemplate gt) {
+		TypeToken<GraphTemplate> typeToken = new TypeToken<GraphTemplate>(){};
+		if (MIBConfiguration.getInstance().isTemplateMode()) {
+			GsonManager.cacheGraph(dumpKey, 0, false);
+			GsonManager.writeJsonGeneric(gt, dumpKey, typeToken, MIBConfiguration.TEMPLATE_DIR);
+		} else {
+			GsonManager.cacheGraph(dumpKey, 1, false);
+			GsonManager.writeJsonGeneric(gt, dumpKey, typeToken, MIBConfiguration.TEST_DIR);
+		}
+		//GsonManager.writePath(dumpKey, this.path);
+	}
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.lang.reflect.Method;
 
+import java.util.List;
 import java.util.TreeMap;
 import java.util.HashMap;
 import java.util.TreeSet;
@@ -90,6 +91,13 @@ public class MIBDriver {
 			nameMap.setGlobalNameMap(GlobalRecorder.getGlobalNameMap());
 			nameMap.setRecursiveMethods(GlobalRecorder.getRecursiveMethods());
 			GsonManager.writeJsonGeneric(nameMap, "nameMap", nameMapToken, 2);
+			
+			//Dump all graphs in memory
+			logger.info("Dumping all graphs: " + targetClass);
+			HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
+			for (String shortKey: allGraphs.keySet()) {
+				GsonManager.cacheDirectGraphs(shortKey, allGraphs.get(shortKey));
+			}
 			
 			if (mConfig.isOverallAnalysis()) {
 				AnalysisService.invokeFinalAnalysis(mConfig);
