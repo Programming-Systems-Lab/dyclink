@@ -99,12 +99,25 @@ public class TemplateMethod extends TemplateParent {
 	}
 	
 	public void doubleIf(double input) {
-		int ret = 0;
+		int ret = 54;
 		if (input > 0) {
 			ret = 1;
 		} else {
 			ret = 0;
 		}
+	}
+	
+	public int methodB(int i, double j) {
+		int k = (int)j;
+		return i + k;
+	}
+	
+	public int multiply(int a, int b) {
+		int ret = 0;
+		for (int i = 0; i < b; i++) {
+			ret += a;
+		}
+		return ret;
 	}
 	
 	public void multiArray() {
