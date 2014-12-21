@@ -1,6 +1,7 @@
 package edu.columbia.psl.cc.util;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -8,9 +9,14 @@ import java.io.FileWriter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.log4j.Logger;
 
@@ -173,14 +179,54 @@ public class GsonManager {
 		}
 	}
 	
-	public static void cacheDirectGraphs(String fileName, List<GraphTemplate> graphs) {
-		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
-		for (GraphTemplate g: graphs) {
-			String fullFileName = StringUtil.genKeyWithId(fileName, String.valueOf(g.getThreadMethodId())) + ".json";
-			writeJsonGeneric(g, fullFileName, graphToken, MIBConfiguration.CACHE_DIR);
+	public static void cacheAllGraphs(Map<String, List<GraphTemplate>> allGraphs) {
+		try {
+			Date d = new Date();
+			SimpleDateFormat formatter = new SimpleDateFormat("yy-MM-dd-HH-mm-ss-SSS");
+			String zipFileName = MIBConfiguration.getInstance().getCacheDir() + "/" + formatter.format(d) + ".zip";
+			FileOutputStream fos = new FileOutputStream(zipFileName, true);
+			
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			ZipOutputStream zos = new ZipOutputStream(bos);
+			for (String shortKey: allGraphs.keySet()) {
+				GsonManager.cacheDirectGraphs(shortKey, allGraphs.get(shortKey), zos);
+			}
+			zos.close();
+			fos.write(bos.toByteArray());
+			bos.close();
+			fos.flush();
+			try {
+				fos.close();
+			} catch (Exception ex) {
+				logger.error(ex);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 	
+	public static void cacheDirectGraphs(String fileName, List<GraphTemplate> graphs, ZipOutputStream zos) {
+		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
+		GsonBuilder gb = new GsonBuilder();
+		gb.setPrettyPrinting();
+		gb.registerTypeAdapter(InstNode.class, new InstNodeAdapter());
+		Gson gson = gb.enableComplexMapKeySerialization().create();
+		
+		try {
+			for (GraphTemplate g: graphs) {
+				String fullFileName = StringUtil.genKeyWithId(fileName, String.valueOf(g.getThreadMethodId())) + ".json";
+				String toWrite = gson.toJson(g, graphToken.getType());
+				ZipEntry zipEntry = new ZipEntry(fullFileName);
+				zos.putNextEntry(zipEntry);
+				zos.write(toWrite.getBytes(Charset.forName("UTF-8")));
+				zos.closeEntry();
+				//writeJsonGeneric(g, fullFileName, graphToken, MIBConfiguration.CACHE_DIR);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+		
 	public static <T> T readJsonGeneric(File f, TypeToken typeToken) {
 		GsonBuilder gb = new GsonBuilder();
 		gb.setPrettyPrinting();

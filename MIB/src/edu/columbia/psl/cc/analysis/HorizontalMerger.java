@@ -2,6 +2,7 @@ package edu.columbia.psl.cc.analysis;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -90,6 +91,9 @@ public class HorizontalMerger {
 		return allNames;
 	}
 	
+	/**
+	 * Load cached graphs from hardisk for mining
+	 */
 	public static void startExtraction() {
 		File nameMapFile = new File(MIBConfiguration.getInstance().getLabelmapDir() + "/nameMap.json");
 		NameMap nameMap = GsonManager.readJsonGeneric(nameMapFile, nameMapToken);
@@ -108,12 +112,32 @@ public class HorizontalMerger {
 	}
 	
 	/**
+	 * Use graphs from memory directly
+	 * @param graphs
+	 */
+	public static void startExtraction(HashMap<String, List<GraphTemplate>> graphs) {
+		for (String key: graphs.keySet()) {
+			if (GlobalRecorder.getRecursiveMethods().contains(key)) {
+				logger.info("Recursive method: " + key);
+				
+				//Get the one withe the smallest thread method id
+				List<GraphTemplate> gList = graphs.get(key);
+				Collections.sort(gList, methodIdComp);
+				GraphTemplate graphRep = gList.get(0);
+				writeGraphHelper(graphRep);
+			} else {
+				extractRepGraphs(graphs.get(key));
+			}
+		}
+	}
+	
+	/**
 	 * 
 	 * Each graph pick one with smallest thread method id
 	 * @param graphSet
 	 * @return
 	 */
-	public static void extractRepGraphs(HashSet<GraphTemplate> graphSet) {		
+	public static void extractRepGraphs(Collection<GraphTemplate> graphSet) {		
 		HashMap<String, List<GraphTemplate>> stats = new HashMap<String, List<GraphTemplate>>();
 		for (GraphTemplate graph: graphSet) {
 			String groupKey = GraphGroup.groupKey(graph);
@@ -132,16 +156,7 @@ public class HorizontalMerger {
 			List<GraphTemplate> statList = stats.get(groupKey);
 			Collections.sort(statList, methodIdComp);
 			GraphTemplate groupRep = statList.get(0);
-			String nameWithThread = StringUtil.genKeyWithId(groupRep.getShortMethodKey(), String.valueOf(groupRep.getThreadId()));
-			String dumpName = StringUtil.genKeyWithId(nameWithThread, String.valueOf(groupRep.getThreadMethodId()));
-			
-			logger.info("Rep for " + groupKey + " " + dumpName);
-			
-			if (MIBConfiguration.getInstance().isTemplateMode()) {
-				GsonManager.writeJsonGeneric(groupRep, dumpName, graphToken, MIBConfiguration.TEMPLATE_DIR);
-			} else {
-				GsonManager.writeJsonGeneric(groupRep, dumpName, graphToken, MIBConfiguration.TEST_DIR);
-			}
+			writeGraphHelper(groupRep);
 		}
 	}
 	
@@ -238,6 +253,19 @@ public class HorizontalMerger {
 		//GraphTemplate repGraph = GraphUtil.mergeGraphWithNormalization(toMerge, weights);
 		
 		return dominant;
+	}
+	
+	public static void writeGraphHelper(GraphTemplate groupRep) {
+		String nameWithThread = StringUtil.genKeyWithId(groupRep.getShortMethodKey(), String.valueOf(groupRep.getThreadId()));
+		String dumpName = StringUtil.genKeyWithId(nameWithThread, String.valueOf(groupRep.getThreadMethodId()));
+		
+		logger.info("Rep group" + dumpName);
+		
+		if (MIBConfiguration.getInstance().isTemplateMode()) {
+			GsonManager.writeJsonGeneric(groupRep, dumpName, graphToken, MIBConfiguration.TEMPLATE_DIR);
+		} else {
+			GsonManager.writeJsonGeneric(groupRep, dumpName, graphToken, MIBConfiguration.TEST_DIR);
+		}
 	}
 	
 	public static void main(String[] args) {

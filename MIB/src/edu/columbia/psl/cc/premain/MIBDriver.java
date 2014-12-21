@@ -1,15 +1,21 @@
 package edu.columbia.psl.cc.premain;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.lang.reflect.Method;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.HashMap;
 import java.util.TreeSet;
 import java.util.jar.JarFile;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.log4j.Logger;
 
@@ -98,14 +104,14 @@ public class MIBDriver {
 			GsonManager.writeJsonGeneric(nameMap, "nameMap", nameMapToken, MIBConfiguration.LABEL_MAP_DIR);
 			
 			//Dump all graphs in memory
-			logger.info("Dump all graphs: " + targetClass);
 			HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
-			for (String shortKey: allGraphs.keySet()) {
-				GsonManager.cacheDirectGraphs(shortKey, allGraphs.get(shortKey));
+			if (MIBConfiguration.getInstance().isCacheGraph()) {
+				logger.info("Dump all graphs: " + targetClass);
+				GsonManager.cacheAllGraphs(allGraphs);
 			}
 			
 			logger.info("Select dominant graphs: " + targetClass);
-			HorizontalMerger.startExtraction();
+			HorizontalMerger.startExtraction(allGraphs);
 			
 			if (mConfig.isOverallAnalysis()) {
 				AnalysisService.invokeFinalAnalysis(mConfig);

@@ -138,6 +138,8 @@ public class MIBConfiguration {
 	
 	private boolean debug;
 	
+	private boolean cacheGraph;
+	
 	private static MIBConfiguration instance = null;
 	
 	private MIBConfiguration() {
@@ -510,6 +512,14 @@ public class MIBConfiguration {
 		this.debug = debug;
 	}
 	
+	public boolean isCacheGraph() {
+		return this.cacheGraph;
+	}
+	
+	public void setCacheGraph(boolean cacheGraph) {
+		this.cacheGraph = cacheGraph;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -540,6 +550,7 @@ public class MIBConfiguration {
 		sb.append("clean test: " + this.cleanTest + "\n");
 		sb.append("template mode: " + this.templateMode + "\n");
 		sb.append("overall analysis: " + this.overallAnalysis + "\n");
+		sb.append("cache graphs: " + this.cacheGraph + "\n");
 		sb.append("debug: " + this.debug + "\n");
 		return sb.toString();
 	}
