@@ -34,6 +34,8 @@ public class GlobalRecorder {
 	//Key: full name, Val: short name
 	private static HashMap<String, String> globalNameMap = new HashMap<String, String>();
 	
+	private static HashSet<String> undersizedMethods = new HashSet<String>();
+	
 	private static HashMap<String, StaticMethodMiner> staticMethodMinerMap = new HashMap<String, StaticMethodMiner>();
 	
 	private static HashMap<String, AtomicInteger> shortNameCounter = new HashMap<String, AtomicInteger>();
@@ -53,6 +55,8 @@ public class GlobalRecorder {
 	private static Object recursiveMethodLock = new Object();
 	
 	private static Object nameLock = new Object();
+	
+	private static Object undersizeLock = new Object();
 	
 	private static Object staticMethodMinerLock = new Object();
 	
@@ -250,5 +254,21 @@ public class GlobalRecorder {
 	
 	public static HashMap<String, List<GraphTemplate>> getGraphs() {
 		return graphRecorder;
+	}
+	
+	public static void registerUndersizedMethod(String methodKey) {
+		synchronized(undersizeLock) {
+			undersizedMethods.add(methodKey);
+		}
+	}
+	
+	public static boolean checkUndersizedMethod(String methodKey) {
+		synchronized(undersizeLock) {
+			return undersizedMethods.contains(methodKey);
+		}
+	}
+	
+	public static HashSet<String> getUndersizedMethods() {
+		return undersizedMethods;
 	}
 }

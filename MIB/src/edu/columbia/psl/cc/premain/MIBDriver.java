@@ -94,7 +94,8 @@ public class MIBDriver {
 			NameMap nameMap = new NameMap();
 			nameMap.setGlobalNameMap(GlobalRecorder.getGlobalNameMap());
 			nameMap.setRecursiveMethods(GlobalRecorder.getRecursiveMethods());
-			GsonManager.writeJsonGeneric(nameMap, "nameMap", nameMapToken, 2);
+			nameMap.setUndersizedMethods(GlobalRecorder.getUndersizedMethods());
+			GsonManager.writeJsonGeneric(nameMap, "nameMap", nameMapToken, MIBConfiguration.LABEL_MAP_DIR);
 			
 			//Dump all graphs in memory
 			logger.info("Dump all graphs: " + targetClass);

@@ -9,6 +9,8 @@ public class NameMap {
 	
 	private HashSet<String> recursiveMethods;
 	
+	private HashSet<String> undersizedMethods;
+	
 	public void setGlobalNameMap(HashMap<String, String> globalNameMap) {
 		this.globalNameMap = globalNameMap;
 	}
@@ -23,6 +25,14 @@ public class NameMap {
 	
 	public HashSet<String> getRecursiveMethods() {
 		return this.recursiveMethods;
+	}
+	
+	public void setUndersizedMethods(HashSet<String> undersizedMethods) {
+		this.undersizedMethods = undersizedMethods;
+	}
+	
+	public HashSet<String> getUndersizedMethods() {
+		return this.undersizedMethods;
 	}
 
 }

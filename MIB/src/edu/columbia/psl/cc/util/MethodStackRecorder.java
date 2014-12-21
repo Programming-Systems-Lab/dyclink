@@ -689,8 +689,8 @@ public class MethodStackRecorder {
 				logger.info("Graph not found: " + shortKeyWithThreadId);
 				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 				return ;
-			} else if (childGraph.getInstPool().size() < MIBConfiguration.getInstance().getInstThreshold()){
-				logger.info("Graph under-sized: " + childGraph.getInstPool().size());
+			} else if (GlobalRecorder.checkUndersizedMethod(shortMethodKey)){
+				logger.info("Method undersized: " + shortMethodKey);
 				
 				//Change the inst idx for preventing this inst will be removed in the future
 				int oldInstIdx = fullInst.getIdx();
@@ -699,7 +699,7 @@ public class MethodStackRecorder {
 				fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, newInstIdx, opcode, methodKey);
 				
 				//if any field in global record id written by this child, change it to the rep inst
-				if (childGraph.getLatestWriteFields().size() > 0) {
+				if (MIBConfiguration.getInstance().isFieldTrack() && childGraph.getLatestWriteFields().size() > 0) {
 					GlobalRecorder.replaceWriteFieldNodes(childGraph, fullInst);
 				}
 				
@@ -943,6 +943,10 @@ public class MethodStackRecorder {
 	}
 	
 	public void dumpGraph() {
+		if (GlobalRecorder.checkUndersizedMethod(this.shortMethodKey)) {
+			return ;
+		}
+		
 		GraphTemplate gt = new GraphTemplate();
 		
 		gt.setMethodKey(this.methodKey);

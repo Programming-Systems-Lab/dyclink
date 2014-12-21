@@ -827,6 +827,11 @@ public class DynamicMethodMiner extends MethodVisitor {
 			TypeToken<StaticMethodMiner> typeToken  = new TypeToken<StaticMethodMiner>(){};
 			GsonManager.writeJsonGeneric(sr, key, typeToken, 2);
 		}*/
+		
+		if (this.indexer.get() < MIBConfiguration.getInstance().getInstThreshold()) {
+			GlobalRecorder.registerUndersizedMethod(this.shortKey);
+		}
+		
 		this.mv.visitEnd();
 	}
 }
