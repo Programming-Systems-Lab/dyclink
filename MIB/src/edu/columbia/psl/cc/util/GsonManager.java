@@ -176,7 +176,7 @@ public class GsonManager {
 	public static void cacheDirectGraphs(String fileName, List<GraphTemplate> graphs) {
 		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 		for (GraphTemplate g: graphs) {
-			String fullFileName = StringUtil.genKeyWithId(fileName, String.valueOf(g.getThreadMethodId()));
+			String fullFileName = StringUtil.genKeyWithId(fileName, String.valueOf(g.getThreadMethodId())) + ".json";
 			writeJsonGeneric(g, fullFileName, graphToken, MIBConfiguration.CACHE_DIR);
 		}
 	}

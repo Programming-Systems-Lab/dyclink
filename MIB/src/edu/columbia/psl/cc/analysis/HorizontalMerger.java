@@ -22,6 +22,7 @@ import edu.columbia.psl.cc.pojo.NameMap;
 import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.GsonManager;
+import edu.columbia.psl.cc.util.StringUtil;
 import edu.columbia.psl.cc.util.TemplateLoader;
 
 public class HorizontalMerger {
@@ -51,7 +52,16 @@ public class HorizontalMerger {
 		}
 	};
 	
-	private static HashSet<String> cacheLatestGraphs(int dirIdx, 
+	private static Comparator<GraphTemplate> methodIdComp = new Comparator<GraphTemplate>() {
+		public int compare(GraphTemplate g1, GraphTemplate g2) {
+			int g1Id = g1.getThreadMethodId();
+			int g2Id = g2.getThreadMethodId();
+			//0 is impossible
+			return g1Id > g2Id?1: (g1Id < g2Id? -1: 0);
+		}
+	};
+	
+	public static HashSet<String> cacheLatestGraphs(int dirIdx, 
 			HashSet<String> recursiveMethods) {
 		String dirString = "";
 		if (dirIdx == 0) {
@@ -80,12 +90,67 @@ public class HorizontalMerger {
 		return allNames;
 	}
 	
+	public static void startExtraction() {
+		File nameMapFile = new File(MIBConfiguration.getInstance().getLabelmapDir() + "/nameMap.json");
+		NameMap nameMap = GsonManager.readJsonGeneric(nameMapFile, nameMapToken);
+		HashSet<String> recursiveMethods = nameMap.getRecursiveMethods();
+		
+		logger.info("Start loading all cached graphs");
+		String cacheDirString = MIBConfiguration.getInstance().getCacheDir();
+		File cacheDir = new File(cacheDirString);
+		HashMap<String, HashSet<GraphTemplate>> graphByNames = 
+				TemplateLoader.loadCacheTemplates(cacheDir, graphToken, recursiveMethods);
+		
+		logger.info("Total method types in cache: " + graphByNames.keySet().size());
+		for (String key: graphByNames.keySet()) {
+			extractRepGraphs(graphByNames.get(key));
+		}
+	}
+	
+	/**
+	 * 
+	 * Each graph pick one with smallest thread method id
+	 * @param graphSet
+	 * @return
+	 */
+	public static void extractRepGraphs(HashSet<GraphTemplate> graphSet) {		
+		HashMap<String, List<GraphTemplate>> stats = new HashMap<String, List<GraphTemplate>>();
+		for (GraphTemplate graph: graphSet) {
+			String groupKey = GraphGroup.groupKey(graph);
+			if (stats.containsKey(groupKey)) {
+				stats.get(groupKey).add(graph);
+			} else {
+				List<GraphTemplate> statList = new ArrayList<GraphTemplate>();
+				statList.add(graph);
+				stats.put(groupKey, statList);
+			}
+		}
+		
+		logger.info("Graph groups with freq: ");
+		for (String groupKey: stats.keySet()) {
+			logger.info(groupKey + ": " + stats.get(groupKey).size());
+			List<GraphTemplate> statList = stats.get(groupKey);
+			Collections.sort(statList, methodIdComp);
+			GraphTemplate groupRep = statList.get(0);
+			String nameWithThread = StringUtil.genKeyWithId(groupRep.getShortMethodKey(), String.valueOf(groupRep.getThreadId()));
+			String dumpName = StringUtil.genKeyWithId(nameWithThread, String.valueOf(groupRep.getThreadMethodId()));
+			
+			logger.info("Rep for " + groupKey + " " + dumpName);
+			
+			if (MIBConfiguration.getInstance().isTemplateMode()) {
+				GsonManager.writeJsonGeneric(groupRep, dumpName, graphToken, MIBConfiguration.TEMPLATE_DIR);
+			} else {
+				GsonManager.writeJsonGeneric(groupRep, dumpName, graphToken, MIBConfiguration.TEST_DIR);
+			}
+		}
+	}
+	
 	/**
 	 * Extract representative graph for a single method
 	 * @param graphSet
 	 * @return
 	 */
-	private static GraphTemplate extractRepGraph(HashSet<GraphTemplate> graphSet) {
+	public static GraphTemplate extractRepGraph(HashSet<GraphTemplate> graphSet) {
 		if (graphSet.size() == 1) {
 			GraphTemplate ret = graphSet.iterator().next();
 			return ret;
@@ -181,10 +246,10 @@ public class HorizontalMerger {
 		HashSet<String> recursiveMethods = nameMap.getRecursiveMethods();
 		
 		logger.info("Start caching latest template graphs");
-		HashSet<String> allTemplateNames = cacheLatestGraphs(0, recursiveMethods);
+		HashSet<String> allTemplateNames = cacheLatestGraphs(MIBConfiguration.TEMPLATE_DIR, recursiveMethods);
 		
 		logger.info("Start caching latest test graphs");
-		HashSet<String> allTestNames = cacheLatestGraphs(1, recursiveMethods);
+		HashSet<String> allTestNames = cacheLatestGraphs(MIBConfiguration.TEST_DIR, recursiveMethods);
 		
 		logger.info("Start loading all cached graphs");
 		String cacheDirString = MIBConfiguration.getInstance().getCacheDir();

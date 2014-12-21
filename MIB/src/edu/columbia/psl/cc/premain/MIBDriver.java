@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.lang.reflect.Method;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.google.gson.reflect.TypeToken;
 
+import edu.columbia.psl.cc.analysis.HorizontalMerger;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.NameMap;
@@ -30,6 +32,8 @@ public class MIBDriver {
 	private static Logger logger = Logger.getLogger(MIBDriver.class);
 	
 	private static TypeToken<NameMap> nameMapToken = new TypeToken<NameMap>(){};
+	
+	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 	
 	public static String extractMainClassName(String jarFile) {
 		try {
@@ -86,18 +90,21 @@ public class MIBDriver {
 			mainMethod.invoke(null, (Object)newArgs);
 			
 			//Dump name map
-			logger.info("Dumping nameMap: " + targetClass);
+			logger.info("Dump nameMap: " + targetClass);
 			NameMap nameMap = new NameMap();
 			nameMap.setGlobalNameMap(GlobalRecorder.getGlobalNameMap());
 			nameMap.setRecursiveMethods(GlobalRecorder.getRecursiveMethods());
 			GsonManager.writeJsonGeneric(nameMap, "nameMap", nameMapToken, 2);
 			
 			//Dump all graphs in memory
-			logger.info("Dumping all graphs: " + targetClass);
+			logger.info("Dump all graphs: " + targetClass);
 			HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
 			for (String shortKey: allGraphs.keySet()) {
 				GsonManager.cacheDirectGraphs(shortKey, allGraphs.get(shortKey));
 			}
+			
+			logger.info("Select dominant graphs: " + targetClass);
+			HorizontalMerger.startExtraction();
 			
 			if (mConfig.isOverallAnalysis()) {
 				AnalysisService.invokeFinalAnalysis(mConfig);
@@ -106,5 +113,4 @@ public class MIBDriver {
 			ex.printStackTrace();
 		}
 	}
-
 }
