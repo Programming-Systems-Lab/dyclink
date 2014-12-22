@@ -17,8 +17,6 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
-import sun.tools.tree.ThisExpression;
-
 import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;

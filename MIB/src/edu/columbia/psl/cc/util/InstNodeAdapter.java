@@ -26,9 +26,13 @@ import edu.columbia.psl.cc.pojo.OpcodeObj;
 
 public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializer<InstNode>{
 	
-	private Logger logger = Logger.getLogger(InstNodeAdapter.class);
+	private static Logger logger = Logger.getLogger(InstNodeAdapter.class);
 	
 	private InstPool pool = new InstPool();
+	
+	public InstNodeAdapter() {
+		
+	}
 	
 	@Override
 	public InstNode deserialize(JsonElement json, Type typeOfT,

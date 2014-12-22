@@ -17,12 +17,14 @@ import java.util.TreeSet;
 import java.util.jar.JarFile;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
 import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.analysis.HorizontalMerger;
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.NameMap;
 import edu.columbia.psl.cc.pojo.StaticMethodMiner;
@@ -56,9 +58,14 @@ public class MIBDriver {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		BasicConfigurator.configure();
+		
 		MIBConfiguration mConfig = MIBConfiguration.getInstance();
 		logger.info("MIB Configuration");
 		logger.info(MIBConfiguration.getInstance());
+		
+		//Set inst pool, cannot set it in static initializer, or there will be infinite loop
+		InstPool.DEBUG = MIBConfiguration.getInstance().isDebug();
 		
 		//Clean directory
 		GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());

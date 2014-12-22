@@ -2,8 +2,7 @@ package edu.columbia.psl.cc.inst;
 
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-
-import com.sun.xml.internal.ws.org.objectweb.asm.Type;
+import org.objectweb.asm.Type;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.premain.MIBDriver;

@@ -4,7 +4,6 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
-import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.InstNode;
 
 public class InstPool extends TreeSet<InstNode> {
@@ -16,7 +15,7 @@ public class InstPool extends TreeSet<InstNode> {
 	
 	private static Logger logger = Logger.getLogger(InstPool.class);
 	
-	private static boolean DEBUG = MIBConfiguration.getInstance().isDebug();
+	public static boolean DEBUG;
 	
 	public InstPool() {
 		

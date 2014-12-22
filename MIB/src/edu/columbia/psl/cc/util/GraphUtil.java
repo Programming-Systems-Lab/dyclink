@@ -25,7 +25,6 @@ import org.apache.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 
 import com.google.gson.reflect.TypeToken;
-import com.sun.xml.internal.ws.util.StringUtils;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
