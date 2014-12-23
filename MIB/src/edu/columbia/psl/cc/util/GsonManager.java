@@ -29,6 +29,7 @@ import com.google.gson.stream.JsonWriter;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.pojo.NameMap;
 import edu.columbia.psl.cc.pojo.Var;
 import edu.columbia.psl.cc.premain.MIBDriver;
 
@@ -200,6 +201,23 @@ public class GsonManager {
 			} catch (Exception ex) {
 				logger.error(ex);
 			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	public static void cacheNameMap(NameMap nameMap, ZipOutputStream zos) {
+		TypeToken<NameMap> nameToken = new TypeToken<NameMap>(){};
+		GsonBuilder gb = new GsonBuilder();
+		gb.setPrettyPrinting();
+		Gson gson = gb.enableComplexMapKeySerialization().create();
+		String toWrite = gson.toJson(nameMap, nameToken.getType());
+		
+		try {
+			ZipEntry zipEntry = new ZipEntry("nameMap");
+			zos.putNextEntry(zipEntry);
+			zos.write(toWrite.getBytes(Charset.forName("UTF-8")));
+			zos.closeEntry();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

@@ -104,21 +104,11 @@ public class MIBDriver {
 			
 			//Dump name map
 			logger.info("Dump nameMap: " + targetClass);
-			NameMap nameMap = new NameMap();
-			nameMap.setGlobalNameMap(GlobalRecorder.getGlobalNameMap());
-			nameMap.setRecursiveMethods(GlobalRecorder.getRecursiveMethods());
-			nameMap.setUndersizedMethods(GlobalRecorder.getUndersizedMethods());
-			GsonManager.writeJsonGeneric(nameMap, "nameMap", nameMapToken, MIBConfiguration.LABEL_MAP_DIR);
+			serializeNameMap();
 			
 			//Dump all graphs in memory
-			HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
-			if (MIBConfiguration.getInstance().isCacheGraph()) {
-				logger.info("Dump all graphs: " + targetClass);
-				GsonManager.cacheAllGraphs(allGraphs);
-			}
-			
 			logger.info("Select dominant graphs: " + targetClass);
-			HorizontalMerger.startExtraction(allGraphs);
+			selectDominantGraphs();
 			
 			if (mConfig.isOverallAnalysis()) {
 				AnalysisService.invokeFinalAnalysis(mConfig);
@@ -126,5 +116,24 @@ public class MIBDriver {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+	}
+	
+	public static void serializeNameMap() {
+		NameMap nameMap = new NameMap();
+		nameMap.setGlobalNameMap(GlobalRecorder.getGlobalNameMap());
+		nameMap.setRecursiveMethods(GlobalRecorder.getRecursiveMethods());
+		nameMap.setUndersizedMethods(GlobalRecorder.getUndersizedMethods());
+		GsonManager.writeJsonGeneric(nameMap, "nameMap", nameMapToken, MIBConfiguration.LABEL_MAP_DIR);
+	}
+	
+	public static void selectDominantGraphs() {
+		//Dump all graphs in memory
+		HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
+		if (MIBConfiguration.getInstance().isCacheGraph()) {
+			logger.info("Dump all graphs.....");
+			GsonManager.cacheAllGraphs(allGraphs);
+		}
+		
+		HorizontalMerger.startExtraction(allGraphs);
 	}
 }

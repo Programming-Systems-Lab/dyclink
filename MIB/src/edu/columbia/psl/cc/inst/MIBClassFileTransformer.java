@@ -34,6 +34,13 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 			byte[] classfileBuffer) throws IllegalClassFormatException {
 		// TODO Auto-generated method stub
 		
+		//Check protection domain
+		if (protectionDomain != null) {
+			if (protectionDomain.getCodeSource().getLocation().getPath().contains("test")) {
+				return classfileBuffer;
+			}
+		}
+		
 		String name = className.replace("/", ".");
 		if (StringUtil.shouldInclude(name)) {
 			//Start the instrumentation here;

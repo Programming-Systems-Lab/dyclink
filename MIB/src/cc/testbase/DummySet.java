@@ -28,6 +28,7 @@ public class DummySet {
 		} else {
 			j = 9;
 		}
+		System.out.println(DummySet.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 	}
 
 }
