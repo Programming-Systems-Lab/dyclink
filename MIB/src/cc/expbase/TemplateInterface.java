@@ -1,4 +1,4 @@
-package cc.testbase;
+package cc.expbase;
 
 public interface TemplateInterface {
 	

@@ -693,10 +693,10 @@ public class MethodStackRecorder {
 				logger.info("Method undersized: " + shortMethodKey);
 				
 				//Change the inst idx for preventing this inst will be removed in the future
-				int oldInstIdx = fullInst.getIdx();
-				int newInstIdx = (1 + oldInstIdx) * MIBConfiguration.getInstance().getIdxExpandFactor();
-				this.pool.remove(fullInst);
-				fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, newInstIdx, opcode, methodKey);
+				//int oldInstIdx = fullInst.getIdx();
+				//int newInstIdx = (1 + oldInstIdx) * MIBConfiguration.getInstance().getIdxExpandFactor();
+				//this.pool.remove(fullInst);
+				//fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, newInstIdx, opcode, methodKey);
 				
 				//if any field in global record id written by this child, change it to the rep inst
 				if (MIBConfiguration.getInstance().isFieldTrack() && childGraph.getLatestWriteFields().size() > 0) {
@@ -768,7 +768,7 @@ public class MethodStackRecorder {
 							parentNode = this.pool.searchAndGet(parentArray[0], 
 									Long.valueOf(parentArray[1]), 
 									Integer.valueOf(parentArray[2]), 
-									Integer.valueOf(parentArray[2]));
+									Integer.valueOf(parentArray[3]));
 						}
 						
 						if (parentNode != null) {
@@ -779,6 +779,7 @@ public class MethodStackRecorder {
 									MIBConfiguration.getInstance().getInstDataWeight());
 						} else {
 							logger.warn("Parent instruction " + parentKey + " for child " + cInst + " missed");
+							logger.warn("Current pool: " + this.methodKey + " " + this.threadId + " " + threadMethodId);
 						}
 					}
 				}

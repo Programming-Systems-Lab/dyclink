@@ -271,4 +271,17 @@ public class GlobalRecorder {
 	public static HashSet<String> getUndersizedMethods() {
 		return undersizedMethods;
 	}
+	
+	public static void clearContext() {
+		synchronized(graphRecorderLock) {
+			graphRecorder.clear();
+		}
+		
+		synchronized(writeFieldLock) {
+			globalWriteFieldRecorder.clear();
+		}
+		
+		curDigit.set(0);
+		curTime.set(0);
+	}
 }

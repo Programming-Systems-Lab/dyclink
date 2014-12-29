@@ -58,7 +58,7 @@ public class MIBDriver {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		BasicConfigurator.configure();
+		//BasicConfigurator.configure();
 		
 		MIBConfiguration mConfig = MIBConfiguration.getInstance();
 		logger.info("MIB Configuration");
@@ -134,6 +134,17 @@ public class MIBDriver {
 			GsonManager.cacheAllGraphs(allGraphs);
 		}
 		
+		HorizontalMerger.startExtraction(allGraphs);
+	}
+	
+	public static void selectDominantGraphsWithTestMethodName(String testName) {
+		//Dump all graphs in memory
+		HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
+		if (MIBConfiguration.getInstance().isCacheGraph()) {
+			logger.info("Dump all graphs.....");
+			GsonManager.cacheAllGraphs(allGraphs, testName);
+		}
+				
 		HorizontalMerger.startExtraction(allGraphs);
 	}
 }

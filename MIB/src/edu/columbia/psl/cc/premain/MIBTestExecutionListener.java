@@ -11,6 +11,7 @@ import org.junit.runner.notification.RunListener;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.InstPool;
+import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.GsonManager;
 
 public class MIBTestExecutionListener extends RunListener{
@@ -46,8 +47,6 @@ public class MIBTestExecutionListener extends RunListener{
 	public void testRunFinished(Result result) {
 		logger.info("Number of test cases: " + result.getRunCount());
 		MIBDriver.serializeNameMap();
-		MIBDriver.selectDominantGraphs();
-		logger.info("Complete summarizing graphs: ");
 	}
 	
 	@Override
@@ -58,5 +57,7 @@ public class MIBTestExecutionListener extends RunListener{
 	@Override
 	public void testFinished(Description description) {
 		logger.info("Finisehd test method: " + description);
+		MIBDriver.selectDominantGraphsWithTestMethodName(description.getClassName() + "-" + description.getMethodName());
+		GlobalRecorder.clearContext();
 	}
 }

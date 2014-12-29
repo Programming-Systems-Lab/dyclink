@@ -1,4 +1,4 @@
-package cc.testbase;
+package cc.expbase;
 
 import edu.columbia.psl.cc.annot.analyzeClass;
 import edu.columbia.psl.cc.annot.extractTemplate;

@@ -180,11 +180,20 @@ public class GsonManager {
 		}
 	}
 	
-	public static void cacheAllGraphs(Map<String, List<GraphTemplate>> allGraphs) {
+	public static void cacheAllGraphs(Map<String, List<GraphTemplate>> allGraphs, String...name) {
+		if (allGraphs.size() == 0)
+			return ;
+		
 		try {
-			Date d = new Date();
-			SimpleDateFormat formatter = new SimpleDateFormat("yy-MM-dd-HH-mm-ss-SSS");
-			String zipFileName = MIBConfiguration.getInstance().getCacheDir() + "/" + formatter.format(d) + ".zip";
+			String zipFileName = null;
+			if (name.length == 0) {
+				Date d = new Date();
+				SimpleDateFormat formatter = new SimpleDateFormat("yy-MM-dd-HH-mm-ss-SSS");
+				zipFileName = MIBConfiguration.getInstance().getCacheDir() + "/" + formatter.format(d) + ".zip";
+			} else {
+				zipFileName = MIBConfiguration.getInstance().getCacheDir() + "/" + name[0] + ".zip" ;
+			}
+			
 			FileOutputStream fos = new FileOutputStream(zipFileName, true);
 			
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
