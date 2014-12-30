@@ -105,14 +105,13 @@ public class PageRankSelector {
 		DirectedSparseGraph<InstNode, WeightedEdge> retGraph = new DirectedSparseGraph<InstNode, WeightedEdge>();
 		
 		int edgeId = 0;
-		HashMap<String, InstNode> cache = new HashMap<String, InstNode>();
 		for (InstNode inst: myPool) {
 			retGraph.addVertex(inst);
 			int childCount = inst.getChildFreqMap().size();
 			double totalFreq = 0;
 			
 			for (String childKey: inst.getChildFreqMap().keySet()) {
-				InstNode childNode = null;
+				/*InstNode childNode = null;
 				if (cache.containsKey(childKey)) {
 					childNode = cache.get(childKey);
 				} else {
@@ -121,8 +120,9 @@ public class PageRankSelector {
 							Long.valueOf(keys[1]), Integer.valueOf(keys[2]), Integer.valueOf(keys[3]));
 					
 					cache.put(childKey, childNode);
-				}
+				}*/
 				
+				InstNode childNode = myPool.searchAndGet(childKey);
 				double childFreq = inst.getChildFreqMap().get(childKey);
 				if (!partialPool) {
 					if (childNode != null) {
@@ -139,7 +139,8 @@ public class PageRankSelector {
 			}
 			
 			for (String childKey: inst.getChildFreqMap().keySet()) {
-				InstNode childNode = cache.get(childKey);
+				//InstNode childNode = cache.get(childKey);
+				InstNode childNode = myPool.searchAndGet(childKey);
 				
 				if (childNode != null) {
 					double childFreq = inst.getChildFreqMap().get(childKey);
@@ -162,12 +163,11 @@ public class PageRankSelector {
 		DirectedSparseGraph<InstNode, Integer> retGraph = new DirectedSparseGraph<InstNode, Integer>();
 		
 		int edgeId = 0;
-		HashMap<String, InstNode> cache = new HashMap<String, InstNode>();
 		for (InstNode inst: myPool) {
 			retGraph.addVertex(inst);
 			int childCount = inst.getChildFreqMap().size();
 			for (String childKey: inst.getChildFreqMap().keySet()) {
-				InstNode childNode = null;
+				/*InstNode childNode = null;
 				if (cache.containsKey(childKey)) {
 					childNode = cache.get(childKey);
 				} else {
@@ -176,8 +176,9 @@ public class PageRankSelector {
 							Long.valueOf(keys[1]), Integer.valueOf(keys[2]), Integer.valueOf(keys[3]));
 					
 					cache.put(childKey, childNode);
-				}
+				}*/
 				
+				InstNode childNode = myPool.searchAndGet(childKey);
 				if (!partialPool) {
 					if (childNode != null) {
 						retGraph.addEdge(new Integer(edgeId++), inst, childNode);

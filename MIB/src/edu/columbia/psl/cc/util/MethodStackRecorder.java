@@ -719,6 +719,15 @@ public class MethodStackRecorder {
 					logger.info("Child graph feature (node dep): " + childGraph.getInstPool().size() + " " + childGraph.getEdgeNum());
 					logger.info("All group keys now: " + gGroup.keySet());
 					
+					InstPool childPool = childGraph.getInstPool();
+					InstPool repPool = rep.getInstPool();
+					for (int i = 0; i < childPool.size(); i++) {
+						InstNode cNode = childPool.get(i);
+						InstNode rNode = repPool.get(i);
+						rNode.setUpdateDigit(cNode.getUpdateDigit());
+						rNode.setUpdateTime(cNode.getUpdateTime());
+					}
+					
 					//Guess that this graph is the same
 					childGraph = rep;
 					removeReturn = false;
@@ -747,28 +756,14 @@ public class MethodStackRecorder {
 			InstPool childPool = childGraph.getInstPool();
 			if (removeReturn) {
 				GraphUtil.removeReturnInst(childPool);
-			} else {
-				HashMap<String, InstNode> instCached = new HashMap<String, InstNode>();
-				for (InstNode cInst: childPool) {
-					this.updateTime(cInst);
-					String instKey = StringUtil.genIdxKey(cInst.getFromMethod(), 
-							cInst.getThreadId(), 
-							cInst.getThreadMethodIdx(), 
-							cInst.getIdx());
-					instCached.put(instKey, cInst);
-				}
-				
+			} else {				
 				for (InstNode cInst: childPool) {
 					for (String parentKey: cInst.getInstDataParentList()) {
-						InstNode parentNode = instCached.get(parentKey);
+						InstNode parentNode = childPool.searchAndGet(parentKey);
 						
 						//Parent node is null if it's the interface between two methods
 						if (parentNode == null) {
-							String[] parentArray = StringUtil.parseIdxKey(parentKey);
-							parentNode = this.pool.searchAndGet(parentArray[0], 
-									Long.valueOf(parentArray[1]), 
-									Integer.valueOf(parentArray[2]), 
-									Integer.valueOf(parentArray[3]));
+							parentNode = this.pool.searchAndGet(parentKey);
 						}
 						
 						if (parentNode != null) {

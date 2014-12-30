@@ -229,11 +229,12 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 			double[] transArray = ret[inst.getOp().getOpcode()];
 			
 			for (String childKey: inst.getChildFreqMap().keySet()) {
-				String[] keys = StringUtil.parseIdxKey(childKey);
+				/*String[] keys = StringUtil.parseIdxKey(childKey);
 				InstNode childNode = pool.searchAndGet(keys[0], 
 						Long.valueOf(keys[1]), 
 						Integer.valueOf(keys[2]), 
-						Integer.valueOf(keys[3]));
+						Integer.valueOf(keys[3]));*/
+				InstNode childNode = pool.searchAndGet(childKey);
 				
 				transArray[childNode.getOp().getOpcode()] += inst.getChildFreqMap().get(childKey);
 			}

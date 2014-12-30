@@ -368,11 +368,11 @@ public class TemplateMethod extends TemplateParent {
 		
 	public static void main(String[] args) {
 		//int i = TemplateMethod.parentVar;
-		System.out.println("<init>");
+		/*System.out.println("<init>");
 		String init = "<init>";
-		System.out.println(init.equals("<init>"));
+		System.out.println(init.equals("<init>"));*/
 		TemplateMethod tm = new TemplateMethod();
-		tm.doObject(tm);
+		//tm.doObject(tm);
 		//tm.call1();
 		/*byte a = 1;
 		double b = 2.0;
@@ -391,9 +391,9 @@ public class TemplateMethod extends TemplateParent {
 		//int a = 2;
 		//int[] b = {3, 4, 7};
 		tm.forMethod();
-		//tm.forClassMethod();
+		/*tm.forClassMethod();
 		TemplateParent tp = new TemplateMethod();
-		tp.interestingMethod();
+		tp.interestingMethod();*/
 		
 		//TemplateInterface ti = new TemplateMethod();
 		//Integer i = new Integer(1);

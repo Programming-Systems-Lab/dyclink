@@ -263,12 +263,12 @@ public class GraphUtil {
 	 */
 	private static void _parentRemove(String parentKey, InstPool pool, String removeKey) {
 		try {
-			String[] parentParsed = StringUtil.parseIdxKey(parentKey);
+			/*String[] parentParsed = StringUtil.parseIdxKey(parentKey);
 			InstNode inst = pool.searchAndGet(parentParsed[0], 
 					Long.valueOf(parentParsed[1]), 
 					Integer.valueOf(parentParsed[2]), 
-					Integer.valueOf(parentParsed[3]));
-			
+					Integer.valueOf(parentParsed[3]));*/
+			InstNode inst = pool.searchAndGet(parentKey);
 			inst.getChildFreqMap().remove(removeKey);
 		} catch (Exception ex) {
 			logger.error(ex);
@@ -278,11 +278,12 @@ public class GraphUtil {
 	}
 	
 	public static InstNode _retrieveRealInst(String instKey, InstPool pool) {
-		String[] instKeys = StringUtil.parseIdxKey(instKey);
+		/*String[] instKeys = StringUtil.parseIdxKey(instKey);
 		InstNode instNode = pool.searchAndGet(instKeys[0], 
 				Long.valueOf(instKeys[1]), 
 				Integer.valueOf(instKeys[2]), 
-				Integer.valueOf(instKeys[3]));
+				Integer.valueOf(instKeys[3]));*/
+		InstNode instNode = pool.searchAndGet(instKey);
 		
 		return instNode;
 	}
@@ -317,7 +318,8 @@ public class GraphUtil {
 			int cIdx= Integer.valueOf(keySet[3]);
 			parentNode.increChild(keySet[0], cThreadId, cThreadMethodId, cIdx, freq);
 			
-			InstNode cNode = childPool.searchAndGet(keySet[0], cThreadId, cThreadMethodId, cIdx);
+			//InstNode cNode = childPool.searchAndGet(keySet[0], cThreadId, cThreadMethodId, cIdx);
+			InstNode cNode = childPool.searchAndGet(c);
 			//Try to remove in either inst data or write data parent
 			boolean fromInstData = cNode.getInstDataParentList().remove(fInstKey);
 			boolean fromWriteData = false;
@@ -347,11 +349,7 @@ public class GraphUtil {
 		System.out.println("Child node: " + childNode);
 		System.out.println("Child node control parent: " + childNode.getControlParentList());
 		for (String cont: childNode.getControlParentList()) {
-			String[] keySet = StringUtil.parseIdxKey(cont);
-			long cThreadId = Long.valueOf(keySet[1]);
-			int cThreadMethodId = Integer.valueOf(keySet[2]);
-			int cIdx = Integer.valueOf(keySet[3]);
-			InstNode contNode = childPool.searchAndGet(keySet[0], cThreadId, cThreadMethodId, cIdx);
+			InstNode contNode = childPool.searchAndGet(cont);
 			System.out.println("Cont node: " + contNode);
 			System.out.println("Cont node child: " + contNode.getChildFreqMap());
 			double freq = contNode.getChildFreqMap().get(fInstKey);
@@ -1145,10 +1143,11 @@ public class GraphUtil {
 			InstNode childInst = poolIt.next();
 			
 			if (parentPool.contains(childInst)) {
-				InstNode sameNode = parentPool.searchAndGet(childInst.getFromMethod(), 
+				String searchKey = StringUtil.genIdxKey(childInst.getFromMethod(), 
 						childInst.getThreadId(), 
 						childInst.getThreadMethodIdx(), 
 						childInst.getIdx());
+				InstNode sameNode = parentPool.searchAndGet(searchKey);
 				
 				unionInst(sameNode, childInst);
 			}

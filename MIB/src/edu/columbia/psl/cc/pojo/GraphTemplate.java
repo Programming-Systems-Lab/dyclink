@@ -71,10 +71,10 @@ public class GraphTemplate {
 			this.pool.add(copyInst);
 		}
 		
-		for (int i = 0; i < copy.getPath().size(); i++) {
+		/*for (int i = 0; i < copy.getPath().size(); i++) {
 			InstNode pathNode = copy.getPath().get(i);
 			this.path.add(this.pool.searchAndGet(pathNode.getFromMethod(), pathNode.getThreadId(), pathNode.getThreadMethodIdx(), pathNode.getIdx()));
-		}
+		}*/
 		
 		/*for (String field: copy.getWriteFields().keySet()) {
 			InstNode copyNode = copy.getWriteFields().get(field);
