@@ -4,11 +4,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.objectweb.asm.Type;
 
 public class ClassInfoCollector {
+	
+	public static HashMap<String, Class> methodClassCache = new HashMap<String, Class>();
 	
 	public static Class<?> retrieveCorrectClassByConstructor(String className, String constName, String constDescriptor) {
 		try {
@@ -29,12 +32,19 @@ public class ClassInfoCollector {
 	}
 
 	public static Class<?> retrieveCorrectClassByMethod(String className, String methodName, String methodDescriptor, boolean direct) {
+		String classCacheKey = StringUtil.genClassCacheKey(className, methodName, methodDescriptor);
+		
+		if (methodClassCache.containsKey(classCacheKey)) {
+			return methodClassCache.get(classCacheKey);
+		}
+		
 		try { 
 			className = className.replace("/", ".");
 			Class<?> calledClass = Class.forName(className);
 			
 			if (direct) {
 				//direct is for <init> and private method of INVOKESPECIAL
+				methodClassCache.put(classCacheKey, calledClass);
 				return calledClass;
 			}
 			
@@ -62,12 +72,16 @@ public class ClassInfoCollector {
 							count++;
 						}
 						
-						if (count == targetArgs.length)
+						if (count == targetArgs.length) {
+							methodClassCache.put(classCacheKey, calledClass);
 							return calledClass;
+						}
 					}
 				}
 				calledClass = calledClass.getSuperclass();
 			}
+			
+			//Something wrong if reaching here
 			return calledClass;
 		} catch (Exception ex) {
 			ex.printStackTrace();

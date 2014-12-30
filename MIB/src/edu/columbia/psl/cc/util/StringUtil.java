@@ -113,6 +113,10 @@ public class StringUtil {
 		return fromMethod + "-" + threadId + "-" + threadMethodIdx + "-" + idx;
 	}
 	
+	public static String genClassCacheKey(String owner, String method, String desc) {
+		return owner + "-" + method + "-" + desc;
+	}
+	
 	public static String genEdgeKey(InstNode from, InstNode to) {
 		String fromKey = from.getFromMethod() + "-" + from.getThreadId() + "-" + from.getIdx();
 		String toKey = to.getFromMethod() + "-" + to.getThreadId() + "-" + to.getIdx();

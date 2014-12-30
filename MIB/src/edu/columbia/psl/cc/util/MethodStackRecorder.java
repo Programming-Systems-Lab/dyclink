@@ -273,7 +273,7 @@ public class MethodStackRecorder {
 	}
 	
 	private void doLoadParent(String searchKey) {
-		String filePath = "";
+		/*String filePath = "";
 		if (MIBConfiguration.getInstance().isTemplateMode()) {
 			filePath = MIBConfiguration.getInstance().getTemplateDir() + "/" + searchKey + ".json";
 		} else {
@@ -289,7 +289,7 @@ public class MethodStackRecorder {
 		InstPool parentPool = parentGraph.getInstPool();
 		
 		GraphUtil.removeReturnInst(parentGraph.getInstPool());
-		GraphUtil.unionInstPools(this.pool, parentPool);
+		GraphUtil.unionInstPools(this.pool, parentPool);*/
 	}
 	
 	private synchronized InstNode safePop() {
@@ -318,7 +318,7 @@ public class MethodStackRecorder {
 		this.updatePath(fullInst);
 		
 		this.updateStackSimulator(times, fullInst);
-		this.showStackSimulator();
+		//this.showStackSimulator();
 	}
 	
 	public void handleField(int opcode, int instIdx, String owner, String name, String desc) {
@@ -404,7 +404,7 @@ public class MethodStackRecorder {
 			}
 		}
 		this.updateStackSimulator(fullInst, addOutput);
-		this.showStackSimulator();
+		//this.showStackSimulator();
 	}
 	
 	public void handleOpcode(int opcode, int instIdx, String addInfo) {
@@ -427,7 +427,7 @@ public class MethodStackRecorder {
 			}
 		}
 		this.updateStackSimulator(fullInst, 0);
-		this.showStackSimulator();
+		//this.showStackSimulator();
 		
 		if (BytecodeCategory.controlCategory().contains(opcat) 
 				|| opcode == Opcodes.TABLESWITCH 
@@ -525,7 +525,7 @@ public class MethodStackRecorder {
 		
 		if (!hasUpdate) 
 			this.updateStackSimulator(fullInst, 0);
-		this.showStackSimulator();
+		//this.showStackSimulator();
 	}
 	
 	public void handleMultiNewArray(String desc, int dim, int instIdx) {
@@ -543,7 +543,7 @@ public class MethodStackRecorder {
 			this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
 		}
 		this.updateStackSimulator(fullInst, 0);
-		this.showStackSimulator();
+		//this.showStackSimulator();
 	}
 	
 	private void handleUninstrumentedMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc, InstNode fullInst) {
@@ -581,10 +581,11 @@ public class MethodStackRecorder {
 				this.updateStackSimulator(1, fullInst);
 			}
 		}
-		this.showStackSimulator();
+		//this.showStackSimulator();
 	}
 	
 	public void handleMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc) {
+		long startTime = System.nanoTime();
 		logger.info("Handle method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		try {
 			Type methodType = Type.getMethodType(desc);
@@ -609,10 +610,12 @@ public class MethodStackRecorder {
 			//Load the correct graph
 			Class<?> correctClass = null;
 			int objId = -1;
+			
 			if (owner.equals("java/lang/Class") && name.equals("forName")) {
 				Object objOnStack = (this.stackSimulator.peek()).getRelatedObj();
 				String realOwner = objOnStack.toString();
 				this.checkNGetClInit(realOwner);
+				
 				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
 			} else if (owner.equals("java/lang/Class") 
 					&& name.equals("newInstance") 
@@ -688,6 +691,7 @@ public class MethodStackRecorder {
 			if (childGraph == null) {
 				logger.info("Graph not found: " + shortKeyWithThreadId);
 				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
+				System.out.println("Recorder time: " + (System.nanoTime() - startTime));
 				return ;
 			} else if (GlobalRecorder.checkUndersizedMethod(shortMethodKey)){
 				logger.info("Method undersized: " + shortMethodKey);
@@ -721,7 +725,7 @@ public class MethodStackRecorder {
 					
 					InstPool childPool = childGraph.getInstPool();
 					InstPool repPool = rep.getInstPool();
-					for (int i = 0; i < childPool.size(); i++) {
+					for (int i = 0; i < repPool.size(); i++) {
 						InstNode cNode = childPool.get(i);
 						InstNode rNode = repPool.get(i);
 						rNode.setUpdateDigit(cNode.getUpdateDigit());
@@ -852,12 +856,13 @@ public class MethodStackRecorder {
 					this.updateStackSimulator(1, lastSecond);
 				}
 			}
-			this.showStackSimulator();
+			//this.showStackSimulator();
 			this.pool.remove(fullInst);
 			GraphUtil.unionInstPools(this.pool, childPool);
 		} catch (Exception ex) {
-			logger.error(ex.getMessage());
+			logger.error(ex);
 		}
+		System.out.println("Recorder time: " + (System.nanoTime() - startTime));
 	}
 	
 	public void handleDup(int opcode) {
@@ -1008,6 +1013,7 @@ public class MethodStackRecorder {
 			}
 		}
 		
+		this.showStackSimulator();
 		logger.info("Leave " + this.className + 
 				" " + this.methodName + 
 				" " + this.methodKey + 
