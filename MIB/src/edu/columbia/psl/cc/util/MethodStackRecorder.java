@@ -757,9 +757,12 @@ public class MethodStackRecorder {
 					
 					InstPool childPool = childGraph.getInstPool();
 					InstPool repPool = rep.getInstPool();
-					for (int i = 0; i < repPool.size(); i++) {
-						InstNode cNode = childPool.get(i);
-						InstNode rNode = repPool.get(i);
+					
+					Iterator<InstNode> childIT = childPool.iterator();
+					Iterator<InstNode> repIT = repPool.iterator();
+					while (repIT.hasNext()) {
+						InstNode cNode = childIT.next();
+						InstNode rNode = repIT.next();
 						rNode.setUpdateDigit(cNode.getUpdateDigit());
 						rNode.setUpdateTime(cNode.getUpdateTime());
 					}

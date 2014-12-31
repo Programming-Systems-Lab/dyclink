@@ -245,7 +245,8 @@ public class InstNode implements Comparable<InstNode>{
 	
 	@Override
 	public int hashCode() {
-		return this.toString().hashCode();
+		String rep = String.valueOf(this.fromMethod.hashCode()) + String.valueOf(threadId) + String.valueOf(this.threadMethodIdx) + String.valueOf(this.idx);
+		return rep.hashCode();
 	}
 	
 	@Override
@@ -263,9 +264,29 @@ public class InstNode implements Comparable<InstNode>{
 
 	@Override
 	public int compareTo(InstNode other) {
-		String myKey = StringUtil.genIdxKey(this.getFromMethod(), this.getThreadId(), this.getThreadMethodIdx(), this.getIdx());
-		String otherKey = StringUtil.genIdxKey(other.getFromMethod(), other.getThreadId(), other.getThreadMethodIdx(), other.getIdx());
- 		return myKey.compareTo(otherKey);
+		//String myKey = StringUtil.genIdxKey(this.getFromMethod(), this.getThreadId(), this.getThreadMethodIdx(), this.getIdx());
+		//String otherKey = StringUtil.genIdxKey(other.getFromMethod(), other.getThreadId(), other.getThreadMethodIdx(), other.getIdx());
+		
+		long myDigit = this.startDigit;
+		long myStart = this.startTime;
+		
+		long otherDigit = other.getStartDigit();
+		long otherStart = other.getStartTime();
+		
+		if (myDigit > otherDigit) {
+			return 1;
+		} else if (myDigit < otherDigit) {
+			return -1;
+		} else {
+			if (myStart > otherStart) {
+				return 1;
+			} else if (myStart < otherStart) {
+				return -1;
+			} else {
+				//Impossible
+				return 0;
+			}
+		}
 	}
 
 }

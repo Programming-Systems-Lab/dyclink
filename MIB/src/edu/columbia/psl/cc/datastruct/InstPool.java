@@ -3,13 +3,14 @@ package edu.columbia.psl.cc.datastruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.util.StringUtil;
 
-public class InstPool extends ArrayList<InstNode> {
+public class InstPool extends TreeSet<InstNode> {
 
 	/**
 	 * 
