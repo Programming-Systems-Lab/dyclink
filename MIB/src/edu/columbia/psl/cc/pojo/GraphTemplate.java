@@ -42,6 +42,8 @@ public class GraphTemplate {
 	
 	private List<String> methodCalls;
 	
+	private boolean removeReturn = false;
+	
 	/*private Map<String, HashSet<InstNode>> firstReadFields;
 	
 	private Map<String, InstNode> writeFields;
@@ -225,6 +227,14 @@ public class GraphTemplate {
 	
 	public int getObjId() {
 		return this.objId;
+	}
+	
+	public void setRemoveReturn(boolean removeReturn) {
+		this.removeReturn = removeReturn;
+	}
+	
+	public boolean isRemoveReturn() {
+		return this.removeReturn;
 	}
 	
 	/*public void setMaxTime(long maxTime) {

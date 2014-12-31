@@ -606,6 +606,8 @@ public class MethodStackRecorder {
 				//To stop horizontal merge
 				this.recursive = true;
 			}
+			long argSizeTime = System.nanoTime();
+			logger.info("Arg size time: " + (argSizeTime - startTime));
 			
 			//Load the correct graph
 			Class<?> correctClass = null;
@@ -669,13 +671,16 @@ public class MethodStackRecorder {
 			}
 			
 			String fullKeyWithThreadObjId = StringUtil.genKeyWithObjId(fullKeyWithThreadId, objId);
-			logger.info("Full key with thread obj id: " + fullKeyWithThreadObjId);
-			logger.info("Short key with thread id: " + shortKeyWithThreadId);
+			//logger.info("Full key with thread obj id: " + fullKeyWithThreadObjId);
+			//logger.info("Short key with thread id: " + shortKeyWithThreadId);
 			InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, methodKey);
+			
+			long classTime = System.nanoTime();
+			logger.info("Class time: " + (classTime - argSizeTime));
 			
 			//Don't update, because we will remove inst before leaving the method
 			//this.updateControlRelation(fullInst);
-			this.updatePath(fullInst);
+			//this.updatePath(fullInst);
 			
 			/*String filePath = "";
 			if (MIBConfiguration.getInstance().isTemplateMode()) {
@@ -687,7 +692,8 @@ public class MethodStackRecorder {
 			GraphTemplate childGraph = GlobalRecorder.getLatestGraph(shortKeyWithThreadId);
 			
 			//This means that the callee method is from jvm, keep the method inst in graph
-			boolean removeReturn = true;
+			//boolean removeReturn = true;
+			boolean similar = false;
 			if (childGraph == null) {
 				logger.info("Graph not found: " + shortKeyWithThreadId);
 				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
@@ -720,8 +726,7 @@ public class MethodStackRecorder {
 				if (rep != null) {
 					logger.info("Find similar graph in cache: " + fullKeyWithThreadObjId);
 					logger.info(childGraph.getThreadMethodId() + " replaced by " + rep.getThreadMethodId());
-					logger.info("Child graph feature (node dep): " + childGraph.getInstPool().size() + " " + childGraph.getEdgeNum());
-					logger.info("All group keys now: " + gGroup.keySet());
+					//logger.info("Child graph feature (node dep): " + childGraph.getInstPool().size() + " " + childGraph.getEdgeNum());
 					
 					InstPool childPool = childGraph.getInstPool();
 					InstPool repPool = rep.getInstPool();
@@ -734,33 +739,43 @@ public class MethodStackRecorder {
 					
 					//Guess that this graph is the same
 					childGraph = rep;
-					removeReturn = false;
+					//removeReturn = false;
+					similar = true;
 				} else {
 					logger.info("Find no similar graph in cache: " + fullKeyWithThreadObjId);
-					logger.info("Existing graph group key: " + gGroup.keySet());
-					logger.info("Current graph key: " + GraphGroup.groupKey(childGraph));
+					//logger.info("Existing graph group key: " + gGroup.keySet());
+					//logger.info("Current graph key: " + GraphGroup.groupKey(childGraph));
 					gGroup.addGraph(childGraph);
 				}
 			} else {
 				//Record the original, not the one from group
 				this.methodCalls.add(childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
 				
-				logger.info("Caller " + this.methodKey + " " + this.threadId + " " + this.threadMethodId);
-				logger.info("creates new graph group for: " + fullKeyWithThreadObjId);
+				//logger.info("Caller " + this.methodKey + " " + this.threadId + " " + this.threadMethodId);
+				//logger.info("creates new graph group for: " + fullKeyWithThreadObjId);
 				GraphGroup gGroup = new GraphGroup();
 				gGroup.addGraph(childGraph);
 				this.calleeCache.put(fullKeyWithThreadObjId, gGroup);
 			}
 			
-			logger.info("Child graph analysis: " + childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
-			logger.info("Child graph size: " + childGraph.getInstPool().size());
-			logger.info("Recorded vertex edge size: " + childGraph.getVertexNum() + " " + childGraph.getEdgeNum());
+			//logger.info("Child graph analysis: " + childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
+			//logger.info("Child graph size: " + childGraph.getInstPool().size());
+			//logger.info("Recorded vertex edge size: " + childGraph.getVertexNum() + " " + childGraph.getEdgeNum());
+			
+			long graphGetTime = System.nanoTime();
+			logger.info("Graph get time: " + (graphGetTime - classTime));
 						
 			//Remove return
 			InstPool childPool = childGraph.getInstPool();
-			if (removeReturn) {
+			if (!childGraph.isRemoveReturn()) {
 				GraphUtil.removeReturnInst(childPool);
-			} else {				
+				childGraph.setRemoveReturn(true);
+			}
+			
+			long graphRemoveTime = System.nanoTime();
+			logger.info("Graph remove time: " + (graphRemoveTime - graphGetTime));
+			
+			if (similar) {				
 				for (InstNode cInst: childPool) {
 					for (String parentKey: cInst.getInstDataParentList()) {
 						InstNode parentNode = childPool.searchAndGet(parentKey);
@@ -796,7 +811,6 @@ public class MethodStackRecorder {
 				if (!BytecodeCategory.staticMethod().contains(opcode)) {
 					startIdx = 1;
 				}
-				//int endIdx = startIdx + args.length - 1;
 								
 				int endIdx = startIdx;
 				for (int i = args.length - 1; i >= 0; i--) {
@@ -816,7 +830,7 @@ public class MethodStackRecorder {
 						this.safePop();
 						targetNode = this.safePop();
 						
-						endIdx -=1;
+						endIdx -= 1;
 						parentFromCaller.put(endIdx, targetNode);
 						endIdx -= 1;
 					} else {
@@ -845,6 +859,9 @@ public class MethodStackRecorder {
 				GraphUtil.controlDepFromParentToChild(this.curControlInst, childGraph.getFirstReadLocalVars());
 			}
 			
+			long populateTime = System.nanoTime();
+			logger.info("Populate time: " + (populateTime - graphRemoveTime));
+			
 			String returnType = methodType.getReturnType().getDescriptor();
 			if (!returnType.equals("V")) {
 				//InstNode lastSecond = GraphUtil.lastSecondInst(childGraph.getInstPool());
@@ -859,6 +876,7 @@ public class MethodStackRecorder {
 			//this.showStackSimulator();
 			this.pool.remove(fullInst);
 			GraphUtil.unionInstPools(this.pool, childPool);
+			logger.info("Union time: " + (System.nanoTime() - populateTime));
 		} catch (Exception ex) {
 			logger.error(ex);
 		}
