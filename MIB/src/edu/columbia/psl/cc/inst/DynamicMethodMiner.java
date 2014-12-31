@@ -632,7 +632,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		
 		//If the INVOKESPECIAL is visited, start instrument constructor
 		if (this.constructor 
-				&&opcode == Opcodes.INVOKESPECIAL 
+				&& opcode == Opcodes.INVOKESPECIAL 
 				&& (owner.equals(this.superName) || owner.equals(this.className))
 				&& name.equals("<init>")
 				&& !this.superVisited) {

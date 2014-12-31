@@ -908,9 +908,8 @@ public class GraphUtil {
 	public static void dataDepFromParentToChild(Map<Integer, InstNode> parentMap, 
 			InstPool parentPool,
 			GraphTemplate childGraph) {
-		InstPool childPool = childGraph.getInstPool();
 		HashSet<InstNode> firstReadLocalVars = childGraph.getFirstReadLocalVars();
-		HashMap<Integer, List<InstNode>> childSummary = new HashMap<Integer, List<InstNode>>();
+		//HashMap<Integer, List<InstNode>> childSummary = new HashMap<Integer, List<InstNode>>();
 		for (InstNode f: firstReadLocalVars) {
 			//InstNode fInst = childPool.searchAndGet(f.getFromMethod(), f.getMethodId(), f.getIdx());
 			//It's possible that fInst is null, probably an aload for method node, which should be removed
@@ -919,7 +918,21 @@ public class GraphUtil {
 			
 			int idx = Integer.valueOf(f.getAddInfo());
 			
-			if (parentMap.containsKey(idx)) {
+			InstNode parentNode = parentMap.get(idx);
+			if (parentNode != null) {
+				parentNode.increChild(f.getFromMethod(), 
+						f.getThreadId(), 
+						f.getThreadMethodIdx(), 
+						f.getIdx(), 
+						MIBConfiguration.getInstance().getInstDataWeight());
+				f.registerParent(parentNode.getFromMethod(), 
+						parentNode.getThreadId(), 
+						parentNode.getThreadMethodIdx(), 
+						parentNode.getIdx(), 
+						MIBConfiguration.INST_DATA_DEP);
+			}
+			
+			/*if (parentMap.containsKey(idx)) {
 				if (childSummary.containsKey(idx)) {
 					childSummary.get(idx).add(f);
 				} else {
@@ -927,15 +940,12 @@ public class GraphUtil {
 					insts.add(f);
 					childSummary.put(idx, insts);
 				}
-			}
+			}*/
 		}
 		
-		for (Integer varKey: childSummary.keySet()) {
+		/*for (Integer varKey: childSummary.keySet()) {
 			List<InstNode> childInsts = childSummary.get(varKey);
-			//childInsts = sortInstPool(childInsts, true);
 			InstNode parentNode = parentMap.get(varKey);
-			//InstNode childNode = childInsts.get(0);
-			//transplantCalleeDepToCaller(parentNode, childNode, childPool);
 			
 			//Only connect input node from parent method to child method
 			for (InstNode childInst: childInsts) {
@@ -950,7 +960,7 @@ public class GraphUtil {
 						parentNode.getIdx(), 
 						MIBConfiguration.INST_DATA_DEP);
 			}
-		}
+		}*/
 	}
 	
 	/**

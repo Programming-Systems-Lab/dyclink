@@ -46,6 +46,12 @@ public class TemplateMethod extends TemplateParent {
 		this.test = test1;
 	}
 	
+	@Override
+	public String doIt(Number n) {
+		System.out.println("In the TemplateMethod");
+		return "";
+	}
+	
 	public void callee( Object A , double u[] , double gamma ,
             int colA0,
             int w0, int w1 ,
@@ -372,6 +378,8 @@ public class TemplateMethod extends TemplateParent {
 		String init = "<init>";
 		System.out.println(init.equals("<init>"));*/
 		TemplateMethod tm = new TemplateMethod();
+		TemplateParent tp = new TemplateMethod();
+		tp.doIt(new Double(2));
 		//tm.doObject(tm);
 		//tm.call1();
 		/*byte a = 1;

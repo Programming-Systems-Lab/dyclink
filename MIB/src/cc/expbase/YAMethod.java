@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
+import org.objectweb.asm.Type;
+
 public class YAMethod {
 	
 	public YAMethod() {
@@ -23,6 +25,8 @@ public class YAMethod {
 		//int b = TemplateMethod.parentVar;
 		//int c = TemplateMethod.sVar;
 		TemplateMethod tp = new TemplateMethod();
+		System.out.println(tp.getClass().getName());
+		System.out.println(Type.getInternalName(tp.getClass()));
 		
 		
 		//HashMap<String, Object> h1 = new HashMap<String, Object>();

@@ -18,7 +18,7 @@ public class TemplateParent implements TemplateInterface{
 	public Object obj;
 	
 	@Override
-	public String doIt(Number n) {
+	public Object doIt(Number n) {
 		System.out.println("Template Parent do: " + n);
 		return "";
 	}

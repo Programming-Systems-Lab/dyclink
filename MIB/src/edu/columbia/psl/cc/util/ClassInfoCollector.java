@@ -9,9 +9,80 @@ import java.util.List;
 
 import org.objectweb.asm.Type;
 
+import edu.columbia.psl.cc.datastruct.BytecodeCategory;
+import edu.columbia.psl.cc.pojo.ClassMethodInfo;
+import edu.columbia.psl.cc.pojo.InstNode;
+
 public class ClassInfoCollector {
+		
+	private static HashMap<String, ClassMethodInfo> classMethodInfoMap = new HashMap<String, ClassMethodInfo>();
 	
-	public static HashMap<String, Class> methodClassCache = new HashMap<String, Class>();
+	private static HashMap<String, Class> methodToClass = new HashMap<String, Class>();
+	
+	public static void initiateClassMethodInfo(String className, String methodName, String methodDesc, boolean isStatic) {
+		String classMethodCacheKey = StringUtil.genClassCacheKey(className, methodName, methodDesc);
+		
+		if (classMethodInfoMap.containsKey(classMethodCacheKey)) 
+			return ;
+		
+		ClassMethodInfo cmi = new ClassMethodInfo();
+		
+		//Set up arg len and arg size
+		Type methodType = Type.getMethodType(methodDesc);
+		Type[] args = methodType.getArgumentTypes();
+		Type returnType = methodType.getReturnType();
+		
+		int argSize = 0;
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].getSort() == Type.DOUBLE || args[i].getSort() == Type.LONG) {
+				argSize += 2;
+			} else {
+				argSize++;
+			}
+		}
+		
+		int endIdx = -1;
+		if (args.length > 0) {
+			int startIdx = 0;
+			if (!isStatic) {
+				startIdx = 1;
+			}
+							
+			endIdx = startIdx;
+			for (int i = args.length - 1; i >= 0; i--) {
+				Type t = args[i];
+				if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
+					endIdx += 2;
+				} else {
+					endIdx += 1;
+				}
+			}
+			endIdx--;
+		} else {
+			endIdx = 0;
+		}
+		
+		cmi.args = args;
+		cmi.returnType = returnType;
+		cmi.argSize = argSize;
+		cmi.endIdx = endIdx;
+		classMethodInfoMap.put(classMethodCacheKey, cmi);
+	}
+	
+	public static ClassMethodInfo retrieveClassMethodInfo(String className, String methodName, String methodDesc, int opcode) {
+		String classMethodCacheKey = StringUtil.genClassCacheKey(className, methodName, methodDesc);
+		
+		if (classMethodInfoMap.containsKey(classMethodCacheKey)) {
+			return classMethodInfoMap.get(classMethodCacheKey);
+		} else {
+			boolean isStatic = false;
+			if (BytecodeCategory.staticMethod().contains(opcode)) {
+				isStatic = true;
+			}
+			initiateClassMethodInfo(className, methodName, methodDesc, isStatic);
+			return classMethodInfoMap.get(classMethodCacheKey);
+		}
+	}
 	
 	public static Class<?> retrieveCorrectClassByConstructor(String className, String constName, String constDescriptor) {
 		try {
@@ -32,10 +103,9 @@ public class ClassInfoCollector {
 	}
 
 	public static Class<?> retrieveCorrectClassByMethod(String className, String methodName, String methodDescriptor, boolean direct) {
-		String classCacheKey = StringUtil.genClassCacheKey(className, methodName, methodDescriptor);
-		
-		if (methodClassCache.containsKey(classCacheKey)) {
-			return methodClassCache.get(classCacheKey);
+		String classMethodCacheKey = StringUtil.genClassCacheKey(className, methodName, methodDescriptor);
+		if (methodToClass.containsKey(classMethodCacheKey)) {
+			return methodToClass.get(classMethodCacheKey);
 		}
 		
 		try { 
@@ -44,7 +114,7 @@ public class ClassInfoCollector {
 			
 			if (direct) {
 				//direct is for <init> and private method of INVOKESPECIAL
-				methodClassCache.put(classCacheKey, calledClass);
+				methodToClass.put(classMethodCacheKey, calledClass);
 				return calledClass;
 			}
 			
@@ -59,8 +129,8 @@ public class ClassInfoCollector {
 						Type[] mArgs = Type.getArgumentTypes(m);
 						Type mReturn = Type.getReturnType(m);
 						
-						if (!targetReturn.equals(mReturn))
-							continue ;
+						/*if (!targetReturn.equals(mReturn))
+							continue ;*/
 						
 						if (mArgs.length != targetArgs.length)
 							continue ;
@@ -73,7 +143,7 @@ public class ClassInfoCollector {
 						}
 						
 						if (count == targetArgs.length) {
-							methodClassCache.put(classCacheKey, calledClass);
+							methodToClass.put(classMethodCacheKey, calledClass);
 							return calledClass;
 						}
 					}

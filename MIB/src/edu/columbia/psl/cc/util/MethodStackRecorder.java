@@ -22,6 +22,7 @@ import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.inst.BlockAnalyzer.Block;
 import edu.columbia.psl.cc.inst.BlockAnalyzer.InstTuple;
+import edu.columbia.psl.cc.pojo.ClassMethodInfo;
 import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
@@ -120,16 +121,18 @@ public class MethodStackRecorder {
 		//this.smm = GlobalRecorder.getStaticMethodMiner(this.shortMethodKey);
 		//this.threadId = Thread.currentThread().getId();
 		
+		if (objId == 0)
+			this.staticMethod = true;
+		
+		this.objId = objId;
+		
+		ClassInfoCollector.initiateClassMethodInfo(className, methodName, methodDesc, this.staticMethod);
+		
 		this.threadId = ObjectIdAllocater.getThreadId();
 		this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(className, 
 				methodName, 
 				methodDesc, 
 				this.threadId);
-		
-		if (objId == 0)
-			this.staticMethod = true;
-		
-		this.objId = objId;
 		
 		int start = 0;
 		if (!this.staticMethod) {
@@ -447,6 +450,21 @@ public class MethodStackRecorder {
 	public void handleOpcode(int opcode, int instIdx, int localVarIdx) {
 		logger.info("Handle opcode: " + opcode + " " + localVarIdx);
 		
+		//Don't record return inst, or need to remove it later
+		if (BytecodeCategory.returnOps().contains(opcode)) {
+			OpcodeObj returnOp = BytecodeCategory.getOpcodeObj(opcode);
+			int inputSize = returnOp.getInList().size();
+			
+			if (inputSize > 0) {
+				InstNode tmpInst = this.safePop();
+				this.beforeReturn = tmpInst;
+				if (inputSize == 2) {
+					this.safePop();
+				}
+			}
+			return ;
+		}
+		
 		InstNode fullInst = null;
 		if (localVarIdx >= 0) {
 			fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, String.valueOf(localVarIdx));
@@ -513,9 +531,9 @@ public class MethodStackRecorder {
 					if (!tmpInst.equals(lastTmp)) {
 						this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
 						
-						if (BytecodeCategory.returnOps().contains(fullInst.getOp().getOpcode())) {
+						/*if (BytecodeCategory.returnOps().contains(fullInst.getOp().getOpcode())) {
 							this.beforeReturn = tmpInst;
-						}
+						}*/
 					}
 					
 					lastTmp = tmpInst;
@@ -588,7 +606,7 @@ public class MethodStackRecorder {
 		long startTime = System.nanoTime();
 		logger.info("Handle method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		try {
-			Type methodType = Type.getMethodType(desc);
+			/*Type methodType = Type.getMethodType(desc);
 			Type[] args = methodType.getArgumentTypes();
 			int argSize = 0;
 			for (int i = 0; i < args.length; i++) {
@@ -597,7 +615,13 @@ public class MethodStackRecorder {
 				} else {
 					argSize++;
 				}
-			}
+			}*/
+			
+			ClassMethodInfo cmi = ClassInfoCollector.retrieveClassMethodInfo(owner, name, desc, opcode);
+			Type[] args = cmi.args;
+			Type rType = cmi.returnType;
+			int argSize = cmi.argSize;
+			int endIdx = cmi.endIdx;
 			logger.info("Arg size: " + argSize);
 			
 			if (this.className.equals(owner) 
@@ -606,6 +630,7 @@ public class MethodStackRecorder {
 				//To stop horizontal merge
 				this.recursive = true;
 			}
+			
 			long argSizeTime = System.nanoTime();
 			logger.info("Arg size time: " + (argSizeTime - startTime));
 			
@@ -617,7 +642,6 @@ public class MethodStackRecorder {
 				Object objOnStack = (this.stackSimulator.peek()).getRelatedObj();
 				String realOwner = objOnStack.toString();
 				this.checkNGetClInit(realOwner);
-				
 				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
 			} else if (owner.equals("java/lang/Class") 
 					&& name.equals("newInstance") 
@@ -654,7 +678,8 @@ public class MethodStackRecorder {
 					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
 				}else {
 					//logger.info("Retrieve method by class name: " + name + objOnStack.getClass().getName());
-					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(objOnStack.getClass().getName(), name, desc, false);
+					String internalName = Type.getInternalName(objOnStack.getClass());
+					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(internalName, name, desc, false);
 				}
 			}
 			
@@ -673,7 +698,6 @@ public class MethodStackRecorder {
 			String fullKeyWithThreadObjId = StringUtil.genKeyWithObjId(fullKeyWithThreadId, objId);
 			//logger.info("Full key with thread obj id: " + fullKeyWithThreadObjId);
 			//logger.info("Short key with thread id: " + shortKeyWithThreadId);
-			InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, methodKey);
 			
 			long classTime = System.nanoTime();
 			logger.info("Class time: " + (classTime - argSizeTime));
@@ -696,11 +720,14 @@ public class MethodStackRecorder {
 			boolean similar = false;
 			if (childGraph == null) {
 				logger.info("Graph not found: " + shortKeyWithThreadId);
+				InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, methodKey);
 				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
+				logger.info("Unisturmented method time: " + (System.nanoTime() - classTime));
 				System.out.println("Recorder time: " + (System.nanoTime() - startTime));
 				return ;
 			} else if (GlobalRecorder.checkUndersizedMethod(shortMethodKey)){
 				logger.info("Method undersized: " + shortMethodKey);
+				InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, methodKey);
 				
 				//Change the inst idx for preventing this inst will be removed in the future
 				//int oldInstIdx = fullInst.getIdx();
@@ -767,10 +794,10 @@ public class MethodStackRecorder {
 						
 			//Remove return
 			InstPool childPool = childGraph.getInstPool();
-			if (!childGraph.isRemoveReturn()) {
+			/*if (!childGraph.isRemoveReturn()) {
 				GraphUtil.removeReturnInst(childPool);
 				childGraph.setRemoveReturn(true);
-			}
+			}*/
 			
 			long graphRemoveTime = System.nanoTime();
 			logger.info("Graph remove time: " + (graphRemoveTime - graphGetTime));
@@ -803,11 +830,13 @@ public class MethodStackRecorder {
 				}*/
 			}
 			this.latestWriteFieldRecorder.putAll(childGraph.getLatestWriteFields());
+			long similarTime = System.nanoTime();
+			logger.info("Similar time: " + (similarTime - graphRemoveTime));
 			
 			//Search for correct inst, update local data dep dependency
 			HashMap<Integer, InstNode> parentFromCaller = new HashMap<Integer, InstNode>();
 			if (args.length > 0) {
-				int startIdx = 0;
+				/*int startIdx = 0;
 				if (!BytecodeCategory.staticMethod().contains(opcode)) {
 					startIdx = 1;
 				}
@@ -821,7 +850,7 @@ public class MethodStackRecorder {
 						endIdx += 1;
 					}
 				}
-				endIdx--;
+				endIdx--;*/
 				
 				for (int i = args.length - 1; i >= 0 ;i--) {
 					Type t = args[i];
@@ -851,6 +880,8 @@ public class MethodStackRecorder {
 			if (parentFromCaller.size() > 0) {
 				GraphUtil.dataDepFromParentToChild(parentFromCaller, this.pool, childGraph);
 			}
+			long dataDepTime = System.nanoTime();
+			logger.info("Data dep time: " + (dataDepTime - similarTime));
 			
 			//Update control dep
 			if (this.curControlInst != null) {
@@ -859,10 +890,11 @@ public class MethodStackRecorder {
 				GraphUtil.controlDepFromParentToChild(this.curControlInst, childGraph.getFirstReadLocalVars());
 			}
 			
-			long populateTime = System.nanoTime();
-			logger.info("Populate time: " + (populateTime - graphRemoveTime));
+			long controlDepTime = System.nanoTime();
+			logger.info("Control dep time: " + (controlDepTime - dataDepTime));
 			
-			String returnType = methodType.getReturnType().getDescriptor();
+			//String returnType = methodType.getReturnType().getDescriptor();
+			String returnType = rType.getDescriptor();
 			if (!returnType.equals("V")) {
 				//InstNode lastSecond = GraphUtil.lastSecondInst(childGraph.getInstPool());
 				InstNode lastSecond = childGraph.getLastBeforeReturn();
@@ -874,11 +906,12 @@ public class MethodStackRecorder {
 				}
 			}
 			//this.showStackSimulator();
-			this.pool.remove(fullInst);
+			//this.pool.remove(fullInst);
 			GraphUtil.unionInstPools(this.pool, childPool);
-			logger.info("Union time: " + (System.nanoTime() - populateTime));
+			logger.info("Union time: " + (System.nanoTime() - controlDepTime));
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error(ex.getMessage());
+			ex.printStackTrace();
 		}
 		System.out.println("Recorder time: " + (System.nanoTime() - startTime));
 	}
