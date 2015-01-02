@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class InstPool extends TreeSet<InstNode> {
@@ -43,16 +44,6 @@ public class InstPool extends TreeSet<InstNode> {
 		if (this.instMap.containsKey(idxKey)) {
 			return this.instMap.get(idxKey); 
 		}
-		
-		/*for (InstNode inst: this) {
-			if (inst.getFromMethod().equals(methodKey) && 
-					inst.getThreadId() == threadId && 
-					inst.getThreadMethodIdx() == threadMethodIdx && 
-					inst.getIdx() == idx && 
-					inst.getOp().getOpcode() == opcode && 
-					inst.getAddInfo().equals(addInfo))
-				return inst;
-		}*/
 		
 		//Create new 
 		InstNode probe = new InstNode();

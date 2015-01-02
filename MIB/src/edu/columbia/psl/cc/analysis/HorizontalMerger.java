@@ -140,7 +140,7 @@ public class HorizontalMerger {
 	public static void extractRepGraphs(Collection<GraphTemplate> graphSet) {		
 		HashMap<String, List<GraphTemplate>> stats = new HashMap<String, List<GraphTemplate>>();
 		for (GraphTemplate graph: graphSet) {
-			String groupKey = GraphGroup.groupKey(graph);
+			String groupKey = GraphGroup.groupKey(0, graph);
 			if (stats.containsKey(groupKey)) {
 				stats.get(groupKey).add(graph);
 			} else {
@@ -173,7 +173,7 @@ public class HorizontalMerger {
 		
 		HashMap<String, List<GraphTemplate>> stats = new HashMap<String, List<GraphTemplate>>();
 		for (GraphTemplate graph: graphSet) {
-			String groupKey = GraphGroup.groupKey(graph);
+			String groupKey = GraphGroup.groupKey(0, graph);
 			if (stats.containsKey(groupKey)) {
 				stats.get(groupKey).add(graph);
 			} else {

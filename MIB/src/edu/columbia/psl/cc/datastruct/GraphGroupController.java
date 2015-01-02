@@ -15,10 +15,10 @@ public class GraphGroupController {
 		return graphCache.get(searchKey);
 	}
 	
-	public static GraphTemplate getSimilarGraph(String searchKey, GraphTemplate curGraph) {
+	public static GraphTemplate getSimilarGraph(String searchKey, int linenumber, GraphTemplate curGraph) {
 		if (graphCache.containsKey(searchKey)) {
 			GraphGroup gGroup = graphCache.get(searchKey);
-			return gGroup.getGraph(curGraph);
+			return gGroup.getGraph(linenumber, curGraph);
 		}
 		return null;
 	}

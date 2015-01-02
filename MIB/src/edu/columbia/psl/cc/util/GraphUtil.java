@@ -906,12 +906,9 @@ public class GraphUtil {
 	}
 		
 	public static void dataDepFromParentToChild(Map<Integer, InstNode> parentMap, 
-			InstPool parentPool,
-			GraphTemplate childGraph) {
-		HashSet<InstNode> firstReadLocalVars = childGraph.getFirstReadLocalVars();
+			Collection<InstNode> cFirstReadNodes) {
 		//HashMap<Integer, List<InstNode>> childSummary = new HashMap<Integer, List<InstNode>>();
-		for (InstNode f: firstReadLocalVars) {
-			//InstNode fInst = childPool.searchAndGet(f.getFromMethod(), f.getMethodId(), f.getIdx());
+		for (InstNode f: cFirstReadNodes) {
 			//It's possible that fInst is null, probably an aload for method node, which should be removed
 			if (f == null)
 				continue ;

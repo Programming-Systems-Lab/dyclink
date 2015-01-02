@@ -142,6 +142,8 @@ public class DynamicMethodMiner extends MethodVisitor {
 	private boolean aload0Lock = false;
 	
 	//private BlockAnalyzer blockAnalyzer = new BlockAnalyzer();
+	
+	private boolean visitMethod = false;
 	 
 	public DynamicMethodMiner(MethodVisitor mv, 
 			String className, 
@@ -628,6 +630,8 @@ public class DynamicMethodMiner extends MethodVisitor {
 			int returnSort = Type.getMethodType(desc).getReturnType().getSort();
 			if (returnSort == Type.OBJECT || returnSort == Type.ARRAY)
 				this.updateObjOnVStack();
+			
+			this.visitMethod = true;
 		}
 		
 		//If the INVOKESPECIAL is visited, start instrument constructor
@@ -826,7 +830,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 			GsonManager.writeJsonGeneric(sr, key, typeToken, 2);
 		}*/
 		
-		if (this.indexer.get() < MIBConfiguration.getInstance().getInstThreshold()) {
+		if (this.indexer.get() < MIBConfiguration.getInstance().getInstThreshold() && !this.visitMethod) {
 			GlobalRecorder.registerUndersizedMethod(this.shortKey);
 		}
 		

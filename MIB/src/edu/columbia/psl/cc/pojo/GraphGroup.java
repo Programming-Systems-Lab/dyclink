@@ -13,21 +13,21 @@ public class GraphGroup extends HashMap<String, GraphTemplate>{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static String groupKey(GraphTemplate graph) {
-		return groupKey(graph.getVertexNum(), graph.getEdgeNum());
+	public static String groupKey(int linenumber, GraphTemplate graph) {
+		return groupKey(linenumber, graph.getVertexNum(), graph.getEdgeNum());
 	}
 	
-	public static String groupKey(int nodeNum, int depNum) {
-		return String.valueOf(nodeNum) + ":" + depNum;
+	public static String groupKey(int linenumber, int nodeNum, int depNum) {
+		return String.valueOf(linenumber) + ":" + nodeNum + ":" + depNum;
 	}
 	
-	public GraphTemplate getGraph(GraphTemplate graph) {
+	public GraphTemplate getGraph(int linenumber, GraphTemplate graph) {
 		if (graph.getLatestWriteFields().size() > 0) {
 			logger.info("Graph writes fields. Choose not to replace: " + graph.getMethodKey() + " " + graph.getThreadId() + " " + graph.getThreadMethodId());
 			return null;
 		}
 		
-		String groupKey = groupKey(graph.getVertexNum(), graph.getEdgeNum());
+		String groupKey = groupKey(linenumber, graph.getVertexNum(), graph.getEdgeNum());
 		GraphTemplate existGraph = this.get(groupKey);
 		return existGraph;
 		
@@ -49,8 +49,8 @@ public class GraphGroup extends HashMap<String, GraphTemplate>{
 		}*/
 	}
 
-	public void addGraph(GraphTemplate graph) {
-		String groupKey = groupKey(graph.getVertexNum(), graph.getEdgeNum());
+	public void addGraph(int linenumber, GraphTemplate graph) {
+		String groupKey = groupKey(linenumber, graph.getVertexNum(), graph.getEdgeNum());
 		this.put(groupKey, graph);
 	}
 }

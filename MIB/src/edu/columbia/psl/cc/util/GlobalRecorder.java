@@ -44,7 +44,8 @@ public class GlobalRecorder {
 	
 	private static HashSet<String> recursiveMethodRecorder = new HashSet<String>();
 	
-	private static HashMap<String, List<GraphTemplate>> graphRecorder = new HashMap<String, List<GraphTemplate>>();
+	//private static HashMap<String, List<GraphTemplate>> graphRecorder = new HashMap<String, List<GraphTemplate>>();
+	private static HashMap<String, HashMap<String, GraphTemplate>> graphRecorder = new HashMap<String, HashMap<String, GraphTemplate>>();
 	
 	private static HashMap<Long, GraphTemplate> latestGraphs = new HashMap<Long, GraphTemplate>();
 	
@@ -117,11 +118,11 @@ public class GlobalRecorder {
 	
 	public static void replaceWriteFieldNodes(GraphTemplate graph, InstNode replace) {
 		synchronized(writeFieldLock) {
-			HashMap<String, InstNode> writeNodes = graph.getLatestWriteFields();
+			HashMap<String, String> writeNodes = graph.getLatestWriteFields();
 			
 			logger.info("Replacement for under-sized graph: " + graph.getMethodKey());
 			for (String writeField: writeNodes.keySet()) {
-				InstNode curNode = writeNodes.get(writeField);
+				InstNode curNode = graph.getInstPool().searchAndGet(writeNodes.get(writeField));
 				InstNode globalNode = globalWriteFieldRecorder.get(writeField);
 				
 				if (globalNode != null && curNode.equals(globalNode)) {
@@ -138,13 +139,13 @@ public class GlobalRecorder {
 	 */
 	public static void replaceWriteFieldNodes(GraphTemplate graph) {
 		synchronized(writeFieldLock) {
-			HashMap<String, InstNode> writeNodes = graph.getLatestWriteFields();
+			HashMap<String, String> writeNodes = graph.getLatestWriteFields();
 			
 			logger.info("Replacement for graph group: " + graph.getMethodKey());
 			//HashSet<String> toRemove = new HashSet<String>();
 			HashSet<InstNode> toRemove = new HashSet<InstNode>();
 			for (String writeField: writeNodes.keySet()) {
-				InstNode curNode = writeNodes.get(writeField);
+				InstNode curNode = graph.getInstPool().searchAndGet(writeNodes.get(writeField));
 				InstNode globalNode = globalWriteFieldRecorder.get(writeField);
 				
 				InstNode remove = new InstNode();
@@ -194,7 +195,7 @@ public class GlobalRecorder {
 				shortNameCount = ai.getAndIncrement();
 			}
 			
-			String shortName = shortNameNoKey + shortNameCount;
+			String shortName = shortNameNoKey + ":" + shortNameCount;
 			globalNameMap.put(fullName, shortName);
 			return shortName;
 		}
@@ -299,5 +300,6 @@ public class GlobalRecorder {
 			curDigit.set(0);
 			curTime.set(0);
 		}
+		System.gc();
 	}
 }

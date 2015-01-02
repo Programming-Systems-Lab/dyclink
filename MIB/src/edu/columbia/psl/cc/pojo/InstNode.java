@@ -7,6 +7,7 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class InstNode implements Comparable<InstNode>{
@@ -81,6 +82,16 @@ public class InstNode implements Comparable<InstNode>{
 			this.controlParentList.add(idxKey);
 		}
 	}
+	
+	public void increChild(String fromMethod, long threadId, int threadMethodIdx, int childIdx, double amount) {
+		String idxKey = StringUtil.genIdxKey(fromMethod, threadId, threadMethodIdx, childIdx);
+		if (this.childFreqMap.containsKey(idxKey)) {
+			double count = this.childFreqMap.get(idxKey) + amount;
+			this.childFreqMap.put(idxKey, count);
+		} else {
+			this.childFreqMap.put(idxKey, amount);
+		}
+	}
 		
 	public void setInstDataParentList(ArrayList<String> instDataParentList) {
 		this.instDataParentList = instDataParentList;
@@ -104,16 +115,6 @@ public class InstNode implements Comparable<InstNode>{
 	
 	public ArrayList<String> getControlParentList() {
 		return this.controlParentList;
-	}
-	
-	public void increChild(String fromMethod, long threadId, int threadMethodIdx, int childIdx, double amount) {
-		String idxKey = StringUtil.genIdxKey(fromMethod, threadId, threadMethodIdx, childIdx);
-		if (this.childFreqMap.containsKey(idxKey)) {
-			double count = this.childFreqMap.get(idxKey) + amount;
-			this.childFreqMap.put(idxKey, count);
-		} else {
-			this.childFreqMap.put(idxKey, amount);
-		}
 	}
 	
 	public void updateChild(String fromMethod, long threadId, int threadMethodIdx, int childIdx, double amount) {
@@ -273,14 +274,14 @@ public class InstNode implements Comparable<InstNode>{
 		long otherDigit = other.getStartDigit();
 		long otherStart = other.getStartTime();
 		
-		if (myDigit > otherDigit) {
+		if (myDigit < otherDigit) {
 			return 1;
-		} else if (myDigit < otherDigit) {
+		} else if (myDigit > otherDigit) {
 			return -1;
 		} else {
-			if (myStart > otherStart) {
+			if (myStart < otherStart) {
 				return 1;
-			} else if (myStart < otherStart) {
+			} else if (myStart > otherStart) {
 				return -1;
 			} else {
 				//Impossible

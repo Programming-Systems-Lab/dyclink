@@ -40,9 +40,9 @@ public class GraphTemplate {
 	
 	private int vertexNum;
 	
-	private HashSet<InstNode> firstReadLocalVars;
+	private HashSet<String> firstReadLocalVars;
 	
-	private HashMap<String, InstNode> latestWriteFields;
+	private HashMap<String, String> latestWriteFields;
 	
 	private List<String> methodCalls;
 	
@@ -65,8 +65,8 @@ public class GraphTemplate {
 		this.threadMethodId = copy.getThreadMethodId();
 		this.edgeNum = copy.getEdgeNum();
 		this.staticMethod = copy.isStaticMethod();
-		this.firstReadLocalVars = new HashSet<InstNode>(copy.getFirstReadLocalVars());
-		this.latestWriteFields = new HashMap<String, InstNode>(copy.getLatestWriteFields());
+		this.firstReadLocalVars = new HashSet<String>(copy.getFirstReadLocalVars());
+		this.latestWriteFields = new HashMap<String, String>(copy.getLatestWriteFields());
 		
 		this.pool = new InstPool();
 		this.path = new ArrayList<InstNode>();
@@ -183,19 +183,19 @@ public class GraphTemplate {
 		return this.staticMethod;
 	}
 	
-	public void setFirstReadLocalVars(HashSet<InstNode> firstReadLocalVars) {
+	public void setFirstReadLocalVars(HashSet<String> firstReadLocalVars) {
 		this.firstReadLocalVars = firstReadLocalVars;
 	}
 	
-	public HashSet<InstNode> getFirstReadLocalVars() {
+	public HashSet<String> getFirstReadLocalVars() {
 		return this.firstReadLocalVars;
 	}
 	
-	public void setLatestWriteFields(HashMap<String, InstNode> latestWriteFields) {
+	public void setLatestWriteFields(HashMap<String, String> latestWriteFields) {
 		this.latestWriteFields = latestWriteFields;
 	}
 	
-	public HashMap<String, InstNode> getLatestWriteFields() {
+	public HashMap<String, String> getLatestWriteFields() {
 		return this.latestWriteFields;
 	}
 	
