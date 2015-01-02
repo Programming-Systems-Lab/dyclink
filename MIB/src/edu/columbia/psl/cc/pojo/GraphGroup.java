@@ -29,12 +29,13 @@ public class GraphGroup extends HashMap<String, GraphTemplate>{
 		
 		String groupKey = groupKey(graph.getVertexNum(), graph.getEdgeNum());
 		GraphTemplate existGraph = this.get(groupKey);
+		return existGraph;
 		
-		if (existGraph == null) {
+		/*if (existGraph == null) {
 			return null;
 		} else {
 			return existGraph;
-		}
+		}*/
 		
 		/*if (existGraph == null) {
 			return null;

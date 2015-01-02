@@ -126,7 +126,10 @@ public class MethodStackRecorder {
 		
 		this.objId = objId;
 		
-		ClassInfoCollector.initiateClassMethodInfo(className, methodName, methodDesc, this.staticMethod);
+		ClassInfoCollector.initiateClassMethodInfo(className, 
+				methodName, 
+				methodDesc, 
+				this.staticMethod);
 		
 		this.threadId = ObjectIdAllocater.getThreadId();
 		this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(className, 
@@ -246,7 +249,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void checkNGetClInit(String targetClass) {
-		String cleanClass = StringUtil.cleanPunc(targetClass, ".");
+		/*String cleanClass = StringUtil.cleanPunc(targetClass, ".");
 		String targetDumpKey = GlobalRecorder.getLoadedClass(cleanClass);
 		if (targetDumpKey == null) {
 			logger.info("Current method: " + this.methodKey);
@@ -256,7 +259,7 @@ public class MethodStackRecorder {
 		}
 		
 		logger.info(this.methodKey + " is loading " + cleanClass + " clinit");
-		this.doLoadParent(targetDumpKey);
+		this.doLoadParent(targetDumpKey);*/
 	}
 		
 	public void loadParent(String owner, String name, String desc) {
@@ -276,7 +279,7 @@ public class MethodStackRecorder {
 	}
 	
 	private void doLoadParent(String searchKey) {
-		/*String filePath = "";
+		String filePath = "";
 		if (MIBConfiguration.getInstance().isTemplateMode()) {
 			filePath = MIBConfiguration.getInstance().getTemplateDir() + "/" + searchKey + ".json";
 		} else {
@@ -292,7 +295,7 @@ public class MethodStackRecorder {
 		InstPool parentPool = parentGraph.getInstPool();
 		
 		GraphUtil.removeReturnInst(parentGraph.getInstPool());
-		GraphUtil.unionInstPools(this.pool, parentPool);*/
+		GraphUtil.unionInstPools(this.pool, parentPool);
 	}
 	
 	private synchronized InstNode safePop() {
@@ -312,7 +315,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {
-		logger.info("Handle ldc: " + opcode + " " + instIdx + " " + addInfo);
+		//logger.info("Handle ldc: " + opcode + " " + instIdx + " " + addInfo);
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, addInfo);
 		fullInst.setLinenumber(this.linenumber);
 		this.updateTime(fullInst);
@@ -325,7 +328,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleField(int opcode, int instIdx, String owner, String name, String desc) {
-		logger.info("Handle field: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+		//logger.info("Handle field: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
 		int typeSort = Type.getType(desc).getSort();
@@ -343,7 +346,7 @@ public class MethodStackRecorder {
 		
 		//Search the real owner of the field
 		Class<?> targetClass = ClassInfoCollector.retrieveCorrectClassByField(owner, name);
-		logger.info("Class owner of field with objId: " + targetClass + " " + desc + " " + objId);
+		//logger.info("Class owner of field with objId: " + targetClass + " " + desc + " " + objId);
 		
 		if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC) {
 			//JVM will load the owner, not the exact class
@@ -411,7 +414,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleOpcode(int opcode, int instIdx, String addInfo) {
-		logger.info("Handle opcode: " + opcode + " " + instIdx + " " + addInfo);
+		//logger.info("Handle opcode: " + opcode + " " + instIdx + " " + addInfo);
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
 		
@@ -448,7 +451,7 @@ public class MethodStackRecorder {
 	 * @param localVarIdx
 	 */
 	public void handleOpcode(int opcode, int instIdx, int localVarIdx) {
-		logger.info("Handle opcode: " + opcode + " " + localVarIdx);
+		//logger.info("Handle opcode: " + opcode + " " + localVarIdx);
 		
 		//Don't record return inst, or need to remove it later
 		if (BytecodeCategory.returnOps().contains(opcode)) {
@@ -547,7 +550,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleMultiNewArray(String desc, int dim, int instIdx) {
-		logger.info("Handle MultiNewArray: " + desc + " " + dim + " " + instIdx);
+		//logger.info("Handle MultiNewArray: " + desc + " " + dim + " " + instIdx);
 		String addInfo = desc + " " + dim;
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, Opcodes.MULTIANEWARRAY, addInfo);
 		fullInst.setLinenumber(this.linenumber);
@@ -565,7 +568,7 @@ public class MethodStackRecorder {
 	}
 	
 	private void handleUninstrumentedMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc, InstNode fullInst) {
-		logger.info("Handling uninstrumented/undersize method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+		//logger.info("Handling uninstrumented/undersize method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		fullInst.setLinenumber(this.linenumber);
 		this.updateTime(fullInst);
 		this.updateControlRelation(fullInst);
@@ -573,7 +576,6 @@ public class MethodStackRecorder {
 		Type methodType = Type.getMethodType(desc);
 		Type[] args = methodType.getArgumentTypes();
 		
-		logger.info("Arg size: " + args.length);
 		for (int i = args.length - 1; i >= 0; i--) {
 			Type t = args[i];
 			if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
@@ -603,6 +605,192 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc) {
+		//long startTime = System.nanoTime();
+		//logger.info("Handle method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+		
+		ClassMethodInfo cmi = ClassInfoCollector.retrieveClassMethodInfo(owner, name, desc, opcode);
+		int argSize = cmi.argSize;
+		Type[] args = cmi.args;
+		Type rType = cmi.returnType;
+		int endIdx = cmi.endIdx;
+		
+		try {
+			GraphTemplate childGraph = GlobalRecorder.getLatestGraph(this.threadId);
+			if (childGraph == null) {
+				InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, methodKey);
+				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
+				//System.out.println("Recorder time: " + (System.nanoTime() - startTime));
+				return ;
+			} else {
+				if (!childGraph.getMethodName().equals(name) || !childGraph.getMethodDesc().equals(desc)) {
+					logger.error("Incompatible graph: " + childGraph.getMethodKey());
+					logger.error("Wanted: " + owner + " " + name + " " + desc);
+					InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, methodKey);
+					this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
+					//System.out.println("Recorder time: " + (System.nanoTime() - startTime));
+					return ;
+				} else {
+					int objId = -1;
+					
+					if (BytecodeCategory.staticMethod().contains(opcode)) {
+						objId = 0;
+					} else {
+						InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
+						Object objOnStack = relatedInst.getRelatedObj();
+						//methodId = ObjectIdAllocater.parseObjId(objOnStack);
+						objId = ObjectIdAllocater.parseObjId(objOnStack);
+					}
+					
+					String fullKeyWithThreadId = StringUtil.genKeyWithId(childGraph.getMethodKey(), String.valueOf(this.threadId));				
+					String fullKeyWithThreadObjId = StringUtil.genKeyWithObjId(fullKeyWithThreadId, objId);
+					
+					boolean similar = false;
+					if (this.calleeCache.containsKey(fullKeyWithThreadObjId)) {
+						GraphGroup gGroup = this.calleeCache.get(fullKeyWithThreadObjId);
+						
+						//Record the original, not the one from group
+						//this.methodCalls.add(childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
+						
+						//Check if there is similar graph
+						GraphTemplate rep = gGroup.getGraph(childGraph);
+						if (rep != null) {
+							logger.info("Find similar graph in cache: " + fullKeyWithThreadObjId);
+							//logger.info(childGraph.getThreadMethodId() + " replaced by " + rep.getThreadMethodId());
+							
+							InstPool childPool = childGraph.getInstPool();
+							InstPool repPool = rep.getInstPool();
+							
+							Iterator<InstNode> childIT = childPool.iterator();
+							Iterator<InstNode> repIT = repPool.iterator();
+							while (repIT.hasNext()) {
+								InstNode cNode = childIT.next();
+								InstNode rNode = repIT.next();
+								rNode.setUpdateDigit(cNode.getUpdateDigit());
+								rNode.setUpdateTime(cNode.getUpdateTime());
+							}
+							
+							//Guess that this graph is the same
+							childGraph = rep;
+							similar = true;
+						} else {
+							logger.info("Find no similar graph in cache: " + fullKeyWithThreadObjId);
+							//logger.info("Existing graph group key: " + gGroup.keySet());
+							//logger.info("Current graph key: " + GraphGroup.groupKey(childGraph));
+							gGroup.addGraph(childGraph);
+						}
+					} else {
+						//Record the original, not the one from group
+						//this.methodCalls.add(childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
+						
+						//logger.info("Caller " + this.methodKey + " " + this.threadId + " " + this.threadMethodId);
+						//logger.info("creates new graph group for: " + fullKeyWithThreadObjId);
+						GraphGroup gGroup = new GraphGroup();
+						gGroup.addGraph(childGraph);
+						this.calleeCache.put(fullKeyWithThreadObjId, gGroup);
+					}
+					
+					InstPool childPool = childGraph.getInstPool();
+					
+					//long graphGetTime = System.nanoTime();
+					//logger.info("Graph get time: " + (graphGetTime - startTime));
+					
+					if (similar) {				
+						for (InstNode cInst: childPool) {
+							for (String parentKey: cInst.getInstDataParentList()) {
+								InstNode parentNode = childPool.searchAndGet(parentKey);
+								
+								//Parent node is null if it's the interface between two methods
+								if (parentNode == null) {
+									parentNode = this.pool.searchAndGet(parentKey);
+								}
+								
+								if (parentNode != null) {
+									parentNode.increChild(cInst.getFromMethod(), 
+											cInst.getThreadId(), 
+											cInst.getThreadMethodIdx(), 
+											cInst.getIdx(), 
+											MIBConfiguration.getInstance().getInstDataWeight());
+								} else {
+									logger.warn("Parent instruction " + parentKey + " for child " + cInst + " missed");
+									logger.warn("Current pool: " + this.methodKey + " " + this.threadId + " " + threadMethodId);
+								}
+							}
+						}
+					}
+					this.latestWriteFieldRecorder.putAll(childGraph.getLatestWriteFields());
+					//long similarTime = System.nanoTime();
+					//logger.info("Similar time: " + (similarTime - graphGetTime));
+					
+					HashMap<Integer, InstNode> parentFromCaller = new HashMap<Integer, InstNode>();
+					if (args.length > 0) {
+						for (int i = args.length - 1; i >= 0 ;i--) {
+							Type t = args[i];
+							InstNode targetNode = null;
+							if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
+								this.safePop();
+								targetNode = this.safePop();
+								
+								endIdx -= 1;
+								parentFromCaller.put(endIdx, targetNode);
+								endIdx -= 1;
+							} else {
+								targetNode = this.safePop();
+								parentFromCaller.put(endIdx, targetNode);
+								
+								endIdx -= 1;
+							}
+						}
+					}
+					
+					if (!BytecodeCategory.staticMethod().contains(opcode)) {
+						//loadNode can be anyload that load an object
+						InstNode loadNode = this.safePop();
+						parentFromCaller.put(0, loadNode);
+					}
+					//long instLocateTime = System.nanoTime();
+					//logger.info("Inst locate time: " + (instLocateTime - similarTime));
+					
+					if (parentFromCaller.size() > 0) {
+						GraphUtil.dataDepFromParentToChild(parentFromCaller, this.pool, childGraph);
+					}
+					//long dataDepTime = System.nanoTime();
+					//logger.info("Data dep time: " + (dataDepTime - instLocateTime));
+					
+					//Update control dep
+					if (this.curControlInst != null) {
+						//GraphUtil.controlDepFromParentToChild(this.curControlInst, childPool);
+						//Just use input, or the graph volume will be too large
+						GraphUtil.controlDepFromParentToChild(this.curControlInst, childGraph.getFirstReadLocalVars());
+					}
+					
+					//long controlDepTime = System.nanoTime();
+					//logger.info("Control dep time: " + (controlDepTime - dataDepTime));
+					
+					//String returnType = methodType.getReturnType().getDescriptor();
+					String returnType = rType.getDescriptor();
+					if (!returnType.equals("V")) {
+						//InstNode lastSecond = GraphUtil.lastSecondInst(childGraph.getInstPool());
+						InstNode lastSecond = childGraph.getLastBeforeReturn();
+						if (returnType.equals("D") || returnType.equals("J")) {
+							if (lastSecond != null)
+								this.updateStackSimulator(2, lastSecond);
+						} else {
+							this.updateStackSimulator(1, lastSecond);
+						}
+					}
+					//this.showStackSimulator();
+					//this.pool.remove(fullInst);
+					GraphUtil.unionInstPools(this.pool, childPool);
+					//logger.info("Union time: " + (System.nanoTime() - controlDepTime));
+					//System.out.println("Recorder time: " + (System.nanoTime() - startTime));
+				}
+			}
+		} catch (Exception ex) {
+			logger.error(ex);
+		}
+	}
+	
+	public void handleMethodFirst(int opcode, int instIdx, int linenum, String owner, String name, String desc) {
 		long startTime = System.nanoTime();
 		logger.info("Handle method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 		try {
@@ -676,14 +864,23 @@ public class MethodStackRecorder {
 				} else if (opcode == Opcodes.INVOKESPECIAL) {
 					//super method, may be in grand parents
 					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
-				}else {
+				} else {
 					//logger.info("Retrieve method by class name: " + name + objOnStack.getClass().getName());
 					String internalName = Type.getInternalName(objOnStack.getClass());
 					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(internalName, name, desc, false);
 				}
 			}
 			
-			logger.info("Method owner: " + correctClass.getName());			
+			logger.info("Method owner: " + correctClass.getName());
+			if (!StringUtil.shouldInclude(correctClass.getName())) {
+				logger.info("Should not include: " + correctClass.getName());
+				InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, methodKey);
+				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
+				logger.info("Unisturmented method time: " + (System.nanoTime() - argSizeTime));
+				System.out.println("Recorder time: " + (System.nanoTime() - startTime));
+				return ;
+			}
+			
 			String methodKey = StringUtil.genKey(correctClass.getName(), name, desc);
 			String shortMethodKey = GlobalRecorder.getGlobalName(methodKey);
 			
@@ -719,11 +916,10 @@ public class MethodStackRecorder {
 			//boolean removeReturn = true;
 			boolean similar = false;
 			if (childGraph == null) {
-				logger.info("Graph not found: " + shortKeyWithThreadId);
+				logger.error("Graph not found: " + shortKeyWithThreadId);
+				
 				InstNode fullInst = this.pool.searchAndGet(this.methodKey, this.threadId, this.threadMethodId, instIdx, opcode, methodKey);
 				this.handleUninstrumentedMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
-				logger.info("Unisturmented method time: " + (System.nanoTime() - classTime));
-				System.out.println("Recorder time: " + (System.nanoTime() - startTime));
 				return ;
 			} else if (GlobalRecorder.checkUndersizedMethod(shortMethodKey)){
 				logger.info("Method undersized: " + shortMethodKey);
@@ -879,12 +1075,14 @@ public class MethodStackRecorder {
 				InstNode loadNode = this.safePop();
 				parentFromCaller.put(0, loadNode);
 			}
+			long instLocateTime = System.nanoTime();
+			logger.info("Inst locate time: " + (instLocateTime - similarTime));
 			
 			if (parentFromCaller.size() > 0) {
 				GraphUtil.dataDepFromParentToChild(parentFromCaller, this.pool, childGraph);
 			}
 			long dataDepTime = System.nanoTime();
-			logger.info("Data dep time: " + (dataDepTime - similarTime));
+			logger.info("Data dep time: " + (dataDepTime - instLocateTime));
 			
 			//Update control dep
 			if (this.curControlInst != null) {
@@ -1005,25 +1203,26 @@ public class MethodStackRecorder {
 		GraphTemplate gt = new GraphTemplate();
 		
 		gt.setMethodKey(this.methodKey);
+		gt.setMethodName(this.methodName);
+		gt.setMethodDesc(this.methodDesc);
 		gt.setShortMethodKey(this.shortMethodKey);
 		gt.setThreadId(this.threadId);
 		gt.setThreadMethodId(this.threadMethodId);
-		gt.setThreadId(this.threadId);
 		gt.setObjId(this.objId);
 		gt.setMethodArgSize(this.methodArgSize);
 		gt.setMethodReturnSize(this.methodReturnSize);
 		gt.setStaticMethod(this.staticMethod);
 		gt.setFirstReadLocalVars(this.firstReadLocalVars);
 		gt.setLatestWriteFields(this.latestWriteFieldRecorder);
-		gt.setMethodCalls(this.methodCalls);
+		//gt.setMethodCalls(this.methodCalls);
 		//gt.setFirstReadFields(this.firstReadFields);
 		//gt.setWriteFields(this.fieldRecorder);
 		
 		if (this.beforeReturn != null) {
 			gt.setLastBeforeReturn(this.beforeReturn);
-			logger.info("Before return inst: " + this.beforeReturn);
+			//logger.info("Before return inst: " + this.beforeReturn);
 		} else {
-			logger.info("No before return inst");
+			//logger.info("No before return inst");
 		}
 		//gt.setPath(this.path);
 		
@@ -1044,7 +1243,8 @@ public class MethodStackRecorder {
 		
 		//String dumpKey = StringUtil.genKeyWithId(this.methodKey, String.valueOf(this.threadId));
 		String dumpKey = StringUtil.genKeyWithId(this.shortMethodKey, String.valueOf(this.threadId));
-		GlobalRecorder.registerGraph(dumpKey, gt);
+		boolean registerLatest = (!this.methodName.equals("<clinit>"));
+		GlobalRecorder.registerGraph(dumpKey, gt, registerLatest);
 		
 		if (this.methodName.equals(clinit)) {
 			GlobalRecorder.registerLoadedClass(StringUtil.cleanPunc(this.className, "."), 

@@ -14,6 +14,10 @@ public class GraphTemplate {
 	
 	private String shortMethodKey;
 	
+	private String methodName;
+	
+	private String methodDesc;
+	
 	private long threadId;
 	
 	private int threadMethodId;
@@ -89,6 +93,22 @@ public class GraphTemplate {
 	
 	public String getMethodKey() {
 		return this.methodKey;
+	}
+	
+	public void setMethodName(String methodName) {
+		this.methodName = methodName;
+	}
+	
+	public String getMethodName() {
+		return this.methodName;
+	}
+	
+	public void setMethodDesc(String methodDesc) {
+		this.methodDesc = methodDesc;
+	}
+	
+	public String getMethodDesc() {
+		return this.methodDesc;
 	}
 	
 	public void setShortMethodKey(String shortMethodKey) {

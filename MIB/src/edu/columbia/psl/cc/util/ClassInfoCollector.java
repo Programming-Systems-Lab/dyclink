@@ -19,8 +19,10 @@ public class ClassInfoCollector {
 	
 	private static HashMap<String, Class> methodToClass = new HashMap<String, Class>();
 	
+	private static HashMap<String, Class> fieldToClass = new HashMap<String, Class>();
+	
 	public static void initiateClassMethodInfo(String className, String methodName, String methodDesc, boolean isStatic) {
-		String classMethodCacheKey = StringUtil.genClassCacheKey(className, methodName, methodDesc);
+		String classMethodCacheKey = StringUtil.concateKey(className, methodName, methodDesc);
 		
 		if (classMethodInfoMap.containsKey(classMethodCacheKey)) 
 			return ;
@@ -70,7 +72,7 @@ public class ClassInfoCollector {
 	}
 	
 	public static ClassMethodInfo retrieveClassMethodInfo(String className, String methodName, String methodDesc, int opcode) {
-		String classMethodCacheKey = StringUtil.genClassCacheKey(className, methodName, methodDesc);
+		String classMethodCacheKey = StringUtil.concateKey(className, methodName, methodDesc);
 		
 		if (classMethodInfoMap.containsKey(classMethodCacheKey)) {
 			return classMethodInfoMap.get(classMethodCacheKey);
@@ -103,7 +105,7 @@ public class ClassInfoCollector {
 	}
 
 	public static Class<?> retrieveCorrectClassByMethod(String className, String methodName, String methodDescriptor, boolean direct) {
-		String classMethodCacheKey = StringUtil.genClassCacheKey(className, methodName, methodDescriptor);
+		String classMethodCacheKey = StringUtil.concateKey(className, methodName, methodDescriptor);
 		if (methodToClass.containsKey(classMethodCacheKey)) {
 			return methodToClass.get(classMethodCacheKey);
 		}
@@ -165,6 +167,10 @@ public class ClassInfoCollector {
 	 * @return
 	 */
 	public static Class<?> retrieveCorrectClassByField(String className, String name) {
+		String classFieldKey = StringUtil.concateKey(className, name);
+		if (fieldToClass.containsKey(classFieldKey))
+			return fieldToClass.get(classFieldKey);
+		
 		try {
 			className = className.replace("/", ".");
 			Class<?> calledClass = Class.forName(className);
@@ -172,11 +178,14 @@ public class ClassInfoCollector {
 				for (Field f: calledClass.getDeclaredFields()) {
 					//Name should be enough to find the correct field?
 					if (f.getName().equals(name)) {
+						fieldToClass.put(classFieldKey, calledClass);
 						return calledClass;
 					}
 				}
 				calledClass = calledClass.getSuperclass();
 			}
+			
+			//Something wrong if we reach here
 			return calledClass;
 		} catch (Exception ex) {
 			ex.printStackTrace();

@@ -211,7 +211,8 @@ public class GsonManager {
 				logger.error(ex);
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			//ex.printStackTrace();
+			logger.error(ex.getMessage());
 		}
 	}
 	

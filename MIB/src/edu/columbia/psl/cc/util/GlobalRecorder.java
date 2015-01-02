@@ -46,6 +46,8 @@ public class GlobalRecorder {
 	
 	private static HashMap<String, List<GraphTemplate>> graphRecorder = new HashMap<String, List<GraphTemplate>>();
 	
+	private static HashMap<Long, GraphTemplate> latestGraphs = new HashMap<Long, GraphTemplate>();
+	
 	private static Object timeLock = new Object();
 	
 	private static Object loadClassLock = new Object();
@@ -229,7 +231,7 @@ public class GlobalRecorder {
 		}
 	}
 	
-	public static void registerGraph(String shortKey, GraphTemplate graph) {
+	public static void registerGraph(String shortKey, GraphTemplate graph, boolean registerLatest) {
 		synchronized(graphRecorderLock) {
 			if (graphRecorder.containsKey(shortKey)) {
 				graphRecorder.get(shortKey).add(graph);
@@ -237,6 +239,11 @@ public class GlobalRecorder {
 				List<GraphTemplate> gQueue = new ArrayList<GraphTemplate>();
 				gQueue.add(graph);
 				graphRecorder.put(shortKey, gQueue);
+			}
+			
+			if (registerLatest) {
+				long threadId = ObjectIdAllocater.getThreadId();
+				latestGraphs.put(threadId, graph);
 			}
 		}
 	}
@@ -249,6 +256,12 @@ public class GlobalRecorder {
 			else {
 				return gQueue.get(gQueue.size() - 1);
 			}
+		}
+	}
+	
+	public static GraphTemplate getLatestGraph(long threadId) {
+		synchronized(graphRecorderLock) {
+			return latestGraphs.remove(threadId);
 		}
 	}
 	
@@ -275,13 +288,16 @@ public class GlobalRecorder {
 	public static void clearContext() {
 		synchronized(graphRecorderLock) {
 			graphRecorder.clear();
+			latestGraphs.clear();
 		}
 		
 		synchronized(writeFieldLock) {
 			globalWriteFieldRecorder.clear();
 		}
 		
-		curDigit.set(0);
-		curTime.set(0);
+		synchronized(timeLock) {
+			curDigit.set(0);
+			curTime.set(0);
+		}
 	}
 }

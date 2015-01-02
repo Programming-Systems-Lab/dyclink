@@ -113,8 +113,15 @@ public class StringUtil {
 		return fromMethod + "-" + threadId + "-" + threadMethodIdx + "-" + idx;
 	}
 	
-	public static String genClassCacheKey(String owner, String method, String desc) {
-		return owner + "-" + method + "-" + desc;
+	public static String concateKey(String...elements) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < elements.length; i++) {
+			sb.append(elements[i]);
+			
+			if (i != elements.length - 1)
+				sb.append("-");
+		}
+		return sb.toString();
 	}
 	
 	public static String genEdgeKey(InstNode from, InstNode to) {
