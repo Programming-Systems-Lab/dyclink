@@ -14,6 +14,8 @@ import org.apache.log4j.Logger;
 
 import com.google.gson.reflect.TypeToken;
 
+import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.StaticMethodMiner;
@@ -27,7 +29,7 @@ public class GlobalRecorder {
 	//Key: class name, Val: short name + thread id of clinit
 	private static HashMap<String, String> loadedClass = new HashMap<String, String>();
 	
-	private static AtomicLong curDigit = new AtomicLong();
+	//private static AtomicLong curDigit = new AtomicLong();
 	
 	private static AtomicLong curTime = new AtomicLong();
 	
@@ -91,16 +93,21 @@ public class GlobalRecorder {
 		return loadedClass;
 	}
 	
-	public static long[] getCurTime() {
+	public static long getCurTime() {
 		synchronized(timeLock) {
 			long uni = curTime.getAndIncrement();
-			long ten = curDigit.get();
+			/*long ten = curDigit.get();
 			if (uni == Long.MAX_VALUE) {
 				curTime.set(0);
 				curDigit.getAndIncrement();
 			}
 			long[] ret = {uni, ten};
-			return ret;
+			return ret;*/
+			if (uni == Long.MAX_VALUE) {
+				logger.error("Time incrmenter reaches limit");
+				System.exit(-1);
+			}
+			return uni;
 		}
 	}
 	
@@ -215,6 +222,12 @@ public class GlobalRecorder {
 		}
 	}
 	
+	public static boolean checkRecursiveMethod(String methodShortName) {
+		synchronized(recursiveMethodLock) {
+			return recursiveMethodRecorder.contains(methodShortName);
+		}
+	}
+	
 	public static HashSet<String> getRecursiveMethods() {
 		return recursiveMethodRecorder;
 	}
@@ -234,12 +247,29 @@ public class GlobalRecorder {
 	
 	public static void registerGraph(String shortKey, GraphTemplate graph, boolean registerLatest) {
 		synchronized(graphRecorderLock) {
+			String groupKey = GraphGroup.groupKey(0, graph);
+			if (MIBConfiguration.getInstance().isCacheGraph()) {
+				//Store to object DB
+			}
+			
 			if (graphRecorder.containsKey(shortKey)) {
-				graphRecorder.get(shortKey).add(graph);
+				HashMap<String, GraphTemplate> subRecord = graphRecorder.get(shortKey);
+				
+				if (checkRecursiveMethod(shortKey)) {
+					subRecord.clear();
+					subRecord.put(groupKey, graph);
+				} else {
+					if (!subRecord.containsKey(groupKey))
+						subRecord.put(groupKey, graph);
+				}
+				//graphRecorder.get(shortKey).add(graph);
 			} else {
-				List<GraphTemplate> gQueue = new ArrayList<GraphTemplate>();
-				gQueue.add(graph);
-				graphRecorder.put(shortKey, gQueue);
+				//List<GraphTemplate> gQueue = new ArrayList<GraphTemplate>();
+				//gQueue.add(graph);
+				//graphRecorder.put(shortKey, gQueue);
+				HashMap<String, GraphTemplate> subRecord = new HashMap<String, GraphTemplate>();
+				subRecord.put(groupKey, graph);
+				graphRecorder.put(shortKey, subRecord);
 			}
 			
 			if (registerLatest) {
@@ -249,7 +279,7 @@ public class GlobalRecorder {
 		}
 	}
 	
-	public static GraphTemplate getLatestGraph(String shortKey) {
+	/*public static GraphTemplate getLatestGraph(String shortKey) {
 		synchronized(graphRecorderLock) {
 			List<GraphTemplate> gQueue = graphRecorder.get(shortKey);
 			if (gQueue == null || gQueue.size() == 0)
@@ -258,7 +288,7 @@ public class GlobalRecorder {
 				return gQueue.get(gQueue.size() - 1);
 			}
 		}
-	}
+	}*/
 	
 	public static GraphTemplate getLatestGraph(long threadId) {
 		synchronized(graphRecorderLock) {
@@ -266,7 +296,11 @@ public class GlobalRecorder {
 		}
 	}
 	
-	public static HashMap<String, List<GraphTemplate>> getGraphs() {
+	/*public static HashMap<String, List<GraphTemplate>> getGraphs() {
+		return graphRecorder;
+	}*/
+	
+	public static HashMap<String, HashMap<String, GraphTemplate>> getGraphs() {
 		return graphRecorder;
 	}
 	
@@ -297,7 +331,7 @@ public class GlobalRecorder {
 		}
 		
 		synchronized(timeLock) {
-			curDigit.set(0);
+			//curDigit.set(0);
 			curTime.set(0);
 		}
 		System.gc();

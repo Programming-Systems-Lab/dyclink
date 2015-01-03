@@ -102,7 +102,16 @@ public class GraphUtil {
 			comp = new Comparator<InstNode>() {
 				@Override
 				public int compare(InstNode i1, InstNode i2) {
-					if (i1.getStartDigit() > i2.getStartDigit()) {
+					if (i1.getStartTime() > i2.getStartTime()) {
+						return 1;
+					} else if (i1.getStartTime() < i2.getStartTime()) {
+						return - 1;
+					} else {
+						//Impossible
+						return 0;
+					}
+					
+					/*if (i1.getStartDigit() > i2.getStartDigit()) {
 						return 1;
 					} else if (i1.getStartDigit() < i2.getStartDigit()) {
 						return -1;
@@ -115,7 +124,7 @@ public class GraphUtil {
 							//Impossible
 							return 0;
 						}
-					}
+					}*/
 				}
 			};
 		} else {
@@ -123,7 +132,15 @@ public class GraphUtil {
 				
 				@Override
 				public int compare(InstNode i1, InstNode i2) {
-					if (i1.getUpdateDigit() > i2.getUpdateDigit()) {
+					if (i1.getUpdateTime() > i2.getUpdateTime()) {
+						return 1;
+					} else if (i1.getUpdateTime() < i2.getUpdateTime()) {
+						return -1;
+					} else {
+						return 0;
+					}
+					
+					/*if (i1.getUpdateDigit() > i2.getUpdateDigit()) {
 						return 1;
 					} else if (i1.getUpdateDigit() < i2.getUpdateDigit()) {
 						return -1;
@@ -135,7 +152,7 @@ public class GraphUtil {
 						} else {
 							return 0;
 						}
-					}
+					}*/
 				}
 			};
 		}
@@ -145,7 +162,7 @@ public class GraphUtil {
 		return sortedList;
 	}
 	
-	public static long[] extractBaseTime(InstPool instPool) {
+	/*public static long[] extractBaseTime(InstPool instPool) {
 		long startDigit = Long.MAX_VALUE;
 		long startTime = Long.MAX_VALUE;
 		for (InstNode inst: instPool) {
@@ -158,9 +175,9 @@ public class GraphUtil {
 		}
 		long[] baseTime = {startDigit, startTime};
 		return baseTime;
-	}
+	}*/
 	
-	public static void baseTimize(InstPool instPool) {
+	/*public static void baseTimize(InstPool instPool) {
 		long[] baseTime = extractBaseTime(instPool);
 		long startDigit = 0;
 		long startTime = 0;
@@ -176,7 +193,7 @@ public class GraphUtil {
 			inst.setStartDigit(startDigit);
 			inst.setStartTime(startTime);
 		}
-	}
+	}*/
 	
 	public static InstNode lastSecondInst(InstPool instPool) {
 		if (instPool.size() == 0)
@@ -186,7 +203,7 @@ public class GraphUtil {
 		return sortedList.get(sortedList.size() - 1);
 	}
 	
-	public static void upgradeTime(InstNode inst, 
+	/*public static void upgradeTime(InstNode inst, 
 			long baseDigit, 
 			long baseTime, 
 			boolean start) {
@@ -254,7 +271,8 @@ public class GraphUtil {
 			ret[1] = maxUpdateDigit;
 		}
 		return ret;
-	}
+	}*/
+	
 	/**
 	 * 0 fromMethod, 1 threadId, 2 threadMethodId, 3 instId
 	 * @param parentKey
@@ -589,7 +607,7 @@ public class GraphUtil {
 		}
 	}
 	
-	public static void mergeGraph(GraphTemplate target, GraphTemplate toAppend) {		
+	/*public static void mergeGraph(GraphTemplate target, GraphTemplate toAppend) {		
 		InstPool targetPool = target.getInstPool();
 		InstPool appendPool = toAppend.getInstPool();
 		
@@ -666,7 +684,7 @@ public class GraphUtil {
 		for (InstNode add: toAdd) {
 			targetPool.add(add);
 		}
-	}
+	}*/
 	
 	public static void summarizeGraph(HashMap<String, List<InstEdge>> edges, InstPool pool) {
 		Comparator<InstEdge> edgeComp = new Comparator<InstEdge>() {
@@ -710,9 +728,9 @@ public class GraphUtil {
 						protoFrom.getAddInfo());
 				sumFrom.setLinenumber(protoFrom.getLinenumber());
 				if (sumFrom.getStartTime() < 0) {
-					sumFrom.setStartDigit(protoFrom.getStartDigit());
+					//sumFrom.setStartDigit(protoFrom.getStartDigit());
 					sumFrom.setStartTime(protoFrom.getStartTime());
-					sumFrom.setUpdateDigit(protoFrom.getUpdateDigit());
+					//sumFrom.setUpdateDigit(protoFrom.getUpdateDigit());
 					sumFrom.setUpdateTime(protoFrom.getUpdateTime());
 				}
 				
@@ -726,9 +744,9 @@ public class GraphUtil {
 						protoTo.getAddInfo());
 				sumTo.setLinenumber(protoTo.getLinenumber());
 				if (sumTo.getStartTime() < 0) {
-					sumTo.setStartDigit(protoTo.getStartDigit());
+					//sumTo.setStartDigit(protoTo.getStartDigit());
 					sumTo.setStartTime(protoTo.getStartTime());
-					sumTo.setUpdateDigit(protoTo.getUpdateDigit());
+					//sumTo.setUpdateDigit(protoTo.getUpdateDigit());
 					sumTo.setUpdateTime(protoTo.getUpdateTime());
 				}
 				

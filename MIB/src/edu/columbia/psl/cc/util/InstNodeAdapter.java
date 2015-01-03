@@ -93,9 +93,9 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		inst.setWriteDataParentList(writeDataParentList);
 		inst.setControlParentList(controlParentList);
 		inst.setChildFreqMap(childFreqMap);
-		inst.setStartDigit(startDigit);
+		//inst.setStartDigit(startDigit);
 		inst.setStartTime(startTime);
-		inst.setUpdateDigit(updateDigit);
+		//inst.setUpdateDigit(updateDigit);
 		inst.setUpdateTime(updateTime);
 		inst.setLinenumber(linenumber);
 		//inst.setChildFreqMap((TreeMap<Integer, Double>)context.deserialize(object.get("childFreqpMap"), childToken.getType()));
@@ -111,14 +111,14 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		result.addProperty("threadId", inst.getThreadId());
 		result.addProperty("threadMethodIdx", inst.getThreadMethodIdx());
 		result.addProperty("idx", inst.getIdx());
-		result.addProperty("startDigit", inst.getStartDigit());
+		//result.addProperty("startDigit", inst.getStartDigit());
 		result.addProperty("startTime", inst.getStartTime());
-		result.addProperty("updateDigit", inst.getUpdateDigit());
+		//result.addProperty("updateDigit", inst.getUpdateDigit());
 		result.addProperty("updateTime", inst.getUpdateTime());
 		result.addProperty("linenumber", inst.getLinenumber());
 		result.addProperty("op", inst.getOp().getOpcode());
 		//For debuggin purpose, or we only need opcode
-		result.addProperty("inst", inst.getOp().getInstruction());
+		//result.addProperty("inst", inst.getOp().getInstruction());
 		result.addProperty("addInfo", inst.getAddInfo());
 		
 		TypeToken<ArrayList<String>> listType = new TypeToken<ArrayList<String>>(){};

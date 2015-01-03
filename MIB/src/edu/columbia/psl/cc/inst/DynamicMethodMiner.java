@@ -632,6 +632,10 @@ public class DynamicMethodMiner extends MethodVisitor {
 				this.updateObjOnVStack();
 			
 			this.visitMethod = true;
+			
+			if (owner.equals(this.className) && name.equals(this.myName) && desc.equals(this.desc)) {
+				GlobalRecorder.registerRecursiveMethod(this.shortKey);
+			}
 		}
 		
 		//If the INVOKESPECIAL is visited, start instrument constructor

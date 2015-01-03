@@ -52,8 +52,6 @@ public class MethodStackRecorder {
 	
 	private String shortMethodKey;
 	
-	private boolean recursive = false;
-	
 	private boolean staticMethod;
 	
 	private int methodArgSize = 0;
@@ -186,15 +184,18 @@ public class MethodStackRecorder {
 	}
 	
 	private void updateTime(InstNode fullInst) {
-		long[] curTime = GlobalRecorder.getCurTime();
+		long curTime = GlobalRecorder.getCurTime();
 		if (fullInst.getStartTime() < 0) {
-			fullInst.setStartDigit(curTime[1]);
+			/*fullInst.setStartDigit(curTime[1]);
 			fullInst.setStartTime(curTime[0]);
 			fullInst.setUpdateDigit(curTime[1]);
-			fullInst.setUpdateTime(curTime[0]);
+			fullInst.setUpdateTime(curTime[0]);*/
+			fullInst.setStartTime(curTime);
+			fullInst.setUpdateTime(curTime);
 		} else {
-			fullInst.setUpdateDigit(curTime[1]);
-			fullInst.setUpdateTime(curTime[0]);
+			/*fullInst.setUpdateDigit(curTime[1]);
+			fullInst.setUpdateTime(curTime[0]);*/
+			fullInst.setUpdateTime(curTime);
 		}
  	}
 	
@@ -340,11 +341,14 @@ public class MethodStackRecorder {
 		int objId = 0;
 		if (opcode == Opcodes.GETFIELD) {
 			objId = ObjectIdAllocater.parseObjId(this.stackSimulator.peek().getRelatedObj());
+			this.stackSimulator.peek().removeRelatedObj();
 		} else if (opcode == Opcodes.PUTFIELD) {
 			if (typeSort == Type.LONG || typeSort == Type.DOUBLE) {
 				objId = ObjectIdAllocater.parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 3).getRelatedObj());
+				this.stackSimulator.get(this.stackSimulator.size() - 3).removeRelatedObj();
 			} else {
 				objId = ObjectIdAllocater.parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 2).getRelatedObj());
+				this.stackSimulator.get(this.stackSimulator.size() - 2).removeRelatedObj();
 			}
 		}
 		
@@ -649,6 +653,7 @@ public class MethodStackRecorder {
 						Object objOnStack = relatedInst.getRelatedObj();
 						//methodId = ObjectIdAllocater.parseObjId(objOnStack);
 						objId = ObjectIdAllocater.parseObjId(objOnStack);
+						relatedInst.removeRelatedObj();
 					}
 					
 					String fullKeyWithThreadId = StringUtil.genKeyWithId(childGraph.getMethodKey(), String.valueOf(this.threadId));				
@@ -675,7 +680,7 @@ public class MethodStackRecorder {
 							while (repIT.hasNext()) {
 								InstNode cNode = childIT.next();
 								InstNode rNode = repIT.next();
-								rNode.setUpdateDigit(cNode.getUpdateDigit());
+								//rNode.setUpdateDigit(cNode.getUpdateDigit());
 								rNode.setUpdateTime(cNode.getUpdateTime());
 							}
 							
@@ -834,7 +839,7 @@ public class MethodStackRecorder {
 					&& this.methodName.equals(name) 
 					&& this.methodDesc.equals(desc)) {
 				//To stop horizontal merge
-				this.recursive = true;
+				//this.recursive = true;
 			}
 			
 			long argSizeTime = System.nanoTime();
@@ -846,6 +851,7 @@ public class MethodStackRecorder {
 			
 			if (owner.equals("java/lang/Class") && name.equals("forName")) {
 				Object objOnStack = (this.stackSimulator.peek()).getRelatedObj();
+				this.stackSimulator.peek().removeRelatedObj();
 				String realOwner = objOnStack.toString();
 				this.checkNGetClInit(realOwner);
 				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
@@ -854,6 +860,7 @@ public class MethodStackRecorder {
 					&& desc.equals("()Ljava/lang/Object;")) {
 				InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
 				Object objOnStack = relatedInst.getRelatedObj();
+				relatedInst.removeRelatedObj();
 				Class classOnStack = (Class)objOnStack;
 				//loadParent can load self constructor too
 				this.loadParent(classOnStack.getName(), "<init>", "()V");
@@ -866,6 +873,7 @@ public class MethodStackRecorder {
 			} else {
 				InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
 				Object objOnStack = relatedInst.getRelatedObj();
+				relatedInst.removeRelatedObj();
 				//methodId = ObjectIdAllocater.parseObjId(objOnStack);
 				objId = ObjectIdAllocater.parseObjId(objOnStack);
 				
@@ -929,7 +937,8 @@ public class MethodStackRecorder {
 				filePath = MIBConfiguration.getInstance().getTestDir() + "/" + shortKeyWithThreadId + ".json";
 			}
 			GraphTemplate childGraph = TemplateLoader.loadTemplateFile(filePath, GRAPH_TOKEN);*/
-			GraphTemplate childGraph = GlobalRecorder.getLatestGraph(shortKeyWithThreadId);
+			//GraphTemplate childGraph = GlobalRecorder.getLatestGraph(shortKeyWithThreadId);
+			GraphTemplate childGraph = GlobalRecorder.getLatestGraph(this.threadId);
 			
 			//This means that the callee method is from jvm, keep the method inst in graph
 			//boolean removeReturn = true;
@@ -978,7 +987,7 @@ public class MethodStackRecorder {
 					while (repIT.hasNext()) {
 						InstNode cNode = childIT.next();
 						InstNode rNode = repIT.next();
-						rNode.setUpdateDigit(cNode.getUpdateDigit());
+						//rNode.setUpdateDigit(cNode.getUpdateDigit());
 						rNode.setUpdateTime(cNode.getUpdateTime());
 					}
 					
@@ -1277,9 +1286,9 @@ public class MethodStackRecorder {
 					dumpKey);
 		}
 		
-		if (this.recursive) {
+		/*if (this.recursive) {
 			GlobalRecorder.registerRecursiveMethod(dumpKey);
-		}
+		}*/
 		
 		//Debugging, check graph group
 		if (MIBConfiguration.getInstance().isDebug()) {

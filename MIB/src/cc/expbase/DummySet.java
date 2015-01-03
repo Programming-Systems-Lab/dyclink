@@ -29,6 +29,7 @@ public class DummySet {
 			j = 9;
 		}
 		System.out.println(DummySet.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+		System.out.println(Long.MAX_VALUE);
 	}
 
 }

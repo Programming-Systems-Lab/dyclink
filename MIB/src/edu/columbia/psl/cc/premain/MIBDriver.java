@@ -128,23 +128,27 @@ public class MIBDriver {
 	
 	public static void selectDominantGraphs() {
 		//Dump all graphs in memory
-		HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
-		if (MIBConfiguration.getInstance().isCacheGraph()) {
+		//HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
+		HashMap<String, HashMap<String, GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
+		/*if (MIBConfiguration.getInstance().isCacheGraph()) {
 			logger.info("Dump all graphs.....");
 			GsonManager.cacheAllGraphs(allGraphs);
-		}
+		}*/
 		
-		HorizontalMerger.startExtraction(allGraphs);
+		//HorizontalMerger.startExtraction(allGraphs);
+		HorizontalMerger.startExtractionFast(allGraphs);
 	}
 	
 	public static void selectDominantGraphsWithTestMethodName(String testName) {
 		//Dump all graphs in memory
-		HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
-		if (MIBConfiguration.getInstance().isCacheGraph()) {
+		//HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
+		HashMap<String, HashMap<String, GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
+		/*if (MIBConfiguration.getInstance().isCacheGraph()) {
 			logger.info("Dump all graphs.....");
 			GsonManager.cacheAllGraphs(allGraphs, testName);
-		}
+		}*/
 				
-		HorizontalMerger.startExtraction(allGraphs);
+		//HorizontalMerger.startExtraction(allGraphs);
+		HorizontalMerger.startExtractionFast(allGraphs);
 	}
 }

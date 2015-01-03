@@ -131,6 +131,17 @@ public class HorizontalMerger {
 		}
 	}
 	
+	public static void startExtractionFast(HashMap<String, HashMap<String, GraphTemplate>> graphs) {
+		for (String key: graphs.keySet()) {
+			HashMap<String, GraphTemplate> graphGroups = graphs.get(key);
+			
+			//Each map only has one graph
+			for (String groupKey: graphGroups.keySet()) {
+				writeGraphHelper(graphGroups.get(groupKey));
+			}
+		}
+	}
+	
 	/**
 	 * 
 	 * Each graph pick one with smallest thread method id

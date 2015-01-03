@@ -26,15 +26,13 @@ public class InstNode implements Comparable<InstNode>{
 	
 	private int linenumber;
 	
-	private long startDigit = 0;
+	//private long startDigit = 0;
 	
 	private long startTime = -1;
 	
-	private long updateDigit = 0;
+	//private long updateDigit = 0;
 	
 	private	long updateTime = -1;
-	
-	private AtomicInteger maxSurrogate = new AtomicInteger();
 	
 	private ArrayList<String> instDataParentList = new ArrayList<String>();
 	
@@ -154,13 +152,13 @@ public class InstNode implements Comparable<InstNode>{
 		return this.idx;
 	}
 	
-	public void setStartDigit(long startDigit) {
+	/*public void setStartDigit(long startDigit) {
 		this.startDigit = startDigit;
 	}
 	
 	public long getStartDigit() {
 		return this.startDigit;
-	}
+	}*/
 	
 	public void setStartTime(long startTime) {
 		this.startTime = startTime;
@@ -170,13 +168,13 @@ public class InstNode implements Comparable<InstNode>{
 		return this.startTime;
 	}
 	
-	public void setUpdateDigit(long updateDigit) {
+	/*public void setUpdateDigit(long updateDigit) {
 		this.updateDigit = updateDigit;
 	}
 	
 	public long getUpdateDigit() {
 		return this.updateDigit;
-	}
+	}*/
 	
 	public void setUpdateTime(long updateTime) {
 		this.updateTime = updateTime;
@@ -226,7 +224,11 @@ public class InstNode implements Comparable<InstNode>{
 		return this.relatedObj;
 	}
 	
-	public void setMaxSurrogate(int baseId) {
+	public void removeRelatedObj() {
+		this.relatedObj = null;
+	}
+	
+	/*public void setMaxSurrogate(int baseId) {
 		this.maxSurrogate.set(baseId);
 	}
 	
@@ -236,7 +238,7 @@ public class InstNode implements Comparable<InstNode>{
 	
 	public int probeSurrogate() {
 		return this.maxSurrogate.get();
-	}
+	}*/
 	
 	@Override
 	public String toString() {
@@ -268,13 +270,13 @@ public class InstNode implements Comparable<InstNode>{
 		//String myKey = StringUtil.genIdxKey(this.getFromMethod(), this.getThreadId(), this.getThreadMethodIdx(), this.getIdx());
 		//String otherKey = StringUtil.genIdxKey(other.getFromMethod(), other.getThreadId(), other.getThreadMethodIdx(), other.getIdx());
 		
-		long myDigit = this.startDigit;
+		//long myDigit = this.startDigit;
 		long myStart = this.startTime;
 		
-		long otherDigit = other.getStartDigit();
+		//long otherDigit = other.getStartDigit();
 		long otherStart = other.getStartTime();
 		
-		if (myDigit < otherDigit) {
+		/*if (myDigit < otherDigit) {
 			return 1;
 		} else if (myDigit > otherDigit) {
 			return -1;
@@ -287,7 +289,8 @@ public class InstNode implements Comparable<InstNode>{
 				//Impossible
 				return 0;
 			}
-		}
+		}*/
+		return (myStart > otherStart?1: (myStart < otherStart?-1: 0));
 	}
 
 }
