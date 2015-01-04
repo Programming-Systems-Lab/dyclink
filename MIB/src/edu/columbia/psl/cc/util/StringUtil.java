@@ -109,12 +109,12 @@ public class StringUtil {
 		return key;
 	}
 	
-	public static String genIdxKey(String fromMethod, 
-			long threadId, 
+	public static String genIdxKey(int threadId, 
 			int threadMethodIdx, 
 			int idx) {
-		String shortFromMethod = GlobalRecorder.getGlobalName(fromMethod);
-		return shortFromMethod + "-" + threadId + "-" + threadMethodIdx + "-" + idx;
+		//String shortFromMethod = GlobalRecorder.getGlobalName(fromMethod);
+		//return shortFromMethod + "-" + threadId + "-" + threadMethodIdx + "-" + idx;
+		return threadId + "-" + threadMethodIdx + "-" + idx;
 	}
 	
 	public static String concateKey(String...elements) {

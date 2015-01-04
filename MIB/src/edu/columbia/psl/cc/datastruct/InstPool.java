@@ -34,13 +34,18 @@ public class InstPool extends TreeSet<InstNode> {
 	}
 	
 	private boolean _removeInst(InstNode inst) {
-		String idxKey = StringUtil.genIdxKey(inst.getFromMethod(), inst.getThreadId(), inst.getThreadMethodIdx(), inst.getIdx());
+		String idxKey = StringUtil.genIdxKey(inst.getThreadId(), inst.getThreadMethodIdx(), inst.getIdx());
 		InstNode check = this.instMap.remove(idxKey);
 		return super.remove(inst) && (check != null);
 	}
 
-	public InstNode searchAndGet(String methodKey, long threadId, int threadMethodIdx, int idx, int opcode, String addInfo) {
-		String idxKey = StringUtil.genIdxKey(methodKey, threadId, threadMethodIdx, idx);
+	public InstNode searchAndGet(String methodKey, 
+			int threadId, 
+			int threadMethodIdx, 
+			int idx, 
+			int opcode, 
+			String addInfo) {
+		String idxKey = StringUtil.genIdxKey(threadId, threadMethodIdx, idx);
 		if (this.instMap.containsKey(idxKey)) {
 			return this.instMap.get(idxKey); 
 		}
@@ -74,8 +79,7 @@ public class InstPool extends TreeSet<InstNode> {
 	
 	@Override
 	public boolean add(InstNode inst) {
-		String idxKey = StringUtil.genIdxKey(inst.getFromMethod(), 
-				inst.getThreadId(), 
+		String idxKey = StringUtil.genIdxKey(inst.getThreadId(), 
 				inst.getThreadMethodIdx(), 
 				inst.getIdx());
 		return this._addInst(idxKey, inst);

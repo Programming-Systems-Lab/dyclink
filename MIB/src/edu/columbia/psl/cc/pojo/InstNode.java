@@ -12,7 +12,7 @@ import edu.columbia.psl.cc.util.StringUtil;
 
 public class InstNode implements Comparable<InstNode>{
 		
-	private long threadId;
+	private int threadId;
 	
 	private int threadMethodIdx;
 	
@@ -70,8 +70,8 @@ public class InstNode implements Comparable<InstNode>{
 	 * @param parentIdx
 	 * @param isControl
 	 */
-	public void registerParent(String fromMethod, long threadId, int threadMethodIdx, int parentIdx, int depType) {
-		String idxKey = StringUtil.genIdxKey(fromMethod, threadId, threadMethodIdx,  parentIdx);
+	public void registerParent(int threadId, int threadMethodIdx, int parentIdx, int depType) {
+		String idxKey = StringUtil.genIdxKey(threadId, threadMethodIdx,  parentIdx);
 		if (depType == MIBConfiguration.INST_DATA_DEP && !this.instDataParentList.contains(idxKey)) {
 			this.instDataParentList.add(idxKey);
 		} else if (depType == MIBConfiguration.WRITE_DATA_DEP && !this.writeDataParentList.contains(idxKey)) {
@@ -81,8 +81,8 @@ public class InstNode implements Comparable<InstNode>{
 		}
 	}
 	
-	public void increChild(String fromMethod, long threadId, int threadMethodIdx, int childIdx, double amount) {
-		String idxKey = StringUtil.genIdxKey(fromMethod, threadId, threadMethodIdx, childIdx);
+	public void increChild(int threadId, int threadMethodIdx, int childIdx, double amount) {
+		String idxKey = StringUtil.genIdxKey(threadId, threadMethodIdx, childIdx);
 		if (this.childFreqMap.containsKey(idxKey)) {
 			double count = this.childFreqMap.get(idxKey) + amount;
 			this.childFreqMap.put(idxKey, count);
@@ -115,8 +115,8 @@ public class InstNode implements Comparable<InstNode>{
 		return this.controlParentList;
 	}
 	
-	public void updateChild(String fromMethod, long threadId, int threadMethodIdx, int childIdx, double amount) {
-		String idxKey = StringUtil.genIdxKey(fromMethod, threadId, threadMethodIdx, childIdx);
+	public void updateChild(int threadId, int threadMethodIdx, int childIdx, double amount) {
+		String idxKey = StringUtil.genIdxKey(threadId, threadMethodIdx, childIdx);
 		this.childFreqMap.put(idxKey, amount);
 	}
 	
@@ -128,11 +128,11 @@ public class InstNode implements Comparable<InstNode>{
 		return this.childFreqMap;
 	}
 	
-	public void setThreadId(long threadId) {
+	public void setThreadId(int threadId) {
 		this.threadId = threadId;
 	}
 	
-	public long getThreadId() {
+	public int getThreadId() {
 		return this.threadId;
 	}
 	

@@ -18,6 +18,8 @@ public class MIBTestExecutionListener extends RunListener{
 	
 	private static Logger logger = Logger.getLogger(MIBTestExecutionListener.class);
 	
+	private static long mb = 1024 * 1024;
+	
 	static {
 		System.out.println("Initialize logger");
 		//BasicConfigurator.configure();
@@ -25,7 +27,7 @@ public class MIBTestExecutionListener extends RunListener{
 	}
 	
 	public MIBTestExecutionListener() {
-		logger.info("Create MIBTestExecutionListener");
+		//logger.info("Create MIBTestExecutionListener");
 	}
 	
 	@Override
@@ -41,6 +43,7 @@ public class MIBTestExecutionListener extends RunListener{
 		
 		//Clean directory
 		GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());
+		System.out.println("Max memory: " + (Runtime.getRuntime().maxMemory()/mb));
 	}
 	
 	@Override
@@ -52,12 +55,17 @@ public class MIBTestExecutionListener extends RunListener{
 	@Override
 	public void testStarted(Description description) {
 		logger.info("Start test method: " + description);
+		System.out.println("Start test method: " + description);
 	}
 	
 	@Override
 	public void testFinished(Description description) {
 		logger.info("Finisehd test method: " + description);
+		System.out.println("Start graph extraction: " + description);
 		MIBDriver.selectDominantGraphsWithTestMethodName(description.getClassName() + "-" + description.getMethodName());
+		System.out.println("Start garbage collection");
 		GlobalRecorder.clearContext();
+		long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		System.out.println("Used memory: " + ((double)usedMemory/mb));
 	}
 }

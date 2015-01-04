@@ -142,7 +142,7 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 				
 				CostObj co = new CostObj();
 				InstNode inst2 = allNodes.get(j);
-				String inst2Key = StringUtil.genIdxKey(inst2.getFromMethod(), inst2.getThreadId(), inst2.getThreadMethodIdx(), inst2.getIdx());
+				String inst2Key = StringUtil.genIdxKey(inst2.getThreadId(), inst2.getThreadMethodIdx(), inst2.getIdx());
 			
 				String endLabel = inst2.getOp().getInstruction();
 				co.addLabel(startLabel);

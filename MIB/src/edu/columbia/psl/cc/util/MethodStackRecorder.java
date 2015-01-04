@@ -92,7 +92,7 @@ public class MethodStackRecorder {
 	
 	private InstNode beforeReturn;
 	
-	private long threadId = -1;
+	private int threadId = -1;
 	
 	private int threadMethodId = -1;
 	
@@ -130,10 +130,11 @@ public class MethodStackRecorder {
 				this.staticMethod);
 		
 		this.threadId = ObjectIdAllocater.getThreadId();
-		this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(className, 
+		/*this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(className, 
 				methodName, 
 				methodDesc, 
-				this.threadId);
+				this.threadId);*/
+		this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(this.threadId);
 		
 		int start = 0;
 		if (!this.staticMethod) {
@@ -171,8 +172,7 @@ public class MethodStackRecorder {
 	private void updateReadLocalVar(InstNode localVarNode) {
 		int localVarId = Integer.valueOf(localVarNode.getAddInfo());
 		if (this.shouldRecordReadLocalVars.contains(localVarId)) {
-			String localVarIdxKey = StringUtil.genIdxKey(localVarNode.getFromMethod(), 
-					localVarNode.getThreadId(), 
+			String localVarIdxKey = StringUtil.genIdxKey(localVarNode.getThreadId(), 
 					localVarNode.getThreadMethodIdx(), 
 					localVarNode.getIdx());
 			this.firstReadLocalVars.add(localVarIdxKey);
@@ -201,18 +201,18 @@ public class MethodStackRecorder {
 	
 	private void updateCachedMap(InstNode parent, InstNode child, int depType) {
 		if (depType == MIBConfiguration.INST_DATA_DEP) {
-			parent.increChild(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
-			child.registerParent(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
+			parent.increChild(child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
+			child.registerParent(parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
 		} else if (depType == MIBConfiguration.WRITE_DATA_DEP) {
 			//write data dep only needs to be recorded once
 			/*String childIdxKey = StringUtil.genIdxKey(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx());
 			if (parent.getChildFreqMap().containsKey(childIdxKey))
 				return ;*/
-			parent.increChild(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getWriteDataWeight());
-			child.registerParent(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
+			parent.increChild(child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getWriteDataWeight());
+			child.registerParent(parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
 		} else if (depType == MIBConfiguration.CONTR_DEP) {
-			parent.increChild(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getControlWeight());
-			child.registerParent(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
+			parent.increChild(child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getControlWeight());
+			child.registerParent(parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
 		}
 	}
 	
@@ -389,8 +389,7 @@ public class MethodStackRecorder {
 			if (opcode == Opcodes.PUTSTATIC || objId > 0) {
 				if (MIBConfiguration.getInstance().isFieldTrack()) {
 					GlobalRecorder.updateGlobalWriteFieldRecorder(fieldKey, fullInst);
-					String writeFieldKey = StringUtil.genIdxKey(fullInst.getFromMethod(), 
-							fullInst.getThreadId(), 
+					String writeFieldKey = StringUtil.genIdxKey(fullInst.getThreadId(), 
 							fullInst.getThreadMethodIdx(), 
 							fullInst.getIdx());
 					this.latestWriteFieldRecorder.put(fieldKey, writeFieldKey);
@@ -720,8 +719,7 @@ public class MethodStackRecorder {
 								}
 								
 								if (parentNode != null) {
-									parentNode.increChild(cInst.getFromMethod(), 
-											cInst.getThreadId(), 
+									parentNode.increChild(cInst.getThreadId(), 
 											cInst.getThreadMethodIdx(), 
 											cInst.getIdx(), 
 											MIBConfiguration.getInstance().getInstDataWeight());
@@ -810,6 +808,7 @@ public class MethodStackRecorder {
 			}
 		} catch (Exception ex) {
 			logger.error(ex);
+			ex.printStackTrace();
 		}
 	}
 	
@@ -1040,8 +1039,7 @@ public class MethodStackRecorder {
 						}
 						
 						if (parentNode != null) {
-							parentNode.increChild(cInst.getFromMethod(), 
-									cInst.getThreadId(), 
+							parentNode.increChild(cInst.getThreadId(), 
 									cInst.getThreadMethodIdx(), 
 									cInst.getIdx(), 
 									MIBConfiguration.getInstance().getInstDataWeight());
@@ -1281,10 +1279,10 @@ public class MethodStackRecorder {
 		boolean registerLatest = (!this.methodName.equals("<clinit>"));
 		GlobalRecorder.registerGraph(dumpKey, gt, registerLatest);
 		
-		if (this.methodName.equals(clinit)) {
+		/*if (this.methodName.equals(clinit)) {
 			GlobalRecorder.registerLoadedClass(StringUtil.cleanPunc(this.className, "."), 
 					dumpKey);
-		}
+		}*/
 		
 		/*if (this.recursive) {
 			GlobalRecorder.registerRecursiveMethod(dumpKey);

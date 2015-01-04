@@ -109,7 +109,7 @@ public class GraphDecomposer {
 					continue ;
 				
 				InstNode i2 = this.instIndex.get(j);
-				String inst2Key = StringUtil.genIdxKey(i2.getFromMethod(), i2.getThreadId(), i2.getThreadMethodIdx(), i2.getIdx());
+				String inst2Key = StringUtil.genIdxKey(i2.getThreadId(), i2.getThreadMethodIdx(), i2.getIdx());
 				if (i1.getChildFreqMap().containsKey(inst2Key)) {
 					this.adjMatrix[i][j] = ((double)1)/base;
 				}
@@ -130,7 +130,7 @@ public class GraphDecomposer {
 					continue ;
 				
 				InstNode i2 = this.instIndex.get(j);
-				String inst2Key = StringUtil.genIdxKey(i2.getFromMethod(), i2.getThreadId(), i2.getThreadMethodIdx(), i2.getIdx());
+				String inst2Key = StringUtil.genIdxKey(i2.getThreadId(), i2.getThreadMethodIdx(), i2.getIdx());
 				if (i1.getChildFreqMap().containsKey(inst2Key)) {
 					double freq = i1.getChildFreqMap().get(inst2Key);
 					/*this.adjMatrix[i][j] = freq;

@@ -326,15 +326,15 @@ public class GraphUtil {
 	public static void transplantCalleeDepToCaller(InstNode parentNode, 
 			InstNode childNode, 
 			InstPool childPool) {
-		String fInstKey = StringUtil.genIdxKey(childNode.getFromMethod(), childNode.getThreadId(), childNode.getThreadMethodIdx(), childNode.getIdx());
+		String fInstKey = StringUtil.genIdxKey(childNode.getThreadId(), childNode.getThreadMethodIdx(), childNode.getIdx());
 		
 		for (String c: childNode.getChildFreqMap().keySet()) {
 			double freq = childNode.getChildFreqMap().get(c);
 			String[] keySet = StringUtil.parseIdxKey(c);
-			long cThreadId = Long.valueOf(keySet[1]);
-			int cThreadMethodId = Integer.valueOf(keySet[2]);
-			int cIdx= Integer.valueOf(keySet[3]);
-			parentNode.increChild(keySet[0], cThreadId, cThreadMethodId, cIdx, freq);
+			int cThreadId = Integer.valueOf(keySet[0]);
+			int cThreadMethodId = Integer.valueOf(keySet[1]);
+			int cIdx= Integer.valueOf(keySet[2]);
+			parentNode.increChild(cThreadId, cThreadMethodId, cIdx, freq);
 			
 			//InstNode cNode = childPool.searchAndGet(keySet[0], cThreadId, cThreadMethodId, cIdx);
 			InstNode cNode = childPool.searchAndGet(c);
@@ -349,14 +349,12 @@ public class GraphUtil {
 			
 			if (parentNode != null) {
 				if (fromInstData) {
-					cNode.registerParent(parentNode.getFromMethod(), 
-							parentNode.getThreadId(), 
+					cNode.registerParent(parentNode.getThreadId(), 
 							parentNode.getThreadMethodIdx(), 
 							parentNode.getIdx(), 
 							MIBConfiguration.INST_DATA_DEP);
 				} else {
-					cNode.registerParent(parentNode.getFromMethod(), 
-							parentNode.getThreadId(), 
+					cNode.registerParent(parentNode.getThreadId(), 
 							parentNode.getThreadMethodIdx(), 
 							parentNode.getIdx(), 
 							MIBConfiguration.WRITE_DATA_DEP);
@@ -373,14 +371,14 @@ public class GraphUtil {
 			double freq = contNode.getChildFreqMap().get(fInstKey);
 			
 			if (parentNode != null) {
-				contNode.increChild(parentNode.getFromMethod(), parentNode.getThreadId(), parentNode.getThreadMethodIdx(), parentNode.getIdx(), freq);
-				parentNode.registerParent(contNode.getFromMethod(), contNode.getThreadId(), contNode.getThreadMethodIdx(), contNode.getIdx(), MIBConfiguration.CONTR_DEP);
+				contNode.increChild(parentNode.getThreadId(), parentNode.getThreadMethodIdx(), parentNode.getIdx(), freq);
+				parentNode.registerParent(contNode.getThreadId(), contNode.getThreadMethodIdx(), contNode.getIdx(), MIBConfiguration.CONTR_DEP);
 			}
 		}
 		
 		//Remove these first read local vars from child pool, 
 		//if there is corresponding parent in parent pool
-		parentRemove(childNode, childPool, StringUtil.genIdxKey(childNode.getFromMethod(), childNode.getThreadId(), childNode.getThreadMethodIdx(), childNode.getIdx()));
+		parentRemove(childNode, childPool, StringUtil.genIdxKey(childNode.getThreadId(), childNode.getThreadMethodIdx(), childNode.getIdx()));
 		childPool.remove(childNode);
 	}
 	
@@ -488,8 +486,7 @@ public class GraphUtil {
 		//Map self
 		InstNode mapApp = searchSimilarInst(app, targetPool);
 		
-		String appKey = StringUtil.genIdxKey(app.getFromMethod(), 
-				app.getThreadId(), 
+		String appKey = StringUtil.genIdxKey(app.getThreadId(), 
 				app.getThreadMethodIdx(), 
 				app.getIdx());
 		
@@ -509,22 +506,18 @@ public class GraphUtil {
 					
 					if (mapParent != null) {
 						//Parent=>Mapped parent, append=> mapped append
-						mapParent.increChild(mapApp.getFromMethod(), 
-								mapApp.getThreadId(), 
+						mapParent.increChild(mapApp.getThreadId(), 
 								mapApp.getThreadMethodIdx(), 
 								mapApp.getIdx(), amount);
-						mapApp.registerParent(mapParent.getFromMethod(), 
-								mapParent.getThreadId(), 
+						mapApp.registerParent(mapParent.getThreadId(), 
 								mapParent.getThreadMethodIdx(), 
 								mapParent.getIdx(), depType);
 					} else {
 						//Parent no matched in target, append=> mapped append
-						parentNode.increChild(mapApp.getFromMethod(), 
-								mapApp.getThreadId(), 
+						parentNode.increChild(mapApp.getThreadId(), 
 								mapApp.getThreadMethodIdx(), 
 								mapApp.getIdx(), amount);
-						mapApp.registerParent(parentNode.getFromMethod(), 
-								parentNode.getThreadId(), 
+						mapApp.registerParent(parentNode.getThreadId(), 
 								parentNode.getThreadMethodIdx(), 
 								parentNode.getIdx(), depType);
 						parentNode.getChildFreqMap().remove(appKey);
@@ -540,12 +533,10 @@ public class GraphUtil {
 					
 					if (mapParent != null) {
 						//Parent=> Mapped parnet, append not matched
-						mapParent.increChild(app.getFromMethod(), 
-								app.getThreadId(), 
+						mapParent.increChild(app.getThreadId(), 
 								app.getThreadMethodIdx(), 
 								app.getIdx(), amount);
-						app.registerParent(mapParent.getFromMethod(), 
-								mapParent.getThreadId(), 
+						app.registerParent(mapParent.getThreadId(), 
 								mapParent.getThreadMethodIdx(), 
 								mapParent.getIdx(), depType);
 						
@@ -575,8 +566,7 @@ public class GraphUtil {
 			HashMap<String, InstNode> lookup, 
 			List<InstEdge> container, 
 			int depType) {		
-		String appKey = StringUtil.genIdxKey(app.getFromMethod(), 
-				app.getThreadId(), 
+		String appKey = StringUtil.genIdxKey(app.getThreadId(), 
 				app.getThreadMethodIdx(), 
 				app.getIdx());
 		for (String p: parents) {
@@ -593,8 +583,8 @@ public class GraphUtil {
 	}
 	
 	public static void removeEdge(InstNode parent, InstNode child, int depType) {
-		String parentKey = StringUtil.genIdxKey(parent.getFromMethod(), parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx());
-		String childKey = StringUtil.genIdxKey(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx());
+		String parentKey = StringUtil.genIdxKey(parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx());
+		String childKey = StringUtil.genIdxKey(child.getThreadId(), child.getThreadMethodIdx(), child.getIdx());
 		if (depType == MIBConfiguration.CONTR_DEP) {
 			child.getControlParentList().remove(parentKey);
 			parent.getChildFreqMap().remove(childKey);
@@ -755,8 +745,7 @@ public class GraphUtil {
 					totalFreq += ie.freq;
 				}
 				//No need to construct the parent relation, save some time
-				sumFrom.increChild(sumTo.getFromMethod(), 
-						sumTo.getThreadId(), 
+				sumFrom.increChild(sumTo.getThreadId(), 
 						sumTo.getThreadMethodIdx(), 
 						sumTo.getIdx(), 
 						totalFreq);
@@ -935,13 +924,11 @@ public class GraphUtil {
 			
 			InstNode parentNode = parentMap.get(idx);
 			if (parentNode != null) {
-				parentNode.increChild(f.getFromMethod(), 
-						f.getThreadId(), 
+				parentNode.increChild(f.getThreadId(), 
 						f.getThreadMethodIdx(), 
 						f.getIdx(), 
 						MIBConfiguration.getInstance().getInstDataWeight());
-				f.registerParent(parentNode.getFromMethod(), 
-						parentNode.getThreadId(), 
+				f.registerParent(parentNode.getThreadId(), 
 						parentNode.getThreadMethodIdx(), 
 						parentNode.getIdx(), 
 						MIBConfiguration.INST_DATA_DEP);
@@ -1080,13 +1067,11 @@ public class GraphUtil {
 	
 	public static void controlDepFromParentToChild(InstNode condFromParent, Collection<InstNode> childSet) {
 		for (InstNode childNode: childSet) {
-			condFromParent.increChild(childNode.getFromMethod(), 
-					childNode.getThreadId(), 
+			condFromParent.increChild(childNode.getThreadId(), 
 					childNode.getThreadMethodIdx(), 
 					childNode.getIdx(), 
 					MIBConfiguration.getInstance().getControlWeight());
-			childNode.registerParent(condFromParent.getFromMethod(), 
-					condFromParent.getThreadId(), 
+			childNode.registerParent(condFromParent.getThreadId(), 
 					condFromParent.getThreadMethodIdx(), 
 					condFromParent.getIdx(), 
 					MIBConfiguration.CONTR_DEP);
@@ -1113,7 +1098,7 @@ public class GraphUtil {
 		if (returnInst == null)
 			return false;
 		
-		String returnInstKey = StringUtil.genIdxKey(returnInst.getFromMethod(), returnInst.getThreadId(), returnInst.getThreadMethodIdx(), returnInst.getIdx());
+		String returnInstKey = StringUtil.genIdxKey(returnInst.getThreadId(), returnInst.getThreadMethodIdx(), returnInst.getIdx());
 		parentRemove(returnInst, pool, returnInstKey);
 		return pool.remove(returnInst);
 	}
@@ -1168,8 +1153,7 @@ public class GraphUtil {
 			InstNode childInst = poolIt.next();
 			
 			if (parentPool.contains(childInst)) {
-				String searchKey = StringUtil.genIdxKey(childInst.getFromMethod(), 
-						childInst.getThreadId(), 
+				String searchKey = StringUtil.genIdxKey(childInst.getThreadId(), 
 						childInst.getThreadMethodIdx(), 
 						childInst.getIdx());
 				InstNode sameNode = parentPool.searchAndGet(searchKey);

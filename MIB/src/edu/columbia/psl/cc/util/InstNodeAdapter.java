@@ -39,13 +39,13 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 			JsonDeserializationContext context) throws JsonParseException {
 		JsonObject object = json.getAsJsonObject();
 		String methodKey = object.get("fromMethod").getAsString();
-		long threadId = object.get("threadId").getAsLong();
+		int threadId = object.get("threadId").getAsInt();
 		int threadMethodIdx = object.get("threadMethodIdx").getAsInt();
 		int idx = object.get("idx").getAsInt();
 		int linenumber = object.get("linenumber").getAsInt();
-		long startDigit = object.get("startDigit").getAsLong();
+		//long startDigit = object.get("startDigit").getAsLong();
 		long startTime = object.get("startTime").getAsLong();
-		long updateDigit = object.get("updateDigit").getAsLong();
+		//long updateDigit = object.get("updateDigit").getAsLong();
 		long updateTime = object.get("updateTime").getAsLong();
 		int opcode = object.get("op").getAsInt();
 		String addInfo = object.get("addInfo").getAsString();

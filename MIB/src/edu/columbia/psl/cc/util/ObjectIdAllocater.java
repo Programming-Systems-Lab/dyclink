@@ -17,22 +17,26 @@ public class ObjectIdAllocater {
 	//Save 0 for method stack recorder to identify static method
 	private static AtomicInteger indexer = new AtomicInteger(1);
 	
-	private static AtomicLong threadCounter = new AtomicLong();
+	private static AtomicInteger threadCounter = new AtomicInteger();
 	
-	private static ThreadLocal<Long> threadIndexer = new ThreadLocal<Long>() {
+	private static ThreadLocal<Integer> threadIndexer = new ThreadLocal<Integer>() {
 		@Override
-		public Long initialValue() {
+		public Integer initialValue() {
 			return threadCounter.getAndIncrement();
 		}
 	};
+	
+	private static AtomicInteger threadMethodCounter = new AtomicInteger();
 	
 	private static ConcurrentHashMap<String, AtomicInteger> classMethodIndexer = new ConcurrentHashMap<String, AtomicInteger>();
 	
 	private static ConcurrentHashMap<String, AtomicInteger> threadMethodIndexer = new ConcurrentHashMap<String, AtomicInteger>();
 	
+	private static ConcurrentHashMap<Integer, AtomicInteger> threadMethodIndexerFast = new ConcurrentHashMap<Integer, AtomicInteger>();
+	
 	private static ConcurrentHashMap<Long, Integer> objectIdMemory = new ConcurrentHashMap<Long, Integer>();
 	
-	public static long getThreadId() {
+	public static int getThreadId() {
 		return threadIndexer.get();
 	}
 	
@@ -81,7 +85,7 @@ public class ObjectIdAllocater {
 		return classMethodIndexer.get(methodKey).getAndIncrement();
 	}
 	
-	public static int getThreadMethodIndex(String className, String methodName, String desc, long threadId) {
+	public static int getThreadMethodIndex(String className, String methodName, String desc, int threadId) {
 		Class<?> correctClass = null;
 		if (methodName.equals("<init>") || methodName.equals("<clinit>")) {
 			correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(className, methodName, desc, true);
@@ -103,6 +107,14 @@ public class ObjectIdAllocater {
 			threadMethodIndexer.put(threadMethodKey, ai);
 		}
 		return threadMethodIndexer.get(threadMethodKey).getAndIncrement();
+	}
+	
+	public static int getThreadMethodIndex(int threadId) {
+		if (!threadMethodIndexerFast.containsKey(threadId)) {
+			AtomicInteger ai = new AtomicInteger();
+			threadMethodIndexerFast.put(threadId, ai);
+		}
+		return threadMethodIndexerFast.get(threadId).getAndIncrement();
 	}
 	
 	public static int parseObjId(Object value) {

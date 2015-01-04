@@ -177,9 +177,9 @@ public class GlobalRecorder {
 					while (childKeyIT.hasNext()) {
 						String childKey = childKeyIT.next();
 						String[] parsed = StringUtil.parseIdxKey(childKey);
-						if (parsed[0].equals(remove.getFromMethod()) 
-								&& Long.valueOf(parsed[1]) == remove.getThreadId() 
-								&& Integer.valueOf(parsed[2]) == remove.getThreadMethodIdx()) {
+						if (Integer.valueOf(parsed[0]) == remove.getThreadId() 
+								&& Integer.valueOf(parsed[1]) == remove.getThreadMethodIdx() 
+								&& Integer.valueOf(parsed[2]) == remove.getIdx()) {
 							childKeyIT.remove();
 						}
 					}
