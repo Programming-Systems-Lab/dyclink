@@ -2,6 +2,7 @@ package cc.expbase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.objectweb.asm.Opcodes;
@@ -13,7 +14,16 @@ public class TestClass extends TemplateParent {
 	}
 	
 	public static void main(String[] args) {
+		int mm = 0;
 		TestClass tc = new TestClass();
+		List l = null;
+		if (mm == 0) {
+			l = new ArrayList();
+		} else {
+			l = new LinkedList();
+		}
+		tc.setList(l);
+		
 		ArrayList<String> list = new ArrayList<String>();
 		tc.setList(list);
 		

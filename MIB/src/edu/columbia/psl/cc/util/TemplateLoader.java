@@ -134,7 +134,7 @@ public class TemplateLoader {
 							ret.put(name, retSet);
 						}
 					} catch (Exception ex) {
-						logger.error(ex);
+						logger.error("Exception: ", ex);
 					}
 				}
 			}

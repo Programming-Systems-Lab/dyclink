@@ -49,7 +49,7 @@ public class MIBDriver {
 			String mainClassName = jFile.getManifest().getMainAttributes().getValue("Main-Class");
 			return mainClassName;
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("Exception: ", ex);
 		}
 		return null;
 	}
@@ -114,7 +114,7 @@ public class MIBDriver {
 				AnalysisService.invokeFinalAnalysis(mConfig);
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error("Exception: ", ex);
 		}
 	}
 	

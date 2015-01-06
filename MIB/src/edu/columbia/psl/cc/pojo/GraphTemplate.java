@@ -18,7 +18,7 @@ public class GraphTemplate {
 	
 	private String methodDesc;
 	
-	private long threadId;
+	private int threadId;
 	
 	private int threadMethodId;
 	
@@ -45,6 +45,8 @@ public class GraphTemplate {
 	private HashMap<String, String> latestWriteFields;
 	
 	private List<String> methodCalls;
+	
+	public transient HashMap<String, GraphGroup> calleeCache;
 	
 	/*private Map<String, HashSet<InstNode>> firstReadFields;
 	
@@ -223,11 +225,11 @@ public class GraphTemplate {
 		return writeFields;
 	}*/
 	
-	public void setThreadId(long threadId) {
+	public void setThreadId(int threadId) {
 		this.threadId = threadId;
 	}
 	
-	public long getThreadId() {
+	public int getThreadId() {
 		return this.threadId;
 	}
 	

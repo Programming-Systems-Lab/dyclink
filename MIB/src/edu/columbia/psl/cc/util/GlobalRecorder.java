@@ -248,9 +248,6 @@ public class GlobalRecorder {
 	public static void registerGraph(String shortKey, GraphTemplate graph, boolean registerLatest) {
 		synchronized(graphRecorderLock) {
 			String groupKey = GraphGroup.groupKey(0, graph);
-			if (MIBConfiguration.getInstance().isCacheGraph()) {
-				//Store to object DB
-			}
 			
 			if (graphRecorder.containsKey(shortKey)) {
 				HashMap<String, GraphTemplate> subRecord = graphRecorder.get(shortKey);

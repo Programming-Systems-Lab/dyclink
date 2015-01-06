@@ -266,11 +266,40 @@ public class HorizontalMerger {
 		return dominant;
 	}
 	
+	public static void writeCallees(String parentIdx, HashMap<String, GraphGroup> callees) {
+		String fullDirString = MIBConfiguration.getInstance().getCacheDir() + "/" + parentIdx;
+		File fullDir = new File(fullDirString);
+		
+		if (!fullDir.exists()) {
+			fullDir.mkdir();
+		}
+		
+		for (GraphGroup gGroup: callees.values()) {
+			for (List<GraphTemplate> gList: gGroup.values()) {
+				for (GraphTemplate graph: gList) {
+					String myIdx = StringUtil.genThreadWithMethodIdx(graph.getThreadId(), graph.getThreadMethodId());
+					
+					if (graph.calleeCache.size() > 0) {
+						writeCallees(myIdx, graph.calleeCache);
+					}
+					
+					String dumpName = parentIdx + "/" + myIdx;
+					GsonManager.writeJsonGeneric(graph, dumpName, graphToken, MIBConfiguration.CACHE_DIR);
+				}
+			}
+		}
+	}
+	
 	public static void writeGraphHelper(GraphTemplate groupRep) {
 		String nameWithThread = StringUtil.genKeyWithId(groupRep.getShortMethodKey(), String.valueOf(groupRep.getThreadId()));
 		String dumpName = StringUtil.genKeyWithId(nameWithThread, String.valueOf(groupRep.getThreadMethodId()));
 		
-		logger.info("Rep group" + dumpName);
+		logger.info("Profiling methods: " + dumpName);
+		
+		if (groupRep.calleeCache.size() > 0) {
+			String parentDir = StringUtil.genThreadWithMethodIdx(groupRep.getThreadId(), groupRep.getThreadMethodId());
+			writeCallees(parentDir, groupRep.calleeCache);
+		}
 		
 		if (MIBConfiguration.getInstance().isTemplateMode()) {
 			GsonManager.writeJsonGeneric(groupRep, dumpName, graphToken, MIBConfiguration.TEMPLATE_DIR);

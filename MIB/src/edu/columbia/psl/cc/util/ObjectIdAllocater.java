@@ -69,7 +69,7 @@ public class ObjectIdAllocater {
 			idField.setInt(target, newId);
 			return newId;
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("Exception: ", ex);
 		}
 		return - 1;
 	}

@@ -114,7 +114,11 @@ public class StringUtil {
 			int idx) {
 		//String shortFromMethod = GlobalRecorder.getGlobalName(fromMethod);
 		//return shortFromMethod + "-" + threadId + "-" + threadMethodIdx + "-" + idx;
-		return threadId + "-" + threadMethodIdx + "-" + idx;
+		return genThreadWithMethodIdx(threadId, threadMethodIdx) + "-" + idx;
+	}
+	
+	public static String genThreadWithMethodIdx(int threadId, int threadMethodIdx) {
+		return threadId + "-" + threadMethodIdx;
 	}
 	
 	public static String concateKey(String...elements) {

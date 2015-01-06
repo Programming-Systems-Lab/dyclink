@@ -26,6 +26,7 @@ import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.HotZone;
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.NameMap;
 import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.GsonManager;
@@ -370,11 +371,10 @@ public class PageRankSelector {
 		for (String templateName: templates.keySet()) {
 			GraphTemplate tempGraph = templates.get(templateName);
 			
-			if (tempGraph.getInstPool().size() < MIBConfiguration.getInstance().getInstThreshold()) {
+			if (tempGraph.getVertexNum() < MIBConfiguration.getInstance().getInstThreshold()) {
 				continue ;
 			}
 			
-			GraphUtil.removeReturnInst(tempGraph);
 			GraphProfile tempProfile = profileGraph(tempGraph);
 			if (tempProfile == null) {
 				logger.warn("Empty graph: " + tempGraph.getMethodKey());
@@ -390,8 +390,6 @@ public class PageRankSelector {
 				}
 				
 				GraphTemplate testGraph = tests.get(testName);
-				//GraphUtil.removeReturnInst(testGraph.getInstPool());
-				GraphUtil.removeReturnInst(testGraph);
 				logger.info("Test name: " + testGraph.getMethodKey());
 				logger.info("Inst node size: " + testGraph.getInstPool().size());
 				

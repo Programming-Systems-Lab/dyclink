@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
@@ -44,14 +45,21 @@ public class InstPool extends TreeSet<InstNode> {
 			int threadMethodIdx, 
 			int idx, 
 			int opcode, 
-			String addInfo) {
+			String addInfo, 
+			boolean genMethodNode) {
 		String idxKey = StringUtil.genIdxKey(threadId, threadMethodIdx, idx);
 		if (this.instMap.containsKey(idxKey)) {
 			return this.instMap.get(idxKey); 
 		}
 		
+		InstNode probe = null;
+		if (genMethodNode) {
+			probe = new MethodNode();
+		} else {
+			probe = new InstNode();
+		}
+		
 		//Create new 
-		InstNode probe = new InstNode();
 		probe.setFromMethod(methodKey);
 		probe.setThreadId(threadId);
 		probe.setThreadMethodIdx(threadMethodIdx);

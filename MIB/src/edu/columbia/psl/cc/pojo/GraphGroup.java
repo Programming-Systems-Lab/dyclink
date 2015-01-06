@@ -1,10 +1,12 @@
 package edu.columbia.psl.cc.pojo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
-public class GraphGroup extends HashMap<String, GraphTemplate>{
+public class GraphGroup extends HashMap<String, List<GraphTemplate>>{
 	
 	private static Logger logger = Logger.getLogger(GraphGroup.class);
 		
@@ -28,7 +30,8 @@ public class GraphGroup extends HashMap<String, GraphTemplate>{
 		}
 		
 		String groupKey = groupKey(linenumber, graph.getVertexNum(), graph.getEdgeNum());
-		GraphTemplate existGraph = this.get(groupKey);
+		List<GraphTemplate> graphsInGroup = this.get(groupKey);
+		GraphTemplate existGraph = graphsInGroup.get(graphsInGroup.size() - 1);
 		return existGraph;
 		
 		/*if (existGraph == null) {
@@ -51,6 +54,12 @@ public class GraphGroup extends HashMap<String, GraphTemplate>{
 
 	public void addGraph(int linenumber, GraphTemplate graph) {
 		String groupKey = groupKey(linenumber, graph.getVertexNum(), graph.getEdgeNum());
-		this.put(groupKey, graph);
+		if (this.containsKey(groupKey)) {
+			this.get(groupKey).add(graph);
+		} else {
+			List<GraphTemplate> subGraphs = new ArrayList<GraphTemplate>();
+			subGraphs.add(graph);
+			this.put(groupKey, subGraphs);
+		}
 	}
 }

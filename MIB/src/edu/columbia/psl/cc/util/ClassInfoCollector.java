@@ -78,7 +78,7 @@ public class ClassInfoCollector {
 			return classMethodInfoMap.get(classMethodCacheKey);
 		} else {
 			boolean isStatic = false;
-			if (BytecodeCategory.staticMethod().contains(opcode)) {
+			if (BytecodeCategory.staticMethodOps().contains(opcode)) {
 				isStatic = true;
 			}
 			initiateClassMethodInfo(className, methodName, methodDesc, isStatic);

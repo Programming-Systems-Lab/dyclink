@@ -183,7 +183,7 @@ public class BytecodeCategory {
 		return ret;
 	}
 	
-	public static HashSet<Integer> staticMethod() {
+	public static HashSet<Integer> staticMethodOps() {
 		HashSet<Integer> ret = new HashSet<Integer>();
 		ret.add(184);
 		ret.add(186);
@@ -204,6 +204,13 @@ public class BytecodeCategory {
 		ret.add(183);
 		ret.add(185);
 		return ret;
+	}
+	
+	public static HashSet<Integer> methodOps() {
+		HashSet<Integer> allMethods = new HashSet<Integer>();
+		allMethods.addAll(objMethodOps());
+		allMethods.addAll(staticMethodOps());
+		return allMethods;
 	}
 	
 	public static HashSet<Integer> asmPrimitiveSort() {

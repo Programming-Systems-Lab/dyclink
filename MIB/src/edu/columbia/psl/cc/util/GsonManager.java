@@ -52,7 +52,7 @@ public class GsonManager {
 			bw.write(sb.toString());
 			bw.close();
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("Exception: ", ex);
 		}
 	}
 	
@@ -73,7 +73,7 @@ public class GsonManager {
 			bw.write(toWrite);
 			bw.close();
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("Exception: ", ex);
 		}
 	}
 	
@@ -88,7 +88,7 @@ public class GsonManager {
 			jr.close();
 			return ret;
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("Exception: ", ex);
 		}
 		return null;
 	}
@@ -121,7 +121,7 @@ public class GsonManager {
 			bw.write(toWrite);
 			bw.close();
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("Exception: ", ex);
 		}
 	}
 	
@@ -175,7 +175,7 @@ public class GsonManager {
 					}
 				}
 			} catch (Exception ex) {
-				logger.error(ex);
+				logger.error("Exception: ", ex);
 			}
 		}
 	}
@@ -208,11 +208,11 @@ public class GsonManager {
 			try {
 				fos.close();
 			} catch (Exception ex) {
-				logger.error(ex);
+				logger.error("Exception: ", ex);
 			}
 		} catch (Exception ex) {
 			//ex.printStackTrace();
-			logger.error(ex.getMessage());
+			logger.error("Exception: ", ex);
 		}
 	}
 	
@@ -229,7 +229,7 @@ public class GsonManager {
 			zos.write(toWrite.getBytes(Charset.forName("UTF-8")));
 			zos.closeEntry();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error("Exception: ", ex);
 		}
 	}
 	
@@ -251,7 +251,7 @@ public class GsonManager {
 				//writeJsonGeneric(g, fullFileName, graphToken, MIBConfiguration.CACHE_DIR);
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error("Exception: ", ex);
 		}
 	}
 		
@@ -267,7 +267,7 @@ public class GsonManager {
 			jr.close();
 			return ret;
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("Excpetion: ", ex);
 		}
 		return null;
 	}
@@ -330,7 +330,7 @@ public class GsonManager {
 			bw.write(resultString);
 			bw.close();
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("Exception: ", ex);
 		}
 	}
 

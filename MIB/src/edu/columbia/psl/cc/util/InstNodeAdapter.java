@@ -2,6 +2,7 @@ package edu.columbia.psl.cc.util;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,6 +23,7 @@ import com.google.gson.reflect.TypeToken;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 
 public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializer<InstNode>{
@@ -79,15 +81,29 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		//TypeToken<TreeMap<Integer, Double>> childToken = new TypeToken<TreeMap<Integer, Double>>(){};
 		//TypeToken<ArrayList<Integer>> parentToken = new TypeToken<ArrayList<Integer>>(){};
 		
-		InstNode inst = this.pool.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo);
-		if (BytecodeCategory.writeFieldCategory().contains(inst.getOp().getCatId())) {
+		InstNode inst = null;
+		JsonObject calleeGraphs = object.get("calleeGraphs").getAsJsonObject();
+		if (calleeGraphs == null) {
+			inst = this.pool.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo, false);
+		} else {
+			inst = this.pool.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo, true);
+			MethodNode mn = (MethodNode)inst;
+			HashMap<String, long[]> info = new HashMap<String, long[]>();
+			TypeToken<long[]> infoType = new TypeToken<long[]>(){};
+			for (Entry<String, JsonElement> entry: calleeGraphs.entrySet()) {
+				long[] infoElement = context.deserialize(entry.getValue(), infoType.getType());
+				info.put(entry.getKey(), infoElement);
+			}
+			mn.setCalleeInfo(info);
+		}
+		/*if (BytecodeCategory.writeFieldCategory().contains(inst.getOp().getCatId())) {
 			InstNode nodeInMemory = GlobalRecorder.getWriteFieldNode(inst.getAddInfo());
 			if (nodeInMemory != null && nodeInMemory.equals(inst)) {
 				this.pool.remove(inst);
 				this.pool.add(nodeInMemory);
 				return nodeInMemory;
 			}
-		}
+		}*/
 		
 		inst.setInstDataParentList(instDataParentList);
 		inst.setWriteDataParentList(writeDataParentList);
@@ -128,6 +144,12 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		
 		TypeToken<TreeMap<String, Double>> mapType = new TypeToken<TreeMap<String, Double>>(){};
 		result.add("childFreqMap", context.serialize(inst.getChildFreqMap(), mapType.getType()));
+		
+		if (inst instanceof MethodNode) {
+			MethodNode mn = (MethodNode) inst;
+			TypeToken<HashMap<String, long[]>> infoType = new TypeToken<HashMap<String, long[]>>(){};
+			result.add("calleeInfo", context.serialize(mn.getCalleeInfo(), infoType.getType()));
+		}
 		
 		return result;
 	}

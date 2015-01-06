@@ -289,7 +289,7 @@ public class GraphUtil {
 			InstNode inst = pool.searchAndGet(parentKey);
 			inst.getChildFreqMap().remove(removeKey);
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("Exception: ", ex);
 			logger.error("Parent: " + parentKey);
 			logger.error("Child:" + removeKey);
 		}
@@ -715,7 +715,7 @@ public class GraphUtil {
 						0, 
 						protoFrom.getIdx(), 
 						protoFrom.getOp().getOpcode(), 
-						protoFrom.getAddInfo());
+						protoFrom.getAddInfo(), false);
 				sumFrom.setLinenumber(protoFrom.getLinenumber());
 				if (sumFrom.getStartTime() < 0) {
 					//sumFrom.setStartDigit(protoFrom.getStartDigit());
@@ -731,7 +731,7 @@ public class GraphUtil {
 						0,
 						protoTo.getIdx(),
 						protoTo.getOp().getOpcode(),
-						protoTo.getAddInfo());
+						protoTo.getAddInfo(), false);
 				sumTo.setLinenumber(protoTo.getLinenumber());
 				if (sumTo.getStartTime() < 0) {
 					//sumTo.setStartDigit(protoTo.getStartDigit());
