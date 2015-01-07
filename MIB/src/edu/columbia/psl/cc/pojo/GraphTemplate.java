@@ -46,7 +46,9 @@ public class GraphTemplate {
 	
 	private List<String> methodCalls;
 	
-	public transient HashMap<String, GraphGroup> calleeCache;
+	//public transient HashMap<String, GraphGroup> calleeCache;
+	
+	public transient HashMap<String, GraphTemplate> calleeRequired;
 	
 	/*private Map<String, HashSet<InstNode>> firstReadFields;
 	

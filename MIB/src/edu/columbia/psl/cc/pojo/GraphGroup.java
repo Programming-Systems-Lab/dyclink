@@ -31,8 +31,13 @@ public class GraphGroup extends HashMap<String, List<GraphTemplate>>{
 		
 		String groupKey = groupKey(linenumber, graph.getVertexNum(), graph.getEdgeNum());
 		List<GraphTemplate> graphsInGroup = this.get(groupKey);
-		GraphTemplate existGraph = graphsInGroup.get(graphsInGroup.size() - 1);
-		return existGraph;
+		
+		if (graphsInGroup == null || graphsInGroup.size() == 0) {
+			return null;
+		} else {
+			GraphTemplate existGraph = graphsInGroup.get(0);
+			return existGraph;
+		}
 		
 		/*if (existGraph == null) {
 			return null;

@@ -91,10 +91,6 @@ public class MethodStackRecorder {
 	
 	protected InstPool pool = new InstPool();
 	
-	private int vertexDelta = 0;
-	
-	private int edgeDelta = 0;
-	
 	private InstNode beforeReturn;
 	
 	private int threadId = -1;
@@ -157,8 +153,7 @@ public class MethodStackRecorder {
 			}
 		}
 		
-		logger.info("Enter " + this.className + 
-				" " + this.methodName + 
+		logger.info("Enter " + 
 				" " + this.methodKey + 
 				" " + this.threadId + 
 				" " + this.threadMethodId);
@@ -256,14 +251,6 @@ public class MethodStackRecorder {
 	private void updateControlRelation(InstNode fullInst) {
 		if (this.curControlInst != null)
 			this.updateCachedMap(this.curControlInst, fullInst, MIBConfiguration.CONTR_DEP);
-	}
-	
-	private void updateVertexEdgeNum(GraphTemplate calleeGraph) {
-		this.vertexDelta = this.vertexDelta + 
-				calleeGraph.getVertexNum() - 1;
-		
-		this.edgeDelta = this.edgeDelta 
-				+ calleeGraph.getEdgeNum();
 	}
 	
 	public void checkNGetClInit(String targetClass) {
@@ -712,6 +699,7 @@ public class MethodStackRecorder {
 							true);
 					fullInst.setLinenumber(linenum);
 					this.updateTime(fullInst);
+					this.updateControlRelation(fullInst);
 					
 					int objId = -1;
 					if (BytecodeCategory.staticMethodOps().contains(opcode)) {
@@ -728,53 +716,10 @@ public class MethodStackRecorder {
 					String fullKeyWithThreadObjId = StringUtil.genKeyWithObjId(fullKeyWithThreadId, objId);
 					
 					boolean similar = false;
-					if (this.calleeCache.containsKey(fullKeyWithThreadObjId)) {
-						GraphGroup gGroup = this.calleeCache.get(fullKeyWithThreadObjId);
-						
-						//Record the original, not the one from group
-						//this.methodCalls.add(childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
-						
-						//Check if there is similar graph
-						GraphTemplate rep = gGroup.getGraph(this.linenumber, childGraph);
-						if (rep != null) {
-							logger.info("Find similar graph in cache: " + fullKeyWithThreadObjId);
-							//logger.info(childGraph.getThreadMethodId() + " replaced by " + rep.getThreadMethodId());
-							
-							InstPool childPool = childGraph.getInstPool();
-							InstPool repPool = rep.getInstPool();
-							
-							Iterator<InstNode> childIT = childPool.iterator();
-							Iterator<InstNode> repIT = repPool.iterator();
-							while (repIT.hasNext()) {
-								InstNode cNode = childIT.next();
-								InstNode rNode = repIT.next();
-								//rNode.setUpdateDigit(cNode.getUpdateDigit());
-								rNode.setUpdateTime(cNode.getUpdateTime());
-							}
-							
-							//Guess that this graph is the same
-							childGraph = rep;
-							similar = true;
-						} else {
-							logger.info("Find no similar graph in cache: " + fullKeyWithThreadObjId);
-							//logger.info("Existing graph group key: " + gGroup.keySet());
-							//logger.info("Current graph key: " + GraphGroup.groupKey(childGraph));
-							gGroup.addGraph(linenum, childGraph);
-						}
-					} else {
-						//Record the original, not the one from group
-						//this.methodCalls.add(childGraph.getMethodKey() + " " + childGraph.getThreadId() + " " + childGraph.getThreadMethodId());
-						
-						//logger.info("Caller " + this.methodKey + " " + this.threadId + " " + this.threadMethodId);
-						//logger.info("creates new graph group for: " + fullKeyWithThreadObjId);
-						GraphGroup gGroup = new GraphGroup();
-						gGroup.addGraph(linenum, childGraph);
-						this.calleeCache.put(fullKeyWithThreadObjId, gGroup);
-					}
-					
+					fullInst.registerCallee(childGraph);
 					this.latestWriteFieldRecorder.putAll(childGraph.getLatestWriteFields());
 					
-					HashMap<Integer, InstNode> parentFromCaller = new HashMap<Integer, InstNode>();
+					//HashMap<Integer, InstNode> parentFromCaller = new HashMap<Integer, InstNode>();
 					if (args.length > 0) {
 						for (int i = args.length - 1; i >= 0 ;i--) {
 							Type t = args[i];
@@ -784,11 +729,15 @@ public class MethodStackRecorder {
 								targetNode = this.safePop();
 								
 								endIdx -= 1;
-								parentFromCaller.put(endIdx, targetNode);
+								//parentFromCaller.put(endIdx, targetNode);
+								this.updateCachedMap(targetNode, fullInst, MIBConfiguration.INST_DATA_DEP);
+								fullInst.registerParentReplay(endIdx, targetNode);
 								endIdx -= 1;
 							} else {
 								targetNode = this.safePop();
-								parentFromCaller.put(endIdx, targetNode);
+								//parentFromCaller.put(endIdx, targetNode);
+								this.updateCachedMap(targetNode, fullInst, MIBConfiguration.INST_DATA_DEP);
+								fullInst.registerParentReplay(endIdx, targetNode);
 								
 								endIdx -= 1;
 							}
@@ -798,10 +747,11 @@ public class MethodStackRecorder {
 					if (!BytecodeCategory.staticMethodOps().contains(opcode)) {
 						//loadNode can be anyload that load an object
 						InstNode loadNode = this.safePop();
-						parentFromCaller.put(0, loadNode);
+						//parentFromCaller.put(0, loadNode);
+						fullInst.registerParentReplay(0, loadNode);
 					}
 					
-					HashSet<String> cReads = childGraph.getFirstReadLocalVars();
+					/*HashSet<String> cReads = childGraph.getFirstReadLocalVars();
 					HashSet<InstNode> cReadNodes = new HashSet<InstNode>();
 					for (String cString: cReads) {
 						InstNode cReadNode = childGraph.getInstPool().searchAndGet(cString);
@@ -814,24 +764,24 @@ public class MethodStackRecorder {
 					
 					if (this.curControlInst != null) {
 						GraphUtil.controlDepFromParentToChild(this.curControlInst, cReadNodes);
-					}
+					}*/
 
-					String childGraphId = StringUtil.genThreadWithMethodIdx(childGraph.getThreadId(), childGraph.getThreadMethodId());
-					fullInst.registerCallee(childGraphId, fullInst.getUpdateTime());
+					//String childGraphId = StringUtil.genThreadWithMethodIdx(childGraph.getThreadId(), childGraph.getThreadMethodId());
+					//fullInst.registerCallee(childGraphId, fullInst.getUpdateTime());
 					
 					String returnType = rType.getDescriptor();
 					if (!returnType.equals("V")) {
-						InstNode lastSecond = childGraph.getLastBeforeReturn();
+						//InstNode lastSecond = childGraph.getLastBeforeReturn();
 						if (returnType.equals("D") || returnType.equals("J")) {
-							this.updateStackSimulator(2, lastSecond);
+							this.updateStackSimulator(2, fullInst);
 						} else {
-							this.updateStackSimulator(1, lastSecond);
+							this.updateStackSimulator(1, fullInst);
 						}
 					}
 					
-					if (!similar) {
+					/*if (!similar) {
 						this.updateVertexEdgeNum(childGraph);
-					}
+					}*/
 				}
 			}
 		} catch (Exception ex) {
@@ -1262,6 +1212,10 @@ public class MethodStackRecorder {
 	
 	public void dumpGraph() {
 		if (GlobalRecorder.checkUndersizedMethod(this.shortMethodKey)) {
+			logger.info("Leave " + 
+					" " + this.methodKey + 
+					" " + this.threadId + 
+					" " + this.threadMethodId);
 			return ;
 		}
 		
@@ -1291,17 +1245,46 @@ public class MethodStackRecorder {
 		}
 		//gt.setPath(this.path);
 		
+		HashMap<String, GraphTemplate> calleeRequired = new HashMap<String, GraphTemplate>();
 		Iterator<InstNode> instIterator = this.pool.iterator();
 		int edgeNum = 0, vertexNum = 0;
 		while (instIterator.hasNext()) {
 			InstNode curInst = instIterator.next();
+			
+			if (curInst instanceof MethodNode) {
+				MethodNode mn = (MethodNode) curInst;
+				//logger.info("Extract: " + mn.getAddInfo());
+				GraphTemplate repCallee = MethodNode.extractCallee(mn.getCallees(), mn.getMaxCalleeFreq());
+				
+				String repKey = StringUtil.genThreadWithMethodIdx(repCallee.getThreadId(), repCallee.getThreadMethodId());
+				mn.registerDomCalleeIdx(repKey);
+				calleeRequired.put(repKey, repCallee);
+				
+				if (repCallee.getLastBeforeReturn() != null) {
+					mn.registerChildReplace(repCallee.getLastBeforeReturn());
+				}
+				
+				vertexNum += (repCallee.getVertexNum() - 1);
+				int instParentNum = mn.getInstDataParentList().size();
+				int controlParentNum = mn.getControlParentList().size();
+				int firstReadNum = repCallee.getFirstReadLocalVars().size();
+				edgeNum = edgeNum 
+						+ repCallee.getEdgeNum() 
+						+ firstReadNum 
+						+ firstReadNum * controlParentNum
+						- instParentNum 
+						- controlParentNum;
+				mn.clearCallees();
+			}
+			
 			TreeMap<String, Double> children = curInst.getChildFreqMap();
 			edgeNum += children.size();
 		}
 		vertexNum += this.pool.size();
 		
-		gt.setEdgeNum(edgeNum + this.edgeDelta);
-		gt.setVertexNum(vertexNum + this.vertexDelta);
+		gt.setEdgeNum(edgeNum);
+		gt.setVertexNum(vertexNum);
+		gt.calleeRequired = calleeRequired;
 		gt.setInstPool(this.pool);
 		
 		logger.info("Total edge count: " + gt.getEdgeNum());
@@ -1333,10 +1316,9 @@ public class MethodStackRecorder {
 			}
 		}
 		
-		gt.calleeCache = this.calleeCache;
+		//gt.calleeCache = this.calleeCache;
 		this.showStackSimulator();
-		logger.info("Leave " + this.className + 
-				" " + this.methodName + 
+		logger.info("Leave " + 
 				" " + this.methodKey + 
 				" " + this.threadId + 
 				" " + this.threadMethodId);

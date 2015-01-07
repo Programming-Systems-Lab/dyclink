@@ -24,6 +24,7 @@ import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
+import edu.columbia.psl.cc.pojo.MethodNode.CalleeInfo;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 
 public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializer<InstNode>{
@@ -82,18 +83,14 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		//TypeToken<ArrayList<Integer>> parentToken = new TypeToken<ArrayList<Integer>>(){};
 		
 		InstNode inst = null;
-		JsonObject calleeGraphs = object.get("calleeGraphs").getAsJsonObject();
-		if (calleeGraphs == null) {
+		JsonObject calleeInfo = object.get("calleeInfo").getAsJsonObject();
+		if (calleeInfo == null) {
 			inst = this.pool.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo, false);
 		} else {
 			inst = this.pool.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo, true);
 			MethodNode mn = (MethodNode)inst;
-			HashMap<String, long[]> info = new HashMap<String, long[]>();
-			TypeToken<long[]> infoType = new TypeToken<long[]>(){};
-			for (Entry<String, JsonElement> entry: calleeGraphs.entrySet()) {
-				long[] infoElement = context.deserialize(entry.getValue(), infoType.getType());
-				info.put(entry.getKey(), infoElement);
-			}
+			TypeToken<CalleeInfo> infoType = new TypeToken<CalleeInfo>(){};
+			CalleeInfo info = context.deserialize(calleeInfo, infoType.getType());
 			mn.setCalleeInfo(info);
 		}
 		/*if (BytecodeCategory.writeFieldCategory().contains(inst.getOp().getCatId())) {
@@ -147,7 +144,7 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		
 		if (inst instanceof MethodNode) {
 			MethodNode mn = (MethodNode) inst;
-			TypeToken<HashMap<String, long[]>> infoType = new TypeToken<HashMap<String, long[]>>(){};
+			TypeToken<CalleeInfo> infoType = new TypeToken<CalleeInfo>(){};
 			result.add("calleeInfo", context.serialize(mn.getCalleeInfo(), infoType.getType()));
 		}
 		
