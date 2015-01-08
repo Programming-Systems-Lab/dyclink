@@ -433,7 +433,7 @@ public class GraphUtil {
 		return ret;
 	}
 	
-	public static void multiplyGraph(GraphTemplate g, int times) {
+	public static void multiplyGraph(GraphTemplate g, double times) {
 		for (InstNode inst: g.getInstPool()) {
 			TreeMap<String, Double> childMap = inst.getChildFreqMap();
 			
@@ -857,19 +857,18 @@ public class GraphUtil {
 		}
 	}
 	
-	/*public static void dataDepFromParentToChildWithFreq(Map<Integer, List<InstWithFreq>> parentMap, 
-			Collection<InstNode> cFirstReadNodes) {
+	public static void dataDepFromParentToChildWithFreq(HashMap<Integer, HashSet<InstNode>> parentMap, 
+			Collection<InstNode> cFirstReadNodes, 
+			String calleeInstId, 
+			double freq) {
 		for (InstNode f: cFirstReadNodes) {
 			if (f == null) 
 				continue ;
 			
 			int idx = Integer.valueOf(f.getAddInfo());
-			List<InstWithFreq> parentNodes = parentMap.get(idx);
+			HashSet<InstNode> parentNodes = parentMap.get(idx);
 			
-			for (InstWithFreq pF: parentNodes) {
-				InstNode parentNode = pF.parentInst;
-				double freq = pF.freq;
-				
+			for (InstNode parentNode: parentNodes) {				
 				parentNode.increChild(f.getThreadId(), 
 						f.getThreadMethodIdx(), 
 						f.getIdx(), 
@@ -878,9 +877,11 @@ public class GraphUtil {
 						parentNode.getThreadMethodIdx(), 
 						parentNode.getIdx(), 
 						MIBConfiguration.INST_DATA_DEP);
+				
+				parentNode.getChildFreqMap().remove(calleeInstId);
 			}
 		}
-	}*/
+	}
 	
 	public static void controlDepFromParentToChild(HashSet<InstNode> controlFromParent, InstPool childPool) {
 		for (InstNode condFromParent: controlFromParent) {
@@ -901,25 +902,20 @@ public class GraphUtil {
 		}
 	}
 	
-	/*public static void controlDepFromParentToChildWithFreq(List<InstWithFreq> controlParents, 
-			Collection<InstNode> childSet) {
+	public static void controlDepFromParentToChildWithFreq(InstNode conFromParent, 
+			Collection<InstNode> childSet, 
+			double freq) {
 		for (InstNode childNode: childSet) {
-			for (InstWithFreq cF: controlParents) {
-				InstNode condFromParent = cF.parentInst;
-				double freq = cF.freq;
-				
-				condFromParent.increChild(childNode.getThreadId(), 
-						childNode.getThreadMethodIdx(), 
-						childNode.getIdx(), 
-						freq);
-				childNode.registerParent(condFromParent.getThreadId(), 
-						condFromParent.getThreadMethodIdx(), 
-						condFromParent.getIdx(), 
-						MIBConfiguration.CONTR_DEP);
-			}
+			conFromParent.increChild(childNode.getThreadId(), 
+					childNode.getThreadMethodIdx(), 
+					childNode.getIdx(), 
+					freq);
+			childNode.registerParent(conFromParent.getThreadId(), 
+					conFromParent.getThreadMethodIdx(), 
+					conFromParent.getIdx(), 
+					MIBConfiguration.CONTR_DEP);
 		}
-		
-	}*/
+	}
 	
 	public static void removeReturnInst(GraphTemplate graph) {
 		boolean remove = removeReturnInst(graph.getInstPool());

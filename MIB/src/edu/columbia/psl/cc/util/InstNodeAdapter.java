@@ -83,10 +83,11 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		//TypeToken<ArrayList<Integer>> parentToken = new TypeToken<ArrayList<Integer>>(){};
 		
 		InstNode inst = null;
-		JsonObject calleeInfo = object.get("calleeInfo").getAsJsonObject();
-		if (calleeInfo == null) {
+		JsonElement calleeProbe = object.get("calleeInfo");
+		if (calleeProbe == null) {
 			inst = this.pool.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo, false);
 		} else {
+			JsonObject calleeInfo = calleeProbe.getAsJsonObject();
 			inst = this.pool.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo, true);
 			MethodNode mn = (MethodNode)inst;
 			TypeToken<CalleeInfo> infoType = new TypeToken<CalleeInfo>(){};
