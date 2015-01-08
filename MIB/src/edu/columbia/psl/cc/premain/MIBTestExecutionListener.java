@@ -1,5 +1,8 @@
 package edu.columbia.psl.cc.premain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
@@ -13,12 +16,15 @@ import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.GsonManager;
+import edu.columbia.psl.cc.util.TimeController;
 
 public class MIBTestExecutionListener extends RunListener{
 	
 	private static Logger logger = Logger.getLogger(MIBTestExecutionListener.class);
 	
 	private static long mb = 1024 * 1024;
+	
+	private List<String> overTimeTestCases = new ArrayList<String>();
 	
 	static {
 		System.out.println("Initialize logger");
@@ -49,6 +55,10 @@ public class MIBTestExecutionListener extends RunListener{
 	@Override
 	public void testRunFinished(Result result) {
 		logger.info("Number of test cases: " + result.getRunCount());
+		System.out.println("Overtime test cases");
+		for (String t: this.overTimeTestCases) {
+			System.out.println(t);
+		}
 		MIBDriver.serializeNameMap();
 	}
 	
@@ -56,16 +66,29 @@ public class MIBTestExecutionListener extends RunListener{
 	public void testStarted(Description description) {
 		logger.info("Start test method: " + description);
 		System.out.println("Start test method: " + description);
+		TimeController.initTestMethodBaseTime();
 	}
 	
 	@Override
 	public void testFinished(Description description) {
 		logger.info("Finisehd test method: " + description);
-		System.out.println("Start graph extraction: " + description);
-		MIBDriver.selectDominantGraphsWithTestMethodName(description.getClassName() + "-" + description.getMethodName());
-		System.out.println("Start garbage collection");
-		GlobalRecorder.clearContext();
-		long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-		System.out.println("Used memory: " + ((double)usedMemory/mb));
+		
+		try {
+			if (TimeController.isOverTime()) {
+				System.out.println("Overtime: " + description);
+				this.overTimeTestCases.add(description.toString());
+			}
+			
+			System.out.println("Start graph extraction: " + description);
+			MIBDriver.selectDominantGraphsWithTestMethodName(description.getClassName() + "-" + description.getMethodName());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			GlobalRecorder.clearContext();
+			long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+			System.out.println("Used memory: " + ((double)usedMemory/mb));
+			System.out.println("Execution time: " + ((double)TimeController.testMethodExecutionTime())/1000);
+			System.out.println();
+		}
 	}
 }

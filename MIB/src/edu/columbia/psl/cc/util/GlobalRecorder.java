@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -273,6 +274,13 @@ public class GlobalRecorder {
 				long threadId = ObjectIdAllocater.getThreadId();
 				latestGraphs.put(threadId, graph);
 			}
+		}
+	}
+	
+	public static void recoverLatestGraph(GraphTemplate latestGraph) {
+		synchronized(graphRecorderLock) {
+			long threadId = ObjectIdAllocater.getThreadId();
+			latestGraphs.put(threadId, latestGraph);
 		}
 	}
 	

@@ -46,6 +46,8 @@ public class GraphTemplate {
 	
 	private List<String> methodCalls;
 	
+	private double[] dist;
+	
 	//public transient HashMap<String, GraphGroup> calleeCache;
 	
 	public transient HashMap<String, GraphTemplate> calleeRequired;
@@ -249,6 +251,14 @@ public class GraphTemplate {
 	
 	public int getObjId() {
 		return this.objId;
+	}
+	
+	public void setDist(double[] dist) {
+		this.dist = dist;
+	}
+	
+	public double[] getDist() {
+		return this.dist;
 	}
 	
 	/*public void setMaxTime(long maxTime) {

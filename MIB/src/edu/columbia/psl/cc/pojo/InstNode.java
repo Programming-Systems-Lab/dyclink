@@ -10,7 +10,7 @@ import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
-public class InstNode implements Comparable<InstNode>{
+public class InstNode {
 		
 	private int threadId;
 	
@@ -248,8 +248,8 @@ public class InstNode implements Comparable<InstNode>{
 	
 	@Override
 	public int hashCode() {
-		String rep = String.valueOf(this.fromMethod.hashCode()) + String.valueOf(threadId) + String.valueOf(this.threadMethodIdx) + String.valueOf(this.idx);
-		return rep.hashCode();
+		String myId = StringUtil.genIdxKey(this.threadId, this.threadMethodIdx, this.idx);
+		return myId.hashCode();
 	}
 	
 	@Override
@@ -259,38 +259,12 @@ public class InstNode implements Comparable<InstNode>{
 		
 		InstNode tmpNode = (InstNode)o;
 		
-		if (!tmpNode.toString().equals(this.toString()))
+		String myId = StringUtil.genIdxKey(this.threadId, this.threadMethodIdx, this.idx);
+		String tmpId = StringUtil.genIdxKey(tmpNode.getThreadId(), tmpNode.getThreadMethodIdx(), tmpNode.getIdx());
+		
+		if (!myId.equals(tmpId))
 			return false;
 		else
 			return true;
 	}
-
-	@Override
-	public int compareTo(InstNode other) {
-		//String myKey = StringUtil.genIdxKey(this.getFromMethod(), this.getThreadId(), this.getThreadMethodIdx(), this.getIdx());
-		//String otherKey = StringUtil.genIdxKey(other.getFromMethod(), other.getThreadId(), other.getThreadMethodIdx(), other.getIdx());
-		
-		//long myDigit = this.startDigit;
-		long myStart = this.startTime;
-		
-		//long otherDigit = other.getStartDigit();
-		long otherStart = other.getStartTime();
-		
-		/*if (myDigit < otherDigit) {
-			return 1;
-		} else if (myDigit > otherDigit) {
-			return -1;
-		} else {
-			if (myStart < otherStart) {
-				return 1;
-			} else if (myStart > otherStart) {
-				return -1;
-			} else {
-				//Impossible
-				return 0;
-			}
-		}*/
-		return (myStart > otherStart?1: (myStart < otherStart?-1: 0));
-	}
-
 }

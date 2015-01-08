@@ -124,6 +124,8 @@ public class MIBConfiguration {
 	
 	private double simThreshold;
 	
+	private int testMethodThresh;
+	
 	private boolean annotGuard;
 	
 	private boolean fieldTrack;
@@ -368,6 +370,14 @@ public class MIBConfiguration {
 		this.instLimit = instLimit;
 	}
 	
+	public void setTestMethodThresh(int testMethodThresh) {
+		this.testMethodThresh = testMethodThresh;
+	}
+	
+	public int getTestMethodThresh() {
+		return this.testMethodThresh;
+	}
+	
 	public double getPgAlpha() {
 		return this.pgAlpha;
 	}
@@ -541,6 +551,8 @@ public class MIBConfiguration {
 		sb.append("parallel factor: " + this.parallelFactor + "\n");
 		sb.append("minimum inst number: " + this.instThreshold + "\n");
 		sb.append("inst selection number: " + this.instLimit + "\n");
+		sb.append("inst threshold: " + this.instThreshold + "\n");
+		sb.append("test method threshold: " + this.testMethodThresh + "\n");
 		sb.append("alpha of PageRank: " + this.pgAlpha + "\n");
 		sb.append("max iteration of PageRank: " + this.pgMaxIter + "\n");
 		sb.append("epsilon of PageRank: " + this.pgEpsilon + "\n");

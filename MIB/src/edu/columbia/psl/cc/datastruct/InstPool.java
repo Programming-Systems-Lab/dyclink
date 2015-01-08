@@ -1,6 +1,7 @@
 package edu.columbia.psl.cc.datastruct;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
@@ -26,8 +27,24 @@ public class InstPool extends TreeSet<InstNode> {
 	private HashMap<String, InstNode> instMap = new HashMap<String, InstNode>();
 	
 	public InstPool() {
-		
+		super(new InstNodeComp());
 	}
+	
+	private void updateTime(InstNode fullInst) {
+		long curTime = GlobalRecorder.getCurTime();
+		if (fullInst.getStartTime() < 0) {
+			/*fullInst.setStartDigit(curTime[1]);
+			fullInst.setStartTime(curTime[0]);
+			fullInst.setUpdateDigit(curTime[1]);
+			fullInst.setUpdateTime(curTime[0]);*/
+			fullInst.setStartTime(curTime);
+			fullInst.setUpdateTime(curTime);
+		} else {
+			/*fullInst.setUpdateDigit(curTime[1]);
+			fullInst.setUpdateTime(curTime[0]);*/
+			fullInst.setUpdateTime(curTime);
+		}
+ 	}
 	
 	private boolean _addInst(String idxKey, InstNode inst) {		
 		InstNode check = this.instMap.put(idxKey, inst);
@@ -48,7 +65,9 @@ public class InstPool extends TreeSet<InstNode> {
 			boolean genMethodNode) {
 		String idxKey = StringUtil.genIdxKey(threadId, threadMethodIdx, idx);
 		if (this.instMap.containsKey(idxKey)) {
-			return this.instMap.get(idxKey); 
+			InstNode ret = this.instMap.get(idxKey);
+			this.updateTime(ret);
+			return ret;
 		}
 		
 		InstNode probe = null;
@@ -65,6 +84,7 @@ public class InstPool extends TreeSet<InstNode> {
 		probe.setIdx(idx);
 		probe.setOp(BytecodeCategory.getOpcodeObj(opcode));
 		probe.setAddInfo(addInfo);
+		this.updateTime(probe);
 		this._addInst(idxKey, probe);
 		return probe;
 	}
@@ -121,4 +141,35 @@ public class InstPool extends TreeSet<InstNode> {
 		}
 		return null;
 	}*/
+	
+	public static class InstNodeComp implements Comparator<InstNode> {
+
+		@Override
+		public int compare(InstNode i1, InstNode i2) {
+			long i1Idx = i1.getStartTime();
+			long i2Idx = i2.getStartTime();
+			
+			return (i1Idx > i2Idx?1: (i2Idx < i1Idx?-1: 0));
+		}
+		
+	}
+	
+	public static void main(String[] args) {
+		InstPool pool = new InstPool();
+		InstNode i1 = pool.searchAndGet("a", 
+				0, 
+				0, 
+				1, 
+				92, 
+				"", 
+				false);
+		InstNode i2 = pool.searchAndGet("a", 
+				0, 
+				0, 
+				2, 
+				92, 
+				"", 
+				false);
+		System.out.println("Pool size: " + pool.size());
+	}
 }

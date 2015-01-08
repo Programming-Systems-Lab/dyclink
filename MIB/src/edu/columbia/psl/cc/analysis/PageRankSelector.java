@@ -112,16 +112,6 @@ public class PageRankSelector {
 			double totalFreq = 0;
 			
 			for (String childKey: inst.getChildFreqMap().keySet()) {
-				/*InstNode childNode = null;
-				if (cache.containsKey(childKey)) {
-					childNode = cache.get(childKey);
-				} else {
-					String[] keys = StringUtil.parseIdxKey(childKey);
-					childNode = myPool.searchAndGet(keys[0], 
-							Long.valueOf(keys[1]), Integer.valueOf(keys[2]), Integer.valueOf(keys[3]));
-					
-					cache.put(childKey, childNode);
-				}*/
 				
 				InstNode childNode = myPool.searchAndGet(childKey);
 				double childFreq = inst.getChildFreqMap().get(childKey);

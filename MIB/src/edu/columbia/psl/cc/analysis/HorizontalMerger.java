@@ -34,6 +34,8 @@ public class HorizontalMerger {
 	
 	private static TypeToken<NameMap> nameMapToken = new TypeToken<NameMap>(){};
 	
+	private static HashMap<String, HashSet<String>> dumpRecord = new HashMap<String, HashSet<String>>();
+	
 	private static Comparator<GraphTemplate> graphSizeSorter = new Comparator<GraphTemplate>() {
 		@Override
 		public int compare(GraphTemplate g1, GraphTemplate g2) {			
@@ -135,9 +137,21 @@ public class HorizontalMerger {
 		for (String key: graphs.keySet()) {
 			HashMap<String, GraphTemplate> graphGroups = graphs.get(key);
 			
+			if (!dumpRecord.containsKey(key)) {
+				HashSet<String> dumpGroups = new HashSet<String>();
+				dumpRecord.put(key, dumpGroups);
+			}
+			
+			HashSet<String> dumpedGroup = dumpRecord.get(key);
+			
 			//Each map only has one graph
 			for (String groupKey: graphGroups.keySet()) {
+				if (dumpedGroup.contains(groupKey)) {
+					continue ;
+				}
+				
 				writeGraphHelper(graphGroups.get(groupKey));
+				dumpedGroup.add(groupKey);
 			}
 		}
 	}
