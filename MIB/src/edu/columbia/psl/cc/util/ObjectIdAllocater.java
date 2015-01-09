@@ -117,6 +117,16 @@ public class ObjectIdAllocater {
 		return threadMethodIndexerFast.get(threadId).getAndIncrement();
 	}
 	
+	public static void setThreadMethodIndex(int threadId, int idx) {
+		AtomicInteger ai = new AtomicInteger();
+		ai.set(idx);
+		threadMethodIndexerFast.put(threadId, ai);
+	}
+	
+	public static ConcurrentHashMap<Integer, AtomicInteger> getThreadMethodIdxRecord() {
+		return threadMethodIndexerFast;
+	}
+	
 	public static int parseObjId(Object value) {
 		if (value == null)
 			return -1;

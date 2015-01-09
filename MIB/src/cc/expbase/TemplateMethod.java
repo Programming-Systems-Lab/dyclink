@@ -352,20 +352,20 @@ public class TemplateMethod extends TemplateParent {
 		}
 	}
 	
-	public void call3() {
+	public double call3() {
 		this.pVar = 5;
 		double ret = 5 + this.iDouble + this.iVar;
+		return ret;
 	}
 	
-	public void call2() {
+	public double call2() {
 		this.iVar = 2;
-		this.call3();
+		return this.call3();
 	}
 	
 	public void call1() {
 		this.iDouble = 5.0 + this.pVar;
-		this.call2();
-		int ret = 5 + this.pVar + this.iVar;
+		double ret = this.call2() + this.pVar + this.iVar;
 	}
 	
 	public void doObject(TemplateParent tp) {
@@ -379,7 +379,7 @@ public class TemplateMethod extends TemplateParent {
 		System.out.println(init.equals("<init>"));*/
 		TemplateMethod tm = new TemplateMethod();
 		//tm.doObject(tm);
-		//tm.call1();
+		tm.call1();
 		/*byte a = 1;
 		double b = 2.0;
 		long c = 3;
@@ -396,7 +396,7 @@ public class TemplateMethod extends TemplateParent {
 		//classAdd(5);
 		//int a = 2;
 		//int[] b = {3, 4, 7};
-		tm.forMethod();
+		//tm.forMethod();
 		/*tm.forClassMethod();
 		TemplateParent tp = new TemplateMethod();
 		tp.interestingMethod();*/

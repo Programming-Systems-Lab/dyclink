@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.HashMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.JarFile;
 import java.util.zip.ZipOutputStream;
 
@@ -32,6 +34,7 @@ import edu.columbia.psl.cc.util.Analyzer;
 import edu.columbia.psl.cc.util.DynamicGraphAnalyzer;
 import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.GsonManager;
+import edu.columbia.psl.cc.util.ObjectIdAllocater;
 import edu.columbia.psl.cc.util.StaticBytecodeCatAnalyzer;
 import edu.columbia.psl.cc.util.TemplateLoader;
 
@@ -69,6 +72,18 @@ public class MIBDriver {
 		
 		//Clean directory
 		GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());
+		
+		//Read infor from exiting nameMap
+		File nameMapFile = new File(MIBConfiguration.getInstance().getLabelmapDir() + "/nameMap.json");
+		if (nameMapFile.exists()) {
+			NameMap lastNameMap = GsonManager.readJsonGeneric(nameMapFile, nameMapToken);
+			HashMap<Integer, Integer> oldRecord = lastNameMap.getThreadMethodIdxRecord();
+			
+			for (Integer key: oldRecord.keySet()) {
+				int newIdx = oldRecord.get(key) + 1;
+				ObjectIdAllocater.setThreadMethodIndex(key, newIdx);
+ 			}
+		}
 		
 		String className = null;
 		String[] newArgs;
@@ -123,6 +138,15 @@ public class MIBDriver {
 		nameMap.setGlobalNameMap(GlobalRecorder.getGlobalNameMap());
 		nameMap.setRecursiveMethods(GlobalRecorder.getRecursiveMethods());
 		nameMap.setUndersizedMethods(GlobalRecorder.getUndersizedMethods());
+		
+		HashMap<Integer, Integer> threadMethodIdxRecord = new HashMap<Integer, Integer>();
+		ConcurrentHashMap<Integer, AtomicInteger> sessionRecord = ObjectIdAllocater.getThreadMethodIdxRecord();
+		for (Integer i: sessionRecord.keySet()) {
+			Integer threadMethodIdx = sessionRecord.get(i).get();
+			threadMethodIdxRecord.put(i, threadMethodIdx);
+		}
+		nameMap.setThreadMethodIdxRecord(threadMethodIdxRecord);
+		
 		GsonManager.writeJsonGeneric(nameMap, "nameMap", nameMapToken, MIBConfiguration.LABEL_MAP_DIR);
 	}
 	

@@ -11,6 +11,8 @@ public class NameMap {
 	
 	private HashSet<String> undersizedMethods;
 	
+	private HashMap<Integer, Integer> threadMethodIdxRecord = new HashMap<Integer, Integer>();
+	
 	public void setGlobalNameMap(HashMap<String, String> globalNameMap) {
 		this.globalNameMap = globalNameMap;
 	}
@@ -33,6 +35,14 @@ public class NameMap {
 	
 	public HashSet<String> getUndersizedMethods() {
 		return this.undersizedMethods;
+	}
+	
+	public void setThreadMethodIdxRecord(HashMap<Integer, Integer> threadMethodIdxRecord) {
+		this.threadMethodIdxRecord = threadMethodIdxRecord;
+	}
+	
+	public HashMap<Integer, Integer> getThreadMethodIdxRecord() {
+		return this.threadMethodIdxRecord;
 	}
 
 }

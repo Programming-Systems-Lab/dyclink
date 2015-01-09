@@ -1,6 +1,8 @@
 package edu.columbia.psl.cc.premain;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.BasicConfigurator;
@@ -12,10 +14,14 @@ import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.RunListener;
 
+import com.google.gson.reflect.TypeToken;
+
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.InstPool;
+import edu.columbia.psl.cc.pojo.NameMap;
 import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.GsonManager;
+import edu.columbia.psl.cc.util.ObjectIdAllocater;
 import edu.columbia.psl.cc.util.TimeController;
 
 public class MIBTestExecutionListener extends RunListener{
@@ -38,7 +44,7 @@ public class MIBTestExecutionListener extends RunListener{
 	
 	@Override
 	public void testRunStarted(Description description) {
-		logger.info("Start test class: " + description);
+		logger.info("Start testing");
 		
 		MIBConfiguration mConfig = MIBConfiguration.getInstance();
 		logger.info("MIB Configuration");
@@ -46,6 +52,18 @@ public class MIBTestExecutionListener extends RunListener{
 		
 		//Set inst pool, cannot set it in static initializer, or there will be infinite loop
 		InstPool.DEBUG = MIBConfiguration.getInstance().isDebug();
+		
+		File nameMapFile = new File(MIBConfiguration.getInstance().getLabelmapDir() + "/nameMap.json");
+		TypeToken<NameMap> nameMapToken = new TypeToken<NameMap>(){};
+		if (nameMapFile.exists()) {
+			NameMap lastNameMap = GsonManager.readJsonGeneric(nameMapFile, nameMapToken);
+			HashMap<Integer, Integer> oldRecord = lastNameMap.getThreadMethodIdxRecord();
+			
+			for (Integer key: oldRecord.keySet()) {
+				int newIdx = oldRecord.get(key) + 1;
+				ObjectIdAllocater.setThreadMethodIndex(key, newIdx);
+ 			}
+		}
 		
 		//Clean directory
 		GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());

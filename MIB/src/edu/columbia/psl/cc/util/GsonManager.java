@@ -295,10 +295,10 @@ public class GsonManager {
 	public static void cleanDirs(boolean cleanTemp, boolean cleanTest) {
 		File tempDir = new File(MIBConfiguration.getInstance().getTemplateDir());
 		File teDir = new File(MIBConfiguration.getInstance().getTestDir());
-		File cacheDir = new File(MIBConfiguration.getInstance().getCacheDir());
+		//File cacheDir = new File(MIBConfiguration.getInstance().getCacheDir());
 		File pathDir = new File(MIBConfiguration.getInstance().getPathDir());
 		File costDir = new File(MIBConfiguration.getInstance().getCostTableDir());
-		File labelmapDir = new File(MIBConfiguration.getInstance().getLabelmapDir());
+		//File labelmapDir = new File(MIBConfiguration.getInstance().getLabelmapDir());
 		
 		if (cleanTemp)
 			cleanDir(tempDir);
@@ -307,10 +307,10 @@ public class GsonManager {
 			cleanDir(teDir);
 		
 		//No matter what, clean cache
-		cleanDir(cacheDir);
+		//cleanDir(cacheDir);
 		cleanDir(pathDir);
 		cleanDir(costDir);
-		cleanDir(labelmapDir);
+		//cleanDir(labelmapDir);
 	}
 	
 	public static void writeResult(StringBuilder sb) {
