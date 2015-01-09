@@ -1,6 +1,7 @@
 package edu.columbia.psl.cc.config;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.gson.reflect.TypeToken;
@@ -125,6 +126,8 @@ public class MIBConfiguration {
 	private double simThreshold;
 	
 	private int testMethodThresh;
+	
+	private HashMap<Integer, Integer> threadMethodIdxRecord;
 	
 	private boolean annotGuard;
 	
@@ -376,6 +379,14 @@ public class MIBConfiguration {
 	
 	public int getTestMethodThresh() {
 		return this.testMethodThresh;
+	}
+	
+	public void setThreadMethodIdxRecord(HashMap<Integer, Integer> threadMethodIdxRecord) {
+		this.threadMethodIdxRecord = threadMethodIdxRecord;
+	}
+	
+	public HashMap<Integer, Integer> getThreadMethodIdxRecord() {
+		return this.threadMethodIdxRecord;
 	}
 	
 	public double getPgAlpha() {

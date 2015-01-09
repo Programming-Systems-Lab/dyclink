@@ -46,6 +46,8 @@ public class MIBDriver {
 	
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 	
+	private static TypeToken<MIBConfiguration> configToken = new TypeToken<MIBConfiguration>(){};
+	
 	public static String extractMainClassName(String jarFile) {
 		try {
 			JarFile jFile = new JarFile(new File(jarFile));
@@ -73,16 +75,14 @@ public class MIBDriver {
 		//Clean directory
 		GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());
 		
-		//Read infor from exiting nameMap
-		File nameMapFile = new File(MIBConfiguration.getInstance().getLabelmapDir() + "/nameMap.json");
-		if (nameMapFile.exists()) {
-			NameMap lastNameMap = GsonManager.readJsonGeneric(nameMapFile, nameMapToken);
-			HashMap<Integer, Integer> oldRecord = lastNameMap.getThreadMethodIdxRecord();
+		//Read existing info
+		if (MIBConfiguration.getInstance().getThreadMethodIdxRecord().size() > 0) {
+			HashMap<Integer, Integer> oldRecord = MIBConfiguration.getInstance().getThreadMethodIdxRecord();
 			
 			for (Integer key: oldRecord.keySet()) {
 				int newIdx = oldRecord.get(key) + 1;
 				ObjectIdAllocater.setThreadMethodIndex(key, newIdx);
- 			}
+			}
 		}
 		
 		String className = null;
@@ -125,6 +125,8 @@ public class MIBDriver {
 			logger.info("Select dominant graphs: " + targetClass);
 			selectDominantGraphs();
 			
+			updateConfig();
+			
 			if (mConfig.isOverallAnalysis()) {
 				AnalysisService.invokeFinalAnalysis(mConfig);
 			}
@@ -139,15 +141,24 @@ public class MIBDriver {
 		nameMap.setRecursiveMethods(GlobalRecorder.getRecursiveMethods());
 		nameMap.setUndersizedMethods(GlobalRecorder.getUndersizedMethods());
 		
-		HashMap<Integer, Integer> threadMethodIdxRecord = new HashMap<Integer, Integer>();
-		ConcurrentHashMap<Integer, AtomicInteger> sessionRecord = ObjectIdAllocater.getThreadMethodIdxRecord();
-		for (Integer i: sessionRecord.keySet()) {
-			Integer threadMethodIdx = sessionRecord.get(i).get();
-			threadMethodIdxRecord.put(i, threadMethodIdx);
-		}
-		nameMap.setThreadMethodIdxRecord(threadMethodIdxRecord);
-		
 		GsonManager.writeJsonGeneric(nameMap, "nameMap", nameMapToken, MIBConfiguration.LABEL_MAP_DIR);
+	}
+	
+	public static void updateConfig() {
+		ConcurrentHashMap<Integer, AtomicInteger> threadMethodIdxRecord = ObjectIdAllocater.getThreadMethodIdxRecord();
+		HashMap<Integer, Integer> toSerialize = new HashMap<Integer, Integer>();
+		for (Integer i: threadMethodIdxRecord.keySet()) {
+			int newIdx = threadMethodIdxRecord.get(i).get() + 1;
+			toSerialize.put(i, newIdx);
+		}
+		
+		if (toSerialize.size() > 0) {
+			MIBConfiguration config = MIBConfiguration.getInstance();
+			config.setThreadMethodIdxRecord(toSerialize);
+			
+			String fileName = "./config/mib_config.json";
+			GsonManager.writeJsonGeneric(config, fileName, configToken, -1);
+		}
 	}
 	
 	public static void selectDominantGraphs() {

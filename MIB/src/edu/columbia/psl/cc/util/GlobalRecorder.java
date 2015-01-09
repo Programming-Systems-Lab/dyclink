@@ -194,6 +194,10 @@ public class GlobalRecorder {
 				":" + StringUtil.cleanPunc(methodName);
 		
 		synchronized(nameLock) {
+			if (globalNameMap.containsKey(fullName)) {
+				return globalNameMap.get(fullName);
+			}
+			
 			int shortNameCount = -1;
 			if (shortNameCounter.containsKey(shortNameNoKey)) {
 				shortNameCount = shortNameCounter.get(shortNameNoKey).getAndIncrement();
@@ -211,6 +215,10 @@ public class GlobalRecorder {
 	
 	public static String getGlobalName(String fullName) {
 		return globalNameMap.get(fullName);
+	}
+	
+	public static void setGlobalNameMap(HashMap<String, String> globalNameMap) {
+		GlobalRecorder.globalNameMap = globalNameMap;
 	}
 	
 	public static HashMap<String, String> getGlobalNameMap() {

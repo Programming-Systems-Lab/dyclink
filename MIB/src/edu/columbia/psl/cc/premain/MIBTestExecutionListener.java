@@ -53,20 +53,18 @@ public class MIBTestExecutionListener extends RunListener{
 		//Set inst pool, cannot set it in static initializer, or there will be infinite loop
 		InstPool.DEBUG = MIBConfiguration.getInstance().isDebug();
 		
-		File nameMapFile = new File(MIBConfiguration.getInstance().getLabelmapDir() + "/nameMap.json");
-		TypeToken<NameMap> nameMapToken = new TypeToken<NameMap>(){};
-		if (nameMapFile.exists()) {
-			NameMap lastNameMap = GsonManager.readJsonGeneric(nameMapFile, nameMapToken);
-			HashMap<Integer, Integer> oldRecord = lastNameMap.getThreadMethodIdxRecord();
+		//Clean directory
+		GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());
+		
+		if (MIBConfiguration.getInstance().getThreadMethodIdxRecord().size() > 0) {
+			HashMap<Integer, Integer> oldRecord = MIBConfiguration.getInstance().getThreadMethodIdxRecord();
 			
 			for (Integer key: oldRecord.keySet()) {
 				int newIdx = oldRecord.get(key) + 1;
 				ObjectIdAllocater.setThreadMethodIndex(key, newIdx);
- 			}
+			}
 		}
 		
-		//Clean directory
-		GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());
 		System.out.println("Max memory: " + (Runtime.getRuntime().maxMemory()/mb));
 	}
 	
@@ -77,6 +75,7 @@ public class MIBTestExecutionListener extends RunListener{
 		for (String t: this.overTimeTestCases) {
 			System.out.println(t);
 		}
+		MIBDriver.updateConfig();
 		MIBDriver.serializeNameMap();
 	}
 	

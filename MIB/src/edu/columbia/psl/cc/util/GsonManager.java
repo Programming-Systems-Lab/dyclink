@@ -114,8 +114,10 @@ public class GsonManager {
 				f = new File(MIBConfiguration.getInstance().getTestDir() + "/" + fileName + ".json");
 			} else if (dirIdx == MIBConfiguration.LABEL_MAP_DIR) {
 				f = new File(MIBConfiguration.getInstance().getLabelmapDir() + "/" + fileName + ".json");
-			} else {
+			} else if (dirIdx == MIBConfiguration.CACHE_DIR){
 				f = new File(MIBConfiguration.getInstance().getCacheDir() + "/" + fileName);
+			} else {
+				f = new File(fileName);
 			}
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
 			bw.write(toWrite);
@@ -298,7 +300,7 @@ public class GsonManager {
 		//File cacheDir = new File(MIBConfiguration.getInstance().getCacheDir());
 		File pathDir = new File(MIBConfiguration.getInstance().getPathDir());
 		File costDir = new File(MIBConfiguration.getInstance().getCostTableDir());
-		//File labelmapDir = new File(MIBConfiguration.getInstance().getLabelmapDir());
+		File labelmapDir = new File(MIBConfiguration.getInstance().getLabelmapDir());
 		
 		if (cleanTemp)
 			cleanDir(tempDir);
@@ -310,7 +312,7 @@ public class GsonManager {
 		//cleanDir(cacheDir);
 		cleanDir(pathDir);
 		cleanDir(costDir);
-		//cleanDir(labelmapDir);
+		cleanDir(labelmapDir);
 	}
 	
 	public static void writeResult(StringBuilder sb) {
