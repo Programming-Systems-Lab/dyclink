@@ -262,8 +262,14 @@ public class GlobalRecorder {
 				HashMap<String, GraphTemplate> subRecord = graphRecorder.get(shortKey);
 				
 				if (checkRecursiveMethod(shortKey)) {
-					subRecord.clear();
-					subRecord.put(groupKey, graph);
+					if (!subRecord.containsKey(groupKey)) {
+						subRecord.put(groupKey, graph);
+					} else {
+						GraphTemplate inRecord = subRecord.get(groupKey);
+						if (graph.getThreadMethodId() < inRecord.getThreadMethodId()) {
+							subRecord.put(groupKey, graph);
+						}
+					}
 				} else {
 					if (!subRecord.containsKey(groupKey))
 						subRecord.put(groupKey, graph);

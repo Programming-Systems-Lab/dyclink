@@ -781,10 +781,15 @@ public class MethodStackRecorder {
 						//relatedInst.removeRelatedObj();
 					}
 					
-					String fullKeyWithThreadId = StringUtil.genKeyWithId(childGraph.getMethodKey(), String.valueOf(this.threadId));				
-					String fullKeyWithThreadObjId = StringUtil.genKeyWithObjId(fullKeyWithThreadId, objId);
+					if (childGraph.getObjId() == this.objId 
+							&& childGraph.getMethodName().equals(this.methodName) 
+							&& childGraph.getMethodDesc().equals(this.methodDesc)) {
+						GlobalRecorder.registerRecursiveMethod(childGraph.getShortMethodKey());
+					}
 					
-					boolean similar = false;
+					/*String fullKeyWithThreadId = StringUtil.genKeyWithId(childGraph.getShortMethodKey(), String.valueOf(childGraph.getThreadId()));				
+					String fullKeyWithThreadObjId = StringUtil.genKeyWithObjId(fullKeyWithThreadId, objId);*/
+					
 					fullInst.registerCallee(childGraph);
 					this.latestWriteFieldRecorder.putAll(childGraph.getLatestWriteFields());
 					

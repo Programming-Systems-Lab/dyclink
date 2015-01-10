@@ -28,6 +28,7 @@ import edu.columbia.psl.cc.pojo.HotZone;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.NameMap;
+import edu.columbia.psl.cc.util.GraphConstructor;
 import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.SearchUtil;
@@ -191,8 +192,6 @@ public class PageRankSelector {
 	public List<InstWrapper> computePageRank() {
 		Hypergraph<InstNode, WeightedEdge> jungGraph = this.convertToJungGraph();
 		//Hypergraph<InstNode, Integer> jungGraph = this.convertToJungGraph2();
-		logger.info("Vertex size: " + jungGraph.getVertexCount());
-		logger.info("Edge size: " + jungGraph.getEdgeCount());
 		
 		/*System.out.println("Check edge");
 		for (WeightedEdge we: jungGraph.getEdges()) {
@@ -211,12 +210,12 @@ public class PageRankSelector {
 		//PageRankWithPriors<InstNode, Integer> ranker = null;
 		PageRankWithPriors<InstNode, WeightedEdge> ranker = null;
 		if (this.priors == null) {
-			logger.info("Rank without priors");
+			//logger.info("Rank without priors");
 			ranker = new PageRank<InstNode, WeightedEdge>(jungGraph, edgeWeights, alpha);
 			//ranker.setEdgeWeights(edgeWeights);
 			//ranker = new PageRank<InstNode, Integer>(jungGraph, alpha);
 		} else {
-			logger.info("Rank with priors");
+			//logger.info("Rank with priors");
 			Transformer<InstNode, Double> transformer = new Transformer<InstNode, Double>() {
 				@Override
 				public Double transform(InstNode inst) {
@@ -280,9 +279,16 @@ public class PageRankSelector {
 			if (seg.size() < subProfile.pgRep.length * 0.8) {
 				logger.info("Give up too-short assignment: " + inst + " size " + seg.size());
 				continue ;
+			} else {
+				double[] segDist = ChiTester.genDistribution(seg);
+				double[] subDist = subProfile.instDist;
+				
+				if (ChiTester.shouldTest(subDist, subProfile.pgRep.length, segDist, seg.size())) {
+					candSegs.put(inst, seg);
+				} else {
+					logger.info("Give up less likely inst: " + inst);
+				}
 			}
-			
-			candSegs.put(inst, seg);
 		}
 		return candSegs;
 	}
@@ -298,7 +304,7 @@ public class PageRankSelector {
 		PageRankSelector subSelector = new PageRankSelector(subGraph.getInstPool(), false, true);
 		List<InstWrapper> subRank = subSelector.computePageRank();
 		int[] subPGRep = SearchUtil.generatePageRankRep(subRank);
-		logger.info("Sub graph PageRank: " + Arrays.toString(subPGRep));
+		//logger.info("Sub graph PageRank: " + Arrays.toString(subPGRep));
 		
 		//Use the most important inst as the central to collect insts in target
 		InstNode subCentroid = subRank.get(0).inst;
@@ -324,6 +330,7 @@ public class PageRankSelector {
 		gp.before = before;
 		gp.after = after;
 		gp.pgRep = subPGRep;
+		gp.instDist = subGraph.getDist();
 		
 		return gp;
 	}
@@ -365,6 +372,8 @@ public class PageRankSelector {
 				continue ;
 			}
 			
+			GraphConstructor.reconstructGraph(tempGraph);
+			
 			GraphProfile tempProfile = profileGraph(tempGraph);
 			if (tempProfile == null) {
 				logger.warn("Empty graph: " + tempGraph.getMethodKey());
@@ -380,6 +389,8 @@ public class PageRankSelector {
 				}
 				
 				GraphTemplate testGraph = tests.get(testName);
+				GraphConstructor.reconstructGraph(testGraph);
+				
 				logger.info("Test name: " + testGraph.getMethodKey());
 				logger.info("Inst node size: " + testGraph.getInstPool().size());
 				
@@ -439,6 +450,7 @@ public class PageRankSelector {
 	}
 				
 	public static void main(String[] args) {
+		long startTime = System.currentTimeMillis();
 		String templateDir = MIBConfiguration.getInstance().getTemplateDir();
 		String testDir = MIBConfiguration.getInstance().getTestDir();
 				
@@ -449,6 +461,7 @@ public class PageRankSelector {
 		logger.info("Epsilon: " + epsilon);
 		
 		initiateSubGraphMining(templateDir, testDir);
+		System.out.println("Execution time: " + (System.currentTimeMillis() - startTime));
 	}
 	
 	private static class GraphProfile {
@@ -459,6 +472,8 @@ public class PageRankSelector {
 		int after; 
 		
 		int[] pgRep;
+		
+		double[] instDist;
 	}
 	
 	private static class WeightedEdge {
@@ -491,7 +506,10 @@ public class PageRankSelector {
 				String targetGraphName) {
 			List<InstNode> sortedTarget = GraphUtil.sortInstPool(targetGraph.getInstPool(), true);
 			
-			HashSet<InstNode> miAssignments = SearchUtil.possibleSingleAssignment(subProfile.centroidWrapper.inst, targetGraph);
+			double geoPercent = ((double)(subProfile.before + 1))/ (subProfile.before + 1 + subProfile.after);
+			HashSet<InstNode> miAssignments = SearchUtil.possibleSingleAssignment(subProfile.centroidWrapper.inst, 
+					sortedTarget, 
+					geoPercent);
 			logger.info("Target graph vs Sub graph: " + targetGraphName + " " + subGraphName);
 			logger.info("Thread index: " + crawlerId);
 			logger.info("Possible assignments: " + miAssignments.size());

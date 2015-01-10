@@ -155,11 +155,19 @@ public class GraphConstructor {
 	}
 	
 	public static void main(String[] args) {
-		File testFile = new File("./test/cc.expbase.TemplateMethod:call2:0:0:6.json");
+		File testFile = new File("./test/Jama.SingularValueDecomposition:<init>:0:0:2.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
 		reconstructGraph(testGraph);
 		System.out.println("Recorded graph size: " + testGraph.getVertexNum());
 		System.out.println("Actual graph size: " + testGraph.getInstPool().size());
+		
+		System.out.println("Recorded vertex size: " + testGraph.getEdgeNum());
+		int eCount = 0;
+		for (InstNode inst: testGraph.getInstPool()) {
+			eCount += inst.getChildFreqMap().size();
+		}
+		System.out.println("Actual edge size: " + eCount);
+		
 		String fileName = testGraph.getShortMethodKey() + "_re";
 		GsonManager.writeJsonGeneric(testGraph, fileName, graphToken, MIBConfiguration.TEST_DIR);
 	}

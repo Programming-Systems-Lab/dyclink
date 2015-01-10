@@ -19,8 +19,6 @@ public class MethodNode extends InstNode {
 	
 	public static GraphTemplate extractCallee(HashMap<String, GraphWithFreq> callees, int maxGraphFreq) {
 		GraphTemplate ret = null;
-		//logger.info("All group: " + callees.keySet());
-		//logger.info("Max freq: " + maxGraphFreq);
 		for (GraphWithFreq graF: callees.values()) {
 			if (graF.freq == maxGraphFreq) {
 				if (ret == null) {

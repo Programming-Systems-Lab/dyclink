@@ -1,5 +1,6 @@
 package edu.columbia.psl.cc.util;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -82,24 +83,38 @@ public class SearchUtil {
 		return sortByStart;
 	}
 	
-	public static HashMap<InstNode, HashSet<InstNode>> possibleAssignments(GraphTemplate target, GraphTemplate sub) {
+	/*public static HashMap<InstNode, HashSet<InstNode>> possibleAssignments(GraphTemplate target, GraphTemplate sub) {
 		HashMap<InstNode, HashSet<InstNode>> ret = new HashMap<InstNode, HashSet<InstNode>>();
 		
 		for (InstNode childNode: sub.getInstPool()) {
-			ret.put(childNode, possibleSingleAssignment(childNode, target));
+			ret.put(childNode, possibleSingleAssignment(childNode, target.getInstPool()));
 		}
 		
 		return ret;
-	}
+	}*/
 	
-	public static HashSet<InstNode> possibleSingleAssignment(InstNode subNode, GraphTemplate target) {
+	public static HashSet<InstNode> possibleSingleAssignment(InstNode subNode, 
+			List<InstNode> targetPool, double geoPercent) {
 		HashSet<InstNode> ret = new HashSet<InstNode>();
 		
-		for (InstNode targetNode: target.getInstPool()) {
-			if (targetNode.getOp().getOpcode() == subNode.getOp().getOpcode()) {
+		for (InstNode targetNode: targetPool) {
+			
+			/*if (targetNode.getOp().getOpcode() == subNode.getOp().getOpcode()) {
+				ret.add(targetNode);
+			}*/
+			
+			if (targetNode.getOp().getCatId() == subNode.getOp().getCatId()) {
 				ret.add(targetNode);
 			}
 		}
+		
+		//Locate geo center
+		int center = (int)(targetPool.size() * geoPercent);
+		if (center >= targetPool.size()) {
+			center--;
+		}
+		InstNode centerNode = targetPool.get(center);
+		ret.add(centerNode);
 		
 		return ret;
 	}
