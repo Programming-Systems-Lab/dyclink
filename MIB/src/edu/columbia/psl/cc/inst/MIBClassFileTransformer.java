@@ -68,6 +68,7 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 				
 				return cw.toByteArray();
 			} catch (Exception ex) {
+				System.out.println("Class name: " + className);
 				ex.printStackTrace();
 			}
 		}

@@ -684,7 +684,8 @@ public class MethodStackRecorder {
 		try {
 			String ownerName = owner.replace("/", ".");
 			String curMethodKey = StringUtil.genKey(owner, name, desc);
-			if (!StringUtil.shouldInclude(ownerName)) {
+			if (Type.getType(owner).getSort() == Type.ARRAY 
+					|| !StringUtil.shouldInclude(ownerName)) {
 				InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 						this.threadId, 
 						this.threadMethodId, 
@@ -743,8 +744,21 @@ public class MethodStackRecorder {
 					return ;
 				}
 				
+				//logger.info("Before retrieve: " + owner + " " + name + " " + desc);
+				//GlobalRecorder.checkLatestGraphs();
 				GraphTemplate childGraph = GlobalRecorder.getLatestGraph(this.threadId);
-				if (!childGraph.getMethodName().equals(name) || !childGraph.getMethodDesc().equals(desc)) {
+				if (childGraph == null) {
+					logger.warn("No child graph can be retrieved: " + realMethodKey);
+					InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
+							this.threadId, 
+							this.threadMethodId, 
+							instIdx, 
+							opcode, 
+							curMethodKey, 
+							false);
+					this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
+					return ;
+				} else if (!childGraph.getMethodName().equals(name) || !childGraph.getMethodDesc().equals(desc)) {
 					logger.error("Incompatible graph: " + childGraph.getMethodKey());
 					logger.error("Wanted: " + owner + " " + name + " " + desc);
 					InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
@@ -1296,7 +1310,7 @@ public class MethodStackRecorder {
 			return ;
 		
 		if (GlobalRecorder.checkUndersizedMethod(this.shortMethodKey)) {
-			logger.info("Leave " + 
+			logger.info("Leave " + " undersized" +
 					" " + this.methodKey + 
 					" " + this.threadId + 
 					" " + this.threadMethodId);

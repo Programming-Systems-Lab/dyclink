@@ -56,7 +56,7 @@ public class PageRankSelector {
 	
 	private static double simThreshold = MIBConfiguration.getInstance().getSimThreshold();
 	
-	private static String header = "template,test,pgrank_template,c_template,ct_line,s_test,s_line,c_test,c_line,e_test,e_line,seg_size,dist,similarity\n";
+	private static String header = "template,test,pgrank_template,c_template,ct_line,s_test,s_line,c_test,c_line,e_test,e_line,seg_size,inst_dist,dist,similarity\n";
 	
 	private static Comparator<InstWrapper> pageRankSorter = new Comparator<InstWrapper>() {
 		public int compare(InstWrapper i1, InstWrapper i2) {
@@ -251,10 +251,10 @@ public class PageRankSelector {
 		return ret;
 	}
 	
-	public static HashMap<InstNode, List<InstNode>> locateSegments(HashSet<InstNode> assignments, 
+	public static HashMap<InstNode, SegInfo> locateSegments(HashSet<InstNode> assignments, 
 			List<InstNode> sortedTarget, 
 			GraphProfile subProfile) {
-		HashMap<InstNode, List<InstNode>> candSegs = new HashMap<InstNode, List<InstNode>>();
+		HashMap<InstNode, SegInfo> candSegs = new HashMap<InstNode, SegInfo>();
 		for (InstNode inst: assignments) {
 			List<InstNode> seg = new ArrayList<InstNode>();
 			
@@ -281,13 +281,25 @@ public class PageRankSelector {
 				continue ;
 			} else {
 				double[] segDist = ChiTester.genDistribution(seg);
-				double[] subDist = subProfile.instDist;
+				//double[] subDist = subProfile.instDist;
 				
-				if (ChiTester.shouldTest(subDist, subProfile.pgRep.length, segDist, seg.size())) {
-					candSegs.put(inst, seg);
+				SegInfo si = new SegInfo();
+				si.seg = seg;
+				si.normInstDistribution = ChiTester.normalizeDist(segDist, seg.size());;
+				si.instDistWithSub = ChiTester.normalizeEucDistance(subProfile.normDist, 
+						si.normInstDistribution);
+				
+				if (si.instDistWithSub <= 0.2) {
+					candSegs.put(inst, si);
 				} else {
 					logger.info("Give up less likely inst: " + inst);
 				}
+				
+				/*if (ChiTester.shouldTest(subDist, subProfile.pgRep.length, segDist, seg.size())) {
+					candSegs.put(inst, seg);
+				} else {
+					logger.info("Give up less likely inst: " + inst);
+				}*/
 			}
 		}
 		return candSegs;
@@ -331,6 +343,7 @@ public class PageRankSelector {
 		gp.after = after;
 		gp.pgRep = subPGRep;
 		gp.instDist = subGraph.getDist();
+		gp.normDist = ChiTester.normalizeDist(gp.instDist, gp.pgRep.length);
 		
 		return gp;
 	}
@@ -437,6 +450,7 @@ public class PageRankSelector {
 							"," + hit.getEndInst() + 
 							"," + hit.getEndInst().getLinenumber() +
 							"," + hit.getSegs().size() + 
+							"," + hit.getInstDistance() +
 							"," + hit.getLevDist() + 
 							"," + hit.getSimilarity() + "\n");
 					sb.append(rawRecorder);
@@ -464,6 +478,14 @@ public class PageRankSelector {
 		System.out.println("Execution time: " + (System.currentTimeMillis() - startTime));
 	}
 	
+	private static class SegInfo {
+		List<InstNode> seg;
+		
+		double[] normInstDistribution;
+		
+		double instDistWithSub;
+	}
+	
 	private static class GraphProfile {
 		InstWrapper centroidWrapper;
 		
@@ -474,6 +496,8 @@ public class PageRankSelector {
 		int[] pgRep;
 		
 		double[] instDist;
+		
+		double[] normDist;
 	}
 	
 	private static class WeightedEdge {
@@ -514,12 +538,13 @@ public class PageRankSelector {
 			logger.info("Thread index: " + crawlerId);
 			logger.info("Possible assignments: " + miAssignments.size());
 			logger.info("Sub-graph size: " + subProfile.pgRep.length);
-			HashMap<InstNode, List<InstNode>> candSegs = locateSegments(miAssignments, sortedTarget, subProfile);
+			HashMap<InstNode, SegInfo> candSegs = locateSegments(miAssignments, sortedTarget, subProfile);
 			logger.info("Real assignments: " + candSegs.size());
 			List<HotZone> hits = new ArrayList<HotZone>();
 			
 			for (InstNode cand: candSegs.keySet()) {
-				List<InstNode> segments = candSegs.get(cand);
+				SegInfo segInfo = candSegs.get(cand);
+				List<InstNode> segments = segInfo.seg;
 				InstPool segPool = new InstPool();
 				segPool.addAll(segments);
 				
@@ -545,6 +570,7 @@ public class PageRankSelector {
 					zone.setEndInst(segments.get(segments.size() - 1));
 					zone.setLevDist(dist);
 					zone.setSimilarity(sim);
+					zone.setInstDistance(segInfo.instDistWithSub);
 					zone.setSegs(segPool);
 					zone.setSubGraphName(subGraphName);
 					zone.setTargetGraphName(targetGraphName);

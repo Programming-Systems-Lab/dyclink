@@ -18,6 +18,8 @@ public class HotZone {
 	
 	private double similarity;
 	
+	private double instDistance;
+	
 	private InstPool subGraph;
 	
 	private InstPool segs;
@@ -80,6 +82,14 @@ public class HotZone {
 
 	public void setSimilarity(double similarity) {
 		this.similarity = similarity;
+	}
+	
+	public double getInstDistance() {
+		return this.instDistance;
+	}
+	
+	public void setInstDistance(double instDistance) {
+		this.instDistance = instDistance;
 	}
 
 	public InstPool getSubGraph() {

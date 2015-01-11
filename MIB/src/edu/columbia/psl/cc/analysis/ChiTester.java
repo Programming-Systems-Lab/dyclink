@@ -57,7 +57,7 @@ public class ChiTester {
 		
 		double eucDistance = normalizeEucDistance(norm1, norm2);
 		
-		if (eucDistance > 0.3)
+		if (eucDistance > 0.2)
 			return false;
 		else
 			return true;

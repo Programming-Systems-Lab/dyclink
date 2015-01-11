@@ -27,6 +27,11 @@ public class YAMethod {
 		TemplateMethod tp = new TemplateMethod();
 		System.out.println(tp.getClass().getName());
 		System.out.println(Type.getInternalName(tp.getClass()));
+		System.out.println(Type.getType("[D").getInternalName());
+		System.out.println(Type.ARRAY);
+		System.out.println(Type.getType("cc/expbase/TemplateMethod").getSort());
+		System.out.println(Type.METHOD);
+		Object[] o = new Object[5];
 		
 		
 		//HashMap<String, Object> h1 = new HashMap<String, Object>();

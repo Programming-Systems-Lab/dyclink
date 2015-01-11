@@ -124,6 +124,7 @@ public class SearchUtil {
 		int counter = 0;
 		for (InstWrapper iw: pgList) {
 			ret[counter++] = iw.inst.getOp().getOpcode();
+			//ret[counter++] = iw.inst.getOp().getCatId();
 		}
 		return ret;
 	}

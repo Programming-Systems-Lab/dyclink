@@ -50,7 +50,7 @@ public class GlobalRecorder {
 	//private static HashMap<String, List<GraphTemplate>> graphRecorder = new HashMap<String, List<GraphTemplate>>();
 	private static HashMap<String, HashMap<String, GraphTemplate>> graphRecorder = new HashMap<String, HashMap<String, GraphTemplate>>();
 	
-	private static HashMap<Long, GraphTemplate> latestGraphs = new HashMap<Long, GraphTemplate>();
+	private static HashMap<Integer, GraphTemplate> latestGraphs = new HashMap<Integer, GraphTemplate>();
 	
 	private static Object timeLock = new Object();
 	
@@ -285,7 +285,7 @@ public class GlobalRecorder {
 			}
 			
 			if (registerLatest) {
-				long threadId = ObjectIdAllocater.getThreadId();
+				int threadId = ObjectIdAllocater.getThreadId();
 				latestGraphs.put(threadId, graph);
 			}
 		}
@@ -293,7 +293,7 @@ public class GlobalRecorder {
 	
 	public static void recoverLatestGraph(GraphTemplate latestGraph) {
 		synchronized(graphRecorderLock) {
-			long threadId = ObjectIdAllocater.getThreadId();
+			int threadId = ObjectIdAllocater.getThreadId();
 			latestGraphs.put(threadId, latestGraph);
 		}
 	}
@@ -309,9 +309,17 @@ public class GlobalRecorder {
 		}
 	}*/
 	
-	public static GraphTemplate getLatestGraph(long threadId) {
+	public static GraphTemplate getLatestGraph(int threadId) {
 		synchronized(graphRecorderLock) {
 			return latestGraphs.remove(threadId);
+		}
+	}
+	
+	public static void checkLatestGraphs() {
+		//System.out.println(latestGraphs);
+		for (Integer key: latestGraphs.keySet()) {
+			System.out.println("Thread id: " + key);
+			System.out.println(latestGraphs.get(key).getMethodKey());
 		}
 	}
 	

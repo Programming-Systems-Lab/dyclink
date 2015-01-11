@@ -56,7 +56,8 @@ public class MIBTestExecutionListener extends RunListener{
 		//Clean directory
 		GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());
 		
-		if (MIBConfiguration.getInstance().getThreadMethodIdxRecord().size() > 0) {
+		HashMap<Integer, Integer> threadMethodIdxRecord = MIBConfiguration.getInstance().getThreadMethodIdxRecord();
+		if (threadMethodIdxRecord != null && threadMethodIdxRecord.size() > 0) {
 			HashMap<Integer, Integer> oldRecord = MIBConfiguration.getInstance().getThreadMethodIdxRecord();
 			
 			for (Integer key: oldRecord.keySet()) {
