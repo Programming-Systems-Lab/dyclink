@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.List;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -16,6 +17,7 @@ import edu.columbia.psl.cc.annot.analyzeClass;
 import edu.columbia.psl.cc.annot.extractTemplate;
 import edu.columbia.psl.cc.annot.testTemplate;
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class MIBClassFileTransformer implements ClassFileTransformer {
@@ -34,18 +36,30 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 			byte[] classfileBuffer) throws IllegalClassFormatException {
 		// TODO Auto-generated method stub
 		
+		String name = className.replace("/", ".");
+		//System.out.println("Class Name: " + name);
+		
+		
 		//Check protection domain
-		if (protectionDomain != null) {
-			if (protectionDomain.getCodeSource().getLocation().getPath().contains("test")) {
+		if (protectionDomain != null) {			
+			String codeLocation = protectionDomain.getCodeSource().getLocation().getPath();
+			if (StringUtil.isTestClass(codeLocation)) {
+				MIBConfiguration.getInstance().getExcludeClass().add(name);
 				return classfileBuffer;
-			}
+			} /*else {
+				System.out.println("Code location: " + codeLocation);
+			}*/
+			
+			/*if (protectionDomain.getCodeSource().getLocation().getPath().contains("test")) {
+				return classfileBuffer;
+			}*/
 		}
 		
-		String name = className.replace("/", ".");
-		if (StringUtil.shouldInclude(name)) {
+		if (StringUtil.shouldIncludeClass(name)) {
 			//Start the instrumentation here;
 			try {
-				ClassReader cr = new ClassReader(name);
+				//ClassReader cr = new ClassReader(name);
+				ClassReader cr = new ClassReader(classfileBuffer);
 				ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
 				ClassMiner cm = new ClassMiner(new CheckClassAdapter(cw, false), 
 						name.replace(".", "/"), classAnnot, templateAnnot, testAnnot);
@@ -68,7 +82,6 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 				
 				return cw.toByteArray();
 			} catch (Exception ex) {
-				System.out.println("Class name: " + className);
 				ex.printStackTrace();
 			}
 		}

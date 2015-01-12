@@ -2,6 +2,7 @@ package edu.columbia.psl.cc.config;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import com.google.gson.reflect.TypeToken;
@@ -77,6 +78,8 @@ public class MIBConfiguration {
 	public static int CACHE_DIR = 3;
 	
 	private List<String> excludeClass;
+	
+	private List<String> testPaths;
 	
 	private String opTablePath;
 	
@@ -275,6 +278,14 @@ public class MIBConfiguration {
 	
 	public void setExcludeClass(List<String> excludeClass) {
 		this.excludeClass = excludeClass;
+	}
+	
+	public List<String> getTestPaths() {
+		return this.testPaths;
+	}
+	
+	public void setTestPaths(List<String> testPaths) {
+		this.testPaths = testPaths;
 	}
 	
 	public String getOpTablePath() {

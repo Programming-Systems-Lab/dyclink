@@ -15,13 +15,35 @@ public class StringUtil {
 	
 	private static final Pattern shouldRemove = Pattern.compile("[](){},.;!?\\/%]");
 	
-	public static boolean shouldInclude(String name) {
+	public static boolean shouldIncludeClass(String name) {
 		List<String> excludeClass = MIBConfiguration.getInstance().getExcludeClass();
 		for (String exclude: excludeClass) {
 			if (name.startsWith(exclude))
 				return false;
 		}
 		return true;
+	}
+	
+	public static boolean isTestClass(String path) {
+		List<String> testPaths = MIBConfiguration.getInstance().getTestPaths();
+		
+		if (testPaths == null) {
+			return false;
+		}
+		
+		return testPaths.contains(path);
+	}
+	
+	public static boolean shouldIncludeMethod(String methodName, String methodDesc) {
+		if (methodName.equals("toString") && Type.getReturnType(methodDesc).equals(Type.getType(String.class))) {
+			return false;
+		} else if (methodName.equals("equals") && Type.getReturnType(methodDesc).equals(Type.BOOLEAN_TYPE)) {
+			return false;
+		} else if (methodName.equals("hashCode") && Type.getReturnType(methodDesc).equals(Type.INT_TYPE)) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 	
 	public static String removeUUID(String name) {

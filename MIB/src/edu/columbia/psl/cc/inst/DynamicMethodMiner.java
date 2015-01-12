@@ -390,7 +390,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		
 		if (this.shouldInstrument()) {
 			String superReplace = this.superName.replace("/", ".");
-			if (StringUtil.shouldInclude(superReplace)) {
+			if (StringUtil.shouldIncludeClass(superReplace)) {
 				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 				this.mv.visitFieldInsn(Opcodes.GETFIELD, this.superName, MIBConfiguration.getMibId(), "I");

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
+import edu.columbia.psl.cc.util.StringUtil;
 
 import org.apache.log4j.Logger;
 import org.objectweb.asm.AnnotationVisitor;
@@ -101,13 +102,15 @@ public class ClassMiner extends ClassVisitor{
 			if (name.equals("<init>")) {
 				constructVisit = true;
 				//System.out.println("Constructor visit code");
-			} else if (name.equals("toString") && Type.getReturnType(desc).equals(Type.getType(String.class))) {
+			} else if (!StringUtil.shouldIncludeMethod(name, desc)) {
+				return mv;
+			} /*else if (name.equals("toString") && Type.getReturnType(desc).equals(Type.getType(String.class))) {
 				return mv;
 			} else if (name.equals("equals") && Type.getReturnType(desc).equals(Type.BOOLEAN_TYPE)) {
 				return mv;
 			} else if (name.equals("hashCode") && Type.getReturnType(desc).equals(Type.INT_TYPE)) {
 				return mv;
-			}
+			}*/
 			
 			DynamicMethodMiner dmm =  new DynamicMethodMiner(mv, 
 					this.owner, 

@@ -682,21 +682,9 @@ public class MethodStackRecorder {
 		int endIdx = cmi.endIdx;
 		
 		try {
-			String ownerName = owner.replace("/", ".");
+			//String ownerName = owner.replace("/", ".");
 			String curMethodKey = StringUtil.genKey(owner, name, desc);
-			if (Type.getType(owner).getSort() == Type.ARRAY 
-					|| !StringUtil.shouldInclude(ownerName)) {
-				InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
-						this.threadId, 
-						this.threadMethodId, 
-						instIdx, 
-						opcode, 
-						curMethodKey, 
-						false);
-				this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
-				//System.out.println("Recorder time: " + (System.nanoTime() - startTime));
-				return ;
-			} else if (TimeController.isOverTime()) {
+			if (TimeController.isOverTime()) {
 				InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 						this.threadId, 
 						this.threadMethodId, 
@@ -732,7 +720,10 @@ public class MethodStackRecorder {
 				}
 				
 				String realMethodKey = StringUtil.genKey(correctClass.getName(), name, desc);
-				if (GlobalRecorder.checkUndersizedMethod(GlobalRecorder.getGlobalName(realMethodKey))) {
+				if (Type.getType(owner).getSort() == Type.ARRAY 
+						|| !StringUtil.shouldIncludeClass(correctClass.getName()) 
+						|| !StringUtil.shouldIncludeMethod(name, desc)
+						|| GlobalRecorder.checkUndersizedMethod(GlobalRecorder.getGlobalName(realMethodKey))) {
 					InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 							this.threadId, 
 							this.threadMethodId, 
@@ -748,7 +739,7 @@ public class MethodStackRecorder {
 				//GlobalRecorder.checkLatestGraphs();
 				GraphTemplate childGraph = GlobalRecorder.getLatestGraph(this.threadId);
 				if (childGraph == null) {
-					logger.warn("No child graph can be retrieved: " + realMethodKey);
+					logger.error("No child graph can be retrieved: " + realMethodKey);
 					InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 							this.threadId, 
 							this.threadMethodId, 
@@ -760,7 +751,7 @@ public class MethodStackRecorder {
 					return ;
 				} else if (!childGraph.getMethodName().equals(name) || !childGraph.getMethodDesc().equals(desc)) {
 					logger.error("Incompatible graph: " + childGraph.getMethodKey());
-					logger.error("Wanted: " + owner + " " + name + " " + desc);
+					logger.error("Wanted: " + correctClass.getName() + " " + name + " " + desc);
 					InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 							this.threadId, 
 							this.threadMethodId, 
@@ -966,7 +957,7 @@ public class MethodStackRecorder {
 			}
 			
 			logger.info("Method owner: " + correctClass.getName());
-			if (!StringUtil.shouldInclude(correctClass.getName())) {
+			if (!StringUtil.shouldIncludeClass(correctClass.getName())) {
 				logger.info("Should not include: " + correctClass.getName());
 				String curMethodKey = StringUtil.genKey(correctClass.getName(), name, desc);
 				InstNode fullInst = this.pool.searchAndGet(this.methodKey, 

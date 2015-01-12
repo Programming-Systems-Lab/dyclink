@@ -20,7 +20,7 @@ public class YAMethod {
 		target.add(3);
 	}
 	
-	public static void main(String[] ars) {
+	public static void main(String[] ars) throws ClassNotFoundException {
 		//YAMethod ym = new YAMethod();
 		//int b = TemplateMethod.parentVar;
 		//int c = TemplateMethod.sVar;
@@ -32,7 +32,7 @@ public class YAMethod {
 		System.out.println(Type.getType("cc/expbase/TemplateMethod").getSort());
 		System.out.println(Type.METHOD);
 		Object[] o = new Object[5];
-		
+		System.out.println(Class.forName("cc.expbase.TemplateMethod").getProtectionDomain().getCodeSource().getLocation().getPath());
 		
 		//HashMap<String, Object> h1 = new HashMap<String, Object>();
 		//HashMap<String, Object> h2 = new HashMap<String, Object>();
