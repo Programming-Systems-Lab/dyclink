@@ -43,12 +43,13 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 		//Check protection domain
 		if (protectionDomain != null) {			
 			String codeLocation = protectionDomain.getCodeSource().getLocation().getPath();
+			//System.out.println("Class name: " + className);
+			//System.out.println("Code location: " + codeLocation);
+			//System.out.println("Is test class: " + StringUtil.isTestClass(codeLocation));
 			if (StringUtil.isTestClass(codeLocation)) {
 				MIBConfiguration.getInstance().getExcludeClass().add(name);
 				return classfileBuffer;
-			} /*else {
-				System.out.println("Code location: " + codeLocation);
-			}*/
+			}
 			
 			/*if (protectionDomain.getCodeSource().getLocation().getPath().contains("test")) {
 				return classfileBuffer;
@@ -58,6 +59,8 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 		if (StringUtil.shouldIncludeClass(name)) {
 			//Start the instrumentation here;
 			try {
+				//byte[] copyBytes = new byte[classfileBuffer.length];
+				//System.arraycopy(classfileBuffer, 0, copyBytes, 0, classfileBuffer.length);
 				//ClassReader cr = new ClassReader(name);
 				ClassReader cr = new ClassReader(classfileBuffer);
 				ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);

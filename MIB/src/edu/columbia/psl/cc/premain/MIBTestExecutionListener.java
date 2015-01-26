@@ -66,6 +66,7 @@ public class MIBTestExecutionListener extends RunListener{
 			}
 		}
 		
+		TimeController.initTestMethodBaseTime();
 		System.out.println("Max memory: " + (Runtime.getRuntime().maxMemory()/mb));
 	}
 	
