@@ -18,6 +18,7 @@ import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
+import edu.columbia.psl.cc.pojo.MethodNode.MetaGraph;
 
 public class GraphConstructor {
 	
@@ -78,69 +79,73 @@ public class GraphConstructor {
 				
 				if (inst instanceof MethodNode) {				
 					MethodNode mn = (MethodNode)inst;
-					String calleeId = mn.getCalleeInfo().domCalleeIdx;
+					
 					String mnId = StringUtil.genIdxKey(mn.getThreadId(), mn.getThreadMethodIdx(), mn.getIdx());
-					
-					File f = new File(baseDir + "/" + calleeId);
-					GraphTemplate callee = GsonManager.readJsonGeneric(f, graphToken);
-					reconstructGraph(callee);
-					toMerge.add(callee);
-					
-					if (lastBeforeReturn != null && inst.equals(lastBeforeReturn)) {
-						rawGraph.setLastBeforeReturn(callee.getLastBeforeReturn());
-					}
-					
-					HashSet<String> cReads = callee.getFirstReadLocalVars();
-					HashSet<InstNode> cReadNodes = new HashSet<InstNode>();
-					for (String cString: cReads) {
-						InstNode cReadNode = callee.getInstPool().searchAndGet(cString);
-						cReadNodes.add(cReadNode);
-					}
-					
-					if (mn.getCalleeInfo().parentReplay.size() > 0) {
-						HashMap<Integer, HashSet<InstNode>> parentFromCaller = retrieveParentsWithIdx(mn.getCalleeInfo().parentReplay, 
-								rawGraph.getInstPool());
-						
-						HashSet<InstNode> allParents = flattenParentMap(parentFromCaller.values());
-						double freq = maxFreqFromParents(allParents, mnId);
-						GraphUtil.multiplyGraph(callee, freq);	
-						GraphUtil.dataDepFromParentToChildWithFreq(parentFromCaller, cReadNodes, mnId, freq);
-					}
-					
-					if (mn.getControlParentList().size() > 0) {
-						HashSet<InstNode> controlInsts = GraphUtil.retrieveRequiredParentInsts(mn, 
-								rawGraph.getInstPool(), 
-								MIBConfiguration.CONTR_DEP);
-						
-						for (InstNode controlInst: controlInsts) {
-							double freq = controlInst.getChildFreqMap().get(mnId);
-							GraphUtil.controlDepFromParentToChildWithFreq(controlInst, cReadNodes, freq);
-							controlInst.getChildFreqMap().remove(mnId);
-						}
-					}
-					
 					TreeMap<String, Double> childMap = mn.getChildFreqMap();
-					if (childMap.size() > 0) {
-						String calleeChildReplaceId = mn.getCalleeInfo().childIdx;
-						InstNode calleeChildReplace = callee.getInstPool().searchAndGet(calleeChildReplaceId);
+					for (MetaGraph meta: mn.getCalleeInfo().metaCallees) {
+						String calleeId = meta.calleeIdx;
+						double frac = meta.normFreq;
 						
-						for (String childKey: childMap.keySet()) {
-							InstNode childNode = rawGraph.getInstPool().searchAndGet(childKey);
-							double cFreq = childMap.get(childKey);
+						File f = new File(baseDir + "/" + calleeId);
+						GraphTemplate callee = GsonManager.readJsonGeneric(f, graphToken);
+						reconstructGraph(callee);
+						toMerge.add(callee);
+						
+						//This means that the method call is the last inst, will only have 1 graph
+						if (lastBeforeReturn != null && inst.equals(lastBeforeReturn)) {
+							rawGraph.setLastBeforeReturn(callee.getLastBeforeReturn());
+						}
+						
+						HashSet<String> cReads = callee.getFirstReadLocalVars();
+						HashSet<InstNode> cReadNodes = new HashSet<InstNode>();
+						for (String cString: cReads) {
+							InstNode cReadNode = callee.getInstPool().searchAndGet(cString);
+							cReadNodes.add(cReadNode);
+						}
+						
+						if (mn.getCalleeInfo().parentReplay.size() > 0) {
+							HashMap<Integer, HashSet<InstNode>> parentFromCaller = retrieveParentsWithIdx(mn.getCalleeInfo().parentReplay, 
+									rawGraph.getInstPool());
 							
-							calleeChildReplace.increChild(childNode.getThreadId(), 
-									childNode.getThreadMethodIdx(), 
-									childNode.getIdx(), 
-									cFreq);
-							childNode.registerParent(calleeChildReplace.getThreadId(), 
-									calleeChildReplace.getThreadMethodIdx(), 
-									calleeChildReplace.getIdx(), 
-									MIBConfiguration.INST_DATA_DEP);
+							HashSet<InstNode> allParents = flattenParentMap(parentFromCaller.values());
+							double freq = maxFreqFromParents(allParents, mnId) * frac;
+							GraphUtil.multiplyGraph(callee, freq);	
+							GraphUtil.dataDepFromParentToChildWithFreq(parentFromCaller, cReadNodes, mnId, freq);
+						}
+						
+						if (mn.getControlParentList().size() > 0) {
+							HashSet<InstNode> controlInsts = GraphUtil.retrieveRequiredParentInsts(mn, 
+									rawGraph.getInstPool(), 
+									MIBConfiguration.CONTR_DEP);
 							
-							childNode.getInstDataParentList().remove(mnId);
+							for (InstNode controlInst: controlInsts) {
+								double freq = controlInst.getChildFreqMap().get(mnId) * frac;
+								GraphUtil.controlDepFromParentToChildWithFreq(controlInst, cReadNodes, freq);
+								controlInst.getChildFreqMap().remove(mnId);
+							}
+						}
+						
+						if (childMap.size() > 0) {
+							String calleeChildReplaceId = meta.lastInstString;
+							InstNode calleeChildReplace = callee.getInstPool().searchAndGet(calleeChildReplaceId);
+							
+							for (String childKey: childMap.keySet()) {
+								InstNode childNode = rawGraph.getInstPool().searchAndGet(childKey);
+								double cFreq = childMap.get(childKey) * frac;
+								
+								calleeChildReplace.increChild(childNode.getThreadId(), 
+										childNode.getThreadMethodIdx(), 
+										childNode.getIdx(), 
+										cFreq);
+								childNode.registerParent(calleeChildReplace.getThreadId(), 
+										calleeChildReplace.getThreadMethodIdx(), 
+										calleeChildReplace.getIdx(), 
+										MIBConfiguration.INST_DATA_DEP);
+								
+								childNode.getInstDataParentList().remove(mnId);
+							}
 						}
 					}
-					
 					instIt.remove();
 				}
 			}

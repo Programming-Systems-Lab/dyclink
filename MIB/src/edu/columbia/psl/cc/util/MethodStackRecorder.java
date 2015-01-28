@@ -1344,30 +1344,33 @@ public class MethodStackRecorder {
 			
 			if (curInst instanceof MethodNode) {
 				MethodNode mn = (MethodNode) curInst;
-				//logger.info("Extract: " + mn.getAddInfo());
-				GraphTemplate repCallee = MethodNode.extractCallee(mn.getCallees(), mn.getMaxCalleeFreq());
+				//GraphTemplate repCallee = MethodNode.extractCallee(mn.getCallees(), mn.getMaxCalleeFreq());
+				HashMap<GraphTemplate, Double> repCallees = MethodNode.extractCallee(mn.getCallees(), mn.getMaxCalleeFreq());
 				
-				String repKey = StringUtil.genThreadWithMethodIdx(repCallee.getThreadId(), repCallee.getThreadMethodId());
-				mn.registerDomCalleeIdx(repKey);
-				calleeRequired.put(repKey, repCallee);
-				
-				if (repCallee.getLastBeforeReturn() != null) {
-					mn.registerChildReplace(repCallee.getLastBeforeReturn());
-				}
-				
-				vertexNum += (repCallee.getVertexNum() - 1);
-				int instParentNum = mn.getInstDataParentList().size();
-				int controlParentNum = mn.getControlParentList().size();
-				int firstReadNum = repCallee.getFirstReadLocalVars().size();
-				edgeNum = edgeNum 
-						+ repCallee.getEdgeNum() 
-						+ firstReadNum 
-						+ firstReadNum * controlParentNum
-						- instParentNum 
-						- controlParentNum;
-				mn.clearCallees();
-				
-				ChiTester.sumDistribution(dist, repCallee.getDist());
+				for (GraphTemplate repCallee: repCallees.keySet()) {
+					String repKey = StringUtil.genThreadWithMethodIdx(repCallee.getThreadId(), repCallee.getThreadMethodId());
+					double normFreq = repCallees.get(repCallee);
+					mn.registerDomCalleeIdx(repKey, normFreq, repCallee.getLastBeforeReturn());
+					calleeRequired.put(repKey, repCallee);
+					
+					/*if (repCallee.getLastBeforeReturn() != null) {
+						mn.registerChildReplace(repCallee.getLastBeforeReturn());
+					}*/
+					
+					vertexNum += (repCallee.getVertexNum() - 1);
+					int instParentNum = mn.getInstDataParentList().size();
+					int controlParentNum = mn.getControlParentList().size();
+					int firstReadNum = repCallee.getFirstReadLocalVars().size();
+					edgeNum = edgeNum 
+							+ repCallee.getEdgeNum() 
+							+ firstReadNum 
+							+ firstReadNum * controlParentNum
+							- instParentNum 
+							- controlParentNum;
+					mn.clearCallees();
+					
+					ChiTester.sumDistribution(dist, repCallee.getDist());
+				}				
 			} else {
 				dist[curInst.getOp().getOpcode()] += 1;
 			}

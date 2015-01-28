@@ -104,13 +104,14 @@ public class TemplateMethod extends TemplateParent {
 		return c;
 	}
 	
-	public void doubleIf(double input) {
+	public int doubleIf(double input) {
 		int ret = 54;
 		if (input > 0) {
 			ret = 1;
 		} else {
 			ret = 0;
 		}
+		return ret;
 	}
 	
 	public int methodB(int i, double j) {
@@ -342,7 +343,8 @@ public class TemplateMethod extends TemplateParent {
 	
 	public void forMethod() {
 		for (int i = 0; i < 3; i++) {
-			int c = this.add2(i);
+			//int c = this.add2(i);
+			int d = this.doubleIf(i);
 		}
 	}
 	
@@ -378,8 +380,9 @@ public class TemplateMethod extends TemplateParent {
 		String init = "<init>";
 		System.out.println(init.equals("<init>"));*/
 		TemplateMethod tm = new TemplateMethod();
+		tm.forMethod();
 		//tm.doObject(tm);
-		tm.call1();
+		//tm.call1();
 		/*byte a = 1;
 		double b = 2.0;
 		long c = 3;
