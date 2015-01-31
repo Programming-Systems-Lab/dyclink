@@ -859,7 +859,6 @@ public class GraphUtil {
 	
 	public static void dataDepFromParentToChildWithFreq(HashMap<Integer, HashSet<InstNode>> parentMap, 
 			Collection<InstNode> cFirstReadNodes, 
-			String calleeInstId, 
 			double freq) {
 		for (InstNode f: cFirstReadNodes) {
 			if (f == null) 
@@ -878,7 +877,8 @@ public class GraphUtil {
 						parentNode.getIdx(), 
 						MIBConfiguration.INST_DATA_DEP);
 				
-				parentNode.getChildFreqMap().remove(calleeInstId);
+				//parentNode.getChildFreqMap().remove(calleeInstId);
+				//removeRecorder.add(parentNode);
 			}
 		}
 	}

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
@@ -28,7 +29,10 @@ public class GraphConstructor {
 	
 	private static double maxFreqFromParents(Collection<InstNode> parents, String myId) {
 		double ret = 0;
+		System.out.println("My id: " + myId);
 		for (InstNode p: parents) {
+			System.out.println("Parent: " + p.getFromMethod() + " " + p.getIdx());
+			System.out.println("Childern map: " + p.getChildFreqMap());
 			double freq = p.getChildFreqMap().get(myId);
 			if (freq > ret)
 				ret = freq;
@@ -77,15 +81,34 @@ public class GraphConstructor {
 			while (instIt.hasNext()) {
 				InstNode inst = instIt.next();
 				
-				if (inst instanceof MethodNode) {				
+				if (inst instanceof MethodNode) {			
 					MethodNode mn = (MethodNode)inst;
 					
 					String mnId = StringUtil.genIdxKey(mn.getThreadId(), mn.getThreadMethodIdx(), mn.getIdx());
 					TreeMap<String, Double> childMap = mn.getChildFreqMap();
+					Set<InstNode> cRemoveMn = new HashSet<InstNode>();
+					
+					HashMap<Integer, HashSet<InstNode>> parentFromCaller = null;
+					double allFreq = 0;
+					if (mn.getCalleeInfo().parentReplay.size() > 0) {
+						parentFromCaller = retrieveParentsWithIdx(mn.getCalleeInfo().parentReplay, rawGraph.getInstPool());
+						
+						HashSet<InstNode> allParents = flattenParentMap(parentFromCaller.values());
+						allFreq = maxFreqFromParents(allParents, mnId);
+					}
+					
+					HashSet<InstNode> controlInsts = null;
+					if (mn.getControlParentList().size() > 0) {
+						controlInsts = GraphUtil.retrieveRequiredParentInsts(mn, 
+								rawGraph.getInstPool(), 
+								MIBConfiguration.CONTR_DEP);
+					}
+					
 					for (MetaGraph meta: mn.getCalleeInfo().metaCallees) {
 						String calleeId = meta.calleeIdx;
 						double frac = meta.normFreq;
 						
+						System.out.println("Callee idx: " + calleeId);
 						File f = new File(baseDir + "/" + calleeId);
 						GraphTemplate callee = GsonManager.readJsonGeneric(f, graphToken);
 						reconstructGraph(callee);
@@ -103,25 +126,19 @@ public class GraphConstructor {
 							cReadNodes.add(cReadNode);
 						}
 						
-						if (mn.getCalleeInfo().parentReplay.size() > 0) {
-							HashMap<Integer, HashSet<InstNode>> parentFromCaller = retrieveParentsWithIdx(mn.getCalleeInfo().parentReplay, 
-									rawGraph.getInstPool());
-							
-							HashSet<InstNode> allParents = flattenParentMap(parentFromCaller.values());
-							double freq = maxFreqFromParents(allParents, mnId) * frac;
+						if (parentFromCaller != null) {
+							double freq = allFreq * frac;
 							GraphUtil.multiplyGraph(callee, freq);	
-							GraphUtil.dataDepFromParentToChildWithFreq(parentFromCaller, cReadNodes, mnId, freq);
+							//GraphUtil.dataDepFromParentToChildWithFreq(parentFromCaller, cReadNodes, mnId, freq);
+							GraphUtil.dataDepFromParentToChildWithFreq(parentFromCaller, cReadNodes, freq);
 						}
 						
-						if (mn.getControlParentList().size() > 0) {
-							HashSet<InstNode> controlInsts = GraphUtil.retrieveRequiredParentInsts(mn, 
-									rawGraph.getInstPool(), 
-									MIBConfiguration.CONTR_DEP);
-							
+						if (controlInsts != null) {
 							for (InstNode controlInst: controlInsts) {
 								double freq = controlInst.getChildFreqMap().get(mnId) * frac;
 								GraphUtil.controlDepFromParentToChildWithFreq(controlInst, cReadNodes, freq);
-								controlInst.getChildFreqMap().remove(mnId);
+								//controlInst.getChildFreqMap().remove(mnId);
+								//pRemoveMn.add(controlInst);
 							}
 						}
 						
@@ -142,10 +159,33 @@ public class GraphConstructor {
 										calleeChildReplace.getIdx(), 
 										MIBConfiguration.INST_DATA_DEP);
 								
-								childNode.getInstDataParentList().remove(mnId);
+								//childNode.getInstDataParentList().remove(mnId);
+								cRemoveMn.add(childNode);
 							}
 						}
 					}
+					
+					//Remove inst parent
+					if (parentFromCaller != null) {
+						for (Integer i: parentFromCaller.keySet()) {
+							HashSet<InstNode> parents = parentFromCaller.get(i);
+							for (InstNode pNode: parents) {
+								pNode.getChildFreqMap().remove(mnId);
+							}
+						}
+					}
+					
+					//Remove control parent
+					if (controlInsts != null) {
+						for (InstNode pInst: controlInsts) {
+							pInst.getChildFreqMap().remove(mnId);
+						}
+					}
+					
+					for (InstNode cInst: cRemoveMn) {
+						cInst.getInstDataParentList().remove(mnId);
+					}
+					
 					instIt.remove();
 				}
 			}
@@ -160,13 +200,13 @@ public class GraphConstructor {
 	}
 	
 	public static void main(String[] args) {
-		File testFile = new File("./test/Jama.SingularValueDecomposition:<init>:0:0:2.json");
+		File testFile = new File("./test/cc.expbase.TemplateMethod:forMethod:0:0:50.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
 		reconstructGraph(testGraph);
 		System.out.println("Recorded graph size: " + testGraph.getVertexNum());
 		System.out.println("Actual graph size: " + testGraph.getInstPool().size());
 		
-		System.out.println("Recorded vertex size: " + testGraph.getEdgeNum());
+		System.out.println("Recorded edge size: " + testGraph.getEdgeNum());
 		int eCount = 0;
 		for (InstNode inst: testGraph.getInstPool()) {
 			eCount += inst.getChildFreqMap().size();

@@ -1342,11 +1342,14 @@ public class MethodStackRecorder {
 			InstNode curInst = instIterator.next();
 			curInst.removeRelatedObj();
 			
+			int childNum = curInst.getChildFreqMap().size();
 			if (curInst instanceof MethodNode) {
 				MethodNode mn = (MethodNode) curInst;
 				//GraphTemplate repCallee = MethodNode.extractCallee(mn.getCallees(), mn.getMaxCalleeFreq());
 				HashMap<GraphTemplate, Double> repCallees = MethodNode.extractCallee(mn.getCallees(), mn.getMaxCalleeFreq());
 				
+				int instParentNum = mn.getInstDataParentList().size();
+				int controlParentNum = mn.getControlParentList().size();
 				for (GraphTemplate repCallee: repCallees.keySet()) {
 					String repKey = StringUtil.genThreadWithMethodIdx(repCallee.getThreadId(), repCallee.getThreadMethodId());
 					double normFreq = repCallees.get(repCallee);
@@ -1357,26 +1360,23 @@ public class MethodStackRecorder {
 						mn.registerChildReplace(repCallee.getLastBeforeReturn());
 					}*/
 					
-					vertexNum += (repCallee.getVertexNum() - 1);
-					int instParentNum = mn.getInstDataParentList().size();
-					int controlParentNum = mn.getControlParentList().size();
+					vertexNum += (repCallee.getVertexNum());
 					int firstReadNum = repCallee.getFirstReadLocalVars().size();
 					edgeNum = edgeNum 
 							+ repCallee.getEdgeNum() 
 							+ firstReadNum 
 							+ firstReadNum * controlParentNum
-							- instParentNum 
-							- controlParentNum;
+							+ childNum;
 					mn.clearCallees();
 					
 					ChiTester.sumDistribution(dist, repCallee.getDist());
-				}				
+				}
+				vertexNum--;
+				edgeNum = edgeNum - instParentNum - controlParentNum;
 			} else {
 				dist[curInst.getOp().getOpcode()] += 1;
+				edgeNum += childNum;
 			}
-			
-			TreeMap<String, Double> children = curInst.getChildFreqMap();
-			edgeNum += children.size();
 		}
 		vertexNum += this.pool.size();
 		
