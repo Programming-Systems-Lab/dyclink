@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>UJMP</nameLibrary>
+  <displayName>SVD</displayName>
+  <results>
+    <long>126901453</long>
+    <long>124579021</long>
+    <long>126278861</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

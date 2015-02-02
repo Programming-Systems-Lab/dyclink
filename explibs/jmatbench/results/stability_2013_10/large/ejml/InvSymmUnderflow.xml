@@ -1,0 +1,26 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>1.000000000000017E-309</double>
+    <double>1.000000000000017E-309</double>
+    <double>1.000000000000017E-309</double>
+    <double>1.000000000000017E-309</double>
+    <double>1.000000000000017E-309</double>
+    <double>1.000000000000017E-309</double>
+    <double>1.000000000000017E-309</double>
+    <double>1.000000000000017E-309</double>
+    <double>1.000000000000017E-309</double>
+    <double>1.000000000000017E-309</double>
+    <double>1.000000000000017E-309</double>
+    <double>1.000000000000017E-309</double>
+  </breakingPoints>
+  <numFinished>0</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>12</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>EJML</libraryName>
+  <benchmarkName>Inverse Symmetric Underflow</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>174025</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

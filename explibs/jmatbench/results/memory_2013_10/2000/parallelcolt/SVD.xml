@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>PColt</nameLibrary>
+  <displayName>SVD</displayName>
+  <results>
+    <long>171449140</long>
+    <long>179452724</long>
+    <long>173394740</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

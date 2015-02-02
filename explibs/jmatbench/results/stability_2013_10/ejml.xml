@@ -1,0 +1,14 @@
+<jmbench.impl.LibraryDescription>
+  <location>
+    <plotName>EJML</plotName>
+    <libraryDirName>ejml</libraryDirName>
+    <saveDirName>ejml</saveDirName>
+    <extraLibs>false</extraLibs>
+    <nativeCode>false</nativeCode>
+    <plotLineType>0</plotLineType>
+  </location>
+  <configure>jmbench.impl.configure.DoNothingSpecialConfigure</configure>
+  <factoryRuntime>jmbench.impl.runtime.EjmlAlgorithmFactory</factoryRuntime>
+  <factoryMemory>jmbench.impl.memory.EjmlMemoryFactory</factoryMemory>
+  <version>jmbench.impl.AllLibraryVersion$EJML</version>
+</jmbench.impl.LibraryDescription>

@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>la4j</nameLibrary>
+  <displayName>solve m&gt;n</displayName>
+  <results>
+    <long>121617204</long>
+    <long>119515956</long>
+    <long>120625972</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

@@ -1,0 +1,14 @@
+<jmbench.tools.SystemInfo>
+  <____MIB__ID>38</____MIB__ID>
+  <time>1422855121260</time>
+  <javaVersion>1.6.0_65</javaVersion>
+  <javaVendor>Apple Inc.</javaVendor>
+  <javaHome>/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home</javaHome>
+  <javaVmName>Java HotSpot(TM) 64-Bit Server VM</javaVmName>
+  <javaVmVersion>20.65-b04-466.1</javaVmVersion>
+  <osArch>x86_64</osArch>
+  <osName>Mac OS X</osName>
+  <osVersion>10.10.2</osVersion>
+  <numCPU>4</numCPU>
+  <memory>85000192</memory>
+</jmbench.tools.SystemInfo>

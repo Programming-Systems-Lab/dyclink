@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>UJMP</nameLibrary>
+  <displayName>solve m=n</displayName>
+  <results>
+    <long>225082573</long>
+    <long>225422541</long>
+    <long>224578765</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>JBLAS</nameLibrary>
+  <displayName>Eigen</displayName>
+  <results>
+    <long>196610868</long>
+    <long>196569908</long>
+    <long>196664116</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

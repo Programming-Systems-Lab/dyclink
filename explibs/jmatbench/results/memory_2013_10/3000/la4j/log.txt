@@ -1,0 +1,12 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/la4j/la4j-0.4.5.jar
+
+Overhead = 28025651 bytes
+BenchmarkTools: Killing a frozen slave.
+FAILED: operation inv |A| > 1
+BenchmarkTools: Killing a frozen slave.
+BenchmarkTools: Killing a frozen slave.
+BenchmarkTools: Killing a frozen slave.
+BenchmarkTools: Killing a frozen slave.
+FAILED: operation Eigen

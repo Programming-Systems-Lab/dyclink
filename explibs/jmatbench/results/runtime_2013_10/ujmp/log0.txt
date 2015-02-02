@@ -1,0 +1,8 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/ujmp/ujmp-complete-0.2.5.jar
+    Case failed: reason = FROZEN op = SVD matrix size = 5000 memory = 9000 mb duration = 4200259
+    Case failed: reason = FROZEN op = Eigen for Symm Matrices matrix size = 5000 memory = 9000 mb duration = 4200285
+    Case was too slow: op = Invert Symm b=inv(a) matrix size = 5000 memory = 9000 mb
+    Case failed: reason = OUT_OF_MEMORY op = Solve m>n matrix size = 10000 memory = 9000 mb duration = 20004
+    Case was too slow: op = Invert b=inv(a) matrix size = 10000 memory = 9000 mb

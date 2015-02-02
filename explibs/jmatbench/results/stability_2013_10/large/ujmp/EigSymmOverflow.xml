@@ -1,0 +1,44 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>1.0E155</double>
+    <double>1.0E155</double>
+    <double>1.0E155</double>
+    <double>1.0E155</double>
+    <double>1.0E155</double>
+    <double>1.0E155</double>
+    <double>1.0E155</double>
+  </breakingPoints>
+  <numFinished>0</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>7</numUnexpectedException>
+  <libraryName>UJMP</libraryName>
+  <benchmarkName>Eigenvalue Symmetric Overflow</benchmarkName>
+  <unexpectedExceptions>
+    <jmbench.tools.stability.ExceptionInfo>
+      <shortName>ArrayIndexOutOfBoundsException</shortName>
+      <numTimesThrown>49</numTimesThrown>
+      <stackTrace>
+        <string>org.ujmp.core.doublematrix.calculation.general.decomposition.Eig$EigMatrix.tql2(Eig.java:347)</string>
+        <string>org.ujmp.core.doublematrix.calculation.general.decomposition.Eig$EigMatrix.&lt;init&gt;(Eig.java:1003)</string>
+        <string>org.ujmp.core.doublematrix.calculation.general.decomposition.Eig$4.calc(Eig.java:113)</string>
+        <string>org.ujmp.core.doublematrix.calculation.general.decomposition.Eig$4.calc(Eig.java:1)</string>
+        <string>org.ujmp.core.doublematrix.calculation.general.decomposition.Eig$3.calc(Eig.java:104)</string>
+        <string>org.ujmp.core.doublematrix.calculation.general.decomposition.Eig$3.calc(Eig.java:1)</string>
+        <string>org.ujmp.core.doublematrix.calculation.general.decomposition.Eig$1.calc(Eig.java:65)</string>
+        <string>org.ujmp.core.doublematrix.calculation.general.decomposition.Eig$1.calc(Eig.java:1)</string>
+        <string>jmbench.impl.runtime.UjmpAlgorithmFactory$Eig.process(UjmpAlgorithmFactory.java:152)</string>
+        <string>jmbench.tools.stability.tests.OverflowTestBase.check(OverflowTestBase.java:117)</string>
+        <string>jmbench.tools.stability.tests.BreakingPointBinarySearch.findCriticalPoint(BreakingPointBinarySearch.java:40)</string>
+        <string>jmbench.tools.stability.tests.OverflowTestBase.beakOperation(OverflowTestBase.java:91)</string>
+        <string>jmbench.tools.stability.tests.OverflowTestBase.performTest(OverflowTestBase.java:80)</string>
+        <string>jmbench.tools.stability.StabilityTestBase.evaluate(StabilityTestBase.java:121)</string>
+        <string>jmbench.tools.EvaluatorSlave.evaluationLoop(EvaluatorSlave.java:180)</string>
+        <string>jmbench.tools.EvaluatorSlave.main(EvaluatorSlave.java:87)</string>
+      </stackTrace>
+    </jmbench.tools.stability.ExceptionInfo>
+  </unexpectedExceptions>
+  <durationMilli>42506</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

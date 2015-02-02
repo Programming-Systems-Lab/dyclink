@@ -1,0 +1,18 @@
+- Add support for commercial libraries
+ * Make it so everything will compile even if the library is not present.
+
+- applet for displaying results
+
+- Randomly draw operation and matrix size
+ * first do a run through until an exception occurs
+ * once max matrix size is known randomly draw
+ * only save each trial results in XML
+ * terminating conditions. 1) number of trials per op. 2) total computational time per op.
+
+- only plot results if errors don't exist
+- use BigDecimal to compute accuracy of libraries
+- stability of BigDecimal matrices?
+
+- convert results to excel format
+
+- Create a memory leak test

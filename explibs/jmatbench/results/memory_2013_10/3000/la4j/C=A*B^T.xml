@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>la4j</nameLibrary>
+  <displayName>C=A*B^T</displayName>
+  <results>
+    <long>390933709</long>
+    <long>396897485</long>
+    <long>396864717</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

@@ -1,0 +1,14 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints/>
+  <numFinished>0</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>ojAlgo</libraryName>
+  <benchmarkName>SVD Overflow</benchmarkName>
+  <fatalError>FROZE</fatalError>
+  <unexpectedExceptions/>
+  <durationMilli>900139</durationMilli>
+  <memoryBytes>200</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

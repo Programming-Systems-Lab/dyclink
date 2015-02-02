@@ -1,0 +1,8 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/parallelcolt/jtransforms.jar:/home/pja/projects/jmatbench/lib/parallelcolt/parallelcolt-0.9.4.jar:/home/pja/projects/jmatbench/lib/parallelcolt/jplasma.jar:/home/pja/projects/jmatbench/lib/parallelcolt/optimization.jar:/home/pja/projects/jmatbench/lib/parallelcolt/arpack-combo.jar:/home/pja/projects/jmatbench/lib/parallelcolt/csparsej.jar:/home/pja/projects/jmatbench/lib/parallelcolt/netlib-java.jar
+    Case failed: reason = FROZEN op = Eigen for Symm Matrices matrix size = 5000 memory = 9000 mb duration = 4200244
+    Case failed: reason = OUT_OF_MEMORY op = SVD matrix size = 10000 memory = 9000 mb duration = 6001
+    Case was too slow: op = Mult c=a*b matrix size = 10000 memory = 9000 mb
+    Case failed: reason = OUT_OF_MEMORY op = Solve m>n matrix size = 10000 memory = 9000 mb duration = 13004
+    Case was too slow: op = Invert b=inv(a) matrix size = 10000 memory = 9000 mb

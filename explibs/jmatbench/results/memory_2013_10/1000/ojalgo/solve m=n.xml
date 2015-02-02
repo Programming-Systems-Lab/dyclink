@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>ojAlgo</nameLibrary>
+  <displayName>solve m=n</displayName>
+  <results>
+    <long>21056308</long>
+    <long>21179188</long>
+    <long>21605172</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

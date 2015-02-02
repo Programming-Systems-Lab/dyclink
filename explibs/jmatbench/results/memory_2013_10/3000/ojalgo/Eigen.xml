@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>ojAlgo</nameLibrary>
+  <displayName>Eigen</displayName>
+  <results>
+    <long>162073805</long>
+    <long>163499213</long>
+    <long>162192589</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

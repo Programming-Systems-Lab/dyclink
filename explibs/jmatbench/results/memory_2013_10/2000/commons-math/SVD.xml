@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>CommMath</nameLibrary>
+  <displayName>SVD</displayName>
+  <results>
+    <long>91663156</long>
+    <long>91458356</long>
+    <long>91372340</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

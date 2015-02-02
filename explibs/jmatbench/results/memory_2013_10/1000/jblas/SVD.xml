@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>JBLAS</nameLibrary>
+  <displayName>SVD</displayName>
+  <results>
+    <long>27441972</long>
+    <long>27155252</long>
+    <long>27654964</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

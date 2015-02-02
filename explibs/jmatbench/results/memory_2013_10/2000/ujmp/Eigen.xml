@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>UJMP</nameLibrary>
+  <displayName>Eigen</displayName>
+  <results>
+    <long>173394740</long>
+    <long>173894452</long>
+    <long>183438132</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

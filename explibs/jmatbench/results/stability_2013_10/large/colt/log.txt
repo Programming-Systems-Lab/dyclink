@@ -1,0 +1,5 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/colt/colt.jar:/home/pja/projects/jmatbench/lib/colt/concurrent.jar
+    Slave: Frozen = SVD Underflow
+Had fatal error: SVD Underflow error = FROZE

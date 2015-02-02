@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>JAMA</nameLibrary>
+  <displayName>C=A*B^T</displayName>
+  <results>
+    <long>170797876</long>
+    <long>170974004</long>
+    <long>169986868</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

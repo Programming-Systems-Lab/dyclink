@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>JBLAS</nameLibrary>
+  <displayName>inv |A| &gt; 1</displayName>
+  <results>
+    <long>73448244</long>
+    <long>73804596</long>
+    <long>73812788</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

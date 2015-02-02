@@ -1,0 +1,26 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+  </breakingPoints>
+  <numFinished>12</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>ojAlgo</libraryName>
+  <benchmarkName>Inverse Symmetric Overflow</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>298043</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

@@ -1,0 +1,21 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>1.000000000000017E-305</double>
+    <double>1.000000000000017E-306</double>
+    <double>1.000000000000017E-306</double>
+    <double>1.0000000000000171E-307</double>
+    <double>1.0000000000000171E-307</double>
+    <double>1.0000000000000171E-307</double>
+    <double>1.0000000000000171E-307</double>
+  </breakingPoints>
+  <numFinished>0</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>7</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>EJML</libraryName>
+  <benchmarkName>SVD Underflow</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>441562</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

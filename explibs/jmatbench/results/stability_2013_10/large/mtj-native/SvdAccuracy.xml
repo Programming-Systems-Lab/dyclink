@@ -1,0 +1,42 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>3.456770119873236E-15</double>
+    <double>2.9719857779503263E-15</double>
+    <double>3.019442603752677E-15</double>
+    <double>2.530585347619889E-15</double>
+    <double>3.4047765414032363E-15</double>
+    <double>2.953093446596308E-15</double>
+    <double>3.395357044425557E-15</double>
+    <double>3.3928283642736873E-15</double>
+    <double>2.8208762720179102E-15</double>
+    <double>3.452387391637087E-15</double>
+    <double>3.370457433673585E-15</double>
+    <double>2.8756715257574486E-15</double>
+    <double>3.344241539446855E-15</double>
+    <double>3.5146898570816453E-15</double>
+    <double>2.7846947159491466E-15</double>
+    <double>3.2927906409716422E-15</double>
+    <double>3.135038940924655E-15</double>
+    <double>3.2634718358485144E-15</double>
+    <double>2.8018907522780494E-15</double>
+    <double>3.3670134341736805E-15</double>
+    <double>3.452421036038557E-15</double>
+    <double>2.656549218599673E-15</double>
+    <double>3.0588746093096555E-15</double>
+    <double>3.1116207159204095E-15</double>
+    <double>3.367740088371836E-15</double>
+    <double>3.119375751624579E-15</double>
+    <double>3.144582036968387E-15</double>
+    <double>2.744734149875149E-15</double>
+  </breakingPoints>
+  <numFinished>28</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>MTJ-N</libraryName>
+  <benchmarkName>SVD Accuracy</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>92516</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

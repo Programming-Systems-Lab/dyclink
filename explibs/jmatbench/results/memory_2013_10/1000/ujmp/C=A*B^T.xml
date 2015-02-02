@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>UJMP</nameLibrary>
+  <displayName>C=A*B^T</displayName>
+  <results>
+    <long>66177844</long>
+    <long>67214132</long>
+    <long>65940276</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>ojAlgo</nameLibrary>
+  <displayName>SVD</displayName>
+  <results>
+    <long>15473460</long>
+    <long>16558900</long>
+    <long>15739700</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

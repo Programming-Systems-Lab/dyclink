@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>JAMA</nameLibrary>
+  <displayName>solve m=n</displayName>
+  <results>
+    <long>154328269</long>
+    <long>153611469</long>
+    <long>152874189</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

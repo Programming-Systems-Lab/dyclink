@@ -1,0 +1,930 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BookmarkManager">
+    <bookmark url="file://$PROJECT_DIR$/src/jmbench/tools/runtime/evaluation/RuntimeResultPlotter.java" line="240" mnemonic="8" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" readonly="true" id="084d4bae-78bb-4364-81bf-761d3fa9b885" name="Default" comment="" />
+    <ignored path="jmatbench.iws" />
+    <ignored path=".idea/workspace.xml" />
+    <file path="/PlotRuntimeResults.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382902255441" ignored="false" />
+    <file path="/FactoryLibraryDescriptions.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382205726139" ignored="false" />
+    <file path="/LibraryLocation.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380402887658" ignored="false" />
+    <file path="/fragment.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383062801176" ignored="false" />
+    <file path="/LibraryConfigure.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380403405436" ignored="false" />
+    <file path="/DoNothingSpecialConfigure.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380403338300" ignored="false" />
+    <file path="/UjmpLibraryConfigure.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380403540164" ignored="false" />
+    <file path="/LibraryDescription.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380403594568" ignored="false" />
+    <file path="/RuntimeEvaluationTest.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380404089379" ignored="false" />
+    <file path="/StabilityTestBase.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382295455121" ignored="false" />
+    <file path="/MemoryTest.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382198280420" ignored="false" />
+    <file path="/SolverCommon.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380404340172" ignored="false" />
+    <file path="/OverflowTestBase.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380404377669" ignored="false" />
+    <file path="/MemoryBenchmarkLibrary.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382540997129" ignored="false" />
+    <file path="/AccuracyTestBase.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382198145246" ignored="false" />
+    <file path="/SvdAccuracy.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380404489737" ignored="false" />
+    <file path="$PROJECT_DIR$/src/jmbench/tools/stability/tests/classFactory.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380404520364" ignored="false" />
+    <file path="/a.dummy" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382196926585" ignored="false" />
+    <file path="/EigSymmOverflow.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380404552031" ignored="false" />
+    <file path="/SolverAccuracy.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380404582999" ignored="false" />
+    <file path="/InvSymmOverflow.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380404602660" ignored="false" />
+    <file path="/StabilityBenchmarkLibrary.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382212118999" ignored="false" />
+    <file path="/RuntimeEvaluationCase.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380405015239" ignored="false" />
+    <file path="/FactoryRuntimeEvaluationCase.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380405161797" ignored="false" />
+    <file path="/RuntimeBenchmarkLibrary.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382197772460" ignored="false" />
+    <file path="/RuntimeResultPlotter.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383004696660" ignored="false" />
+    <file path="/Dummy.txt" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383084503170" ignored="false" />
+    <file path="/MtjLibraryConfigure.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380408208349" ignored="false" />
+    <file path="/MtjNativeLibraryConfigure.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380408228557" ignored="false" />
+    <file path="/JBlasAlgorithmFactory.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382212939389" ignored="false" />
+    <file path="/MtjAlgorithmFactory.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380470779324" ignored="false" />
+    <file path="/RuntimeBenchmarkMaster.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380472348445" ignored="false" />
+    <file path="/JBlasMemoryFactory.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1380472621852" ignored="false" />
+    <file path="/CommonsMathAlgorithmFactory.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1381011673744" ignored="false" />
+    <file path="/MemoryBenchmarkTools.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382199065216" ignored="false" />
+    <file path="/change.txt" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382986537481" ignored="false" />
+    <file path="/MemoryBenchmark.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382541664523" ignored="false" />
+    <file path="/TablesCommon.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382297679428" ignored="false" />
+    <file path="/FatalError.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382295219490" ignored="false" />
+    <file path="/GenerateHtmlTables.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382295484041" ignored="false" />
+    <file path="/MemoryConfig.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382538613455" ignored="false" />
+    <file path="/PlotMemoryResultsXml.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382541231217" ignored="false" />
+    <file path="/MemoryRelativeAreaPlot.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382900944717" ignored="false" />
+    <file path="/OverallRelativeAreaPlot.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382916257849" ignored="false" />
+    <file path="/OperationsVersusSizePlot.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382914803755" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/darpaRoboticsChallenge/networkProcessor/DRCNetworkProcessor.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382993419108" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/darpaRoboticsChallenge/userInterface/DRCFisheyeViewManager.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383056204774" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/atlas/AtlasBDIStraightLineContinuousStepController.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382992761466" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/darpaRoboticsChallenge/DRCLocalConfigParameters.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383056204774" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/darpaRoboticsChallenge/DRCConfigParameters.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382992761466" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/darpaRoboticsChallenge/userInterface/DRCBandwidthControlInterface.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382992761466" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/atlas/controller/AtlasControllerFactory.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383056204774" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/darpaRoboticsChallenge/userInterface/MultiplexingVideoStreamer.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382992761466" ignored="false" />
+    <file path="/DRCNetworkProcessor.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1382993021081" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/atlas/controller/AtlasSensorReader.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383056204774" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/atlas/controller/AtlasSensorReaderFactory.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383056204774" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/darpaRoboticsChallenge/DRCStateEstimator.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383060725437" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/darpaRoboticsChallenge/DRCController.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383056204774" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/sensorProcessing/sensorData/AtlasWristFeetSensorPacket.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383062666730" ignored="false" />
+    <file path="/AtlasWristFeetSensorPacket.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383062476427" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/sensorProcessing/sensorData/AtlasWristFeetSensorClient.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383062769310" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/sensorProcessing/AtlasWristFeetSensorClient.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383062879677" ignored="false" />
+    <file path="$SVN_ROOT$/RobotControl/DarpaRoboticsChallenge/src/us/ihmc/sensorProcessing/AtlasWristFeetSensorListener.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383062933676" ignored="false" />
+    <file path="/AtlasWristFeetSensorListener.java" changelist="084d4bae-78bb-4364-81bf-761d3fa9b885" time="1383062932435" ignored="false" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="DaemonCodeAnalyzer">
+    <disable_hints />
+  </component>
+  <component name="DebuggerManager">
+    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
+    <breakpoint_any default_suspend_policy="SuspendAll" default_condition_enabled="true">
+      <breakpoint>
+        <option name="NOTIFY_CAUGHT" value="true" />
+        <option name="NOTIFY_UNCAUGHT" value="true" />
+        <option name="ENABLED" value="false" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="REMOVE_AFTER_HIT" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint>
+        <option name="NOTIFY_CAUGHT" value="true" />
+        <option name="NOTIFY_UNCAUGHT" value="true" />
+        <option name="ENABLED" value="false" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="REMOVE_AFTER_HIT" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+    </breakpoint_any>
+    <breakpoint_rules />
+    <ui_properties />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="jmatbench" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="MemoryRelativeBarPlot.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/jmbench/plots/MemoryRelativeBarPlot.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="107" column="25" selection-start="3843" selection-end="3843" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="OverallRelativeAreaPlot.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/jmbench/plots/OverallRelativeAreaPlot.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="69" column="43" selection-start="2349" selection-end="2349" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="JFreeChart.class" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://$PROJECT_DIR$/lib/jfreechart/jfreechart-1.0.13.jar!/org/jfree/chart/JFreeChart.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="88" column="44" selection-start="3958" selection-end="3970" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="UtilPlotPdf.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/jmbench/plots/UtilPlotPdf.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="59" column="0" selection-start="2272" selection-end="2272" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RuntimeResultPlotter.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/jmbench/tools/runtime/evaluation/RuntimeResultPlotter.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="175" column="83" selection-start="7059" selection-end="7059" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MtjAlgorithmFactory.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/jmbench/impl/runtime/MtjAlgorithmFactory.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="362" column="125" selection-start="11705" selection-end="11705" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="change.txt" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/change.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="13" column="67" selection-start="540" selection-end="540" vertical-scroll-proportion="0.15354331">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RuntimePlotData.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/jmbench/tools/runtime/evaluation/RuntimePlotData.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="67" column="15" selection-start="1958" selection-end="1958" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PlotRuntimeResults.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/jmbench/tools/runtime/evaluation/PlotRuntimeResults.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="145" column="34" selection-start="5279" selection-end="5279" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="OperationsVersusSizePlot.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/jmbench/plots/OperationsVersusSizePlot.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="78" column="45" selection-start="2530" selection-end="2530" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindManager">
+    <FindUsagesManager>
+      <setting name="OPEN_NEW_TAB" value="false" />
+    </FindUsagesManager>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="changedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/src/jmbench/tools/stability/GenerateHtmlTables.java" />
+        <option value="$PROJECT_DIR$/src/jmbench/tools/stability/TablesCommon.java" />
+        <option value="$PROJECT_DIR$/src/jmbench/tools/memory/MemoryConfig.java" />
+        <option value="$PROJECT_DIR$/src/jmbench/tools/memory/MemoryBenchmarkLibrary.java" />
+        <option value="$PROJECT_DIR$/src/jmbench/tools/memory/MemoryBenchmark.java" />
+        <option value="$PROJECT_DIR$/src/jmbench/tools/memory/PlotMemoryResultsXml.java" />
+        <option value="$PROJECT_DIR$/src/jmbench/tools/memory/AreaPlotMemoryResultsXml.java" />
+        <option value="$PROJECT_DIR$/src/jmbench/plots/FooBar.java" />
+        <option value="$PROJECT_DIR$/src/jmbench/tools/memory/PlotAreaMemoryResultsXml.java" />
+        <option value="$PROJECT_DIR$/src/jmbench/plots/MemoryRelativeAreaPlot.java" />
+        <option value="$PROJECT_DIR$/src/jmbench/plots/OvberallRelativeAreaPlot.java" />
+        <option value="$PROJECT_DIR$/src/jmbench/plots/OperationsVersusSizePlot.java" />
+        <option value="$PROJECT_DIR$/src/jmbench/tools/runtime/evaluation/PlotRuntimeResults.java" />
+        <option value="$PROJECT_DIR$/src/jmbench/plots/OverallRelativeAreaPlot.java" />
+        <option value="$PROJECT_DIR$/src/jmbench/tools/runtime/evaluation/RuntimeResultPlotter.java" />
+        <option value="$PROJECT_DIR$/change.txt" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="-3" />
+    <option name="width" value="2566" />
+    <option name="height" value="1417" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
+    <OptionsSetting value="true" id="Add" />
+    <OptionsSetting value="true" id="Remove" />
+    <OptionsSetting value="true" id="Checkout" />
+    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="true" id="Status" />
+    <OptionsSetting value="true" id="Edit" />
+    <ConfirmationsSetting value="0" id="Add" />
+    <ConfirmationsSetting value="0" id="Remove" />
+  </component>
+  <component name="ProjectReloadState">
+    <option name="STATE" value="0" />
+  </component>
+  <component name="ProjectStructureProblems">
+    <ignored-problems>
+      <problem id="invalid-module-dependency(module:jmatbench,ejml)" />
+      <problem id="unused-library(library:project:testing)" />
+    </ignored-problems>
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1" splitterProportion="0.5">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jmatbench" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth1" value="366" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth0" value="365" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth3" value="75" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth2" value="370" />
+    <property name="OverrideImplement.combined" value="true" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder1" value="1" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder0" value="0" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder3" value="3" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder2" value="2" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth2" value="281" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder5" value="5" />
+    <property name="MemberChooser.sorted" value="false" />
+    <property name="recentsLimit" value="5" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth1" value="278" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder4" value="4" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth0" value="276" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/lib/commons-math/commons-math3-3.2.jar!/" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth5" value="1076" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth4" value="277" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth3" value="276" />
+    <property name="GoToClass.toSaveIncludeLibraries" value="false" />
+    <property name="MemberChooser.showClasses" value="true" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth4" value="124" />
+    <property name="GoToClass.includeLibraries" value="false" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth5" value="1164" />
+    <property name="GoToFile.includeJavaFiles" value="false" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder5" value="5" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder3" value="3" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder4" value="4" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder1" value="1" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder2" value="2" />
+    <property name="MemberChooser.copyJavadoc" value="false" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder0" value="0" />
+    <property name="restartRequiresConfirmation" value="true" />
+    <property name="dynamic.classpath" value="false" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="jmbench.plots" />
+      <recent name="jmbench.tools.memory" />
+      <recent name="jmbench.impl" />
+      <recent name="jmbench.impl.configure" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.PlotRuntimeResults">
+    <configuration default="false" name="OverallRelativeAreaPlot" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="jmbench.plots.OverallRelativeAreaPlot" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="jmatbench" />
+      <envs />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="Profile ">
+        <option name="myExternalizedOptions" />
+      </RunnerSettings>
+      <ConfigurationWrapper RunnerId="Debug" />
+      <method />
+    </configuration>
+    <configuration default="false" name="PlotMemoryResultsXml" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="jmbench.tools.memory.PlotMemoryResultsXml" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="jmatbench" />
+      <envs />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <ConfigurationWrapper RunnerId="Debug" />
+      <method />
+    </configuration>
+    <configuration default="false" name="MemoryRelativeBarPlot" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="jmbench.plots.MemoryRelativeBarPlot" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="jmatbench" />
+      <envs />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <ConfigurationWrapper RunnerId="Debug" />
+      <method />
+    </configuration>
+    <configuration default="false" name="FooBar" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="jmbench.plots.FooBar" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="jmatbench" />
+      <envs />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <ConfigurationWrapper RunnerId="Debug" />
+      <method />
+    </configuration>
+    <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
+      <module name="" />
+      <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m" />
+      <option name="PROGRAM_PARAMETERS" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <method />
+    </configuration>
+    <configuration default="true" type="TestNG" factoryName="TestNG">
+      <module name="" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="SUITE_NAME" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="GROUP_NAME" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="OUTPUT_DIRECTORY" />
+      <option name="ANNOTATION_TYPE" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <option name="USE_DEFAULT_REPORTERS" value="false" />
+      <option name="PROPERTIES_FILE" />
+      <envs />
+      <properties />
+      <listeners />
+      <method />
+    </configuration>
+    <configuration default="true" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="JUnit" factoryName="JUnit">
+      <module name="" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <method />
+    </configuration>
+    <configuration default="false" name="PlotRuntimeResults" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="jmbench.tools.runtime.evaluation.PlotRuntimeResults" />
+      <option name="VM_PARAMETERS" value="" />
+      <option name="PROGRAM_PARAMETERS" value="--PlotNative=true --Display=true" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="jmatbench" />
+      <envs />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="Profile ">
+        <option name="myExternalizedOptions" value="&#10;additional-options2=onexit\=snapshot&#10;" />
+      </RunnerSettings>
+      <ConfigurationWrapper RunnerId="Debug" />
+      <method />
+    </configuration>
+    <list size="5">
+      <item index="0" class="java.lang.String" itemvalue="Application.PlotRuntimeResults" />
+      <item index="1" class="java.lang.String" itemvalue="Application.OverallRelativeAreaPlot" />
+      <item index="2" class="java.lang.String" itemvalue="Application.PlotMemoryResultsXml" />
+      <item index="3" class="java.lang.String" itemvalue="Application.MemoryRelativeBarPlot" />
+      <item index="4" class="java.lang.String" itemvalue="Application.FooBar" />
+    </list>
+    <recent_temporary>
+      <list size="4">
+        <item index="0" class="java.lang.String" itemvalue="Application.OverallRelativeAreaPlot" />
+        <item index="1" class="java.lang.String" itemvalue="Application.FooBar" />
+        <item index="2" class="java.lang.String" itemvalue="Application.MemoryRelativeBarPlot" />
+        <item index="3" class="java.lang.String" itemvalue="Application.PlotMemoryResultsXml" />
+      </list>
+    </recent_temporary>
+    <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
+      <Host>localhost</Host>
+      <Port>5050</Port>
+    </configuration>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="SvnConfiguration" maxAnnotateRevisions="500" myUseAcceleration="nothing" myAutoUpdateAfterCommit="false" cleanupOnStartRun="true" SSL_PROTOCOLS="all">
+    <option name="USER" value="" />
+    <option name="PASSWORD" value="" />
+    <option name="mySSHConnectionTimeout" value="30000" />
+    <option name="mySSHReadTimeout" value="30000" />
+    <option name="LAST_MERGED_REVISION" />
+    <option name="MERGE_DRY_RUN" value="false" />
+    <option name="MERGE_DIFF_USE_ANCESTRY" value="true" />
+    <option name="UPDATE_LOCK_ON_DEMAND" value="false" />
+    <option name="IGNORE_SPACES_IN_MERGE" value="false" />
+    <option name="CHECK_NESTED_FOR_QUICK_MERGE" value="false" />
+    <option name="IGNORE_SPACES_IN_ANNOTATE" value="true" />
+    <option name="SHOW_MERGE_SOURCES_IN_ANNOTATE" value="true" />
+    <option name="FORCE_UPDATE" value="false" />
+    <option name="IGNORE_EXTERNALS" value="false" />
+    <configuration useDefault="false">$USER_HOME$/.subversion</configuration>
+    <myIsUseDefaultProxy>false</myIsUseDefaultProxy>
+    <supportedVersion>125</supportedVersion>
+  </component>
+  <component name="SvnFileUrlMappingImpl">
+    <option name="myMappingRoots">
+      <list>
+        <SvnCopyRootSimple>
+          <option name="myVcsRoot" value="$PROJECT_DIR$" />
+          <option name="myCopyRoot" value="$PROJECT_DIR$" />
+        </SvnCopyRootSimple>
+      </list>
+    </option>
+    <option name="myMoreRealMappingRoots">
+      <list>
+        <SvnCopyRootSimple>
+          <option name="myVcsRoot" value="$PROJECT_DIR$" />
+          <option name="myCopyRoot" value="$PROJECT_DIR$" />
+        </SvnCopyRootSimple>
+      </list>
+    </option>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="084d4bae-78bb-4364-81bf-761d3fa9b885" name="Default" comment="" />
+      <created>1379891578694</created>
+      <updated>1379891578694</updated>
+    </task>
+    <task id="LOCAL-00001" summary="- Updating MTJ library&#10;- Added MTJ configuration classes&#10;- Turned back on all libraires">
+      <created>1380409332102</created>
+      <updated>1380409332102</updated>
+    </task>
+    <task id="LOCAL-00002" summary="- Updated JAMA, jblas, ojAlgo">
+      <created>1380473174102</created>
+      <updated>1380473174102</updated>
+    </task>
+    <task id="LOCAL-00003" summary="- Updated La4j&#10;- Final commit before the benchmark starts?">
+      <created>1380851552102</created>
+      <updated>1380851552102</updated>
+    </task>
+    <task id="LOCAL-00004" summary="-Added code which checks to see if the slave found an unsupported operation&#10;  * have yet to test this code&#10;- Changed what defines small for overall runtime plot">
+      <created>1382201979252</created>
+      <updated>1382201979252</updated>
+    </task>
+    <task id="LOCAL-00005" summary="new plots for summarizing runtime results">
+      <created>1382986521101</created>
+      <updated>1382986521101</updated>
+    </task>
+    <task id="LOCAL-00006" summary="- changed how overall results are computed.  libraries which couldn't finish an operation are treated as having a score of zero">
+      <created>1383084509102</created>
+      <updated>1383084509102</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-3" y="0" width="2566" height="1417" extended-state="6" />
+    <editor active="false" />
+    <layout>
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3995272" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32939324" sideWeight="0.50019944" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32939324" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3286052" sideWeight="0.49980056" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24940334" sideWeight="0.6004728" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32939324" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+    </layout>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="true" />
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
+    <option name="myTodoPanelSettings">
+      <value>
+        <are-packages-shown value="false" />
+        <are-modules-shown value="false" />
+        <flatten-packages value="false" />
+        <is-autoscroll-to-source value="false" />
+      </value>
+    </option>
+    <option name="PERFORM_UPDATE_IN_BACKGROUND" value="true" />
+    <option name="PERFORM_COMMIT_IN_BACKGROUND" value="true" />
+    <option name="PERFORM_EDIT_IN_BACKGROUND" value="true" />
+    <option name="PERFORM_CHECKOUT_IN_BACKGROUND" value="true" />
+    <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
+    <option name="PERFORM_ROLLBACK_IN_BACKGROUND" value="false" />
+    <option name="CHECK_LOCALLY_CHANGED_CONFLICTS_IN_BACKGROUND" value="false" />
+    <option name="CHANGED_ON_SERVER_INTERVAL" value="60" />
+    <option name="SHOW_ONLY_CHANGED_IN_SELECTION_DIFF" value="true" />
+    <option name="CHECK_COMMIT_MESSAGE_SPELLING" value="true" />
+    <option name="DEFAULT_PATCH_EXTENSION" value="patch" />
+    <option name="SHORT_DIFF_HORIZONTALLY" value="true" />
+    <option name="SHORT_DIFF_EXTRA_LINES" value="2" />
+    <option name="SOFT_WRAPS_IN_SHORT_DIFF" value="true" />
+    <option name="INCLUDE_TEXT_INTO_PATCH" value="false" />
+    <option name="INCLUDE_TEXT_INTO_SHELF" value="false" />
+    <option name="SHOW_FILE_HISTORY_DETAILS" value="true" />
+    <option name="SHOW_VCS_ERROR_NOTIFICATIONS" value="true" />
+    <option name="SHOW_DIRTY_RECURSIVELY" value="false" />
+    <option name="LIMIT_HISTORY" value="true" />
+    <option name="MAXIMUM_HISTORY_ROWS" value="1000" />
+    <option name="UPDATE_FILTER_SCOPE_NAME" />
+    <option name="USE_COMMIT_MESSAGE_MARGIN" value="false" />
+    <option name="COMMIT_MESSAGE_MARGIN_SIZE" value="72" />
+    <option name="WRAP_WHEN_TYPING_REACHES_RIGHT_MARGIN" value="false" />
+    <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="false" />
+    <option name="LAST_COMMIT_MESSAGE" value="- changed how overall results are computed.  libraries which couldn't finish an operation are treated as having a score of zero" />
+    <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="false" />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
+    <option name="FILE_HISTORY_DIALOG_COMMENTS_SPLITTER_PROPORTION" value="0.8" />
+    <option name="FILE_HISTORY_DIALOG_SPLITTER_PROPORTION" value="0.5" />
+    <option name="ACTIVE_VCS_NAME" />
+    <option name="UPDATE_GROUP_BY_PACKAGES" value="false" />
+    <option name="UPDATE_GROUP_BY_CHANGELIST" value="false" />
+    <option name="UPDATE_FILTER_BY_SCOPE" value="false" />
+    <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
+    <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
+    <MESSAGE value="- Fixed runtime plot&#10;- changed how runtime configuration is done." />
+    <MESSAGE value="- Updating MTJ library&#10;- Added MTJ configuration classes&#10;- Turned back on all libraires" />
+    <MESSAGE value="- Updated JAMA, jblas, ojAlgo" />
+    <MESSAGE value="- Updated La4j&#10;- Final commit before the benchmark starts?" />
+    <MESSAGE value="-Added code which checks to see if the slave found an unsupported operation&#10;  * have yet to test this code&#10;- Changed what defines small for overall runtime plot" />
+    <MESSAGE value="new plots for summarizing runtime results" />
+    <MESSAGE value="- changed how overall results are computed.  libraries which couldn't finish an operation are treated as having a score of zero" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager />
+  </component>
+  <component name="antWorkspaceConfiguration">
+    <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="FILTER_TARGETS" value="false" />
+    <buildFile url="file://$PROJECT_DIR$/build.xml">
+      <targetFilters>
+        <filter targetName="clean" isVisible="false" />
+        <filter targetName="compile" isVisible="false" />
+        <filter targetName="jar" isVisible="false" />
+        <filter targetName="app" isVisible="false" />
+        <filter targetName="test" isVisible="false" />
+        <filter targetName="testreport" isVisible="false" />
+        <filter targetName="javadoc" isVisible="false" />
+        <filter targetName="clean-build" isVisible="false" />
+        <filter targetName="main" isVisible="false" />
+      </targetFilters>
+      <expanded value="true" />
+    </buildFile>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/jmbench/tools/memory/MemoryBenchmark.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="82" column="62" selection-start="2793" selection-end="2793" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jmbench/tools/memory/PlotMemoryResultsXml.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="182" column="44" selection-start="6091" selection-end="6091" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jmbench/tools/memory/MemoryPlotData.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="28" column="13" selection-start="906" selection-end="906" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jmbench/plots/SimpleStrokeFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="56" column="29" selection-start="2135" selection-end="2135" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/jfreechart/jfreechart-1.0.13.jar!/org/jfree/chart/plot/CategoryPlot.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="6" column="13" selection-start="150" selection-end="441" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jmbench/plots/SummaryWhiskerPlot.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="67" column="72" selection-start="2258" selection-end="2309" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jmbench/plots/MemoryRelativeBarPlot.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="107" column="25" selection-start="3843" selection-end="3843" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jmbench/plots/UtilPlotPdf.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="59" column="0" selection-start="2272" selection-end="2272" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/jfreechart/jfreechart-1.0.13.jar!/org/jfree/chart/JFreeChart.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="88" column="44" selection-start="3958" selection-end="3970" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jmbench/plots/OperationsVersusSizePlot.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="78" column="45" selection-start="2530" selection-end="2530" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jmbench/plots/OverallRelativeAreaPlot.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="69" column="43" selection-start="2349" selection-end="2349" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jmbench/tools/runtime/evaluation/PlotRuntimeResults.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="145" column="34" selection-start="5279" selection-end="5279" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jmbench/tools/runtime/evaluation/RuntimePlotData.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="67" column="15" selection-start="1958" selection-end="1958" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jmbench/tools/runtime/evaluation/RuntimeResultPlotter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="175" column="83" selection-start="7059" selection-end="7059" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jmbench/impl/runtime/MtjAlgorithmFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="362" column="125" selection-start="11705" selection-end="11705" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/change.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="67" selection-start="540" selection-end="540" vertical-scroll-proportion="0.15354331">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ArtifactsStructureConfigurable.UI">
+        <settings>
+          <artifact-editor />
+          <last-edited>libpja</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+                <option value="0.5" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="FacetStructureConfigurable.UI">
+        <settings>
+          <last-edited>No facets are configured</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="GlobalLibrariesConfigurable.UI">
+        <settings>
+          <last-edited>Apache-NoXMLRPC</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="JdkListConfigurable.UI">
+        <settings>
+          <last-edited>1.7 (64bit)</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ModuleStructureConfigurable.UI">
+        <settings>
+          <last-edited>jmatbench</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectLibrariesConfigurable.UI">
+        <settings>
+          <last-edited>testing</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+</project>
+

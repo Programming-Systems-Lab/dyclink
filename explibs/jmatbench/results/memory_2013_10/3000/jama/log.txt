@@ -1,0 +1,5 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/jama/Jama-1.0.3.jar
+
+Overhead = 28025651 bytes

@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>ojAlgo</nameLibrary>
+  <displayName>inv |A| &gt; 1</displayName>
+  <results>
+    <long>104110900</long>
+    <long>103848756</long>
+    <long>104135476</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

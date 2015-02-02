@@ -1,0 +1,12 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/commons-math/commons-math3-3.2-javadoc.jar:/home/pja/projects/jmatbench/lib/commons-math/commons-math3-3.2.jar
+    Case was too slow: op = Solve m=n matrix size = 5000 memory = 9000 mb
+    Case was too slow: op = Mult c=a*b matrix size = 10000 memory = 9000 mb
+    Case was too slow: op = Determinant matrix size = 5000 memory = 9000 mb
+    Case failed: reason = FROZEN op = SVD matrix size = 5000 memory = 9000 mb duration = 4200245
+    Case was too slow: op = Solve m>n matrix size = 10000 memory = 9000 mb
+    Case was too slow: op = Eigen for Symm Matrices matrix size = 5000 memory = 9000 mb
+    Case was too slow: op = Mult c=a*b^T matrix size = 10000 memory = 9000 mb
+    Case was too slow: op = Invert Symm b=inv(a) matrix size = 10000 memory = 9000 mb
+    Case was too slow: op = Invert b=inv(a) matrix size = 5000 memory = 9000 mb

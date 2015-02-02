@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>MTJ</nameLibrary>
+  <displayName>Eigen</displayName>
+  <results>
+    <long>270605517</long>
+    <long>271281357</long>
+    <long>270802125</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

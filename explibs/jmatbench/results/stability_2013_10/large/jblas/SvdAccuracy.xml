@@ -1,0 +1,42 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>7.140692486361016E-15</double>
+    <double>4.298195144133337E-15</double>
+    <double>5.2326782521991785E-15</double>
+    <double>2.5678319223396583E-15</double>
+    <double>6.781626755517774E-15</double>
+    <double>5.588798230890258E-15</double>
+    <double>7.12037588740322E-15</double>
+    <double>7.40266324997081E-15</double>
+    <double>2.631566262496004E-15</double>
+    <double>7.390848768109784E-15</double>
+    <double>7.150256853806255E-15</double>
+    <double>4.195491232512664E-15</double>
+    <double>6.760289629324121E-15</double>
+    <double>7.853207400502E-15</double>
+    <double>2.6666606195000773E-15</double>
+    <double>6.044682573369141E-15</double>
+    <double>6.2149909970737255E-15</double>
+    <double>6.781984791011192E-15</double>
+    <double>4.517028963807521E-15</double>
+    <double>7.001785630492392E-15</double>
+    <double>6.967933358266203E-15</double>
+    <double>2.514174386564122E-15</double>
+    <double>5.909530493802489E-15</double>
+    <double>5.730152110035296E-15</double>
+    <double>2.758141686494768E-15</double>
+    <double>6.187494892663144E-15</double>
+    <double>6.2130897942196866E-15</double>
+    <double>3.1320920282951355E-15</double>
+  </breakingPoints>
+  <numFinished>28</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>JBLAS</libraryName>
+  <benchmarkName>SVD Accuracy</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>104021</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

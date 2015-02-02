@@ -1,0 +1,14 @@
+<jmbench.impl.LibraryDescription>
+  <location>
+    <plotName>la4j</plotName>
+    <libraryDirName>la4j</libraryDirName>
+    <saveDirName>la4j</saveDirName>
+    <extraLibs>true</extraLibs>
+    <nativeCode>false</nativeCode>
+    <plotLineType>12</plotLineType>
+  </location>
+  <configure>jmbench.impl.configure.DoNothingSpecialConfigure</configure>
+  <factoryRuntime>jmbench.impl.runtime.La4jAlgorithmFactory</factoryRuntime>
+  <factoryMemory>jmbench.impl.memory.La4jMemoryFactory</factoryMemory>
+  <version>jmbench.impl.AllLibraryVersion$LA4J</version>
+</jmbench.impl.LibraryDescription>

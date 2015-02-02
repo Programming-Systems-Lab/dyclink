@@ -1,0 +1,42 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>7.022789822920483E-15</double>
+    <double>4.0439997522490806E-15</double>
+    <double>5.488429355521159E-15</double>
+    <double>2.581166755257668E-15</double>
+    <double>6.740025200805632E-15</double>
+    <double>5.048475460743051E-15</double>
+    <double>7.098903524149056E-15</double>
+    <double>6.928853645736792E-15</double>
+    <double>2.3041680533762964E-15</double>
+    <double>7.0794872948853295E-15</double>
+    <double>7.301712196437994E-15</double>
+    <double>4.209055687204156E-15</double>
+    <double>6.522129784777812E-15</double>
+    <double>7.777679265862725E-15</double>
+    <double>2.6077395775286303E-15</double>
+    <double>6.463206511970049E-15</double>
+    <double>5.93194820400327E-15</double>
+    <double>6.551204251745218E-15</double>
+    <double>4.508282263565577E-15</double>
+    <double>6.726814512728568E-15</double>
+    <double>6.653352267283051E-15</double>
+    <double>2.2060582452108244E-15</double>
+    <double>5.959562476476074E-15</double>
+    <double>5.681410384863051E-15</double>
+    <double>2.9899962149749252E-15</double>
+    <double>6.246191587897047E-15</double>
+    <double>6.24108011107787E-15</double>
+    <double>3.1231054568839296E-15</double>
+  </breakingPoints>
+  <numFinished>28</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>ojAlgo</libraryName>
+  <benchmarkName>SVD Accuracy</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>104016</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

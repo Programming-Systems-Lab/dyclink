@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<java version="1.6.0_21" class="java.beans.XMLDecoder"> 
+ <object class="jmbench.tools.runtime.RuntimeBenchmarkConfig"> 
+  <void property="add"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="det"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="eigSymm"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="invert"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="invertSymmPosDef"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="maxMatrixSize"> 
+   <int>2000</int> 
+  </void> 
+  <void property="maxTrialTime"> 
+   <int>600000</int> 
+  </void> 
+  <void property="memorySlaveBase"> 
+   <int>20</int> 
+  </void> 
+  <void property="memorySlaveScale"> 
+   <int>1</int> 
+  </void> 
+  <void property="memoryTrial"> 
+   <int>1000</int> 
+  </void> 
+  <void property="minMatrixSize"> 
+   <int>2</int> 
+  </void> 
+  <void property="mult"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="multTransB"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="numBlockTrials"> 
+   <int>5</int> 
+  </void> 
+  <void property="numBlocks"> 
+   <int>5</int> 
+  </void> 
+  <void property="randizeOrder"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="scale"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="seed"> 
+   <long>-559038737</long> 
+  </void> 
+  <void property="solveExact"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="solveOver"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="svd"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="targets"> 
+   <object class="java.util.ArrayList"> 
+    <void method="add"> 
+     <object class="jmbench.tools.EvaluationTarget"> 
+      <void property="factoryPath"> 
+       <string>jmbench.impl.runtime.EjmlAlgorithmFactory</string> 
+      </void> 
+      <void property="libName"> 
+       <string>EJML</string> 
+      </void> 
+     </object> 
+    </void> 
+   </object> 
+  </void> 
+  <void property="transposeSquare"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="transposeTall"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="transposeWide"> 
+   <boolean>true</boolean> 
+  </void> 
+  <void property="trialTime"> 
+   <int>3000</int> 
+  </void> 
+ </object> 
+</java> 

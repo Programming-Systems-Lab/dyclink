@@ -1,0 +1,14 @@
+<jmbench.impl.LibraryDescription>
+  <location>
+    <plotName>UJMP</plotName>
+    <libraryDirName>ujmp</libraryDirName>
+    <saveDirName>ujmp</saveDirName>
+    <extraLibs>true</extraLibs>
+    <nativeCode>false</nativeCode>
+    <plotLineType>10</plotLineType>
+  </location>
+  <configure>jmbench.impl.configure.UjmpLibraryConfigure</configure>
+  <factoryRuntime>jmbench.impl.runtime.UjmpAlgorithmFactory</factoryRuntime>
+  <factoryMemory>jmbench.impl.memory.UjmpMemoryFactory</factoryMemory>
+  <version>jmbench.impl.AllLibraryVersion$UJMP</version>
+</jmbench.impl.LibraryDescription>

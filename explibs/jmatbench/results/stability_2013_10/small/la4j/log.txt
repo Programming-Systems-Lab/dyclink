@@ -1,0 +1,5 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/la4j/la4j-0.4.5.jar
+    Slave: Frozen = SVD Overflow
+Had fatal error: SVD Overflow error = FROZE

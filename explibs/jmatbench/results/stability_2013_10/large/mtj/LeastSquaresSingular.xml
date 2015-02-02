@@ -1,0 +1,26 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>1.0919346372035822E-8</double>
+    <double>2.282964069396189E-8</double>
+    <double>4.2957996643017537E-8</double>
+    <double>5.80298835530109E-9</double>
+    <double>8.981449941034017E-8</double>
+    <double>5.89272930631242E-8</double>
+    <double>9.979388823371131E-8</double>
+    <double>9.979388823371131E-8</double>
+    <double>6.547477007013799E-8</double>
+    <double>1.0919346372035822E-8</double>
+    <double>3.866219697871579E-8</double>
+    <double>9.979388823371131E-8</double>
+  </breakingPoints>
+  <numFinished>0</numFinished>
+  <numLargeError>12</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>MTJ</libraryName>
+  <benchmarkName>Least Squares singular</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>87014</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

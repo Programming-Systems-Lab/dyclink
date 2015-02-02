@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>CommMath</nameLibrary>
+  <displayName>C=A+B</displayName>
+  <results>
+    <long>34306868</long>
+    <long>33962804</long>
+    <long>34528052</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

@@ -1,0 +1,5 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/jblas/jblas-1.2.3.jar
+    Case was too slow: op = SVD matrix size = 5000 memory = 9000 mb
+    Case failed: reason = OUT_OF_MEMORY op = Solve m>n matrix size = 10000 memory = 9000 mb duration = 23005

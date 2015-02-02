@@ -1,0 +1,57 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>NaN</double>
+    <double>NaN</double>
+    <double>7.324826297678954E-15</double>
+    <double>4.193637140404124E-15</double>
+    <double>NaN</double>
+    <double>NaN</double>
+    <double>1.0121878254571146E-14</double>
+    <double>1.1646780735410187E-14</double>
+    <double>NaN</double>
+    <double>NaN</double>
+    <double>NaN</double>
+    <double>6.7925699762029425E-15</double>
+    <double>NaN</double>
+    <double>NaN</double>
+    <double>4.253139860039663E-15</double>
+    <double>8.592017456366686E-15</double>
+    <double>NaN</double>
+    <double>NaN</double>
+    <double>6.949056699485927E-15</double>
+    <double>NaN</double>
+    <double>1.3222544937532103E-14</double>
+    <double>3.5290735910961208E-15</double>
+    <double>NaN</double>
+    <double>8.557633859852516E-15</double>
+    <double>3.449163197820517E-15</double>
+    <double>NaN</double>
+    <double>9.050471699418357E-15</double>
+    <double>NaN</double>
+  </breakingPoints>
+  <numFinished>13</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>15</numUnexpectedException>
+  <libraryName>Colt</libraryName>
+  <benchmarkName>SVD Accuracy</benchmarkName>
+  <unexpectedExceptions>
+    <jmbench.tools.stability.ExceptionInfo>
+      <shortName>IllegalArgumentException</shortName>
+      <numTimesThrown>15</numTimesThrown>
+      <stackTrace>
+        <string>cern.colt.matrix.linalg.Property.checkRectangular(Unknown Source)</string>
+        <string>cern.colt.matrix.linalg.SingularValueDecomposition.&lt;init&gt;(Unknown Source)</string>
+        <string>jmbench.impl.runtime.ColtAlgorithmFactory$SVD.process(ColtAlgorithmFactory.java:139)</string>
+        <string>jmbench.tools.stability.tests.AccuracyTestBase.evaluateTestCase(AccuracyTestBase.java:90)</string>
+        <string>jmbench.tools.stability.tests.AccuracyTestBase.performTest(AccuracyTestBase.java:63)</string>
+        <string>jmbench.tools.stability.StabilityTestBase.evaluate(StabilityTestBase.java:121)</string>
+        <string>jmbench.tools.EvaluatorSlave.evaluationLoop(EvaluatorSlave.java:180)</string>
+        <string>jmbench.tools.EvaluatorSlave.main(EvaluatorSlave.java:87)</string>
+      </stackTrace>
+    </jmbench.tools.stability.ExceptionInfo>
+  </unexpectedExceptions>
+  <durationMilli>117018</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

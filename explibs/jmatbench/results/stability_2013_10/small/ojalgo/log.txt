@@ -1,0 +1,5 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/ojalgo/ojalgo-34.8.jar
+    Slave: Frozen = SVD Overflow
+Had fatal error: SVD Overflow error = FROZE

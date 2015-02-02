@@ -1,0 +1,42 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>4.067007802039973E-15</double>
+    <double>3.2953801603550082E-15</double>
+    <double>3.630367937653497E-15</double>
+    <double>3.0261594740303838E-15</double>
+    <double>4.0223563582849975E-15</double>
+    <double>3.583594346145035E-15</double>
+    <double>4.086104837326628E-15</double>
+    <double>4.104963277546868E-15</double>
+    <double>3.0346168008287585E-15</double>
+    <double>4.190308184595858E-15</double>
+    <double>4.049130376943419E-15</double>
+    <double>3.566066694386717E-15</double>
+    <double>4.012166445244277E-15</double>
+    <double>4.243890689555878E-15</double>
+    <double>3.3282604320056036E-15</double>
+    <double>3.85528263862606E-15</double>
+    <double>3.96701623824467E-15</double>
+    <double>3.875370744491402E-15</double>
+    <double>3.3651772623854902E-15</double>
+    <double>4.0096409417316475E-15</double>
+    <double>3.882336502391443E-15</double>
+    <double>3.1940504541292E-15</double>
+    <double>3.716539619624559E-15</double>
+    <double>3.685428623243837E-15</double>
+    <double>3.6538603586609486E-15</double>
+    <double>3.83041662104773E-15</double>
+    <double>3.872525046121275E-15</double>
+    <double>3.0667649563311153E-15</double>
+  </breakingPoints>
+  <numFinished>28</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>PColt</libraryName>
+  <benchmarkName>SVD Accuracy</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>102016</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

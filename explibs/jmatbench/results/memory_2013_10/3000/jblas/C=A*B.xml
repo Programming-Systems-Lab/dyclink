@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>JBLAS</nameLibrary>
+  <displayName>C=A*B</displayName>
+  <results>
+    <long>447327437</long>
+    <long>447347917</long>
+    <long>447216845</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

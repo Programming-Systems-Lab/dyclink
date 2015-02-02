@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>la4j</nameLibrary>
+  <displayName>SVD</displayName>
+  <results>
+    <long>168168653</long>
+    <long>168017101</long>
+    <long>174165197</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

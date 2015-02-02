@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>ojAlgo</nameLibrary>
+  <displayName>C=A*B^T</displayName>
+  <results>
+    <long>99937076</long>
+    <long>99855156</long>
+    <long>100018996</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

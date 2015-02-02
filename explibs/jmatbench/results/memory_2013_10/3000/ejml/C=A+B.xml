@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>EJML</nameLibrary>
+  <displayName>C=A+B</displayName>
+  <results>
+    <long>217103565</long>
+    <long>217103565</long>
+    <long>216972493</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

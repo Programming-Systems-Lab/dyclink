@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>EJML</nameLibrary>
+  <displayName>SVD</displayName>
+  <results>
+    <long>18172724</long>
+    <long>18012980</long>
+    <long>18324276</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

@@ -1,0 +1,14 @@
+<jmbench.impl.LibraryDescription>
+  <location>
+    <plotName>MTJ</plotName>
+    <libraryDirName>mtj</libraryDirName>
+    <saveDirName>mtj</saveDirName>
+    <extraLibs>true</extraLibs>
+    <nativeCode>false</nativeCode>
+    <plotLineType>2</plotLineType>
+  </location>
+  <configure>jmbench.impl.configure.MtjLibraryConfigure</configure>
+  <factoryRuntime>jmbench.impl.runtime.MtjAlgorithmFactory</factoryRuntime>
+  <factoryMemory>jmbench.impl.memory.MtjMemoryFactory</factoryMemory>
+  <version>jmbench.impl.AllLibraryVersion$MTJ</version>
+</jmbench.impl.LibraryDescription>

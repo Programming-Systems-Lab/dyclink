@@ -1,0 +1,7 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/jblas/jblas-1.2.3.jar
+
+Overhead = 28009676 bytes
+    Case failed: Operation Not Supported: solveLS
+FAILED: operation solve m>n

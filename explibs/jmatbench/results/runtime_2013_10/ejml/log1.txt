@@ -1,0 +1,21 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar
+RESUMING OLD RESULTS: Operation Mult c=a*b size 4 numTrials 0
+RESUMING OLD RESULTS: Operation Add c=a+b size 3 numTrials 20
+RESUMING OLD RESULTS: Operation Transpose Square: b=a^T size 3 numTrials 10
+RESUMING OLD RESULTS: Operation Scale b=alpha*a size 3 numTrials 0
+RESUMING OLD RESULTS: Operation Determinant size 4 numTrials 20
+RESUMING OLD RESULTS: Operation Invert b=inv(a) size 5 numTrials 5
+RESUMING OLD RESULTS: Operation Invert Symm b=inv(a) size 3 numTrials 0
+RESUMING OLD RESULTS: Operation SVD size 5 numTrials 0
+RESUMING OLD RESULTS: Operation Mult c=a*b^T size 2 numTrials 20
+RESUMING OLD RESULTS: Operation Solve m=n size 4 numTrials 0
+RESUMING OLD RESULTS: Operation Solve m>n size 3 numTrials 10
+RESUMING OLD RESULTS: Operation Eigen for Symm Matrices size 3 numTrials 5
+    Case failed: reason = FROZEN op = SVD matrix size = 10000 memory = 9000 mb duration = 4200005
+    Case was too slow: op = Mult c=a*b matrix size = 10000 memory = 9000 mb
+    Case was too slow: op = Invert b=inv(a) matrix size = 10000 memory = 9000 mb
+    Case was too slow: op = Eigen for Symm Matrices matrix size = 10000 memory = 9000 mb
+    Case was too slow: op = Solve m>n matrix size = 10000 memory = 9000 mb
+    Case was too slow: op = Mult c=a*b^T matrix size = 10000 memory = 9000 mb

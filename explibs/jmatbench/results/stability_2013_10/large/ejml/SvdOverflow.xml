@@ -1,0 +1,21 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>1.0E308</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+  </breakingPoints>
+  <numFinished>6</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>1</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>EJML</libraryName>
+  <benchmarkName>SVD Overflow</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>75510</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

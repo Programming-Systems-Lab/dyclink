@@ -1,0 +1,42 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>6.331483884617234E-15</double>
+    <double>6.500031363916434E-15</double>
+    <double>6.287362572302487E-15</double>
+    <double>6.174163935667853E-15</double>
+    <double>6.1790870218274205E-15</double>
+    <double>5.970779062016853E-15</double>
+    <double>6.001298048440669E-15</double>
+    <double>6.475584812415787E-15</double>
+    <double>6.15615941465133E-15</double>
+    <double>6.011835695475488E-15</double>
+    <double>6.014852200616385E-15</double>
+    <double>5.9936413892315886E-15</double>
+    <double>6.324613206540408E-15</double>
+    <double>6.4907011352071085E-15</double>
+    <double>6.06693195384661E-15</double>
+    <double>6.241638021972304E-15</double>
+    <double>6.099443657864101E-15</double>
+    <double>6.2954622400882076E-15</double>
+    <double>6.139575316641866E-15</double>
+    <double>6.4291070392092425E-15</double>
+    <double>6.068819456252094E-15</double>
+    <double>6.530586581766052E-15</double>
+    <double>6.259904201806343E-15</double>
+    <double>6.305994759436353E-15</double>
+    <double>5.979732153253731E-15</double>
+    <double>6.422814334497669E-15</double>
+    <double>6.450404506484891E-15</double>
+    <double>6.0884440979526614E-15</double>
+  </breakingPoints>
+  <numFinished>28</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>EJML</libraryName>
+  <benchmarkName>Eigen Value Symmetric Accuracy</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>16503</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

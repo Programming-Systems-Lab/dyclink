@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>MTJ-N</nameLibrary>
+  <displayName>C=A*B</displayName>
+  <results>
+    <long>167512884</long>
+    <long>146778932</long>
+    <long>168082228</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

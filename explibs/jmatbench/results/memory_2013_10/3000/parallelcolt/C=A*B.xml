@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>PColt</nameLibrary>
+  <displayName>C=A*B</displayName>
+  <results>
+    <long>221387981</long>
+    <long>221719757</long>
+    <long>221842637</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

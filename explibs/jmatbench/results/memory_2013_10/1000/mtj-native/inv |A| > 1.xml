@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>MTJ-N</nameLibrary>
+  <displayName>inv |A| &gt; 1</displayName>
+  <results>
+    <long>184875828</long>
+    <long>185125684</long>
+    <long>185154356</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

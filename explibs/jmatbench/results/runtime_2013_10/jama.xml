@@ -1,0 +1,14 @@
+<jmbench.impl.LibraryDescription>
+  <location>
+    <plotName>JAMA</plotName>
+    <libraryDirName>jama</libraryDirName>
+    <saveDirName>jama</saveDirName>
+    <extraLibs>false</extraLibs>
+    <nativeCode>false</nativeCode>
+    <plotLineType>1</plotLineType>
+  </location>
+  <configure>jmbench.impl.configure.DoNothingSpecialConfigure</configure>
+  <factoryRuntime>jmbench.impl.runtime.JamaAlgorithmFactory</factoryRuntime>
+  <factoryMemory>jmbench.impl.memory.JamaMemoryFactory</factoryMemory>
+  <version>jmbench.impl.AllLibraryVersion$JAMA</version>
+</jmbench.impl.LibraryDescription>

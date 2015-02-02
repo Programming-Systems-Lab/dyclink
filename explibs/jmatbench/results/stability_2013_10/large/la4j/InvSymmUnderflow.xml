@@ -1,0 +1,43 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>0.1</double>
+    <double>0.1</double>
+    <double>0.1</double>
+    <double>0.1</double>
+    <double>0.1</double>
+    <double>0.1</double>
+    <double>0.1</double>
+    <double>0.1</double>
+    <double>0.1</double>
+    <double>0.1</double>
+    <double>0.1</double>
+    <double>0.1</double>
+  </breakingPoints>
+  <numFinished>0</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>12</numUnexpectedException>
+  <libraryName>la4j</libraryName>
+  <benchmarkName>Inverse Symmetric Underflow</benchmarkName>
+  <unexpectedExceptions>
+    <jmbench.tools.stability.ExceptionInfo>
+      <shortName>IllegalArgumentException</shortName>
+      <numTimesThrown>96</numTimesThrown>
+      <stackTrace>
+        <string>org.la4j.inversion.GaussJordanInverter.inverse(GaussJordanInverter.java:61)</string>
+        <string>org.la4j.inversion.GaussJordanInverter.inverse(GaussJordanInverter.java:75)</string>
+        <string>jmbench.impl.runtime.La4jAlgorithmFactory$SmartInverse.process(La4jAlgorithmFactory.java:232)</string>
+        <string>jmbench.tools.stability.tests.OverflowTestBase.check(OverflowTestBase.java:117)</string>
+        <string>jmbench.tools.stability.tests.BreakingPointBinarySearch.findCriticalPoint(BreakingPointBinarySearch.java:40)</string>
+        <string>jmbench.tools.stability.tests.OverflowTestBase.beakOperation(OverflowTestBase.java:91)</string>
+        <string>jmbench.tools.stability.tests.OverflowTestBase.performTest(OverflowTestBase.java:80)</string>
+        <string>jmbench.tools.stability.StabilityTestBase.evaluate(StabilityTestBase.java:121)</string>
+        <string>jmbench.tools.EvaluatorSlave.evaluationLoop(EvaluatorSlave.java:180)</string>
+        <string>jmbench.tools.EvaluatorSlave.main(EvaluatorSlave.java:87)</string>
+      </stackTrace>
+    </jmbench.tools.stability.ExceptionInfo>
+  </unexpectedExceptions>
+  <durationMilli>292053</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

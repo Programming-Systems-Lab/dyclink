@@ -1,0 +1,66 @@
+INFO  [02.02.15 01:27:51] MIBDriver - MIB Configuration [thread: main]
+INFO  [02.02.15 01:27:51] MIBDriver - op table path: opcodes/opcode_cats.csv
+op code cat id: opcodes/opcode_ids.csv
+cost table dir: ./cost_tables/
+cost limit: 100
+template dir: ./template
+test dir: ./test
+path dir: ./path
+label dir: ./labelmap
+result dir: ./results
+debug dir: ./debug
+control weigtht: 1.0
+inst data weigtht: 1.0
+write data weight: 1.0
+idx expand factor: 10000
+precision digit: 5
+parallel factor: 8
+minimum inst number: 0
+inst selection number: 3000
+test method threshold: -1
+alpha of PageRank: 0.15
+max iteration of PageRank: 50
+epsilon of PageRank: 1.0E-5
+annotation guard: false
+field track: false
+clean template: false
+clean test: false
+template mode: false
+overall analysis: false
+cache graphs: true
+debug: false
+ [thread: main]
+INFO  [02.02.15 01:27:51] MIBDriver - Confirm class: class jmbench.tools.runtime.RuntimeBenchmarkMaster [thread: main]
+INFO  [02.02.15 01:32:33] MIBDriver - MIB Configuration [thread: main]
+INFO  [02.02.15 01:32:33] MIBDriver - op table path: opcodes/opcode_cats.csv
+op code cat id: opcodes/opcode_ids.csv
+cost table dir: ./cost_tables/
+cost limit: 100
+template dir: ./template
+test dir: ./test
+path dir: ./path
+label dir: ./labelmap
+result dir: ./results
+debug dir: ./debug
+control weigtht: 1.0
+inst data weigtht: 1.0
+write data weight: 1.0
+idx expand factor: 10000
+precision digit: 5
+parallel factor: 8
+minimum inst number: 0
+inst selection number: 3000
+test method threshold: -1
+alpha of PageRank: 0.15
+max iteration of PageRank: 50
+epsilon of PageRank: 1.0E-5
+annotation guard: false
+field track: false
+clean template: false
+clean test: false
+template mode: false
+overall analysis: false
+cache graphs: true
+debug: false
+ [thread: main]
+INFO  [02.02.15 01:32:33] MIBDriver - Confirm class: class jmbench.tools.runtime.RuntimeBenchmarkMaster [thread: main]

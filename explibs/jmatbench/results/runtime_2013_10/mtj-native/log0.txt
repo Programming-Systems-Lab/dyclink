@@ -1,0 +1,5 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/mtj/mtj-1.0-snapshot.jar
+    Case failed Slave: op = Determinant reason NOT_SUPPORTED matrix size = 2 memory = 9000 mb
+    Case failed: reason = OUT_OF_MEMORY op = Solve m>n matrix size = 10000 memory = 9000 mb duration = 190552

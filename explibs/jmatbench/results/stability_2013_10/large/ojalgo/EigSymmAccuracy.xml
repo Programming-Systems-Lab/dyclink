@@ -1,0 +1,42 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>6.655717974419483E-15</double>
+    <double>7.218608942733874E-15</double>
+    <double>6.7648736143097656E-15</double>
+    <double>6.710462395074327E-15</double>
+    <double>6.750184884159598E-15</double>
+    <double>7.0658309477942444E-15</double>
+    <double>6.5706069156548455E-15</double>
+    <double>7.056452499609533E-15</double>
+    <double>6.661622299316034E-15</double>
+    <double>6.89972667848881E-15</double>
+    <double>6.9845853553200356E-15</double>
+    <double>6.537535206395324E-15</double>
+    <double>6.8832571613599144E-15</double>
+    <double>6.915722084410001E-15</double>
+    <double>7.114531564587833E-15</double>
+    <double>6.795683443572537E-15</double>
+    <double>6.7950012356768576E-15</double>
+    <double>6.838522661401748E-15</double>
+    <double>6.627271242769151E-15</double>
+    <double>6.98068843451454E-15</double>
+    <double>6.4922377038028306E-15</double>
+    <double>6.985340293604555E-15</double>
+    <double>6.740594025677166E-15</double>
+    <double>6.6782527207121634E-15</double>
+    <double>6.638617521059865E-15</double>
+    <double>7.186045595532473E-15</double>
+    <double>7.0100888759176074E-15</double>
+    <double>7.023998951207185E-15</double>
+  </breakingPoints>
+  <numFinished>28</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>ojAlgo</libraryName>
+  <benchmarkName>Eigen Value Symmetric Accuracy</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>23504</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

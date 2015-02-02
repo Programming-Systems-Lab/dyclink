@@ -153,7 +153,7 @@ public class StaticTester {
 		GraphConstructor.reconstructGraph(tempGraph);
 		double[] dist1 = StaticTester.genDistribution(tempGraph.getDist());
 		double[] normDist1 = normalizeDist(dist1, tempGraph.getVertexNum());
-		System.out.println(Arrays.toString(tempGraph.getDist()));
+		System.out.println(Arrays.toString(dist1));
 		System.out.println(Arrays.toString(normDist1));
 		
 		File testFile = new File("./test/cern.colt.matrix.linalg.SingularValueDecomposition:<init>:0:0:75.json");
@@ -161,7 +161,7 @@ public class StaticTester {
 		GraphConstructor.reconstructGraph(testGraph);
 		double[] dist2 = StaticTester.genDistribution(testGraph.getDist());
 		double[] normDist2 = normalizeDist(dist2, testGraph.getVertexNum());
-		System.out.println(Arrays.toString(testGraph.getDist()));
+		System.out.println(Arrays.toString(dist2));
 		System.out.println(Arrays.toString(normDist2));
 		
 		System.out.println("Static distance: " + normalizeEucDistance(normDist1, normDist2));

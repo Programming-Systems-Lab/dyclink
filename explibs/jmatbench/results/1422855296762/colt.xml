@@ -1,0 +1,14 @@
+<jmbench.impl.LibraryDescription>
+  <location>
+    <plotName>Colt</plotName>
+    <libraryDirName>colt</libraryDirName>
+    <saveDirName>colt</saveDirName>
+    <extraLibs>true</extraLibs>
+    <nativeCode>false</nativeCode>
+    <plotLineType>7</plotLineType>
+  </location>
+  <configure>jmbench.impl.configure.DoNothingSpecialConfigure</configure>
+  <factoryRuntime>jmbench.impl.runtime.ColtAlgorithmFactory</factoryRuntime>
+  <factoryMemory>jmbench.impl.memory.ColtMemoryFactory</factoryMemory>
+  <version>jmbench.impl.AllLibraryVersion$Colt</version>
+</jmbench.impl.LibraryDescription>

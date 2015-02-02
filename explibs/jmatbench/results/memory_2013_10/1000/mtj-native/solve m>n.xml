@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>MTJ-N</nameLibrary>
+  <displayName>solve m&gt;n</displayName>
+  <results>
+    <long>217389876</long>
+    <long>205454132</long>
+    <long>217291572</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>JAMA</nameLibrary>
+  <displayName>SVD</displayName>
+  <results>
+    <long>118418637</long>
+    <long>112188621</long>
+    <long>112184525</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

@@ -1,0 +1,21 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>1.0000000000000168E-303</double>
+    <double>1.0000000000000168E-303</double>
+    <double>1.0000000000000168E-303</double>
+    <double>1.0000000000000168E-303</double>
+    <double>1.0000000000000168E-303</double>
+    <double>1.0000000000000168E-304</double>
+    <double>1.0000000000000168E-302</double>
+  </breakingPoints>
+  <numFinished>0</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>7</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>EJML</libraryName>
+  <benchmarkName>Eigenvalue Symmetric Underflow</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>42007</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

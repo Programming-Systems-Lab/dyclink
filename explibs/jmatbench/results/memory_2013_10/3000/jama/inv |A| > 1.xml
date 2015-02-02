@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>JAMA</nameLibrary>
+  <displayName>inv |A| &gt; 1</displayName>
+  <results>
+    <long>369515725</long>
+    <long>340372685</long>
+    <long>371588301</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

@@ -1,0 +1,14 @@
+<jmbench.impl.LibraryDescription>
+  <location>
+    <plotName>ojAlgo</plotName>
+    <libraryDirName>ojalgo</libraryDirName>
+    <saveDirName>ojalgo</saveDirName>
+    <extraLibs>true</extraLibs>
+    <nativeCode>false</nativeCode>
+    <plotLineType>6</plotLineType>
+  </location>
+  <configure>jmbench.impl.configure.DoNothingSpecialConfigure</configure>
+  <factoryRuntime>jmbench.impl.runtime.OjAlgoAlgorithmFactory</factoryRuntime>
+  <factoryMemory>jmbench.impl.memory.OjAlgoMemoryFactory</factoryMemory>
+  <version>jmbench.impl.AllLibraryVersion$OJALGO</version>
+</jmbench.impl.LibraryDescription>

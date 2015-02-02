@@ -292,7 +292,7 @@ public class PageRankSelector {
 				if (si.instDistWithSub <= 0.2) {
 					candSegs.put(inst, si);
 				} else {
-					logger.info("Give up less likely inst: " + inst);
+					logger.info("Give up less likely inst: " + inst + " " + si.instDistWithSub);
 				}
 				
 				/*if (ChiTester.shouldTest(subDist, subProfile.pgRep.length, segDist, seg.size())) {

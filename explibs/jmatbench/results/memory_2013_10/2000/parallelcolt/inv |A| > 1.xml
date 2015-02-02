@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>PColt</nameLibrary>
+  <displayName>inv |A| &gt; 1</displayName>
+  <results>
+    <long>252857140</long>
+    <long>254352180</long>
+    <long>252197684</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>CommMath</nameLibrary>
+  <displayName>C=A*B^T</displayName>
+  <results>
+    <long>369138893</long>
+    <long>368344269</long>
+    <long>370490573</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

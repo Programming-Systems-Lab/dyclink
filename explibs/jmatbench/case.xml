@@ -1,0 +1,13 @@
+<jmbench.tools.runtime.RuntimeEvaluationTest>
+  <randomSeed>4266357105038578992</randomSeed>
+  <numTrials>0</numTrials>
+  <nameAlgorithm>multTransB</nameAlgorithm>
+  <dimen>5</dimen>
+  <classFactory>jmbench.impl.runtime.ColtAlgorithmFactory</classFactory>
+  <generator class="jmbench.tools.runtime.generator.MultTranBGenerator"/>
+  <goalRuntime>3000</goalRuntime>
+  <maxRuntime>600000</maxRuntime>
+  <sanityCheck>false</sanityCheck>
+  <estimatedTrials>0</estimatedTrials>
+  <classConfigure>jmbench.impl.configure.DoNothingSpecialConfigure</classConfigure>
+</jmbench.tools.runtime.RuntimeEvaluationTest>

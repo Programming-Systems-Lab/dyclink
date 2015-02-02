@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>Colt</nameLibrary>
+  <displayName>inv |A| &gt; 1</displayName>
+  <results>
+    <long>363506893</long>
+    <long>363629773</long>
+    <long>363203789</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

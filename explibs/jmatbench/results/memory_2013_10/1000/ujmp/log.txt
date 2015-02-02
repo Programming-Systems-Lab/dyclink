@@ -1,0 +1,55 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/ujmp/ujmp-complete-0.2.5.jar
+
+Overhead = 28009676 bytes
+Available memory is very low: 76M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 76M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 76M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 76M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 76M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 76M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 50M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 50M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 50M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 50M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 52M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 52M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 52M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 83M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 83M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 83M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 115M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 115M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 115M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 54M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 54M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 54M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 69M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 67M
+Invoke Java with the parameter -Xmx512M to increase available memory
+Available memory is very low: 67M
+Invoke Java with the parameter -Xmx512M to increase available memory

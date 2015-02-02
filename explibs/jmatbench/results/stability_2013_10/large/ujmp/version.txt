@@ -1,0 +1,2 @@
+version: 0.2.5
+release date: 2010-06-22

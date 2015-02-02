@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>Colt</nameLibrary>
+  <displayName>Eigen</displayName>
+  <results>
+    <long>376777933</long>
+    <long>390769869</long>
+    <long>376630477</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

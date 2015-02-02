@@ -1,0 +1,26 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>1.0E308</double>
+    <double>1.0E308</double>
+    <double>1.0E308</double>
+    <double>1.0E308</double>
+    <double>1.0E308</double>
+    <double>1.0E308</double>
+    <double>1.0E308</double>
+    <double>1.0E308</double>
+    <double>1.0E308</double>
+    <double>1.0E308</double>
+    <double>1.0E308</double>
+    <double>1.0E308</double>
+  </breakingPoints>
+  <numFinished>0</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>12</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>JAMA</libraryName>
+  <benchmarkName>Least Squares Overflow</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>72512</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

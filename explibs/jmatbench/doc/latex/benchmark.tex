@@ -1,0 +1,119 @@
+\documentclass[12pt]{article}%book report
+
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage[pdftex]{graphicx}
+\usepackage{rotating}
+
+\title{Comparision of Java Dense Linear Algebra Libraries}
+\author{Peter Abeles}
+\date{\today}
+
+\begin{document}
+
+
+\maketitle
+
+\tableofcontents
+
+\begin{abstract}
+The following is a comparision of several Java based dense matrix linear algebra.  Their runtime performance is evaluated in several common matrix operations and across a wide range of matrix sizes.  Past studies have focused exclusively on large matrices and on a smaller set of operations.
+\end{abstract}
+
+
+\section{Introduction}
+
+Linear algebra is an important field in many engineering and scientific diciplines.  Two areas that linear algebra deals with is vectors and solving systems of equations.  A matrix is a rectangular array of numbers.  It can be used to represent a system of equations as well as other abstractions.  In computational linear algebra a dense matrix is a data structure that explicity stores every element in a matrix.
+
+There are several linear algebra libraries available writen in Java.  When selecting a linear algebra library for a project, several factors need to be considered; correctness, usability, and runtime performance.  Selecting which library to use can be difficult since it is difficult to know the strengths and weaknesses before actually using it.
+
+This study deals exclusively with runtime performance for dense matrices.  Unlike similar studies done in the past, a wide range of matrix sizes are considered.  Past studies have focused on large matrices alone.  Also several different operations are considered.
+
+Both small and large matrices are important in a variety of applications.  Small matrices are important in geometry and in many common applications of Kalman filters.  Large matrices have applications in fields such as machine learning and other optimizations.
+
+- operations
+- how is the comparsion shown
+- what tools are used
+- which libraries are compared
+
+\section{Profiling Procedure}
+
+Profiling was performed using JMatrixBenchmark.  This tool was developed to compare java matrix libraries against each other by repedidly performing the same operation on randomly generated matrices.  For each individual test a master application launches a slave application that runs a test.  This repeated several times for each test and the best result is used.  
+
+\section{Comments on Packages}
+
+Several different packages were selected for comparison against EJML.  Packages were selected based on their popularity and if they had similar design goals as EJML.  The following subsections describe each package as well as any thing notable about how it was tested.
+
+\subsection{Efficient Java Matrix Library}
+
+All the other libraries are compared against this library.
+
+\subsection{Simple Efficient Java Matrix Library}
+
+This is the simple interface written on top of EJML.  As the size of the matrix increases its performance should converge towards EJML.  Like Jama, for many of the operations a new matrix is created.
+
+\subsection{Jama}
+For most operations it creates a new matrix and stores the results in that.  This adds a significant amount of overhead when dealing with small matrices, but for large ones it does not matter as much.
+
+\subsection{Matrix Toolbox Java}
+
+For several of the basic operations MTJ was at a disadvantage since it was forced to make a copy of the original matrix each time.  This was done because it only provided in-place operations.  For example it provided this addition operation $a=a+b$ and not $c=a+b$.
+
+MTJ does not provide a function for computing the determinant.  This can be done by computing the LU decompusition and extracting it from the diagonal elements.  Still, even that is adding new functionality to MTJ, so it was omited from the benchmark.
+
+\subsection{Apache Commons Math}
+
+Version 2.0 of Apache commons math was used.  BlockRealMatrix was used since they claim it is much faster on large matrices and only insignificantly slower on small matrices.  The other matrix types have not been tested yet.  It was also a bit confusion over what the recommended way to compute the LU decomposition was.  I eventually just selected the one way which was not deprecated.
+
+The common's implementation of SVD is different from all the others in that it just computes the singular values in the constructor.  To compute the full decomposition getU() and getV() need to be called.  This might be a better design in situations where the U and V matrices are not needed.  However, to be fair to the other algorithms it is forced to compute both U and V.
+
+\subsection{JScience}
+
+JScience just flags matrices as being transposed, but doesn't actually transpose them.  It is difficult to perform a physical transpose at all.  Functions such as copy or add create a new matrix that is flaged as being transposed.  Therefor the JScience transpose is not profiled.  From a design perspective this does make transpose fast, but adds overhead to everything else.
+
+One of the features of JScience is that it will automatically run concurrent algorithms.  For matrix multiplication, it switches to concurrent mode when the matrix's size exceeds a threshold.   The user has no control over this functionality.  Being able to run as a single thread would have been ideal for benchmark purposes.  From a high performance computing perspective, more control should be available.
+
+As far as I can tell JScience lacks SVD and Cholesky decompositions.
+
+\section{Results}
+
+Two types of performance is shown, relative and absolute.  The relative perform shows how well each of the packages performs compared to EJML. Absolute performance shows how differently EJML performed in different architectures.
+
+Relative performance was computed as a function of matrix size for each operation.  These are shown in plots where relative performance is the y-axis and input size is the x-axis.  The larger the performance factor is the faster the algorithm ran.
+
+Results are shown for several different architectures.
+
+\newcommand{\myincA}[1]{
+\includegraphics[width=6cm]{ubuntu32_jvm1.6_PentiumM/#1.pdf}
+}
+
+\newcommand{\myincB}[1]{
+\includegraphics[width=6cm]{vista64_jvm1.6_Q9400/#1.pdf}
+}
+
+\begin{sidewaysfigure*}[*]
+\begin{center}
+\begin{tabular}{ccc}
+\myincB{add} & \myincB{scale} & \myincB{tran} \\
+\myincB{solve} & \myincB{cholesky} & \myincB{svd} \\
+\myincB{mult} & \myincB{det} & \myincB{inv} \\
+\myincB{multTranA} & & 
+\end{tabular}
+\end{center}
+\caption{\label{fig:vista64_jvm1.6_Q9400}Relative performance in Vista 64bit, JVM 1.6.0\_16, Intel Q9400 Quad 2.66 GHz. }
+\end{sidewaysfigure*}
+
+\begin{sidewaysfigure*}[*]
+\begin{center}
+\begin{tabular}{ccc}
+\myincA{add} & \myincA{scale} & \myincA{tran} \\
+\myincA{solve} & \myincA{cholesky} & \myincA{svd} \\
+\myincA{mult} & \myincA{det} & \myincA{inv} \\
+\myincA{multTranA} & & 
+\end{tabular}
+\end{center}
+\caption{\label{fig:ubuntu32_jvm1.6_PentiumM}Relative performance in Ubuntu 8.04, Kernel 2.6.24-24-generic, 32bit, JVM 1.6.0\_16, Intel Pentium M 1.7 GHz.}
+\end{sidewaysfigure*}
+
+\end{document}

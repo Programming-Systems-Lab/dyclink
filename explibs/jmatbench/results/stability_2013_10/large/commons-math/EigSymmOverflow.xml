@@ -1,0 +1,21 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>1.0E153</double>
+    <double>1.0E153</double>
+    <double>1.0E153</double>
+    <double>1.0E153</double>
+    <double>1.0E153</double>
+    <double>1.0E153</double>
+    <double>1.0E153</double>
+  </breakingPoints>
+  <numFinished>0</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>7</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>CommMath</libraryName>
+  <benchmarkName>Eigenvalue Symmetric Overflow</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>68012</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>Colt</nameLibrary>
+  <displayName>SVD</displayName>
+  <results>
+    <long>39168820</long>
+    <long>39476020</long>
+    <long>39013172</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

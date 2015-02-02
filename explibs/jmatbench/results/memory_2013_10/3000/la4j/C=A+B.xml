@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>la4j</nameLibrary>
+  <displayName>C=A+B</displayName>
+  <results>
+    <long>231414989</long>
+    <long>230517965</long>
+    <long>231988429</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

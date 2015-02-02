@@ -1,0 +1,42 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>4.3622325302020313E-7</double>
+    <double>3.866219697871579E-8</double>
+    <double>4.3622325302020313E-7</double>
+    <double>4.3622325302020313E-7</double>
+    <double>2.8620607630655533E-7</double>
+    <double>3.479597728084421E-8</double>
+    <double>1.521016433984321E-7</double>
+    <double>2.575854686758998E-7</double>
+    <double>2.575854686758998E-7</double>
+    <double>9.120344560464496E-7</double>
+    <double>2.8620607630655533E-7</double>
+    <double>4.2957996643017537E-8</double>
+  </breakingPoints>
+  <numFinished>0</numFinished>
+  <numLargeError>12</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>CommMath</libraryName>
+  <benchmarkName>Linear singular</benchmarkName>
+  <unexpectedExceptions>
+    <jmbench.tools.stability.ExceptionInfo>
+      <shortName>SingularMatrixException</shortName>
+      <numTimesThrown>48</numTimesThrown>
+      <stackTrace>
+        <string>org.apache.commons.math3.linear.LUDecomposition$Solver.solve(LUDecomposition.java:335)</string>
+        <string>jmbench.impl.runtime.CommonsMathAlgorithmFactory$SolveExact.process(CommonsMathAlgorithmFactory.java:410)</string>
+        <string>jmbench.tools.stability.tests.SolverSingular.check(SolverSingular.java:150)</string>
+        <string>jmbench.tools.stability.tests.BreakingPointBinarySearch.findCriticalPoint(BreakingPointBinarySearch.java:40)</string>
+        <string>jmbench.tools.stability.tests.SolverSingular.evaluateNearlySingular(SolverSingular.java:126)</string>
+        <string>jmbench.tools.stability.tests.SolverSingular.performTest(SolverSingular.java:103)</string>
+        <string>jmbench.tools.stability.StabilityTestBase.evaluate(StabilityTestBase.java:121)</string>
+        <string>jmbench.tools.EvaluatorSlave.evaluationLoop(EvaluatorSlave.java:180)</string>
+        <string>jmbench.tools.EvaluatorSlave.main(EvaluatorSlave.java:87)</string>
+      </stackTrace>
+    </jmbench.tools.stability.ExceptionInfo>
+  </unexpectedExceptions>
+  <durationMilli>88015</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

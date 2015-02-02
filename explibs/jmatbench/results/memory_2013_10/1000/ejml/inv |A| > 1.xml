@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>EJML</nameLibrary>
+  <displayName>inv |A| &gt; 1</displayName>
+  <results>
+    <long>42638132</long>
+    <long>41962292</long>
+    <long>41966388</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>

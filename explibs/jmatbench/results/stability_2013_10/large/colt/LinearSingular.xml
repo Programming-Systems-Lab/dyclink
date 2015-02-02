@@ -1,0 +1,26 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>3.533408349463646E-7</double>
+    <double>4.2957996643017537E-8</double>
+    <double>4.3622325302020313E-7</double>
+    <double>3.9260092771818286E-7</double>
+    <double>2.575854686758998E-7</double>
+    <double>3.479597728084421E-8</double>
+    <double>1.368914790585889E-7</double>
+    <double>2.8620607630655533E-7</double>
+    <double>2.318269218083098E-7</double>
+    <double>9.120344560464496E-7</double>
+    <double>2.575854686758998E-7</double>
+    <double>3.866219697871579E-8</double>
+  </breakingPoints>
+  <numFinished>0</numFinished>
+  <numLargeError>12</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>Colt</libraryName>
+  <benchmarkName>Linear singular</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>84015</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

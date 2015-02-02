@@ -1,0 +1,13 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/la4j/la4j-0.4.5.jar
+    Slave: Frozen = Eigenvalue Symmetric Overflow
+Had fatal error: Eigenvalue Symmetric Overflow error = FROZE
+    Slave: Frozen = Inverse Symmetric Overflow
+Had fatal error: Inverse Symmetric Overflow error = FROZE
+    Slave: Frozen = Eigenvalue Symmetric Underflow
+Had fatal error: Eigenvalue Symmetric Underflow error = FROZE
+    Slave: Frozen = Eigen Value Symmetric Accuracy
+Had fatal error: Eigen Value Symmetric Accuracy error = FROZE
+    Slave: Frozen = Invert Symmetric Pos. Def. Accuracy
+Had fatal error: Invert Symmetric Pos. Def. Accuracy error = FROZE

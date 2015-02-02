@@ -1,0 +1,5 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/mtj/mtj-1.0-snapshot.jar
+    Slave: Frozen = Least Squares Overflow
+Had fatal error: Least Squares Overflow error = FROZE

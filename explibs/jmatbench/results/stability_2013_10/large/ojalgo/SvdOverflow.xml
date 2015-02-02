@@ -1,0 +1,21 @@
+<jmbench.tools.stability.StabilityTrialResults>
+  <breakingPoints>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+    <double>Infinity</double>
+  </breakingPoints>
+  <numFinished>7</numFinished>
+  <numLargeError>0</numLargeError>
+  <numUncountable>0</numUncountable>
+  <numGraceful>0</numGraceful>
+  <numUnexpectedException>0</numUnexpectedException>
+  <libraryName>ojAlgo</libraryName>
+  <benchmarkName>SVD Overflow</benchmarkName>
+  <unexpectedExceptions/>
+  <durationMilli>95016</durationMilli>
+  <memoryBytes>227</memoryBytes>
+</jmbench.tools.stability.StabilityTrialResults>

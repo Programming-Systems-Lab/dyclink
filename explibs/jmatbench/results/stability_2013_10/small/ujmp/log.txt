@@ -1,0 +1,5 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/ujmp/ujmp-complete-0.2.5.jar
+    Slave: Frozen = SVD Overflow
+Had fatal error: SVD Overflow error = FROZE

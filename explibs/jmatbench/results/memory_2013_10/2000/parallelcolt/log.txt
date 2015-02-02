@@ -1,0 +1,5 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/parallelcolt/jtransforms.jar:/home/pja/projects/jmatbench/lib/parallelcolt/parallelcolt-0.9.4.jar:/home/pja/projects/jmatbench/lib/parallelcolt/jplasma.jar:/home/pja/projects/jmatbench/lib/parallelcolt/optimization.jar:/home/pja/projects/jmatbench/lib/parallelcolt/arpack-combo.jar:/home/pja/projects/jmatbench/lib/parallelcolt/csparsej.jar:/home/pja/projects/jmatbench/lib/parallelcolt/netlib-java.jar
+
+Overhead = 28009676 bytes

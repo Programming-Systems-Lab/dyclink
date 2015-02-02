@@ -1,0 +1,335 @@
+Current directory = /home/pja/projects/jmatbench/.
+Classpath:
+build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/mtj/mtj-1.0-snapshot.jar
+
+Overhead = 28025651 bytes
+Oct 22, 2013 12:46:49 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader2274762824684556621netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:46:49 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:46:49 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:46:51 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader6049883257023320329netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:46:52 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:46:52 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:46:54 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader5391953106650194360netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:46:54 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:46:54 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:46:57 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader2327102183725574098netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:46:57 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:46:57 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:00 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader598329548417425780netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:00 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:00 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:02 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader7947088305868222157netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:02 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:02 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:05 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader2650183770270150664netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:05 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:05 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:08 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader5132059673452310673netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:08 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:08 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:10 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader7995146259870050826netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:10 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:10 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:13 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader4296259027333860447netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:13 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:13 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:16 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader5719524405629774283netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:16 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:16 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:18 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader5671719109382375983netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:18 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:18 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:21 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader8302321237416248434netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:21 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:21 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:23 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader9053848559669061443netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:23 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:23 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:26 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader4782196373510900057netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:26 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:26 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:28 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader1367676437012885976netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:28 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:28 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:31 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader5472067654984129075netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:31 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:31 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:33 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader3499567705483277301netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:33 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:33 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:36 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader6645422378449948361netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:36 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:36 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:38 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader4775042065659277278netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:38 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:38 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:41 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader852887178641083557netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:41 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:41 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:44 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader1362805330094892669netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:44 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:44 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:45 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader6666851842342309364netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:45 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:45 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:46 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader3697744657762972569netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:46 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:46 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:47 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader4451515695933691139netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:47 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:47 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:49 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader1974445945900207395netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:49 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:49 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:50 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader5433913546365610232netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:50 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:50 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:51 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader7488805862616117780netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:51 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:51 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:54 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader7742091049679305377netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:54 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:54 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:56 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader8883256055148387390netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:56 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:56 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:59 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader2029557838467842048netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:59 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:47:59 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:01 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader3274063850952896082netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:01 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:01 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:04 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader2961542624151702133netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:04 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:04 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:06 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader7975501888618263518netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:06 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:06 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:12 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader2769423085431532742netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:12 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:12 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:18 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader2134085597250702820netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:18 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:18 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:20 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader3667306003943250841netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:20 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:20 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:26 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader854639329077085230netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:26 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:26 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:32 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader6243035070562665919netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:32 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:32 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:33 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader1875090063004421827netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:33 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:33 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:39 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader2685688658974427811netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:39 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:39 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:45 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader352911834472613857netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:45 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:45 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:46 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader8578407938114948470netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:46 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:46 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:48 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader5035435511592991213netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:48 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:48 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:49 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader9214074412723142210netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:50 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:50 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:51 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader1844742440040670638netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:51 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:51 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:53 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader7537983477285036583netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:53 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:53 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:54 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader6164339025141723520netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:54 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:54 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:56 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader3654228805105557261netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:56 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:48:56 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:03 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader1483327887547044756netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:03 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:03 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:10 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader5256965840805254219netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:10 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:10 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:17 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader6236145204388172596netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:17 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:17 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:23 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader74162366520209893netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:24 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:24 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:30 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader1299216286759185640netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:30 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:30 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:37 PM com.github.fommil.jni.JniLoader liberalLoad
+INFO: successfully loaded /tmp/jniloader3695672677444082769netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:37 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so
+Oct 22, 2013 12:49:37 PM com.github.fommil.jni.JniLoader load
+INFO: already loaded netlib-native_system-linux-x86_64.so

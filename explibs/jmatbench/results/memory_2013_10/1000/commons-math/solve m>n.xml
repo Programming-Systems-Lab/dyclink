@@ -1,0 +1,10 @@
+<jmbench.tools.memory.MemoryResults>
+  <nameLibrary>CommMath</nameLibrary>
+  <displayName>solve m&gt;n</displayName>
+  <results>
+    <long>107698996</long>
+    <long>108792628</long>
+    <long>107678516</long>
+  </results>
+  <numFailed>0</numFailed>
+</jmbench.tools.memory.MemoryResults>
