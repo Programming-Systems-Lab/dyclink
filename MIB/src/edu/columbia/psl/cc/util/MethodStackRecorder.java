@@ -17,7 +17,7 @@ import org.objectweb.asm.Type;
 
 import com.google.gson.reflect.TypeToken;
 
-import edu.columbia.psl.cc.analysis.ChiTester;
+import edu.columbia.psl.cc.analysis.StaticTester;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
@@ -1369,7 +1369,7 @@ public class MethodStackRecorder {
 							+ childNum;
 					mn.clearCallees();
 					
-					ChiTester.sumDistribution(dist, repCallee.getDist());
+					StaticTester.sumDistribution(dist, repCallee.getDist());
 				}
 				vertexNum--;
 				edgeNum = edgeNum - instParentNum - controlParentNum;

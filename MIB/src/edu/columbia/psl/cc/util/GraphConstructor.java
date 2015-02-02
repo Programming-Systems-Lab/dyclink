@@ -29,10 +29,10 @@ public class GraphConstructor {
 	
 	private static double maxFreqFromParents(Collection<InstNode> parents, String myId) {
 		double ret = 0;
-		System.out.println("My id: " + myId);
+		//System.out.println("My id: " + myId);
 		for (InstNode p: parents) {
-			System.out.println("Parent: " + p.getFromMethod() + " " + p.getIdx());
-			System.out.println("Childern map: " + p.getChildFreqMap());
+			//System.out.println("Parent: " + p.getFromMethod() + " " + p.getIdx());
+			//System.out.println("Childern map: " + p.getChildFreqMap());
 			double freq = p.getChildFreqMap().get(myId);
 			if (freq > ret)
 				ret = freq;
@@ -200,7 +200,7 @@ public class GraphConstructor {
 	}
 	
 	public static void main(String[] args) {
-		File testFile = new File("./test/cc.expbase.TemplateMethod:forMethod:0:0:50.json");
+		File testFile = new File("./test/cern.colt.matrix.linalg.SingularValueDecomposition:<init>:0:0:75.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
 		reconstructGraph(testGraph);
 		System.out.println("Recorded graph size: " + testGraph.getVertexNum());

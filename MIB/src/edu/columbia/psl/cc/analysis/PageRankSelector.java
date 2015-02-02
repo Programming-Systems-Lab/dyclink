@@ -280,13 +280,13 @@ public class PageRankSelector {
 				logger.info("Give up too-short assignment: " + inst + " size " + seg.size());
 				continue ;
 			} else {
-				double[] segDist = ChiTester.genDistribution(seg);
+				double[] segDist = StaticTester.genDistribution(seg);
 				//double[] subDist = subProfile.instDist;
 				
 				SegInfo si = new SegInfo();
 				si.seg = seg;
-				si.normInstDistribution = ChiTester.normalizeDist(segDist, seg.size());;
-				si.instDistWithSub = ChiTester.normalizeEucDistance(subProfile.normDist, 
+				si.normInstDistribution = StaticTester.normalizeDist(segDist, seg.size());;
+				si.instDistWithSub = StaticTester.normalizeEucDistance(subProfile.normDist, 
 						si.normInstDistribution);
 				
 				if (si.instDistWithSub <= 0.2) {
@@ -342,8 +342,9 @@ public class PageRankSelector {
 		gp.before = before;
 		gp.after = after;
 		gp.pgRep = subPGRep;
-		gp.instDist = subGraph.getDist();
-		gp.normDist = ChiTester.normalizeDist(gp.instDist, gp.pgRep.length);
+		//gp.instDist = subGraph.getDist();
+		gp.instDist = StaticTester.genDistribution(subGraph.getDist());
+		gp.normDist = StaticTester.normalizeDist(gp.instDist, gp.pgRep.length);
 		
 		return gp;
 	}

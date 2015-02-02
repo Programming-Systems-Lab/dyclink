@@ -86,19 +86,23 @@ public class BytecodeCategory {
 				//info[2] is hex, we can have it by opcode
 				
 				int catId = Integer.valueOf(info[0]);
-				int opcode = Integer.valueOf(info[1]);
+				int subCatId = Integer.valueOf(info[1]);
+				int subSubCatId = Integer.valueOf(info[2]);
+				int opcode = Integer.valueOf(info[3]);
 				
 				OpcodeObj oo = new OpcodeObj();
 				oo.setCatId(catId);
+				oo.setSubCatId(subCatId);
+				oo.setSubSubCatId(subSubCatId);
 				oo.setOpcode(opcode);
-				oo.setInstruction(info[3]);
+				oo.setInstruction(info[5]);
 				
 				//Process input
-				List<String> inList = processOpTableElement(info[4]);
+				List<String> inList = processOpTableElement(info[6]);
 				oo.setInList(inList);
 				
 				//Process output
-				List<String> outList = processOpTableElement(info[5]);
+				List<String> outList = processOpTableElement(info[7]);
 				oo.setOutList(outList);
 				
 				opcodeTable.put(opcode, oo);
@@ -229,6 +233,14 @@ public class BytecodeCategory {
 	
 	public static Integer asmObjSort() {
 		return Type.OBJECT;
+	}
+	
+	public static void main(String[] args) {
+		loadOpcodeTable();
+		for (int opcode: opcodeTable.keySet()) {
+			OpcodeObj oo = opcodeTable.get(opcode);
+			System.out.println(oo.getCatId() + " " + oo.getSubCatId() + " " + oo.getSubSubCatId() + " " + " " + oo.getOpcode() + " " + oo.getInstruction());
+		}
 	}
 	
 }

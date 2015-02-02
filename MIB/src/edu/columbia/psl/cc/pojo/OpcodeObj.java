@@ -7,6 +7,10 @@ public class OpcodeObj {
 	
 	private int catId;
 	
+	private int subCatId;
+	
+	private int subSubCatId;
+	
 	private int opcode;
 	
 	private String instruction;
@@ -22,6 +26,22 @@ public class OpcodeObj {
 	
 	public int getCatId() {
 		return this.catId;
+	}
+	
+	public void setSubCatId(int subCatId) {
+		this.subCatId = subCatId;
+	}
+	
+	public int getSubCatId() {
+		return this.subCatId;
+	}
+	
+	public void setSubSubCatId(int subSubCatId) {
+		this.subSubCatId = subSubCatId;
+	}
+	
+	public int getSubSubCatId() {
+		return this.subSubCatId;
 	}
 	
 	public void setOpcode(int opcode) {

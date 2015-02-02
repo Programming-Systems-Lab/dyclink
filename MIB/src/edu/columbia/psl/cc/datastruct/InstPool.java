@@ -1,9 +1,7 @@
 package edu.columbia.psl.cc.datastruct;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
@@ -102,9 +100,10 @@ public class InstPool extends TreeSet<InstNode> {
 			return this.instMap.get(idxKey);
 		}
 		
-		if (DEBUG) {
+		if (DEBUG) {			
 			logger.warn("Cannot find inst by method key and idx: " +  idxKey);
 		}
+		
 		return null;
 	}
 	
@@ -122,7 +121,7 @@ public class InstPool extends TreeSet<InstNode> {
 	
 	@Override
 	public boolean remove(Object o) {
-		if (!(o instanceof InstNode)) {
+		if (!(o instanceof InstNode)) {			
 			logger.error("Non-compatible object type: " + o.getClass());
 			return false;
 		}

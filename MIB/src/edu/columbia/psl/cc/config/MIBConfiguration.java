@@ -17,6 +17,14 @@ public class MIBConfiguration {
 	
 	public static int CONTR_DEP = 2;
 	
+	public static int INST_STRAT = 0;
+	
+	public static int SUBSUB_STRAT = 1;
+	
+	public static int SUB_STRAT = 2;
+	
+	public static int CAT_STRAT = 3;
+	
 	private static String srHandleCommon = "handleOpcode";
 	
 	private static String srHCDesc = "(III)V";
@@ -127,6 +135,9 @@ public class MIBConfiguration {
 	private double pgEpsilon;
 	
 	private double simThreshold;
+	
+	//0: inst, 1: subsubcat, 2: subcat, 3: cat
+	private int simStrategy;
 	
 	private int testMethodThresh;
 	
@@ -435,6 +446,14 @@ public class MIBConfiguration {
 	public double getSimThreshold() {
 		return this.simThreshold;
 	}
+	
+	public void setSimStrategy(int simStrategy) {
+		this.simStrategy = simStrategy;
+	}
+	
+	public int getSimStrategy() {
+		return this.simStrategy;
+	}
 
 	public void setTemplateDir(String templateDir) {
 		this.templateDir = templateDir;
@@ -573,7 +592,6 @@ public class MIBConfiguration {
 		sb.append("parallel factor: " + this.parallelFactor + "\n");
 		sb.append("minimum inst number: " + this.instThreshold + "\n");
 		sb.append("inst selection number: " + this.instLimit + "\n");
-		sb.append("inst threshold: " + this.instThreshold + "\n");
 		sb.append("test method threshold: " + this.testMethodThresh + "\n");
 		sb.append("alpha of PageRank: " + this.pgAlpha + "\n");
 		sb.append("max iteration of PageRank: " + this.pgMaxIter + "\n");

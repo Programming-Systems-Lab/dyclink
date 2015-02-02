@@ -213,7 +213,6 @@ public class GsonManager {
 				logger.error("Exception: ", ex);
 			}
 		} catch (Exception ex) {
-			//ex.printStackTrace();
 			logger.error("Exception: ", ex);
 		}
 	}

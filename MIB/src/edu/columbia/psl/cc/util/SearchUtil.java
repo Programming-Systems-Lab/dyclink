@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import edu.columbia.psl.cc.analysis.InstWrapper;
+import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
@@ -96,14 +97,27 @@ public class SearchUtil {
 	public static HashSet<InstNode> possibleSingleAssignment(InstNode subNode, 
 			List<InstNode> targetPool, double geoPercent) {
 		HashSet<InstNode> ret = new HashSet<InstNode>();
+		int simStrat = MIBConfiguration.getInstance().getSimStrategy();
 		
 		for (InstNode targetNode: targetPool) {
 			
-			/*if (targetNode.getOp().getOpcode() == subNode.getOp().getOpcode()) {
-				ret.add(targetNode);
-			}*/
+			int targetId = -1;
+			int subId = -1;
+			if (simStrat == MIBConfiguration.INST_STRAT) {
+				targetId = targetNode.getOp().getOpcode();
+				subId = subNode.getOp().getOpcode();
+			} else if (simStrat == MIBConfiguration.SUBSUB_STRAT) {
+				targetId = targetNode.getOp().getSubSubCatId();
+				subId = subNode.getOp().getSubSubCatId();
+			} else if (simStrat == MIBConfiguration.SUB_STRAT) {
+				targetId = targetNode.getOp().getSubCatId();
+				subId = subNode.getOp().getSubCatId();
+			} else {
+				targetId = targetNode.getOp().getCatId();
+				subId = subNode.getOp().getCatId();
+			}
 			
-			if (targetNode.getOp().getCatId() == subNode.getOp().getCatId()) {
+			if (targetId == subId) {
 				ret.add(targetNode);
 			}
 		}
@@ -123,7 +137,16 @@ public class SearchUtil {
 		int[] ret = new int[pgList.size()];
 		int counter = 0;
 		for (InstWrapper iw: pgList) {
-			ret[counter++] = iw.inst.getOp().getOpcode();
+			if (MIBConfiguration.getInstance().getSimStrategy() == MIBConfiguration.INST_STRAT) {
+				ret[counter++] = iw.inst.getOp().getOpcode();
+			} else if (MIBConfiguration.getInstance().getSimStrategy() == MIBConfiguration.SUBSUB_STRAT) {
+				ret[counter++] = iw.inst.getOp().getSubSubCatId();
+			} else if (MIBConfiguration.getInstance().getSimStrategy() == MIBConfiguration.SUB_STRAT) {
+				ret[counter++] = iw.inst.getOp().getSubCatId();
+			} else {
+				ret[counter++] = iw.inst.getOp().getCatId();
+			}
+			//ret[counter++] = iw.inst.getOp().getOpcode();
 			//ret[counter++] = iw.inst.getOp().getCatId();
 		}
 		return ret;
