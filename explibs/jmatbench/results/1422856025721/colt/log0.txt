@@ -1,3 +1,0 @@
-Current directory = /Users/mikefhsu/ccws/jvm-clones/explibs/jmatbench/.
-Classpath:
-bin/:lib/asm-all-4.0.jar:lib/cloning-1.7.9.jar:lib/EJML.jar:lib/gson-2.3.jar:lib/junit-4.4.jar:lib/log4j-1.2.16.jar:lib/mib.jar:lib/objenesis-1.2.jar:lib/xstream-1.4.4.jar:lib/mib.jar:/Users/mikefhsu/ccws/jvm-clones/explibs/jmatbench/lib/colt/colt.jar:/Users/mikefhsu/ccws/jvm-clones/explibs/jmatbench/lib/colt/concurrent.jar

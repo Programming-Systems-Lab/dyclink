@@ -64,6 +64,20 @@ public class GraphConstructor {
 		return ret;
 	}
 	
+	private static void calDepForMethodNodes(InstNode methodNode, InstPool instPool, List<InstNode> collecter) {
+		if (collecter.contains(methodNode))
+			return ;
+		
+		for (String key: methodNode.getChildFreqMap().keySet()) {
+			InstNode childInst = instPool.searchAndGet(key);
+			
+			if ((childInst instanceof MethodNode)) {
+				calDepForMethodNodes(childInst, instPool, collecter);
+			}
+		}
+		collecter.add(methodNode);
+	}
+	
 	public static void reconstructGraph(GraphTemplate rawGraph) {
 		String myId = StringUtil.genThreadWithMethodIdx(rawGraph.getThreadId(), rawGraph.getThreadMethodId());
 		String baseDir = MIBConfiguration.getInstance().getCacheDir() + "/" + myId;
@@ -74,14 +88,23 @@ public class GraphConstructor {
 		}
 		
 		try {
-			List<GraphTemplate> toMerge = new ArrayList<GraphTemplate>();
-			
-			Iterator<InstNode> instIt = rawGraph.getInstPool().iterator();
-			InstNode lastBeforeReturn = rawGraph.getLastBeforeReturn();
-			while (instIt.hasNext()) {
-				InstNode inst = instIt.next();
+			List<InstNode> processQueue = new ArrayList<InstNode>();
+			for (InstNode inst: rawGraph.getInstPool()) {
+				if (processQueue.contains(inst))
+					continue ;
 				
-				if (inst instanceof MethodNode) {			
+				if (!(inst instanceof MethodNode)) {
+					processQueue.add(inst);
+				}
+				
+				calDepForMethodNodes(inst, rawGraph.getInstPool(), processQueue);
+			}
+			
+			List<GraphTemplate> toMerge = new ArrayList<GraphTemplate>();
+			InstNode lastBeforeReturn = rawGraph.getLastBeforeReturn();
+			for (InstNode inst: processQueue) {
+				if (inst instanceof MethodNode) {	
+					logger.info("Method node: " + inst);
 					MethodNode mn = (MethodNode)inst;
 					
 					String mnId = StringUtil.genIdxKey(mn.getThreadId(), mn.getThreadMethodIdx(), mn.getIdx());
@@ -108,7 +131,7 @@ public class GraphConstructor {
 						String calleeId = meta.calleeIdx;
 						double frac = meta.normFreq;
 						
-						System.out.println("Callee idx: " + calleeId);
+						logger.info("Callee idx: " + calleeId);
 						File f = new File(baseDir + "/" + calleeId);
 						GraphTemplate callee = GsonManager.readJsonGeneric(f, graphToken);
 						reconstructGraph(callee);
@@ -143,12 +166,38 @@ public class GraphConstructor {
 						}
 						
 						if (childMap.size() > 0) {
-							String calleeChildReplaceId = meta.lastInstString;
-							InstNode calleeChildReplace = callee.getInstPool().searchAndGet(calleeChildReplaceId);
+							//String calleeChildReplaceId = meta.lastInstString;
+							//InstNode calleeChildReplace = callee.getInstPool().searchAndGet(calleeChildReplaceId);
+							
+							InstNode calleeChildReplace = callee.getLastBeforeReturn();
+							if (calleeChildReplace == null) {
+								logger.info("Current inst: " + inst);
+								logger.info("Find no last inst in callee: " + calleeId);
+								System.exit(1);
+							}
 							
 							for (String childKey: childMap.keySet()) {
 								InstNode childNode = rawGraph.getInstPool().searchAndGet(childKey);
-								double cFreq = childMap.get(childKey) * frac;
+								double cFreq = childMap.get(childKey) * frac;	
+								
+								if (childNode == null) {
+									logger.info("Current inst: " + inst);
+									logger.info("Empty child: " + childKey);
+									logger.info("Search toMerge");
+									
+									//In the merge
+									for (GraphTemplate toM: toMerge) {
+										childNode = toM.getInstPool().searchAndGet(childKey);
+										if (childNode != null)
+											break;
+									}
+								}
+								
+								if (childNode == null) {
+									logger.error("Current inst: " + inst);
+									logger.error("Missing inst: " + childKey);
+									System.exit(1);
+								}
 								
 								calleeChildReplace.increChild(childNode.getThreadId(), 
 										childNode.getThreadMethodIdx(), 
@@ -186,7 +235,7 @@ public class GraphConstructor {
 						cInst.getInstDataParentList().remove(mnId);
 					}
 					
-					instIt.remove();
+					rawGraph.getInstPool().remove(inst);
 				}
 			}
 			
@@ -200,7 +249,7 @@ public class GraphConstructor {
 	}
 	
 	public static void main(String[] args) {
-		File testFile = new File("./test/cern.colt.matrix.linalg.SingularValueDecomposition:<init>:0:0:75.json");
+		File testFile = new File("./template/cern.colt.matrix.linalg.SingularValueDecomposition:getU:0:0:32168.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
 		reconstructGraph(testGraph);
 		System.out.println("Recorded graph size: " + testGraph.getVertexNum());

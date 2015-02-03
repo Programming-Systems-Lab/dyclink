@@ -131,6 +131,11 @@ public class BenchmarkTools {
         if(verbose) {
             System.out.println("Test random seed = "+test.getRandomSeed());
         }
+        
+        System.out.println("Check params");
+        for (String p: params) {
+        	System.out.println(p);
+        }
 
         try {
             Runtime rt = Runtime.getRuntime();
@@ -199,7 +204,7 @@ public class BenchmarkTools {
         if(verbose)
             System.out.println("Memory = "+allocatedMemory+" MB");
 
-        String []params = new String[10];
+        /*String []params = new String[10];
         params[0] = app;
         params[1] = "-server";
         params[2] = "-Xms"+allocatedMemory+"M";
@@ -209,7 +214,21 @@ public class BenchmarkTools {
         params[6] = "jmbench.tools.EvaluatorSlave";
         params[7] = "case.xml";
         params[8] = Integer.toString(numTrials);
-        params[9] = Long.toString(requestID);
+        params[9] = Long.toString(requestID);*/
+        
+        String []params = new String[12];
+        params[0] = app;
+        params[1] = "-javaagent:lib/mib.jar";
+        params[2] = "-server";
+        params[3] = "-Xms"+allocatedMemory+"M";
+        params[4] = "-Xmx"+allocatedMemory+"M";
+        params[5] = "-classpath";
+        params[6] = classPath;
+        params[7] = "edu.columbia.psl.cc.premain.MIBDriver";
+        params[8] = "jmbench.tools.EvaluatorSlave";
+        params[9] = "case.xml";
+        params[10] = Integer.toString(numTrials);
+        params[11] = Long.toString(requestID);
         
         return params;
     }

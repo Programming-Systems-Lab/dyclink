@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -349,7 +350,15 @@ public class PageRankSelector {
 		return gp;
 	}
 	
-	
+	public static void filterGraphs(HashMap<String, GraphTemplate> graphs) {
+		for (Iterator<String> keyIT = graphs.keySet().iterator(); keyIT.hasNext();) {
+			String key = keyIT.next();
+			GraphTemplate graph = graphs.get(key);
+			if (graph.getVertexNum() < MIBConfiguration.getInstance().getInstThreshold()) {
+				keyIT.remove();
+			}
+		}
+	}
 	
 	public static void initiateSubGraphMining(String templateDir, String testDir) {		
 		StringBuilder sb = new StringBuilder();
@@ -378,13 +387,12 @@ public class PageRankSelector {
 			return ;
 		}
 		
+		filterGraphs(templates);
+		filterGraphs(tests);
+		
 		List<SubGraphCrawler> crawlers = new ArrayList<SubGraphCrawler>();
 		for (String templateName: templates.keySet()) {
 			GraphTemplate tempGraph = templates.get(templateName);
-			
-			if (tempGraph.getVertexNum() < MIBConfiguration.getInstance().getInstThreshold()) {
-				continue ;
-			}
 			
 			GraphConstructor.reconstructGraph(tempGraph);
 			

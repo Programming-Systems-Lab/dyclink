@@ -105,7 +105,7 @@ public class EvaluatorSlave {
 
         // by calling this exit function the slave will terminate even if a library is poorly
         // written and has a dangling thread.
-        System.exit(0);
+        //System.exit(0);
     }
 
 //    public static MySignalHandler install(String signalName) {

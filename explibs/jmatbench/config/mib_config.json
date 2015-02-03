@@ -47,9 +47,7 @@
   "simThreshold": 0.6,
   "simStrategy": 2,
   "testMethodThresh": -1,
-  "threadMethodIdxRecord": {
-    "0": 55
-  },
+  "threadMethodIdxRecord": {},
   "annotGuard": false,
   "fieldTrack": false,
   "cleanTemplate": false,

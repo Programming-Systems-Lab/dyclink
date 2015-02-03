@@ -111,8 +111,8 @@ public class RuntimeBenchmarkConfig implements Serializable {
         config.minMatrixSize = 2;
         config.sanityCheck = false;
 
-//        config.chol = true;
-//        config.lu = true;
+        config.chol = true;
+        config.lu = true;
 //        config.qr = true;
 //        config.transposeTall = true;
 //        config.transposeWide = true;
