@@ -27,7 +27,7 @@ public class GraphConstructor {
 	
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 	
-	private static double maxFreqFromParents(Collection<InstNode> parents, String myId) {
+	private double maxFreqFromParents(Collection<InstNode> parents, String myId) {
 		double ret = 0;
 		//System.out.println("My id: " + myId);
 		for (InstNode p: parents) {
@@ -40,7 +40,7 @@ public class GraphConstructor {
 		return ret;
 	}
 	
-	private static HashMap<Integer, HashSet<InstNode>> retrieveParentsWithIdx(HashMap<Integer, HashSet<String>> parentFromCaller, 
+	private HashMap<Integer, HashSet<InstNode>> retrieveParentsWithIdx(HashMap<Integer, HashSet<String>> parentFromCaller, 
 			InstPool callerPool) {
 		HashMap<Integer, HashSet<InstNode>> ret = new HashMap<Integer, HashSet<InstNode>>();
 		for (Integer idx: parentFromCaller.keySet()) {
@@ -56,7 +56,7 @@ public class GraphConstructor {
 		return ret;
 	}
 	
-	private static HashSet<InstNode> flattenParentMap(Collection<HashSet<InstNode>> allParents) {
+	private HashSet<InstNode> flattenParentMap(Collection<HashSet<InstNode>> allParents) {
 		HashSet<InstNode> ret = new HashSet<InstNode>();
 		for (HashSet<InstNode> partParents: allParents) {
 			ret.addAll(partParents);
@@ -64,7 +64,7 @@ public class GraphConstructor {
 		return ret;
 	}
 	
-	private static void calDepForMethodNodes(InstNode methodNode, InstPool instPool, List<InstNode> collecter) {
+	private void calDepForMethodNodes(InstNode methodNode, InstPool instPool, List<InstNode> collecter) {
 		if (collecter.contains(methodNode))
 			return ;
 		
@@ -78,7 +78,7 @@ public class GraphConstructor {
 		collecter.add(methodNode);
 	}
 	
-	public static void reconstructGraph(GraphTemplate rawGraph) {
+	public void reconstructGraph(GraphTemplate rawGraph) {
 		String myId = StringUtil.genThreadWithMethodIdx(rawGraph.getThreadId(), rawGraph.getThreadMethodId());
 		String baseDir = MIBConfiguration.getInstance().getCacheDir() + "/" + myId;
 		
@@ -251,7 +251,8 @@ public class GraphConstructor {
 	public static void main(String[] args) {
 		File testFile = new File("./template/cern.colt.matrix.linalg.SingularValueDecomposition:getU:0:0:32168.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
-		reconstructGraph(testGraph);
+		GraphConstructor constructor = new GraphConstructor();
+		constructor.reconstructGraph(testGraph);
 		System.out.println("Recorded graph size: " + testGraph.getVertexNum());
 		System.out.println("Actual graph size: " + testGraph.getInstPool().size());
 		

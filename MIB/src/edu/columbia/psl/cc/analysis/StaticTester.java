@@ -150,7 +150,8 @@ public class StaticTester {
 		
 		File tempFile = new File("./template/Jama.SingularValueDecomposition:<init>:0:0:2.json");
 		GraphTemplate tempGraph = GsonManager.readJsonGeneric(tempFile, graphToken);
-		GraphConstructor.reconstructGraph(tempGraph);
+		GraphConstructor constructor = new GraphConstructor();
+		constructor.reconstructGraph(tempGraph);
 		double[] dist1 = StaticTester.genDistribution(tempGraph.getDist());
 		double[] normDist1 = normalizeDist(dist1, tempGraph.getVertexNum());
 		System.out.println(Arrays.toString(dist1));
@@ -158,7 +159,8 @@ public class StaticTester {
 		
 		File testFile = new File("./test/cern.colt.matrix.linalg.SingularValueDecomposition:<init>:0:0:75.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
-		GraphConstructor.reconstructGraph(testGraph);
+		constructor = new GraphConstructor();
+		constructor.reconstructGraph(testGraph);
 		double[] dist2 = StaticTester.genDistribution(testGraph.getDist());
 		double[] normDist2 = normalizeDist(dist2, testGraph.getVertexNum());
 		System.out.println(Arrays.toString(dist2));

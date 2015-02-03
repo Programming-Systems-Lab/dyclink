@@ -305,57 +305,63 @@ public class PageRankSelector {
 		}
 		return candSegs;
 	}
-		
-	public static GraphProfile profileGraph(GraphTemplate subGraph) {
-		if (subGraph.getInstPool().size() == 0) {
-			return null;
-		}
-		List<InstNode> sortedSub = GraphUtil.sortInstPool(subGraph.getInstPool(), true);
-		
-		//Pick the most important node from sorteSob
-		logger.info("Sub graph profile: " + subGraph.getMethodKey());
-		PageRankSelector subSelector = new PageRankSelector(subGraph.getInstPool(), false, true);
-		List<InstWrapper> subRank = subSelector.computePageRank();
-		int[] subPGRep = SearchUtil.generatePageRankRep(subRank);
-		//logger.info("Sub graph PageRank: " + Arrays.toString(subPGRep));
-		
-		//Use the most important inst as the central to collect insts in target
-		InstNode subCentroid = subRank.get(0).inst;
-		int before = 0, after = 0;
-		boolean recordBefore = true;
-		for (int i = 0; i < sortedSub.size(); i++) {
-			InstNode curNode = sortedSub.get(i);
-			
-			if (curNode.equals(subCentroid)) {
-				recordBefore = false;
-				continue ;
-			}
-			
-			if (recordBefore) {
-				before++;
-			} else {
-				after++;
-			}
-		}
-		
-		GraphProfile gp = new GraphProfile();
-		gp.centroidWrapper = subRank.get(0);
-		gp.before = before;
-		gp.after = after;
-		gp.pgRep = subPGRep;
-		//gp.instDist = subGraph.getDist();
-		gp.instDist = StaticTester.genDistribution(subGraph.getDist());
-		gp.normDist = StaticTester.normalizeDist(gp.instDist, gp.pgRep.length);
-		
-		return gp;
-	}
 	
 	public static void filterGraphs(HashMap<String, GraphTemplate> graphs) {
 		for (Iterator<String> keyIT = graphs.keySet().iterator(); keyIT.hasNext();) {
 			String key = keyIT.next();
 			GraphTemplate graph = graphs.get(key);
-			if (graph.getVertexNum() < MIBConfiguration.getInstance().getInstThreshold()) {
+			if (graph.getVertexNum() <= MIBConfiguration.getInstance().getInstThreshold()) {
 				keyIT.remove();
+			}
+		}
+	}
+	
+	public static List<GraphProfile> parallelizeProfiling(HashMap<String, GraphTemplate> graphs) {
+		List<GraphProfile> profiles = new ArrayList<GraphProfile>();
+		
+		try {
+			ExecutorService profileExecutor = 
+					Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
+			List<Future<GraphProfile>> futureProfiles = new ArrayList<Future<GraphProfile>>();
+			for (String fileName: graphs.keySet()) {
+				GraphTemplate graph = graphs.get(fileName);
+				ProfileWorker worker = new ProfileWorker();
+				worker.fileName = fileName;
+				worker.graph = graph;
+				Future<GraphProfile> futureProfile = profileExecutor.submit(worker);
+				futureProfiles.add(futureProfile);
+			}
+			profileExecutor.shutdown();
+			while(!profileExecutor.isTerminated());
+			
+			for (Future<GraphProfile> futureProfile: futureProfiles) {
+				GraphProfile graphProfile = futureProfile.get();
+				if (graphProfile == null)
+					continue ;
+				
+				profiles.add(graphProfile);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		return profiles;
+	}
+	
+	public static void constructCrawlerList(List<GraphProfile> subProfiles, 
+			List<GraphProfile> targetProfiles, 
+			List<SubGraphCrawler> crawlers) {
+		for (GraphProfile subProfile: subProfiles) {
+			for (GraphProfile targetProfile: targetProfiles) {
+				if (subProfile.fileName.equals(targetProfile.fileName))
+					continue ;
+				
+				SubGraphCrawler crawler = new SubGraphCrawler();
+				crawler.subGraphName = subProfile.graph.getMethodKey();
+				crawler.targetGraphName = targetProfile.graph.getMethodKey();
+				crawler.subGraphProfile = subProfile;
+				crawler.targetGraph = targetProfile.graph;
+				crawlers.add(crawler);
 			}
 		}
 	}
@@ -390,52 +396,30 @@ public class PageRankSelector {
 		filterGraphs(templates);
 		filterGraphs(tests);
 		
-		List<SubGraphCrawler> crawlers = new ArrayList<SubGraphCrawler>();
-		for (String templateName: templates.keySet()) {
-			GraphTemplate tempGraph = templates.get(templateName);
-			
-			GraphConstructor.reconstructGraph(tempGraph);
-			
-			GraphProfile tempProfile = profileGraph(tempGraph);
-			if (tempProfile == null) {
-				logger.warn("Empty graph: " + tempGraph.getMethodKey());
-				continue ;
-			}
-			
-			logger.info("Template name: " + tempGraph.getMethodKey());
-			logger.info("Inst node size: " + tempGraph.getInstPool().size());
-			
-			for (String testName: tests.keySet()) {
-				if (testName.equals(templateName)) {
-					continue ;
-				}
-				
-				GraphTemplate testGraph = tests.get(testName);
-				GraphConstructor.reconstructGraph(testGraph);
-				
-				logger.info("Test name: " + testGraph.getMethodKey());
-				logger.info("Inst node size: " + testGraph.getInstPool().size());
-				
-				SubGraphCrawler crawler = new SubGraphCrawler();
-				crawler.subGraphName = tempGraph.getMethodKey();
-				crawler.targetGraphName = testGraph.getMethodKey();
-				crawler.subGraphProfile = tempProfile;
-				crawler.targetGraph = testGraph;
-				crawlers.add(crawler);
-			}
-		}
-		
-		ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
-		List<Future<List<HotZone>>> resultRecorder = new ArrayList<Future<List<HotZone>>>();
-		
-		for (SubGraphCrawler crawler: crawlers) {
-			Future<List<HotZone>> hits = executor.submit(crawler);
-			resultRecorder.add(hits);
-		}
-		executor.shutdown();
-		while (!executor.isTerminated());
-		
 		try {
+			//Construct and profile tests (target graphs)
+			List<GraphProfile> testProfiles = parallelizeProfiling(tests);
+			
+			//Construct and profile template (sub graphs)
+			List<GraphProfile> templateProfiles = parallelizeProfiling(templates);
+			
+			List<SubGraphCrawler> crawlers = new ArrayList<SubGraphCrawler>();
+			
+			//Sub: template, Target: test
+			constructCrawlerList(templateProfiles, testProfiles, crawlers);
+			//Sub: test, Target: template
+			constructCrawlerList(testProfiles, templateProfiles, crawlers);
+			
+			ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
+			List<Future<List<HotZone>>> resultRecorder = new ArrayList<Future<List<HotZone>>>();
+			
+			for (SubGraphCrawler crawler: crawlers) {
+				Future<List<HotZone>> hits = executor.submit(crawler);
+				resultRecorder.add(hits);
+			}
+			executor.shutdown();
+			while (!executor.isTerminated());
+			
 			for (Future<List<HotZone>> future: resultRecorder) {
 				List<HotZone> zones = future.get();
 				
@@ -465,6 +449,7 @@ public class PageRankSelector {
 					sb.append(rawRecorder);
 				}
 			}
+			logger.info("Total number of comparisons: " + crawlers.size());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -496,6 +481,11 @@ public class PageRankSelector {
 	}
 	
 	private static class GraphProfile {
+		
+		String fileName;
+		
+		GraphTemplate graph;
+		
 		InstWrapper centroidWrapper;
 		
 		int before;
@@ -515,7 +505,81 @@ public class PageRankSelector {
 		double edgeWeight;
 	}
 	
-	private static class SubGraphCrawler implements Callable<List<HotZone>>{
+	private static class ConstructWorker implements Runnable {
+		
+		GraphTemplate rawGraph;
+
+		@Override
+		public void run() {
+			logger.info("Test name: " + rawGraph.getMethodKey());
+			logger.info("Inst node size: " + rawGraph.getInstPool().size());
+			GraphConstructor constructor = new GraphConstructor();
+			constructor.reconstructGraph(rawGraph);
+		}
+	}
+	
+	private static class ProfileWorker implements Callable<GraphProfile> {
+		
+		String fileName;
+		
+		GraphTemplate graph;
+		
+		public GraphProfile call() throws Exception {
+			logger.info("Graph name: " + this.graph.getMethodKey());
+			GraphConstructor constructor = new GraphConstructor();
+			constructor.reconstructGraph(this.graph);
+			return profileGraph();
+		}
+		
+		public GraphProfile profileGraph() {
+			if (this.graph.getInstPool().size() == 0) {
+				logger.warn("Empty graph: " + this.graph.getMethodKey());
+				return null;
+			}
+			List<InstNode> sortedSub = GraphUtil.sortInstPool(this.graph.getInstPool(), true);
+			
+			//Pick the most important node from sorteSob
+			logger.info("Graph profile: " + this.graph.getMethodKey());
+			PageRankSelector subSelector = new PageRankSelector(this.graph.getInstPool(), false, true);
+			List<InstWrapper> subRank = subSelector.computePageRank();
+			int[] subPGRep = SearchUtil.generatePageRankRep(subRank);
+			//logger.info("Sub graph PageRank: " + Arrays.toString(subPGRep));
+			
+			//Use the most important inst as the central to collect insts in target
+			InstNode subCentroid = subRank.get(0).inst;
+			int before = 0, after = 0;
+			boolean recordBefore = true;
+			for (int i = 0; i < sortedSub.size(); i++) {
+				InstNode curNode = sortedSub.get(i);
+				
+				if (curNode.equals(subCentroid)) {
+					recordBefore = false;
+					continue ;
+				}
+				
+				if (recordBefore) {
+					before++;
+				} else {
+					after++;
+				}
+			}
+			
+			GraphProfile gp = new GraphProfile();
+			gp.fileName = this.fileName;
+			gp.graph = this.graph;
+			gp.centroidWrapper = subRank.get(0);
+			gp.before = before;
+			gp.after = after;
+			gp.pgRep = subPGRep;
+			//gp.instDist = subGraph.getDist();
+			gp.instDist = StaticTester.genDistribution(this.graph.getDist());
+			gp.normDist = StaticTester.normalizeDist(gp.instDist, gp.pgRep.length);
+			
+			return gp;
+		}
+	}
+	
+	private static class SubGraphCrawler implements Callable<List<HotZone>> {
 		
 		String subGraphName;
 		
