@@ -39,7 +39,6 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 		String name = className.replace("/", ".");
 		//System.out.println("Class Name: " + name);
 		
-		
 		//Check protection domain
 		if (protectionDomain != null) {			
 			String codeLocation = protectionDomain.getCodeSource().getLocation().getPath();
@@ -58,12 +57,13 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 		
 		if (StringUtil.shouldIncludeClass(name)) {
 			//Start the instrumentation here;
-			try {
+			try {				
 				//byte[] copyBytes = new byte[classfileBuffer.length];
 				//System.arraycopy(classfileBuffer, 0, copyBytes, 0, classfileBuffer.length);
 				//ClassReader cr = new ClassReader(name);
 				ClassReader cr = new ClassReader(classfileBuffer);
 				ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
+				//ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES);
 				ClassMiner cm = new ClassMiner(new CheckClassAdapter(cw, false), 
 						name.replace(".", "/"), classAnnot, templateAnnot, testAnnot);
 				cm.setAnnotGuard(MIBConfiguration.getInstance().isAnnotGuard());

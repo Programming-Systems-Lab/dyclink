@@ -43,6 +43,12 @@ import edu.uci.ics.jung.graph.Hypergraph;
 
 public class PageRankSelector {
 	
+	private static int subCompNum = 0;
+	
+	private static int realSubCompNum = 0;
+	
+	private static Object countLock = new Object();
+	
 	private static AtomicInteger threadIndex = new AtomicInteger();
 	
 	private static Logger logger = Logger.getLogger(PageRankSelector.class);
@@ -57,7 +63,7 @@ public class PageRankSelector {
 	
 	private static double simThreshold = MIBConfiguration.getInstance().getSimThreshold();
 	
-	private static String header = "template,test,pgrank_template,c_template,ct_line,s_test,s_line,c_test,c_line,e_test,e_line,seg_size,inst_dist,dist,similarity\n";
+	private static String header = "sub,target,pgrank_sub,center_sub,center_sub_line,start_target,start_target_line,center_target,center_target_line,end_target,end_target_line,seg_size,inst_dist,dist,similarity\n";
 	
 	private static Comparator<InstWrapper> pageRankSorter = new Comparator<InstWrapper>() {
 		public int compare(InstWrapper i1, InstWrapper i2) {
@@ -307,11 +313,17 @@ public class PageRankSelector {
 	}
 	
 	public static void filterGraphs(HashMap<String, GraphTemplate> graphs) {
+		HashSet<String> graphHistory = new HashSet<String>();
 		for (Iterator<String> keyIT = graphs.keySet().iterator(); keyIT.hasNext();) {
 			String key = keyIT.next();
 			GraphTemplate graph = graphs.get(key);
-			if (graph.getVertexNum() <= MIBConfiguration.getInstance().getInstThreshold()) {
+			String recordKey = graph.getShortMethodKey() + ":" + graph.getVertexNum() + ":" + graph.getEdgeNum();
+			if (graphHistory.contains(recordKey)) {
 				keyIT.remove();
+			} else if (graph.getVertexNum() <= MIBConfiguration.getInstance().getInstThreshold()) {
+				keyIT.remove();
+			} else {
+				graphHistory.add(recordKey);
 			}
 		}
 	}
@@ -394,7 +406,11 @@ public class PageRankSelector {
 		}
 		
 		filterGraphs(templates);
+		logger.info("Template size: " + templates.size());
+		//logger.info(templates.keySet());
 		filterGraphs(tests);
+		logger.info("Test size: " + tests.size());
+		//logger.info(tests.keySet());
 		
 		try {
 			//Construct and profile tests (target graphs)
@@ -407,8 +423,10 @@ public class PageRankSelector {
 			
 			//Sub: template, Target: test
 			constructCrawlerList(templateProfiles, testProfiles, crawlers);
+			
 			//Sub: test, Target: template
 			constructCrawlerList(testProfiles, templateProfiles, crawlers);
+			logger.info("Total number of comparisons: " + crawlers.size());
 			
 			ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
 			List<Future<List<HotZone>>> resultRecorder = new ArrayList<Future<List<HotZone>>>();
@@ -449,7 +467,8 @@ public class PageRankSelector {
 					sb.append(rawRecorder);
 				}
 			}
-			logger.info("Total number of comparisons: " + crawlers.size());
+			logger.info("Sub graph comp num: " + subCompNum);
+			logger.info("Real sub graph comp num: " + realSubCompNum);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -614,6 +633,11 @@ public class PageRankSelector {
 			HashMap<InstNode, SegInfo> candSegs = locateSegments(miAssignments, sortedTarget, subProfile);
 			logger.info("Real assignments: " + candSegs.size());
 			List<HotZone> hits = new ArrayList<HotZone>();
+			
+			synchronized(countLock) {
+				subCompNum += miAssignments.size();
+				realSubCompNum += candSegs.size();
+			}
 			
 			for (InstNode cand: candSegs.keySet()) {
 				SegInfo segInfo = candSegs.get(cand);

@@ -113,6 +113,7 @@ public class MIBDriver {
 		try {
 			Class targetClass = Class.forName(className);
 			logger.info("Confirm class: " + targetClass);
+			logger.info("Class loader: " + targetClass.getClassLoader().getClass().getName() + " " + System.identityHashCode(targetClass.getClassLoader()));
 			
 			Method mainMethod = targetClass.getMethod("main", String[].class);
 			mainMethod.invoke(null, (Object)newArgs);

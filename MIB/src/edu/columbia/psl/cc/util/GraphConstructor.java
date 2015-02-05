@@ -113,7 +113,7 @@ public class GraphConstructor {
 					
 					HashMap<Integer, HashSet<InstNode>> parentFromCaller = null;
 					double allFreq = 0;
-					if (mn.getCalleeInfo().parentReplay.size() > 0) {
+					if (mn.getCalleeInfo().parentReplay != null && mn.getCalleeInfo().parentReplay.size() > 0) {
 						parentFromCaller = retrieveParentsWithIdx(mn.getCalleeInfo().parentReplay, rawGraph.getInstPool());
 						
 						HashSet<InstNode> allParents = flattenParentMap(parentFromCaller.values());

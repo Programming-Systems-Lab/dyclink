@@ -39,7 +39,7 @@
   "idxExpandFactor": 10000,
   "precisionDigit": 5,
   "parallelFactor": 8,
-  "instThreshold": 0,
+  "instThreshold": 10,
   "instLimit": 3000,
   "pgAlpha": 0.15,
   "pgMaxIter": 50,
@@ -47,7 +47,9 @@
   "simThreshold": 0.6,
   "simStrategy": 2,
   "testMethodThresh": -1,
-  "threadMethodIdxRecord": {},
+  "threadMethodIdxRecord": {
+    "0": 399418
+  },
   "annotGuard": false,
   "fieldTrack": false,
   "cleanTemplate": false,

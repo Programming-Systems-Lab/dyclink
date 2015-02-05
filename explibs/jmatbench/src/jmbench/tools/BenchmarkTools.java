@@ -216,19 +216,20 @@ public class BenchmarkTools {
         params[8] = Integer.toString(numTrials);
         params[9] = Long.toString(requestID);*/
         
-        String []params = new String[12];
+        String []params = new String[13];
         params[0] = app;
         params[1] = "-javaagent:lib/mib.jar";
-        params[2] = "-server";
-        params[3] = "-Xms"+allocatedMemory+"M";
-        params[4] = "-Xmx"+allocatedMemory+"M";
-        params[5] = "-classpath";
-        params[6] = classPath;
-        params[7] = "edu.columbia.psl.cc.premain.MIBDriver";
-        params[8] = "jmbench.tools.EvaluatorSlave";
-        params[9] = "case.xml";
-        params[10] = Integer.toString(numTrials);
-        params[11] = Long.toString(requestID);
+        params[2] = "-XX:-UseSplitVerifier";
+        params[3] = "-server";
+        params[4] = "-Xms"+allocatedMemory+"M";
+        params[5] = "-Xmx"+allocatedMemory+"M";
+        params[6] = "-classpath";
+        params[7] = classPath;
+        params[8] = "edu.columbia.psl.cc.premain.MIBDriver";
+        params[9] = "jmbench.tools.EvaluatorSlave";
+        params[10] = "case.xml";
+        params[11] = Integer.toString(numTrials);
+        params[12] = Long.toString(requestID);
         
         return params;
     }
