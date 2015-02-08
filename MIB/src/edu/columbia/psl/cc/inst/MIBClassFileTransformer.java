@@ -8,6 +8,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
@@ -21,6 +22,8 @@ import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class MIBClassFileTransformer implements ClassFileTransformer {
+	
+	private static Logger logger = Logger.getLogger(MIBClassFileTransformer.class);
 	
 	private static String classAnnot = Type.getType(analyzeClass.class).getDescriptor();
 	
@@ -85,7 +88,10 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 				
 				return cw.toByteArray();
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				//ex.printStackTrace();
+				logger.error("Fail to transform class: " + className);
+				logger.error("Message: ", ex);
+				GlobalRecorder.registerUntransformedClass(className);
 			}
 		}
 		return classfileBuffer;

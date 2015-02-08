@@ -1,10 +1,10 @@
 <jmbench.tools.runtime.RuntimeEvaluationTest>
   <randomSeed>4266357105038578992</randomSeed>
   <numTrials>0</numTrials>
-  <nameAlgorithm>mult</nameAlgorithm>
+  <nameAlgorithm>solveOver</nameAlgorithm>
   <dimen>5</dimen>
-  <classFactory>jmbench.impl.runtime.La4jAlgorithmFactory</classFactory>
-  <generator class="jmbench.tools.runtime.generator.MultGenerator"/>
+  <classFactory>jmbench.impl.runtime.EjmlAlgorithmFactory</classFactory>
+  <generator class="jmbench.tools.runtime.generator.SolveOverGenerator"/>
   <goalRuntime>3000</goalRuntime>
   <maxRuntime>600000</maxRuntime>
   <sanityCheck>false</sanityCheck>

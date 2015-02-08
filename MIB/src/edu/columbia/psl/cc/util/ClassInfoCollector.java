@@ -174,6 +174,7 @@ public class ClassInfoCollector {
 		try {
 			className = className.replace("/", ".");
 			Class<?> calledClass = Class.forName(className);
+			Class<?>[] interfaces = calledClass.getInterfaces();
 			while (calledClass != null) {
 				for (Field f: calledClass.getDeclaredFields()) {
 					//Name should be enough to find the correct field?
@@ -185,6 +186,27 @@ public class ClassInfoCollector {
 				calledClass = calledClass.getSuperclass();
 			}
 			
+			if (calledClass == null) {
+				//Because inner class access public outer class
+				List<Class<?>> interfaceQueue = new ArrayList<Class<?>>();
+				for (Class<?> inter: interfaces) {
+					interfaceQueue.add(inter);
+				}
+				
+				while (interfaceQueue.size() > 0) {
+					Class<?> inter = interfaceQueue.remove(0);
+					for (Field f: inter.getDeclaredFields()) {
+						if (f.getName().equals(name)) {
+							fieldToClass.put(classFieldKey, inter);
+							return inter;
+						}
+					}
+					
+					for (Class<?> interParent: inter.getInterfaces()) {
+						interfaceQueue.add(interParent);
+					}
+				}
+			}
 			//Something wrong if we reach here
 			return calledClass;
 		} catch (Exception ex) {
@@ -194,10 +216,10 @@ public class ClassInfoCollector {
 	}
 	
 	public static void main(String[] args) throws ClassNotFoundException {
-		Class<?> testClass = retrieveCorrectClassByMethod("org/apache/xerces/parsers/AbstractSAXParser", 
+		/*Class<?> testClass = retrieveCorrectClassByMethod("org/apache/xerces/parsers/AbstractSAXParser", 
 				"parse", 
 				"(Lorg/apache/xerces/xni/parser/XMLInputSource;)V", false);
-		System.out.println(testClass);
+		System.out.println(testClass);*/
 		//Type targetMethodType = Type.getMethodType("(Lorg/apache/xerces/xniparser/XMLInputSource;)V");
 		//System.out.println(targetMethodType.getReturnType());
 		//System.out.println(targetMethodType.getArgumentTypes().length);
@@ -211,7 +233,21 @@ public class ClassInfoCollector {
 			}
 			System.out.println("Return type: " + m.getReturnType());
 		}*/
-		
+		String className = "org.ujmp.core.doublematrix.calculation.general.decomposition.Solve$1";
+		String fieldName = "MATRIXSQUARELARGEMULTITHREADED";
+		System.out.println("Class name: " + retrieveCorrectClassByField(className, fieldName).getName());
+		try {
+			Class innerClass = Class.forName(className);
+			System.out.println("Check inner class: " + innerClass);
+			System.out.println("Outer class: " + innerClass.getEnclosingClass());
+			int[] ar = new int[5];
+			int[][] multiAr = new int[3][4];
+			Object[] objSingleDim = new Object[5];
+			Object[][] obj = new Object[4][5];
+			Object o = new Object();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
 }

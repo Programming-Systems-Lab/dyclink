@@ -141,6 +141,7 @@ public class MIBDriver {
 		nameMap.setGlobalNameMap(GlobalRecorder.getGlobalNameMap());
 		nameMap.setRecursiveMethods(GlobalRecorder.getRecursiveMethods());
 		nameMap.setUndersizedMethods(GlobalRecorder.getUndersizedMethods());
+		nameMap.setUntransformedClass(GlobalRecorder.getUntransformedClass());
 		
 		GsonManager.writeJsonGeneric(nameMap, "nameMap", nameMapToken, MIBConfiguration.LABEL_MAP_DIR);
 	}

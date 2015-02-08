@@ -39,6 +39,8 @@ public class GlobalRecorder {
 	
 	private static HashSet<String> undersizedMethods = new HashSet<String>();
 	
+	private static HashSet<String> untransformedClass = new HashSet<String>();
+	
 	private static HashMap<String, StaticMethodMiner> staticMethodMinerMap = new HashMap<String, StaticMethodMiner>();
 	
 	private static HashMap<String, AtomicInteger> shortNameCounter = new HashMap<String, AtomicInteger>();
@@ -63,6 +65,8 @@ public class GlobalRecorder {
 	private static Object nameLock = new Object();
 	
 	private static Object undersizeLock = new Object();
+	
+	private static Object untransformedLock = new Object();
 	
 	private static Object staticMethodMinerLock = new Object();
 	
@@ -345,6 +349,16 @@ public class GlobalRecorder {
 	
 	public static HashSet<String> getUndersizedMethods() {
 		return undersizedMethods;
+	}
+	
+	public static void registerUntransformedClass(String className) {
+		synchronized(untransformedLock) {
+			untransformedClass.add(className);
+		}
+	}
+	
+	public static HashSet<String> getUntransformedClass() {
+		return untransformedClass;
 	}
 	
 	public static void clearContext() {

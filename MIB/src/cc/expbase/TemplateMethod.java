@@ -46,6 +46,27 @@ public class TemplateMethod extends TemplateParent {
 		this.test = test1;
 	}
 	
+	public static void doNothing(int a) {
+		
+	}
+	
+	
+	public static final YAMethod ya = new YAMethod() {
+		@Override
+		public void addSomething(ArrayList<Integer> target) {
+			int b = sVar;
+			target.add(b);
+			doNothing(b);
+		}
+	};
+	
+	public static class FakeClass {
+		public void doNothingInner(int a) {
+			int b = sVar;
+			doNothing(a);
+		}
+	}
+	
 	@Override
 	public String doIt(Number n) {
 		System.out.println("In the TemplateMethod");
@@ -381,6 +402,7 @@ public class TemplateMethod extends TemplateParent {
 		System.out.println(init.equals("<init>"));*/
 		TemplateMethod tm = new TemplateMethod();
 		tm.forMethod();
+		tm.multiply(1, 2);
 		//tm.doObject(tm);
 		//tm.call1();
 		/*byte a = 1;

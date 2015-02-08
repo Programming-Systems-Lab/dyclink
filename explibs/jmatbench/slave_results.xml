@@ -1,24 +1,24 @@
 <jmbench.tools.EvaluatorSlave_-Results>
-  <requestID>-1921664993</requestID>
+  <requestID>732784497</requestID>
   <results>
     <jmbench.tools.runtime.RuntimeMeasurement>
-      <opsPerSec>15.659699435740968</opsPerSec>
+      <opsPerSec>11.647913197381785</opsPerSec>
       <memoryUsed>3040870400</memoryUsed>
     </jmbench.tools.runtime.RuntimeMeasurement>
     <jmbench.tools.runtime.RuntimeMeasurement>
-      <opsPerSec>17.780771806271446</opsPerSec>
+      <opsPerSec>10.431301534355045</opsPerSec>
       <memoryUsed>3040870400</memoryUsed>
     </jmbench.tools.runtime.RuntimeMeasurement>
     <jmbench.tools.runtime.RuntimeMeasurement>
-      <opsPerSec>18.66275808607195</opsPerSec>
+      <opsPerSec>15.51903780055601</opsPerSec>
       <memoryUsed>3040870400</memoryUsed>
     </jmbench.tools.runtime.RuntimeMeasurement>
     <jmbench.tools.runtime.RuntimeMeasurement>
-      <opsPerSec>18.617522612809722</opsPerSec>
+      <opsPerSec>13.767003714161854</opsPerSec>
       <memoryUsed>3040870400</memoryUsed>
     </jmbench.tools.runtime.RuntimeMeasurement>
     <jmbench.tools.runtime.RuntimeMeasurement>
-      <opsPerSec>18.788749699296126</opsPerSec>
+      <opsPerSec>15.13604057035484</opsPerSec>
       <memoryUsed>3040870400</memoryUsed>
     </jmbench.tools.runtime.RuntimeMeasurement>
   </results>

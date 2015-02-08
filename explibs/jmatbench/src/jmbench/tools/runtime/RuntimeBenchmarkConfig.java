@@ -100,7 +100,7 @@ public class RuntimeBenchmarkConfig implements Serializable {
 
         config.seed = 0xDEADBEEF;//new Random().nextLong();
         config.numBlockTrials = 5;
-        config.maxTrials = 25;
+        config.maxTrials = 10;
         config.trialTime = 3000;
         config.maxTrialTime = 600000;
         config.memoryTrial = 0;
@@ -113,7 +113,7 @@ public class RuntimeBenchmarkConfig implements Serializable {
 
         config.chol = true;
         config.lu = true;
-//        config.qr = true;
+        config.qr = true;
 //        config.transposeTall = true;
 //        config.transposeWide = true;
         

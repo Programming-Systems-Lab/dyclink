@@ -11,6 +11,8 @@ public class NameMap {
 	
 	private HashSet<String> undersizedMethods;
 	
+	private HashSet<String> untransformedClass;
+	
 	public void setGlobalNameMap(HashMap<String, String> globalNameMap) {
 		this.globalNameMap = globalNameMap;
 	}
@@ -34,4 +36,13 @@ public class NameMap {
 	public HashSet<String> getUndersizedMethods() {
 		return this.undersizedMethods;
 	}
+	
+	public void setUntransformedClass(HashSet<String> untransformedClass) {
+		this.untransformedClass = untransformedClass;
+	}
+	
+	public HashSet<String> getUntransformedClass() {
+		return this.untransformedClass;
+	}
+	
 }

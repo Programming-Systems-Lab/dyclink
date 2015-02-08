@@ -12,7 +12,6 @@
     "com.google.gson",
     "com.apple.java",
     "org.objectweb.asm",
-    "org.apache.commons.math3",
     "org.apache.log4j",
     "org.junit",
     "junit.runner",
@@ -48,13 +47,13 @@
   "simStrategy": 2,
   "testMethodThresh": -1,
   "threadMethodIdxRecord": {
-    "0": 399418
+    "0": 5205742
   },
   "annotGuard": false,
   "fieldTrack": false,
   "cleanTemplate": false,
   "cleanTest": false,
-  "templateMode": false,
+  "templateMode": true,
   "overallAnalysis": false,
   "debug": false,
   "cacheGraph": true

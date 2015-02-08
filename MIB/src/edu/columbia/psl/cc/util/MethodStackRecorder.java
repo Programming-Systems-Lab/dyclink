@@ -368,7 +368,7 @@ public class MethodStackRecorder {
 		
 		//Search the real owner of the field
 		Class<?> targetClass = ClassInfoCollector.retrieveCorrectClassByField(owner, name);
-		//logger.info("Class owner of field with objId: " + targetClass + " " + desc + " " + objId);
+		//logger.info("Class owner of field with objId: " + targetClass + " " + owner + " " + name);
 		
 		if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC) {
 			//JVM will load the owner, not the exact class

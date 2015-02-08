@@ -541,6 +541,10 @@ public class DynamicMethodMiner extends MethodVisitor {
 			//this.blockAnalyzer.registerInst(instIdx, opcode);
 		}
 		this.mv.visitIntInsn(opcode, operand);
+		
+		if (this.shouldInstrument() && opcode == Opcodes.NEWARRAY) {
+			this.updateObjOnVStack();
+		}
 	}
 	
 	@Override
@@ -573,7 +577,8 @@ public class DynamicMethodMiner extends MethodVisitor {
 		if (this.shouldInstrument()) {
 			if (opcode == Opcodes.NEW) {
 				this.mv.visitInsn(Opcodes.DUP);
-			} else if (opcode == Opcodes.CHECKCAST) {
+			} else if (opcode == Opcodes.CHECKCAST 
+					|| opcode == Opcodes.ANEWARRAY) {
 				this.updateObjOnVStack();
 			}
 		}
@@ -763,6 +768,10 @@ public class DynamicMethodMiner extends MethodVisitor {
 			//this.blockAnalyzer.registerInst(instIdx, Opcodes.MULTIANEWARRAY);
 		}
 		this.mv.visitMultiANewArrayInsn(desc, dims);
+		
+		if (this.shouldInstrument()) {
+			this.updateObjOnVStack();
+		}
 	}
 	
 	@Override

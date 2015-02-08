@@ -132,10 +132,10 @@ public class BenchmarkTools {
             System.out.println("Test random seed = "+test.getRandomSeed());
         }
         
-        System.out.println("Check params");
+        /*System.out.println("Check params");
         for (String p: params) {
         	System.out.println(p);
-        }
+        }*/
 
         try {
             Runtime rt = Runtime.getRuntime();
