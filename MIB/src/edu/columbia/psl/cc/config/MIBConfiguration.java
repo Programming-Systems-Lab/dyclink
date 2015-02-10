@@ -159,6 +159,10 @@ public class MIBConfiguration {
 	
 	private boolean cacheGraph;
 	
+	private String dburl;
+	
+	private String dbusername;
+	
 	private static MIBConfiguration instance = null;
 	
 	private MIBConfiguration() {
@@ -569,6 +573,22 @@ public class MIBConfiguration {
 	
 	public void setCacheGraph(boolean cacheGraph) {
 		this.cacheGraph = cacheGraph;
+	}
+	
+	public void setDburl(String dburl) {
+		this.dburl = dburl;
+	}
+	
+	public String getDburl() {
+		return this.dburl;
+	}
+	
+	public void setDbusername(String dbusername) {
+		this.dbusername = dbusername;
+	}
+	
+	public String getDbusername() {
+		return this.dbusername;
 	}
 	
 	@Override

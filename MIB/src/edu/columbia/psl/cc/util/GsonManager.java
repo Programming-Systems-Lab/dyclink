@@ -314,13 +314,13 @@ public class GsonManager {
 		cleanDir(labelmapDir);
 	}
 	
-	public static void writeResult(StringBuilder sb) {
-		writeResult(sb.toString());
+	public static void writeResult(String compareName, StringBuilder sb) {
+		writeResult(compareName, sb.toString());
 	}
 	
-	public static void writeResult(String resultString) {
+	public static void writeResult(String compareName, String resultString) {
 		Date now = new Date();
-		String name = MIBConfiguration.getInstance().getResultDir() + "/result" + now.getTime() + ".csv"; 
+		String name = MIBConfiguration.getInstance().getResultDir() + "/" + compareName + now.getTime() + ".csv"; 
 		File result = new File(name);
 		
 		try {

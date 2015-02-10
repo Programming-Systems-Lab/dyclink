@@ -131,6 +131,7 @@ public class MethodNode extends InstNode {
 	}
 		
 	public void registerCallee(GraphTemplate callee) {
+		//No need for linenumber actually.
 		String groupKey = GraphGroup.groupKey(this.getLinenumber(), callee);
 		GraphWithFreq gf = null;
 		if (this.callees.containsKey(groupKey)) {

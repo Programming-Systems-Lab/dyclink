@@ -1,5 +1,6 @@
 package edu.columbia.psl.cc.analysis;
 
+import java.io.Console;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,6 +31,8 @@ import edu.columbia.psl.cc.pojo.HotZone;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.NameMap;
+import edu.columbia.psl.cc.util.DBConnector.Comparison;
+import edu.columbia.psl.cc.util.DBConnector;
 import edu.columbia.psl.cc.util.GraphConstructor;
 import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.GsonManager;
@@ -62,6 +66,8 @@ public class PageRankSelector {
 	private static int instLimit = MIBConfiguration.getInstance().getInstLimit();
 	
 	private static double simThreshold = MIBConfiguration.getInstance().getSimThreshold();
+	
+	private static String sumHeader = "lib1,lib2,inst_thresh,inst_cat,method1,method2,method_f_1,method_f_2,m_compare,sub_crawl,sub_crawl_filter,time\n";
 	
 	private static String header = "sub,target,pgrank_sub,center_sub,center_sub_line,start_target,start_target_line,center_target,center_target_line,end_target,end_target_line,seg_size,inst_dist,dist,similarity\n";
 	
@@ -284,7 +290,7 @@ public class PageRankSelector {
 			
 			//Temporarily set it as 0.8. Not consider the too-short assignment
 			if (seg.size() < subProfile.pgRep.length * 0.8) {
-				logger.info("Give up too-short assignment: " + inst + " size " + seg.size());
+				//logger.info("Give up too-short assignment: " + inst + " size " + seg.size());
 				continue ;
 			} else {
 				double[] segDist = StaticTester.genDistribution(seg);
@@ -299,7 +305,7 @@ public class PageRankSelector {
 				if (si.instDistWithSub <= 0.2) {
 					candSegs.put(inst, si);
 				} else {
-					logger.info("Give up less likely inst: " + inst + " " + si.instDistWithSub);
+					//logger.info("Give up less likely inst: " + inst + " " + si.instDistWithSub);
 				}
 				
 				/*if (ChiTester.shouldTest(subDist, subProfile.pgRep.length, segDist, seg.size())) {
@@ -378,32 +384,49 @@ public class PageRankSelector {
 		}
 	}
 	
-	public static void initiateSubGraphMining(String templateDir, String testDir) {		
+	public static void initiateSubGraphMining(String templateDir, 
+			String testDir, 
+			String url, 
+			String username, 
+			String password) {
+		long startTime = System.currentTimeMillis();
+		
+		String lib1 = (new File(templateDir)).getName();
+		String lib2 = (new File(testDir)).getName();
+		
+		Comparison compResult = new Comparison();
+		compResult.inst_thresh = MIBConfiguration.getInstance().getInstThreshold();
+		compResult.inst_cat = MIBConfiguration.getInstance().getSimStrategy();
+		compResult.lib1 = lib1;
+		compResult.lib2 = lib2;
+		
 		StringBuilder sb = new StringBuilder();
-		sb.append(header);
 		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 		
 		HashMap<String, GraphTemplate> templates = null;
 		HashMap<String, GraphTemplate> tests = null;
 		
-		boolean probeTemplate = TemplateLoader.probeDir("./template");
-		boolean probeTest = TemplateLoader.probeDir("./test");
+		boolean probeTemplate = TemplateLoader.probeDir(lib1);
+		boolean probeTest = TemplateLoader.probeDir(lib2);
 		if (probeTemplate && probeTest) {
 			logger.info("Comparison mode: templates vs tests");
-			templates = TemplateLoader.loadTemplate(new File("./template"), graphToken);
-			tests = TemplateLoader.loadTemplate(new File("./test"), graphToken);
+			templates = TemplateLoader.loadTemplate(new File(lib1), graphToken);
+			tests = TemplateLoader.loadTemplate(new File(lib2), graphToken);
 		} else if (probeTemplate) {
 			logger.info("Exhaustive mode: templates vs. templates");
-			templates = TemplateLoader.loadTemplate(new File("./template"), graphToken);
-			tests = TemplateLoader.loadTemplate(new File("./template"), graphToken);
+			templates = TemplateLoader.loadTemplate(new File(lib1), graphToken);
+			tests = TemplateLoader.loadTemplate(new File(lib1), graphToken);
 		} else if (probeTest) {
 			logger.info("Exhaustive mode: tests vs. tests");
-			templates = TemplateLoader.loadTemplate(new File("./test"), graphToken);
-			tests = TemplateLoader.loadTemplate(new File("./test"), graphToken);
+			templates = TemplateLoader.loadTemplate(new File(lib2), graphToken);
+			tests = TemplateLoader.loadTemplate(new File(lib2), graphToken);
 		} else {
 			logger.info("Empty repos for both templates and tests");
 			return ;
 		}
+		
+		compResult.method1 = templates.size();
+		compResult.method2 = tests.size();
 		
 		filterGraphs(templates);
 		logger.info("Template size: " + templates.size());
@@ -411,6 +434,9 @@ public class PageRankSelector {
 		filterGraphs(tests);
 		logger.info("Test size: " + tests.size());
 		//logger.info(tests.keySet());
+		
+		compResult.method_f_1 = templates.size();
+		compResult.method_f_2 = tests.size();
 		
 		try {
 			//Construct and profile tests (target graphs)
@@ -427,6 +453,7 @@ public class PageRankSelector {
 			//Sub: test, Target: template
 			constructCrawlerList(testProfiles, templateProfiles, crawlers);
 			logger.info("Total number of comparisons: " + crawlers.size());
+			compResult.m_compare = crawlers.size();
 			
 			ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
 			List<Future<List<HotZone>>> resultRecorder = new ArrayList<Future<List<HotZone>>>();
@@ -438,15 +465,51 @@ public class PageRankSelector {
 			executor.shutdown();
 			while (!executor.isTerminated());
 			
+			logger.info("Sub graph comp num: " + subCompNum);
+			logger.info("Real sub graph comp num: " + realSubCompNum);
+			double execTime = (System.currentTimeMillis() - startTime)/1000.0;
+			System.out.println("Execution time: " + (execTime));
+			
+			compResult.sub_crawl = subCompNum;
+			compResult.sub_crawl_filter = realSubCompNum;
+			compResult.time = execTime;
+			
+			//Record summary
+			sb.append(sumHeader);
+			StringBuilder sumBuilder = new StringBuilder();
+			sumBuilder.append(compResult.lib1 + ",");
+			sumBuilder.append(compResult.lib2 + ",");
+			sumBuilder.append(compResult.inst_thresh + ",");
+			sumBuilder.append(compResult.inst_cat + ",");
+			sumBuilder.append(compResult.method1 + ",");
+			sumBuilder.append(compResult.method2 + ",");
+			sumBuilder.append(compResult.method_f_1 + ",");
+			sumBuilder.append(compResult.method_f_2 + ",");
+			sumBuilder.append(compResult.m_compare + ",");
+			sumBuilder.append(compResult.sub_crawl + ",");
+			sumBuilder.append(compResult.sub_crawl_filter + ",");
+			sumBuilder.append(compResult.time + "\n");
+			sumBuilder.append("\n");
+			sb.append(sumBuilder.toString());
+			sb.append(header);
+			
+			//Write summary to DB
+			int compResultId = -1;
+			if (url != null && username != null && password != null) {
+				DBConnector connector = new DBConnector();
+				compResultId = connector.writeCompTableResult(url, username, password, compResult);
+			}
+			
 			for (Future<List<HotZone>> future: resultRecorder) {
 				List<HotZone> zones = future.get();
 				
+				//Record hotzones
 				for (HotZone hit: zones) {
-					logger.info("Start inst: " + hit.getStartInst());
-					logger.info("Centroid inst: " + hit.getCentralInst());
-					logger.info("End inst: " + hit.getEndInst());
-					logger.info("Distance: " + hit.getLevDist());
-					logger.info("Similarity: " + hit.getSimilarity());
+					//logger.info("Start inst: " + hit.getStartInst());
+					//logger.info("Centroid inst: " + hit.getCentralInst());
+					//logger.info("End inst: " + hit.getEndInst());
+					//logger.info("Distance: " + hit.getLevDist());
+					//logger.info("Similarity: " + hit.getSimilarity());
 					
 					StringBuilder rawRecorder = new StringBuilder();
 					rawRecorder.append(hit.getSubGraphName() + 
@@ -466,18 +529,52 @@ public class PageRankSelector {
 							"," + hit.getSimilarity() + "\n");
 					sb.append(rawRecorder);
 				}
+				
+				//Write hotzones to DB
+				if (compResultId >= 0) {
+					DBConnector connector = new DBConnector();
+					connector.writeDetailTableResult(url, username, password, compResultId, zones);
+				}
 			}
-			logger.info("Sub graph comp num: " + subCompNum);
-			logger.info("Real sub graph comp num: " + realSubCompNum);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		
-		GsonManager.writeResult(sb);
+		String compareName = lib1 + "-" + lib2;
+		GsonManager.writeResult(compareName, sb);
 	}
 				
 	public static void main(String[] args) {
-		long startTime = System.currentTimeMillis();
+		Console console = System.console();
+		if (console == null) {
+			System.err.println("Null console");
+			System.exit(1);
+		}
+		
+		String url = MIBConfiguration.getInstance().getDburl();
+		String username = MIBConfiguration.getInstance().getDbusername();
+		System.out.println("DB URL: " + url);
+		
+		char[] passArray = console.readPassword("DB password: ");
+		String password = new String(passArray);
+		
+		DBConnector connector = new DBConnector();
+		if (!connector.probeDB(url, username, password)) {
+			System.out.println("No DB connection. Wanna execute experiment still?");
+			Scanner scanner = new Scanner(System.in);
+			
+			try {
+				boolean shouldExecute = scanner.nextBoolean();
+				if (!shouldExecute) {
+					System.out.println("Bye bye~~~");
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				System.out.println("Leave system because of unexpected error");
+				System.exit(1);
+			}
+		}
+		
 		String templateDir = MIBConfiguration.getInstance().getTemplateDir();
 		String testDir = MIBConfiguration.getInstance().getTestDir();
 				
@@ -487,8 +584,7 @@ public class PageRankSelector {
 		logger.info("Max iteration: " + maxIteration);
 		logger.info("Epsilon: " + epsilon);
 		
-		initiateSubGraphMining(templateDir, testDir);
-		System.out.println("Execution time: " + (System.currentTimeMillis() - startTime));
+		initiateSubGraphMining(templateDir, testDir, url, username, password);
 	}
 	
 	private static class SegInfo {

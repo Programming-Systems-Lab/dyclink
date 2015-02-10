@@ -56,5 +56,7 @@
   "templateMode": true,
   "overallAnalysis": false,
   "debug": false,
-  "cacheGraph": true
+  "cacheGraph": true,
+  "dburl": "jdbc:mysql://127.0.0.1:3306/dyclink",
+  "dbusername": "root"
 }

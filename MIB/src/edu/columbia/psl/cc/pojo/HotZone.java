@@ -14,7 +14,7 @@ public class HotZone {
 	
 	private InstNode endInst;
 	
-	private double levDist;
+	private int levDist;
 	
 	private double similarity;
 	
@@ -68,11 +68,11 @@ public class HotZone {
 		this.endInst = endInst;
 	}
 
-	public double getLevDist() {
+	public int getLevDist() {
 		return levDist;
 	}
 
-	public void setLevDist(double levDist) {
+	public void setLevDist(int levDist) {
 		this.levDist = levDist;
 	}
 

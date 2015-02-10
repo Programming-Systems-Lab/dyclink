@@ -133,7 +133,7 @@ public class DynamicGraphAnalyzer implements Analyzer<GraphTemplate> {
 			System.out.println("Exhaustive mode: templates vs. templates");
 			scorer.calculateSimilarities(this.templates, this.templates);
 		}
-		GsonManager.writeResult(scorer.getResult());
+		GsonManager.writeResult("", scorer.getResult());
 	}
 
 	/**
