@@ -78,7 +78,7 @@ public class GraphConstructor {
 		collecter.add(methodNode);
 	}
 	
-	public void reconstructGraph(GraphTemplate rawGraph) {
+	public void reconstructGraph(GraphTemplate rawGraph, boolean addCallerLine) {
 		String myId = StringUtil.genThreadWithMethodIdx(rawGraph.getThreadId(), rawGraph.getThreadMethodId());
 		String baseDir = MIBConfiguration.getInstance().getCacheDir() + "/" + myId;
 		
@@ -103,7 +103,7 @@ public class GraphConstructor {
 			List<GraphTemplate> toMerge = new ArrayList<GraphTemplate>();
 			InstNode lastBeforeReturn = rawGraph.getLastBeforeReturn();
 			for (InstNode inst: processQueue) {
-				if (inst instanceof MethodNode) {	
+				if (inst instanceof MethodNode) {
 					logger.info("Method node: " + inst);
 					MethodNode mn = (MethodNode)inst;
 					
@@ -134,8 +134,14 @@ public class GraphConstructor {
 						logger.info("Callee idx: " + calleeId);
 						File f = new File(baseDir + "/" + calleeId);
 						GraphTemplate callee = GsonManager.readJsonGeneric(f, graphToken);
-						reconstructGraph(callee);
+						reconstructGraph(callee, false);
 						toMerge.add(callee);
+						
+						if (addCallerLine) {
+							for (InstNode ia: callee.getInstPool()) {
+								ia.callerLine = inst.getLinenumber();
+							}
+						}
 						
 						//This means that the method call is the last inst, will only have 1 graph
 						if (lastBeforeReturn != null && inst.equals(lastBeforeReturn)) {
@@ -236,6 +242,8 @@ public class GraphConstructor {
 					}
 					
 					rawGraph.getInstPool().remove(inst);
+				} else if (addCallerLine) {
+					inst.callerLine = inst.getLinenumber();
 				}
 			}
 			
@@ -252,7 +260,7 @@ public class GraphConstructor {
 		File testFile = new File("./template/cern.colt.matrix.linalg.SingularValueDecomposition:getU:0:0:32168.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
 		GraphConstructor constructor = new GraphConstructor();
-		constructor.reconstructGraph(testGraph);
+		constructor.reconstructGraph(testGraph, true);
 		System.out.println("Recorded graph size: " + testGraph.getVertexNum());
 		System.out.println("Actual graph size: " + testGraph.getInstPool().size());
 		

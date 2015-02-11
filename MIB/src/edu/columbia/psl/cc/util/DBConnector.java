@@ -6,6 +6,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -54,8 +56,11 @@ public class DBConnector {
 			String query = "INSERT INTO comp_table (inst_thresh, inst_cat, lib1, lib2, " +
 					"method1, method2, " +
 					"method_f_1, method_f_2, m_compare, " +
-					"sub_crawl, sub_crawl_filter, time)" + 
-					" VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+					"sub_crawl, sub_crawl_filter, time, timestamp)" + 
+					" VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			
+			Date now = new Date();
+			Timestamp ts = new Timestamp(now.getTime());
 			
 			PreparedStatement pStmt = connect.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 			pStmt.setInt(1, compResult.inst_thresh);
@@ -70,6 +75,7 @@ public class DBConnector {
 			pStmt.setInt(10, compResult.sub_crawl);
 			pStmt.setInt(11, compResult.sub_crawl_filter);
 			pStmt.setDouble(12, compResult.time);
+			pStmt.setTimestamp(13, ts);
 			
 			int insertRow = pStmt.executeUpdate();
 			
@@ -105,29 +111,34 @@ public class DBConnector {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			Connection connect = DriverManager.getConnection(url, username, password);
-			String query = "INSERT INTO result_table (comp_id, sub, target, s_centroid, s_centroid_line, " +
-					"t_start, t_start_line, t_centroid, t_centroid_line, t_end, t_end_line, " +
+			String query = "INSERT INTO result_table (comp_id, sub, sid, target, tid, s_centroid, s_centroid_line, " +
+					"t_start, t_start_line, t_start_caller, t_centroid, t_centroid_line, t_centroid_caller, t_end, t_end_line, t_end_caller, " +
 					"seg_size, static_dist, dyn_dist, similarity) " + 
-					"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+					"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			
 			PreparedStatement pStmt = connect.prepareStatement(query);
 			for (int i = 0; i < hotzones.size(); i++) {
 				HotZone hotzone = hotzones.get(i);
 				pStmt.setInt(1, compId);
 				pStmt.setString(2, hotzone.getSubGraphName());
-				pStmt.setString(3, hotzone.getTargetGraphName());
-				pStmt.setString(4, hotzone.getSubCentroid().toString());
-				pStmt.setInt(5, hotzone.getSubCentroid().getLinenumber());
-				pStmt.setString(6, hotzone.getStartInst().toString());
-				pStmt.setInt(7, hotzone.getStartInst().getLinenumber());
-				pStmt.setString(8, hotzone.getCentralInst().toString());
-				pStmt.setInt(9, hotzone.getCentralInst().getLinenumber());
-				pStmt.setString(10, hotzone.getEndInst().toString());
-				pStmt.setInt(11, hotzone.getEndInst().getLinenumber());
-				pStmt.setInt(12, hotzone.getSegs().size());
-				pStmt.setDouble(13, hotzone.getInstDistance());
-				pStmt.setInt(14, hotzone.getLevDist());
-				pStmt.setDouble(15, hotzone.getSimilarity());
+				pStmt.setString(3, hotzone.getSubGraphId());
+				pStmt.setString(4, hotzone.getTargetGraphName());
+				pStmt.setString(5, hotzone.getTargetGraphId());
+				pStmt.setString(6, hotzone.getSubCentroid().toString());
+				pStmt.setInt(7, hotzone.getSubCentroid().getLinenumber());
+				pStmt.setString(8, hotzone.getStartInst().toString());
+				pStmt.setInt(9, hotzone.getStartInst().getLinenumber());
+				pStmt.setInt(10, hotzone.getStartInst().callerLine);
+				pStmt.setString(11, hotzone.getCentralInst().toString());
+				pStmt.setInt(12, hotzone.getCentralInst().getLinenumber());
+				pStmt.setInt(13, hotzone.getCentralInst().callerLine);
+				pStmt.setString(14, hotzone.getEndInst().toString());
+				pStmt.setInt(15, hotzone.getEndInst().getLinenumber());
+				pStmt.setInt(16, hotzone.getEndInst().callerLine);
+				pStmt.setInt(17, hotzone.getSegs().size());
+				pStmt.setDouble(18, hotzone.getInstDistance());
+				pStmt.setInt(19, hotzone.getLevDist());
+				pStmt.setDouble(20, hotzone.getSimilarity());
 				
 				pStmt.addBatch();
 				

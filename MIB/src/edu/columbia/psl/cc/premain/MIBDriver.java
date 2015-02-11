@@ -72,6 +72,8 @@ public class MIBDriver {
 		//Set inst pool, cannot set it in static initializer, or there will be infinite loop
 		InstPool.DEBUG = MIBConfiguration.getInstance().isDebug();
 		
+		setupGlobalRecorder();
+		
 		//Clean directory
 		GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());
 		
@@ -113,7 +115,7 @@ public class MIBDriver {
 		try {
 			Class targetClass = Class.forName(className);
 			logger.info("Confirm class: " + targetClass);
-			logger.info("Class loader: " + targetClass.getClassLoader().getClass().getName() + " " + System.identityHashCode(targetClass.getClassLoader()));
+			//logger.info("Class loader: " + targetClass.getClassLoader().getClass().getName() + " " + System.identityHashCode(targetClass.getClassLoader()));
 			
 			Method mainMethod = targetClass.getMethod("main", String[].class);
 			mainMethod.invoke(null, (Object)newArgs);
@@ -139,11 +141,31 @@ public class MIBDriver {
 	public static void serializeNameMap() {
 		NameMap nameMap = new NameMap();
 		nameMap.setGlobalNameMap(GlobalRecorder.getGlobalNameMap());
+		nameMap.setShortNameCounter(GlobalRecorder.getShortNameCounter());
 		nameMap.setRecursiveMethods(GlobalRecorder.getRecursiveMethods());
 		nameMap.setUndersizedMethods(GlobalRecorder.getUndersizedMethods());
 		nameMap.setUntransformedClass(GlobalRecorder.getUntransformedClass());
 		
 		GsonManager.writeJsonGeneric(nameMap, "nameMap", nameMapToken, MIBConfiguration.LABEL_MAP_DIR);
+	}
+	
+	public static void setupGlobalRecorder() {
+		String fileName = MIBConfiguration.getInstance().getLabelmapDir() + "/nameMap.json";
+		File file = new File(fileName);
+		
+		if (!file.exists()) {
+			return ;
+		}
+		
+		TypeToken<NameMap> nameToken = new TypeToken<NameMap>(){};
+		NameMap nameMap = GsonManager.readJsonGeneric(file, nameToken);
+		
+		GlobalRecorder.setGlobalNameMap(nameMap.getGlobalNameMap());
+		GlobalRecorder.setShortNameCounter(nameMap.getShortNameCounter());
+		GlobalRecorder.setRecursiveMethods(nameMap.getRecursiveMethods());
+		GlobalRecorder.setUndersizedMethods(nameMap.getUndersizedMethods());
+		GlobalRecorder.setUntransformedClass(nameMap.getUntransformedClass());
+		System.out.println("Show name map from last execution: " + GlobalRecorder.getGlobalNameMap().size());
 	}
 	
 	public static void updateConfig() {

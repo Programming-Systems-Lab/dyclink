@@ -26,6 +26,8 @@ public class InstNode {
 	
 	private int linenumber;
 	
+	public transient int callerLine = 0;
+	
 	//private long startDigit = 0;
 	
 	private long startTime = -1;

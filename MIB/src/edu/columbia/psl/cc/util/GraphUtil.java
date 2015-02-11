@@ -1005,7 +1005,7 @@ public class GraphUtil {
 	public static void unionInstPools(InstPool parentPool, InstPool childPool) {
 		Iterator<InstNode> poolIt = childPool.iterator();
 		while (poolIt.hasNext()) {
-			InstNode childInst = poolIt.next();
+			InstNode childInst = poolIt.next();			
 			parentPool.add(childInst);
 		}
 	}

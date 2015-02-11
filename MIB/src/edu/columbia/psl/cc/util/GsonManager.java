@@ -311,23 +311,23 @@ public class GsonManager {
 		//cleanDir(cacheDir);
 		cleanDir(pathDir);
 		cleanDir(costDir);
-		cleanDir(labelmapDir);
+		//cleanDir(labelmapDir);
 	}
 	
-	public static void writeResult(String compareName, StringBuilder sb) {
-		writeResult(compareName, sb.toString());
+	public static void writeResult(String fileName, StringBuilder sb) {
+		writeResult(fileName, sb.toString());
 	}
 	
-	public static void writeResult(String compareName, String resultString) {
-		Date now = new Date();
-		String name = MIBConfiguration.getInstance().getResultDir() + "/" + compareName + now.getTime() + ".csv"; 
-		File result = new File(name);
+	public static void writeResult(String fileName, String resultString) {
+		//Date now = new Date();
+		//String name = MIBConfiguration.getInstance().getResultDir() + "/" + compareName + now.getTime() + ".csv"; 
+		File result = new File(fileName);
 		
 		try {
 			if (!result.exists())
 				result.createNewFile();
 			
-			BufferedWriter bw = new BufferedWriter(new FileWriter(result));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(result, true));
 			bw.write(resultString);
 			bw.close();
 		} catch (Exception ex) {

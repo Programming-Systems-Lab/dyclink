@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -69,7 +70,7 @@ public class PageRankSelector {
 	
 	private static String sumHeader = "lib1,lib2,inst_thresh,inst_cat,method1,method2,method_f_1,method_f_2,m_compare,sub_crawl,sub_crawl_filter,time\n";
 	
-	private static String header = "sub,target,pgrank_sub,center_sub,center_sub_line,start_target,start_target_line,center_target,center_target_line,end_target,end_target_line,seg_size,inst_dist,dist,similarity\n";
+	private static String header = "sub,sid,target,tid,s_pgrank,s_centroid,s_centroid_line,t_start,t_start_line,t_start_caller,t_centroid,t_centroid_line,t_centroid_caller,t_end,t_end_line,t_end_caller,inst_dist,dist,similarity\n";
 	
 	private static Comparator<InstWrapper> pageRankSorter = new Comparator<InstWrapper>() {
 		public int compare(InstWrapper i1, InstWrapper i2) {
@@ -302,7 +303,7 @@ public class PageRankSelector {
 				si.instDistWithSub = StaticTester.normalizeEucDistance(subProfile.normDist, 
 						si.normInstDistribution);
 				
-				if (si.instDistWithSub <= 0.2) {
+				if (si.instDistWithSub <= 0.1) {
 					candSegs.put(inst, si);
 				} else {
 					//logger.info("Give up less likely inst: " + inst + " " + si.instDistWithSub);
@@ -500,6 +501,10 @@ public class PageRankSelector {
 				compResultId = connector.writeCompTableResult(url, username, password, compResult);
 			}
 			
+			Date now = new Date();
+			String compareName = lib1 + "-" + lib2;
+			String csvName = MIBConfiguration.getInstance().getResultDir() + "/" + compareName + now.getTime() + ".csv";
+			
 			for (Future<List<HotZone>> future: resultRecorder) {
 				List<HotZone> zones = future.get();
 				
@@ -513,22 +518,30 @@ public class PageRankSelector {
 					
 					StringBuilder rawRecorder = new StringBuilder();
 					rawRecorder.append(hit.getSubGraphName() + 
+							"," + hit.getSubGraphId() +
 							"," + hit.getTargetGraphName() + 
+							"," + hit.getTargetGraphId() +
 							"," + hit.getSubPgRank() +
 							"," + hit.getSubCentroid() + 
 							"," + hit.getSubCentroid().getLinenumber() +
 							"," + hit.getStartInst() + 
 							"," + hit.getStartInst().getLinenumber() + 
+							"," + hit.getStartInst().callerLine + 
 							"," + hit.getCentralInst() + 
-							"," + hit.getCentralInst().getLinenumber() +
+							"," + hit.getCentralInst().getLinenumber() + 
+							"," + hit.getCentralInst().callerLine + 
 							"," + hit.getEndInst() + 
-							"," + hit.getEndInst().getLinenumber() +
+							"," + hit.getEndInst().getLinenumber() + 
+							"," + hit.getEndInst().callerLine + 
 							"," + hit.getSegs().size() + 
 							"," + hit.getInstDistance() +
 							"," + hit.getLevDist() + 
 							"," + hit.getSimilarity() + "\n");
 					sb.append(rawRecorder);
 				}
+				
+				GsonManager.writeResult(csvName, sb);
+				sb = new StringBuilder();
 				
 				//Write hotzones to DB
 				if (compResultId >= 0) {
@@ -539,9 +552,7 @@ public class PageRankSelector {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		
-		String compareName = lib1 + "-" + lib2;
-		GsonManager.writeResult(compareName, sb);
+		//GsonManager.writeResult(compareName, sb);
 	}
 				
 	public static void main(String[] args) {
@@ -629,7 +640,7 @@ public class PageRankSelector {
 			logger.info("Test name: " + rawGraph.getMethodKey());
 			logger.info("Inst node size: " + rawGraph.getInstPool().size());
 			GraphConstructor constructor = new GraphConstructor();
-			constructor.reconstructGraph(rawGraph);
+			constructor.reconstructGraph(rawGraph, true);
 		}
 	}
 	
@@ -642,7 +653,7 @@ public class PageRankSelector {
 		public GraphProfile call() throws Exception {
 			logger.info("Graph name: " + this.graph.getMethodKey());
 			GraphConstructor constructor = new GraphConstructor();
-			constructor.reconstructGraph(this.graph);
+			constructor.reconstructGraph(this.graph, true);
 			return profileGraph();
 		}
 		
@@ -766,7 +777,9 @@ public class PageRankSelector {
 					zone.setInstDistance(segInfo.instDistWithSub);
 					zone.setSegs(segPool);
 					zone.setSubGraphName(subGraphName);
+					zone.setSubGraphId(subProfile.graph.getThreadId() + "-" + subProfile.graph.getThreadMethodId());
 					zone.setTargetGraphName(targetGraphName);
+					zone.setTargetGraphId(targetGraph.getThreadId() + "-" + targetGraph.getThreadMethodId());
 					hits.add(zone);
 				}
 			}

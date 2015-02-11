@@ -26,7 +26,11 @@ public class HotZone {
 	
 	private String subGraphName;
 	
+	private String subGraphId;
+	
 	private String targetGraphName;
+	
+	private String targetGraphId;
 	
 	public InstNode getSubCentroid() {
 		return this.subCentroid;
@@ -116,11 +120,27 @@ public class HotZone {
 		return this.subGraphName;
 	}
 	
+	public void setSubGraphId(String subGraphId) {
+		this.subGraphId = subGraphId;
+	}
+	
+	public String getSubGraphId() {
+		return this.subGraphId;
+	}
+	
 	public void setTargetGraphName(String targetGraphName) {
 		this.targetGraphName = targetGraphName;
 	}
 	
 	public String getTargetGraphName() {
 		return this.targetGraphName;
+	}
+	
+	public void setTargetGraphId(String targetGraphId) {
+		this.targetGraphId = targetGraphId;
+	}
+	
+	public String getTargetGraphId() {
+		return this.targetGraphId;
 	}
 }

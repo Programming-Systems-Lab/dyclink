@@ -89,9 +89,9 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 				return cw.toByteArray();
 			} catch (Exception ex) {
 				//ex.printStackTrace();
-				logger.error("Fail to transform class: " + className);
+				logger.error("Fail to transform class: " + name + ", recover original class");
 				logger.error("Message: ", ex);
-				GlobalRecorder.registerUntransformedClass(className);
+				GlobalRecorder.registerUntransformedClass(name);
 			}
 		}
 		return classfileBuffer;

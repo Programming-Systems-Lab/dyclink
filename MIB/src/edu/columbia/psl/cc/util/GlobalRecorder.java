@@ -229,6 +229,24 @@ public class GlobalRecorder {
 		return globalNameMap;
 	}
 	
+	public static void setShortNameCounter(HashMap<String, Integer> rawCounter) {
+		for (String key: rawCounter.keySet()) {
+			int lastCounter = rawCounter.get(key)
+;			AtomicInteger ai = new AtomicInteger();
+			ai.set(lastCounter);
+			shortNameCounter.put(key, ai);
+		}
+	}
+	
+	public static HashMap<String, Integer> getShortNameCounter() {
+		HashMap<String, Integer> rawCounter = new HashMap<String, Integer>();
+		for (String key: shortNameCounter.keySet()) {
+			int val = shortNameCounter.get(key).get();
+			rawCounter.put(key, val);
+		}
+		return rawCounter;
+	}
+	
 	public static void registerRecursiveMethod(String methodShortName) {
 		synchronized(recursiveMethodLock) {
 			recursiveMethodRecorder.add(methodShortName);
@@ -239,6 +257,10 @@ public class GlobalRecorder {
 		synchronized(recursiveMethodLock) {
 			return recursiveMethodRecorder.contains(methodShortName);
 		}
+	}
+	
+	public static void setRecursiveMethods(HashSet<String> oriRecursiveMethods) {
+		recursiveMethodRecorder = oriRecursiveMethods;
 	}
 	
 	public static HashSet<String> getRecursiveMethods() {
@@ -347,6 +369,10 @@ public class GlobalRecorder {
 		}
 	}
 	
+	public static void setUndersizedMethods(HashSet<String> oriUndersizedMethods) {
+		undersizedMethods = oriUndersizedMethods;
+	}
+	
 	public static HashSet<String> getUndersizedMethods() {
 		return undersizedMethods;
 	}
@@ -354,6 +380,16 @@ public class GlobalRecorder {
 	public static void registerUntransformedClass(String className) {
 		synchronized(untransformedLock) {
 			untransformedClass.add(className);
+		}
+	}
+	
+	public static void setUntransformedClass(HashSet<String> oriUntransformedClass) {
+		untransformedClass = oriUntransformedClass;
+	}
+	
+	public static boolean checkUntransformedClass(String className) {
+		synchronized(untransformedLock) {
+			return untransformedClass.contains(className);
 		}
 	}
 	

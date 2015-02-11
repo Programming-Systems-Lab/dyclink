@@ -7,6 +7,8 @@ public class NameMap {
 	
 	private HashMap<String, String> globalNameMap;
 	
+	private HashMap<String, Integer> shortNameCounter;
+	
 	private HashSet<String> recursiveMethods;
 	
 	private HashSet<String> undersizedMethods;
@@ -19,6 +21,14 @@ public class NameMap {
 	
 	public HashMap<String, String> getGlobalNameMap() {
 		return globalNameMap;
+	}
+	
+	public void setShortNameCounter(HashMap<String, Integer> globalNameCounter) {
+		this.shortNameCounter = globalNameCounter;
+	}
+	
+	public HashMap<String, Integer> getShortNameCounter() {
+		return this.shortNameCounter;
 	}
 	
 	public void setRecursiveMethods(HashSet<String> recursiveMethods) {

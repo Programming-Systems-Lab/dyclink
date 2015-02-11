@@ -723,7 +723,8 @@ public class MethodStackRecorder {
 				if (Type.getType(owner).getSort() == Type.ARRAY 
 						|| !StringUtil.shouldIncludeClass(correctClass.getName()) 
 						|| !StringUtil.shouldIncludeMethod(name, desc)
-						|| GlobalRecorder.checkUndersizedMethod(GlobalRecorder.getGlobalName(realMethodKey))) {
+						|| GlobalRecorder.checkUndersizedMethod(GlobalRecorder.getGlobalName(realMethodKey)) 
+						|| GlobalRecorder.checkUntransformedClass(correctClass.getName())) {
 					InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 							this.threadId, 
 							this.threadMethodId, 
