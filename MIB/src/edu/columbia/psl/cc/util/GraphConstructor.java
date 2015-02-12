@@ -179,7 +179,8 @@ public class GraphConstructor {
 							if (calleeChildReplace == null) {
 								logger.info("Current inst: " + inst);
 								logger.info("Find no last inst in callee: " + calleeId);
-								System.exit(1);
+								//System.exit(1);
+								continue ;
 							}
 							
 							for (String childKey: childMap.keySet()) {
@@ -202,7 +203,8 @@ public class GraphConstructor {
 								if (childNode == null) {
 									logger.error("Current inst: " + inst);
 									logger.error("Missing inst: " + childKey);
-									System.exit(1);
+									//System.exit(1);
+									continue ;
 								}
 								
 								calleeChildReplace.increChild(childNode.getThreadId(), 

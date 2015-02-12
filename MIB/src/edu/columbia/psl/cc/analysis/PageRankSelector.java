@@ -54,6 +54,8 @@ public class PageRankSelector {
 	
 	private static Object countLock = new Object();
 	
+	private static AtomicInteger profilerIndex = new AtomicInteger();
+	
 	private static AtomicInteger threadIndex = new AtomicInteger();
 	
 	private static Logger logger = Logger.getLogger(PageRankSelector.class);
@@ -66,9 +68,11 @@ public class PageRankSelector {
 	
 	private static int instLimit = MIBConfiguration.getInstance().getInstLimit();
 	
+	private static double staticThreshold = MIBConfiguration.getInstance().getStaticThreshold();
+	
 	private static double simThreshold = MIBConfiguration.getInstance().getSimThreshold();
 	
-	private static String sumHeader = "lib1,lib2,inst_thresh,inst_cat,method1,method2,method_f_1,method_f_2,m_compare,sub_crawl,sub_crawl_filter,time\n";
+	private static String sumHeader = "lib1,lib2,inst_thresh,inst_cat,method1,method2,method_f_1,method_f_2,m_compare,sub_crawl,sub_crawl_filter,s_threshold,t_threshold,time,timestamp\n";
 	
 	private static String header = "sub,sid,target,tid,s_pgrank,s_centroid,s_centroid_line,t_start,t_start_line,t_start_caller,t_centroid,t_centroid_line,t_centroid_caller,t_end,t_end_line,t_end_caller,inst_dist,dist,similarity\n";
 	
@@ -303,11 +307,11 @@ public class PageRankSelector {
 				si.instDistWithSub = StaticTester.normalizeEucDistance(subProfile.normDist, 
 						si.normInstDistribution);
 				
-				if (si.instDistWithSub <= 0.1) {
+				if (si.instDistWithSub <= staticThreshold) {
 					candSegs.put(inst, si);
-				} else {
-					//logger.info("Give up less likely inst: " + inst + " " + si.instDistWithSub);
-				}
+				} /*else {
+					logger.info("Give up less likely inst: " + inst + " " + si.instDistWithSub);
+				}*/
 				
 				/*if (ChiTester.shouldTest(subDist, subProfile.pgRep.length, segDist, seg.size())) {
 					candSegs.put(inst, seg);
@@ -371,9 +375,10 @@ public class PageRankSelector {
 			List<GraphProfile> targetProfiles, 
 			List<SubGraphCrawler> crawlers) {
 		for (GraphProfile subProfile: subProfiles) {
-			for (GraphProfile targetProfile: targetProfiles) {
-				if (subProfile.fileName.equals(targetProfile.fileName))
+			for (GraphProfile targetProfile: targetProfiles) {				
+				if (subProfile.graph.getMethodKey().equals(targetProfile.graph.getMethodKey())) {
 					continue ;
+				}
 				
 				SubGraphCrawler crawler = new SubGraphCrawler();
 				crawler.subGraphName = subProfile.graph.getMethodKey();
@@ -389,17 +394,21 @@ public class PageRankSelector {
 			String testDir, 
 			String url, 
 			String username, 
-			String password) {
+			String password, 
+			boolean constructOnly) {
 		long startTime = System.currentTimeMillis();
 		
-		String lib1 = (new File(templateDir)).getName();
-		String lib2 = (new File(testDir)).getName();
+		File templateLoc = new File(templateDir);
+		File testLoc = new File(testDir);
+		
+		String lib1Name = templateLoc.getName();
+		String lib2Name = testLoc.getName();
 		
 		Comparison compResult = new Comparison();
 		compResult.inst_thresh = MIBConfiguration.getInstance().getInstThreshold();
 		compResult.inst_cat = MIBConfiguration.getInstance().getSimStrategy();
-		compResult.lib1 = lib1;
-		compResult.lib2 = lib2;
+		compResult.lib1 = lib1Name;
+		compResult.lib2 = lib2Name;
 		
 		StringBuilder sb = new StringBuilder();
 		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
@@ -407,20 +416,20 @@ public class PageRankSelector {
 		HashMap<String, GraphTemplate> templates = null;
 		HashMap<String, GraphTemplate> tests = null;
 		
-		boolean probeTemplate = TemplateLoader.probeDir(lib1);
-		boolean probeTest = TemplateLoader.probeDir(lib2);
+		boolean probeTemplate = TemplateLoader.probeDir(templateLoc.getAbsolutePath());
+		boolean probeTest = TemplateLoader.probeDir(testLoc.getAbsolutePath());
 		if (probeTemplate && probeTest) {
 			logger.info("Comparison mode: templates vs tests");
-			templates = TemplateLoader.loadTemplate(new File(lib1), graphToken);
-			tests = TemplateLoader.loadTemplate(new File(lib2), graphToken);
+			templates = TemplateLoader.loadTemplate(templateLoc, graphToken);
+			tests = TemplateLoader.loadTemplate(testLoc, graphToken);
 		} else if (probeTemplate) {
 			logger.info("Exhaustive mode: templates vs. templates");
-			templates = TemplateLoader.loadTemplate(new File(lib1), graphToken);
-			tests = TemplateLoader.loadTemplate(new File(lib1), graphToken);
+			templates = TemplateLoader.loadTemplate(templateLoc, graphToken);
+			tests = TemplateLoader.loadTemplate(templateLoc, graphToken);
 		} else if (probeTest) {
 			logger.info("Exhaustive mode: tests vs. tests");
-			templates = TemplateLoader.loadTemplate(new File(lib2), graphToken);
-			tests = TemplateLoader.loadTemplate(new File(lib2), graphToken);
+			templates = TemplateLoader.loadTemplate(testLoc, graphToken);
+			tests = TemplateLoader.loadTemplate(testLoc, graphToken);
 		} else {
 			logger.info("Empty repos for both templates and tests");
 			return ;
@@ -456,6 +465,10 @@ public class PageRankSelector {
 			logger.info("Total number of comparisons: " + crawlers.size());
 			compResult.m_compare = crawlers.size();
 			
+			if (constructOnly) {
+				return ;
+			}
+			
 			ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
 			List<Future<List<HotZone>>> resultRecorder = new ArrayList<Future<List<HotZone>>>();
 			
@@ -476,6 +489,7 @@ public class PageRankSelector {
 			compResult.time = execTime;
 			
 			//Record summary
+			Date now = new Date();
 			sb.append(sumHeader);
 			StringBuilder sumBuilder = new StringBuilder();
 			sumBuilder.append(compResult.lib1 + ",");
@@ -489,7 +503,10 @@ public class PageRankSelector {
 			sumBuilder.append(compResult.m_compare + ",");
 			sumBuilder.append(compResult.sub_crawl + ",");
 			sumBuilder.append(compResult.sub_crawl_filter + ",");
-			sumBuilder.append(compResult.time + "\n");
+			sumBuilder.append(staticThreshold + ",");
+			sumBuilder.append(simThreshold + ",");
+			sumBuilder.append(compResult.time + ",");
+			sumBuilder.append(now.toString() + "\n");
 			sumBuilder.append("\n");
 			sb.append(sumBuilder.toString());
 			sb.append(header);
@@ -498,11 +515,16 @@ public class PageRankSelector {
 			int compResultId = -1;
 			if (url != null && username != null && password != null) {
 				DBConnector connector = new DBConnector();
-				compResultId = connector.writeCompTableResult(url, username, password, compResult);
+				compResultId = connector.writeCompTableResult(url, 
+						username, 
+						password, 
+						staticThreshold, 
+						simThreshold, 
+						now, 
+						compResult);
 			}
 			
-			Date now = new Date();
-			String compareName = lib1 + "-" + lib2;
+			String compareName = lib1Name + "-" + lib2Name;
 			String csvName = MIBConfiguration.getInstance().getResultDir() + "/" + compareName + now.getTime() + ".csv";
 			
 			for (Future<List<HotZone>> future: resultRecorder) {
@@ -590,12 +612,21 @@ public class PageRankSelector {
 		String testDir = MIBConfiguration.getInstance().getTestDir();
 				
 		logger.info("Start PageRank analysis for Bytecode subgraph mining");
-		logger.info("Similarity threshold: " + simThreshold);
-		logger.info("Alpha: " + alpha);
-		logger.info("Max iteration: " + maxIteration);
-		logger.info("Epsilon: " + epsilon);
+		logger.info("Similarity strategy: " + MIBConfiguration.getInstance().getSimStrategy());
+		logger.info("Static threshold: " + staticThreshold);
+		logger.info("Dynamic threshold: " + simThreshold);
+		logger.info("Lib1 direcotry: " + (new File(MIBConfiguration.getInstance().getTemplateDir())).getAbsolutePath());
+		logger.info("Lib2 direcotry: " + (new File(MIBConfiguration.getInstance().getTestDir())).getAbsolutePath());
+		//logger.info("Alpha: " + alpha);
+		//logger.info("Max iteration: " + maxIteration);
+		//logger.info("Epsilon: " + epsilon);
 		
-		initiateSubGraphMining(templateDir, testDir, url, username, password);
+		boolean constructOnly = false;
+		if (args.length > 0 && args[0].equals("t")) {
+			constructOnly = true;
+		}
+		
+		initiateSubGraphMining(templateDir, testDir, url, username, password, constructOnly);
 	}
 	
 	private static class SegInfo {
@@ -650,8 +681,10 @@ public class PageRankSelector {
 		
 		GraphTemplate graph;
 		
+		int profilerIdx = profilerIndex.getAndIncrement();
+		
 		public GraphProfile call() throws Exception {
-			logger.info("Graph name: " + this.graph.getMethodKey());
+			logger.info("Graph name with profiler idx: " + this.graph.getMethodKey() + " " + this.profilerIdx);
 			GraphConstructor constructor = new GraphConstructor();
 			constructor.reconstructGraph(this.graph, true);
 			return profileGraph();

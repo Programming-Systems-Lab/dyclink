@@ -49,6 +49,9 @@ public class DBConnector {
 	public int writeCompTableResult(String url, 
 			String username, 
 			String password,
+			double sThresh,
+			double dThresh,
+			Date now,
 			Comparison compResult) {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
@@ -56,10 +59,9 @@ public class DBConnector {
 			String query = "INSERT INTO comp_table (inst_thresh, inst_cat, lib1, lib2, " +
 					"method1, method2, " +
 					"method_f_1, method_f_2, m_compare, " +
-					"sub_crawl, sub_crawl_filter, time, timestamp)" + 
-					" VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+					"sub_crawl, sub_crawl_filter, s_threshold, d_threshold, time, timestamp)" + 
+					" VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			
-			Date now = new Date();
 			Timestamp ts = new Timestamp(now.getTime());
 			
 			PreparedStatement pStmt = connect.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -74,8 +76,10 @@ public class DBConnector {
 			pStmt.setInt(9, compResult.m_compare);
 			pStmt.setInt(10, compResult.sub_crawl);
 			pStmt.setInt(11, compResult.sub_crawl_filter);
-			pStmt.setDouble(12, compResult.time);
-			pStmt.setTimestamp(13, ts);
+			pStmt.setDouble(12, sThresh);
+			pStmt.setDouble(13, dThresh);
+			pStmt.setDouble(14, compResult.time);
+			pStmt.setTimestamp(15, ts);
 			
 			int insertRow = pStmt.executeUpdate();
 			

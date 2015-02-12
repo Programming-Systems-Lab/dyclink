@@ -134,12 +134,18 @@ public class MIBConfiguration {
 	
 	private double pgEpsilon;
 	
+	//Static threshold, before subgraph matching, decide if subgraph matching should conduct
+	private double staticThreshold;
+	
+	//Dynamic threshold after subgraph matching, decide if hotzone should be selected
 	private double simThreshold;
 	
 	//0: inst, 1: subsubcat, 2: subcat, 3: cat
 	private int simStrategy;
 	
 	private int testMethodThresh;
+	
+	private int threadInit;
 	
 	private HashMap<Integer, Integer> threadMethodIdxRecord;
 	
@@ -407,6 +413,14 @@ public class MIBConfiguration {
 		return this.testMethodThresh;
 	}
 	
+	public void setThreadInit(int threadInit) {
+		this.threadInit = threadInit;
+	}
+	
+	public int getThreadInit() {
+		return this.threadInit;
+	}
+	
 	public void setThreadMethodIdxRecord(HashMap<Integer, Integer> threadMethodIdxRecord) {
 		this.threadMethodIdxRecord = threadMethodIdxRecord;
 	}
@@ -441,6 +455,14 @@ public class MIBConfiguration {
 	
 	public String getTemplateDir() {
 		return templateDir;
+	}
+	
+	public void setStaticThreshold(double staticThreshold) {
+		this.staticThreshold = staticThreshold;
+	}
+	
+	public double getStaticThreshold() {
+		return this.staticThreshold;
 	}
 	
 	public void setSimThreshold(double simThreshold) {
@@ -616,6 +638,9 @@ public class MIBConfiguration {
 		sb.append("alpha of PageRank: " + this.pgAlpha + "\n");
 		sb.append("max iteration of PageRank: " + this.pgMaxIter + "\n");
 		sb.append("epsilon of PageRank: " + this.pgEpsilon + "\n");
+		sb.append("instruction cat lavel: " + this.simStrategy + "\n");
+		sb.append("static threshold: " + this.staticThreshold + "\n");
+		sb.append("dynamic threshod: " + this.simThreshold + "\n");
 		sb.append("annotation guard: " + this.annotGuard + "\n");
 		sb.append("field track: " + this.fieldTrack + "\n");
 		sb.append("clean template: " + this.cleanTemplate + "\n");

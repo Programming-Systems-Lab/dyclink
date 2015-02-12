@@ -119,7 +119,7 @@ public class MethodStackRecorder {
 		this.methodDesc = methodDesc;
 				
 		this.methodKey = StringUtil.genKey(className, methodName, methodDesc);
-		this.shortMethodKey = GlobalRecorder.getGlobalName(methodKey);
+		this.shortMethodKey = GlobalRecorder.getGlobalName(this.methodKey);
 		Type methodType = Type.getMethodType(this.methodDesc);
 		this.methodArgSize = methodType.getArgumentTypes().length;
 		if (!methodType.getReturnType().getDescriptor().equals("V")) {
@@ -788,8 +788,8 @@ public class MethodStackRecorder {
 					}
 					
 					if (childGraph.getObjId() == this.objId 
-							&& childGraph.getMethodName().equals(this.methodName) 
-							&& childGraph.getMethodDesc().equals(this.methodDesc)) {
+							&& childGraph.getShortMethodKey().equals(this.shortMethodKey)) {
+						logger.info("Recursive object: " + this.objId + " " + this.shortMethodKey);
 						GlobalRecorder.registerRecursiveMethod(childGraph.getShortMethodKey());
 					}
 					

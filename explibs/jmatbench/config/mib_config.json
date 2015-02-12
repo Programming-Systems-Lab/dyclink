@@ -43,12 +43,12 @@
   "pgAlpha": 0.15,
   "pgMaxIter": 50,
   "pgEpsilon": 1.0E-5,
+  "staticThreshold": 0.1,
   "simThreshold": 0.6,
   "simStrategy": 2,
   "testMethodThresh": -1,
-  "threadMethodIdxRecord": {
-    "0": 1531329
-  },
+  "threadInit": 0,
+  "threadMethodIdxRecord": {},
   "annotGuard": false,
   "fieldTrack": false,
   "cleanTemplate": false,

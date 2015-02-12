@@ -292,7 +292,7 @@ public class GlobalRecorder {
 						subRecord.put(groupKey, graph);
 					} else {
 						GraphTemplate inRecord = subRecord.get(groupKey);
-						if (graph.getThreadMethodId() < inRecord.getThreadMethodId()) {
+						if (graph.getThreadId() == inRecord.getThreadId() && graph.getThreadMethodId() < inRecord.getThreadMethodId()) {
 							subRecord.put(groupKey, graph);
 						}
 					}

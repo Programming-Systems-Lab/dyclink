@@ -17,7 +17,7 @@ public class ObjectIdAllocater {
 	//Save 0 for method stack recorder to identify static method
 	private static AtomicInteger indexer = new AtomicInteger(1);
 	
-	private static AtomicInteger threadCounter = new AtomicInteger();
+	private static AtomicInteger threadCounter = new AtomicInteger(MIBConfiguration.getInstance().getThreadInit());
 	
 	private static ThreadLocal<Integer> threadIndexer = new ThreadLocal<Integer>() {
 		@Override
