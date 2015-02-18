@@ -135,6 +135,8 @@ public class MethodNode extends InstNode {
 		String groupKey = GraphGroup.groupKey(this.getLinenumber(), callee);
 		GraphWithFreq gf = null;
 		if (this.callees.containsKey(groupKey)) {
+			//Can update the update time inst here. 
+			//Not helpful for current approach, so save some time.
 			gf = this.callees.get(groupKey);
 			gf.freq++;
 		} else {

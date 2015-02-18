@@ -527,6 +527,8 @@ public class PageRankSelector {
 			String compareName = lib1Name + "-" + lib2Name;
 			String csvName = MIBConfiguration.getInstance().getResultDir() + "/" + compareName + now.getTime() + ".csv";
 			
+			ExecutorService dbExecutor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
+			int writerCount = 0;
 			for (Future<List<HotZone>> future: resultRecorder) {
 				List<HotZone> zones = future.get();
 				
@@ -566,11 +568,18 @@ public class PageRankSelector {
 				sb = new StringBuilder();
 				
 				//Write hotzones to DB
-				if (compResultId >= 0) {
-					DBConnector connector = new DBConnector();
-					connector.writeDetailTableResult(url, username, password, compResultId, zones);
+				if (compResultId >= 0 && zones.size() > 0) {
+					DBWriter dbWriter = new DBWriter(url, username, password, compResultId, zones);
+					dbExecutor.submit(dbWriter);
+					writerCount++;
+					//DBConnector connector = new DBConnector();
+					//connector.writeDetailTableResult(url, username, password, compResultId, zones);
 				}
 			}
+			System.out.println("Total writer: " + writerCount);
+			dbExecutor.shutdown();
+			while (!dbExecutor.isTerminated());
+			System.out.println("Storing data ends");
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -660,6 +669,33 @@ public class PageRankSelector {
 		int edgeId;
 		
 		double edgeWeight;
+	}
+	
+	private static class DBWriter implements Runnable {
+		String url;
+		
+		String username;
+		
+		String password;
+		
+		int compResultId;
+		
+		List<HotZone> zones;
+		
+		public DBWriter(String url, String username, String password, int compResultId, List<HotZone> zones) {
+			this.url = url;
+			this.username = username;
+			this.password = password;
+			this.compResultId = compResultId;
+			this.zones = zones;
+			
+		}
+		
+		@Override
+		public void run() {
+			DBConnector connector = new DBConnector();
+			connector.writeDetailTableResult(url, username, password, compResultId, zones);
+		}
 	}
 	
 	private static class ConstructWorker implements Runnable {

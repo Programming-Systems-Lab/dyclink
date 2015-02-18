@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
@@ -259,7 +260,8 @@ public class GraphConstructor {
 	}
 	
 	public static void main(String[] args) {
-		File testFile = new File("./template/cern.colt.matrix.linalg.SingularValueDecomposition:getU:0:0:32168.json");
+		//File testFile = new File("./test/cern.colt.matrix.linalg.Algebra:hypot:0:0:130.json");
+		File testFile = new File("/Users/mikefhsu/Mike/Research/ec2/mib_sandbox/jama_graphs/Jama.EigenvalueDecomposition:<init>:0:1:1515059.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
 		GraphConstructor constructor = new GraphConstructor();
 		constructor.reconstructGraph(testGraph, true);
@@ -269,12 +271,31 @@ public class GraphConstructor {
 		System.out.println("Recorded edge size: " + testGraph.getEdgeNum());
 		int eCount = 0;
 		for (InstNode inst: testGraph.getInstPool()) {
+			//System.out.println("Inst: " + inst);
+			//System.out.println(inst.callerLine);
 			eCount += inst.getChildFreqMap().size();
 		}
 		System.out.println("Actual edge size: " + eCount);
 		
-		String fileName = testGraph.getShortMethodKey() + "_re";
-		GsonManager.writeJsonGeneric(testGraph, fileName, graphToken, MIBConfiguration.TEST_DIR);
+		String methodName = testGraph.getMethodName();
+		TreeSet<Integer> lineTrace = new TreeSet<Integer>();
+		for (InstNode inst: testGraph.getInstPool()) {
+			if (inst.getFromMethod().contains(methodName)) {
+				int line = inst.getLinenumber();
+				lineTrace.add(line);
+			}
+		}
+		System.out.println("Line trace: " + lineTrace);
+		
+		/*String fileName = "./test/" + testGraph.getShortMethodKey() + "_re";
+		List<InstNode> sorted = GraphUtil.sortInstPool(testGraph.getInstPool(), true);
+		for (InstNode inst: sorted) {
+			System.out.println(inst);
+			System.out.println(inst.getStartTime());
+			System.out.println(inst.getChildFreqMap());
+			System.out.println();
+		}*/
+		//GsonManager.writeJsonGeneric(testGraph, fileName, graphToken, 8);
 	}
 
 }

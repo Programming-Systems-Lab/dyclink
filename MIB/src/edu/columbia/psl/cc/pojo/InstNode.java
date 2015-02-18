@@ -26,7 +26,7 @@ public class InstNode {
 	
 	private int linenumber;
 	
-	public transient int callerLine = 0;
+	public transient int callerLine;
 	
 	//private long startDigit = 0;
 	
@@ -212,6 +212,7 @@ public class InstNode {
 	
 	public void setLinenumber(int linenumber) {
 		this.linenumber = linenumber;
+		this.callerLine = this.linenumber;
 	}
 	
 	public int getLinenumber() {
