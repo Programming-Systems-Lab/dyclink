@@ -72,6 +72,8 @@ public class PageRankSelector {
 	
 	private static double simThreshold = MIBConfiguration.getInstance().getSimThreshold();
 	
+	private static int assignmentThreshold = MIBConfiguration.getInstance().getAssignmentThreshold();
+	
 	private static String sumHeader = "lib1,lib2,inst_thresh,inst_cat,method1,method2,method_f_1,method_f_2,m_compare,sub_crawl,sub_crawl_filter,s_threshold,t_threshold,time,timestamp\n";
 	
 	private static String header = "sub,sid,target,tid,s_pgrank,s_centroid,s_centroid_line,t_start,t_start_line,t_start_caller,t_centroid,t_centroid_line,t_centroid_caller,t_end,t_end_line,t_end_caller,inst_dist,dist,similarity\n";
@@ -273,6 +275,7 @@ public class PageRankSelector {
 			List<InstNode> sortedTarget, 
 			GraphProfile subProfile) {
 		HashMap<InstNode, SegInfo> candSegs = new HashMap<InstNode, SegInfo>();
+		List<Double> staticScoreRecorder = new ArrayList<Double>();
 		for (InstNode inst: assignments) {
 			List<InstNode> seg = new ArrayList<InstNode>();
 			
@@ -309,6 +312,7 @@ public class PageRankSelector {
 				
 				if (si.instDistWithSub <= staticThreshold) {
 					candSegs.put(inst, si);
+					staticScoreRecorder.add(si.instDistWithSub);
 				} /*else {
 					logger.info("Give up less likely inst: " + inst + " " + si.instDistWithSub);
 				}*/
@@ -320,7 +324,29 @@ public class PageRankSelector {
 				}*/
 			}
 		}
-		return candSegs;
+		
+		if (candSegs.size() <= assignmentThreshold) {
+			return candSegs;
+		} else {
+			Collections.sort(staticScoreRecorder);
+			double bound = staticScoreRecorder.get(assignmentThreshold - 1);
+			//logger.info("candSegs after static filter: " + candSegs.size());
+			//logger.info("Static score recorder: " + staticScoreRecorder);
+			//logger.info("Bound: " + bound);
+			
+			Iterator<InstNode> candKeyIterator = candSegs.keySet().iterator();
+			while (candKeyIterator.hasNext()) {
+				InstNode tmpInst = candKeyIterator.next();
+				SegInfo tmpSI = candSegs.get(tmpInst);
+				
+				if (tmpSI.instDistWithSub > bound) {
+					//logger.info("Removed: " + tmpInst + " " + tmpSI.instDistWithSub);
+					candKeyIterator.remove();
+				}
+			}
+			//logger.info("candSeg after removal: " + candSegs.size());
+			return candSegs;
+		}
 	}
 	
 	public static void filterGraphs(HashMap<String, GraphTemplate> graphs) {
@@ -622,6 +648,7 @@ public class PageRankSelector {
 				
 		logger.info("Start PageRank analysis for Bytecode subgraph mining");
 		logger.info("Similarity strategy: " + MIBConfiguration.getInstance().getSimStrategy());
+		logger.info("Assignemnt threshold: " + assignmentThreshold);
 		logger.info("Static threshold: " + staticThreshold);
 		logger.info("Dynamic threshold: " + simThreshold);
 		logger.info("Lib1 direcotry: " + (new File(MIBConfiguration.getInstance().getTemplateDir())).getAbsolutePath());

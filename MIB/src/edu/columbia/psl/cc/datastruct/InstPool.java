@@ -72,6 +72,32 @@ public class InstPool extends TreeSet<InstNode> {
 		String idxKey = StringUtil.genIdxKey(threadId, threadMethodIdx, idx);
 		if (this.instMap.containsKey(idxKey)) {
 			InstNode ret = this.instMap.get(idxKey);
+			
+			//Handle the case that the instruction type changes (rarely happens, for interface method)
+			if (genMethodNode && !(ret instanceof MethodNode)) {
+				logger.info("Inst node type changes: " + ret);
+				ret.getInstDataParentList();
+				ret.getControlParentList();
+				
+				InstNode newRet = new MethodNode();
+				newRet.setFromMethod(ret.getFromMethod());
+				newRet.setThreadId(ret.getThreadId());
+				newRet.setThreadMethodIdx(ret.getThreadMethodIdx());
+				newRet.setIdx(ret.getIdx());
+				newRet.setOp(ret.getOp());
+				newRet.setAddInfo(ret.getAddInfo());
+				newRet.setStartTime(ret.getStartTime());
+				newRet.setUpdateTime(ret.getUpdateTime());
+				//newRet.setInstDataParentList(ret.getInstDataParentList());
+				//newRet.setControlParentList(ret.getControlParentList());
+				//newRet.setChildFreqMap(ret.getChildFreqMap());
+				
+				this.updateTime(newRet);
+				this.remove(ret);
+				this._addInst(idxKey, newRet);
+				return newRet;
+			}
+			
 			this.updateTime(ret);
 			return ret;
 		}

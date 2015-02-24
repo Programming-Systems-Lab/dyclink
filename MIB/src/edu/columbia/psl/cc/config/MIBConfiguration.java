@@ -140,6 +140,8 @@ public class MIBConfiguration {
 	//Dynamic threshold after subgraph matching, decide if hotzone should be selected
 	private double simThreshold;
 	
+	private int assignmentThreshold;
+	
 	//0: inst, 1: subsubcat, 2: subcat, 3: cat
 	private int simStrategy;
 	
@@ -473,6 +475,14 @@ public class MIBConfiguration {
 		return this.simThreshold;
 	}
 	
+	public void setAssignmentThreshold(int assignmentThreshold) {
+		this.assignmentThreshold = assignmentThreshold;
+	}
+	
+	public int getAssignmentThreshold() {
+		return this.assignmentThreshold;
+	}
+	
 	public void setSimStrategy(int simStrategy) {
 		this.simStrategy = simStrategy;
 	}
@@ -639,6 +649,7 @@ public class MIBConfiguration {
 		sb.append("max iteration of PageRank: " + this.pgMaxIter + "\n");
 		sb.append("epsilon of PageRank: " + this.pgEpsilon + "\n");
 		sb.append("instruction cat lavel: " + this.simStrategy + "\n");
+		sb.append("assignment threshold: " + this.assignmentThreshold + "\n");
 		sb.append("static threshold: " + this.staticThreshold + "\n");
 		sb.append("dynamic threshod: " + this.simThreshold + "\n");
 		sb.append("annotation guard: " + this.annotGuard + "\n");

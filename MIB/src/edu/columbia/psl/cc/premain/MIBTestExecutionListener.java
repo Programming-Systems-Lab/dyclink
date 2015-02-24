@@ -53,6 +53,8 @@ public class MIBTestExecutionListener extends RunListener{
 		//Set inst pool, cannot set it in static initializer, or there will be infinite loop
 		InstPool.DEBUG = MIBConfiguration.getInstance().isDebug();
 		
+		MIBDriver.setupGlobalRecorder();
+		
 		//Clean directory
 		GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());
 		

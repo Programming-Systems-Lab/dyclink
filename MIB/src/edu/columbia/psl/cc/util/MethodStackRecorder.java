@@ -765,6 +765,8 @@ public class MethodStackRecorder {
 					//System.out.println("Recorder time: " + (System.nanoTime() - startTime));
 					return ;
 				} else {
+					//logger.info("Child graph: " + childGraph.getMethodName());
+					//logger.info("Correct class: " + correctClass.getName());
 					MethodNode fullInst = (MethodNode)this.pool.searchAndGet(this.methodKey, 
 							this.threadId, 
 							this.threadMethodId, 
