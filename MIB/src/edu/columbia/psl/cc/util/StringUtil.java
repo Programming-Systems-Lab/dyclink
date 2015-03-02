@@ -1,5 +1,6 @@
 package edu.columbia.psl.cc.util;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -181,6 +182,19 @@ public class StringUtil {
 		return key + "_map";
 	}
 	
+	public static String concateLineTrace(Collection trace) {
+		StringBuilder sb = new StringBuilder();
+		for (Object o: trace) {
+			sb.append(o + ":");
+		}
+		
+		if (sb.length() == 0)
+			return "";
+		else {
+			return sb.substring(0, sb.length() - 1);
+		}
+	}
+	
 	public String aggregateLoad(Object...info) {
 		StringBuilder sb = new StringBuilder();
 		for (Object i: info) {
@@ -198,8 +212,10 @@ public class StringUtil {
 	}
 	
 	public static void main (String[] args) {
-		String name = "1234:6.json";
-		System.out.println("Remove 6: " + removeUUID(name));
+		//String name = "1234:6.json";
+		//System.out.println("Remove 6: " + removeUUID(name));
+		String name = "SvdImplicitQrDecompose_D64";
+		System.out.println(cleanPunc(name, "."));
 	}
 
 }

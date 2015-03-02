@@ -12,38 +12,40 @@ import edu.columbia.psl.cc.util.StringUtil;
 
 public class InstNode {
 		
-	private int threadId;
+	protected int threadId;
 	
-	private int threadMethodIdx;
+	protected int threadMethodIdx;
 	
-	private int idx;
+	protected int idx;
 	
-	private OpcodeObj op;
+	protected OpcodeObj op;
 	
-	private String addInfo = "";
+	public transient OpcodeObj originalOp;
 	
-	private String fromMethod = "";
+	protected String addInfo = "";
 	
-	private int linenumber;
+	protected String fromMethod = "";
+	
+	protected int linenumber;
 	
 	public transient int callerLine;
 	
 	//private long startDigit = 0;
 	
-	private long startTime = -1;
+	protected long startTime = -1;
 	
 	//private long updateDigit = 0;
 	
-	private	long updateTime = -1;
+	protected long updateTime = -1;
 	
-	private ArrayList<String> instDataParentList = new ArrayList<String>();
+	protected ArrayList<String> instDataParentList = new ArrayList<String>();
 	
-	private ArrayList<String> writeDataParentList = new ArrayList<String>();
+	protected ArrayList<String> writeDataParentList = new ArrayList<String>();
 	
-	private ArrayList<String> controlParentList = new ArrayList<String>();
+	protected ArrayList<String> controlParentList = new ArrayList<String>();
 	
 	//For freq map, the key is the inst method + idx, and the value is the frequency
-	private TreeMap<String, Double> childFreqMap = new TreeMap<String, Double>();
+	protected TreeMap<String, Double> childFreqMap = new TreeMap<String, Double>();
 	
 	private Object relatedObj = null;
 	

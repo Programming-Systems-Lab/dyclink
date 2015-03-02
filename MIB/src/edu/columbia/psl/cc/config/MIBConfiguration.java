@@ -165,6 +165,8 @@ public class MIBConfiguration {
 	
 	private boolean debug;
 	
+	private boolean reduceGraph;
+	
 	private boolean cacheGraph;
 	
 	private String dburl;
@@ -599,6 +601,14 @@ public class MIBConfiguration {
 		this.debug = debug;
 	}
 	
+	public boolean isReduceGraph() {
+		return this.reduceGraph;
+	}
+	
+	public void setReduceGraph(boolean reduceGraph) {
+		this.reduceGraph = reduceGraph;
+	}
+	
 	public boolean isCacheGraph() {
 		return this.cacheGraph;
 	}
@@ -658,6 +668,7 @@ public class MIBConfiguration {
 		sb.append("clean test: " + this.cleanTest + "\n");
 		sb.append("template mode: " + this.templateMode + "\n");
 		sb.append("overall analysis: " + this.overallAnalysis + "\n");
+		sb.append("reduce graph: " + this.reduceGraph + "\n");
 		sb.append("cache graphs: " + this.cacheGraph + "\n");
 		sb.append("debug: " + this.debug + "\n");
 		return sb.toString();

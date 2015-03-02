@@ -52,6 +52,10 @@ public class GraphTemplate {
 	
 	public transient HashMap<String, GraphTemplate> calleeRequired;
 	
+	public transient HashSet<ReducedNode> aggs = new HashSet<ReducedNode>();
+	
+	public transient HashSet<InstNode> nodeInAggs = new HashSet<InstNode>();
+	
 	/*private Map<String, HashSet<InstNode>> firstReadFields;
 	
 	private Map<String, InstNode> writeFields;

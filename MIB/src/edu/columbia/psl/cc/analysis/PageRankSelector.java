@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -76,7 +77,7 @@ public class PageRankSelector {
 	
 	private static String sumHeader = "lib1,lib2,inst_thresh,inst_cat,method1,method2,method_f_1,method_f_2,m_compare,sub_crawl,sub_crawl_filter,s_threshold,t_threshold,time,timestamp\n";
 	
-	private static String header = "sub,sid,target,tid,s_pgrank,s_centroid,s_centroid_line,t_start,t_start_line,t_start_caller,t_centroid,t_centroid_line,t_centroid_caller,t_end,t_end_line,t_end_caller,inst_dist,dist,similarity\n";
+	private static String header = "sub,sid,target,tid,s_start,s_centroid,s_centroid_line,s_centroid_caller,s_end,s_trace,t_start,t_centroid,t_centroid_line,t_centroid_caller,t_end,t_trace,seg_size,inst_dist,dist,similarity\n";
 	
 	private static Comparator<InstWrapper> pageRankSorter = new Comparator<InstWrapper>() {
 		public int compare(InstWrapper i1, InstWrapper i2) {
@@ -276,8 +277,10 @@ public class PageRankSelector {
 			GraphProfile subProfile) {
 		HashMap<InstNode, SegInfo> candSegs = new HashMap<InstNode, SegInfo>();
 		List<Double> staticScoreRecorder = new ArrayList<Double>();
+		
 		for (InstNode inst: assignments) {
 			List<InstNode> seg = new ArrayList<InstNode>();
+			TreeSet<Integer> lineTrace = new TreeSet<Integer>();
 			
 			for (int i = 0; i < sortedTarget.size(); i++) {
 				InstNode curNode = sortedTarget.get(i);
@@ -291,7 +294,12 @@ public class PageRankSelector {
 					if (end > sortedTarget.size() - 1)
 						end = sortedTarget.size() - 1;
 					
-					seg.addAll(sortedTarget.subList(start, end + 1));
+					//seg.addAll(sortedTarget.subList(start, end + 1));
+					for (int j = start; j <= end; j++) {
+						InstNode toAdd = sortedTarget.get(j);
+						seg.add(toAdd);
+						lineTrace.add(toAdd.callerLine);
+					}
 					break ;
 				}
 			}
@@ -309,6 +317,7 @@ public class PageRankSelector {
 				si.normInstDistribution = StaticTester.normalizeDist(segDist, seg.size());;
 				si.instDistWithSub = StaticTester.normalizeEucDistance(subProfile.normDist, 
 						si.normInstDistribution);
+				si.lineTrace = lineTrace;
 				
 				if (si.instDistWithSub <= staticThreshold) {
 					candSegs.put(inst, si);
@@ -571,18 +580,18 @@ public class PageRankSelector {
 							"," + hit.getSubGraphId() +
 							"," + hit.getTargetGraphName() + 
 							"," + hit.getTargetGraphId() +
-							"," + hit.getSubPgRank() +
+							"," + hit.getSubStart() +
 							"," + hit.getSubCentroid() + 
 							"," + hit.getSubCentroid().getLinenumber() +
-							"," + hit.getStartInst() + 
-							"," + hit.getStartInst().getLinenumber() + 
-							"," + hit.getStartInst().callerLine + 
+							"," + hit.getSubCentroid().callerLine +
+							"," + hit.getSubEnd() +
+							"," + hit.getSubTrace() +
+							"," + hit.getStartInst() +  
 							"," + hit.getCentralInst() + 
 							"," + hit.getCentralInst().getLinenumber() + 
 							"," + hit.getCentralInst().callerLine + 
 							"," + hit.getEndInst() + 
-							"," + hit.getEndInst().getLinenumber() + 
-							"," + hit.getEndInst().callerLine + 
+							"," + hit.getTargetTrace() +
 							"," + hit.getSegs().size() + 
 							"," + hit.getInstDistance() +
 							"," + hit.getLevDist() + 
@@ -671,6 +680,8 @@ public class PageRankSelector {
 		double[] normInstDistribution;
 		
 		double instDistWithSub;
+		
+		TreeSet<Integer> lineTrace;
 	}
 	
 	private static class GraphProfile {
@@ -679,7 +690,11 @@ public class PageRankSelector {
 		
 		GraphTemplate graph;
 		
+		InstNode startInst;
+		
 		InstWrapper centroidWrapper;
+		
+		InstNode endInst;
 		
 		int before;
 		
@@ -690,6 +705,8 @@ public class PageRankSelector {
 		double[] instDist;
 		
 		double[] normDist;
+		
+		TreeSet<Integer> lineTrace;
 	}
 	
 	private static class WeightedEdge {
@@ -759,11 +776,20 @@ public class PageRankSelector {
 				return null;
 			}
 			List<InstNode> sortedSub = GraphUtil.sortInstPool(this.graph.getInstPool(), true);
+			InstNode startSub = sortedSub.get(0);
+			InstNode endSub = sortedSub.get(sortedSub.size() - 1);
 			
 			//Pick the most important node from sorteSob
 			logger.info("Graph profile: " + this.graph.getMethodKey());
-			PageRankSelector subSelector = new PageRankSelector(this.graph.getInstPool(), false, true);
+			
+			//If the graph is reduced, some node will be removed and we choose not to clean them, save some time
+			boolean partialPool = MIBConfiguration.getInstance().isReduceGraph();
+			PageRankSelector subSelector = new PageRankSelector(this.graph.getInstPool(), partialPool, true);
 			List<InstWrapper> subRank = subSelector.computePageRank();
+			for (InstWrapper iw: subRank) {
+				System.out.println(iw.inst);
+				System.out.println(iw.pageRank);
+			}
 			int[] subPGRep = SearchUtil.generatePageRankRep(subRank);
 			//logger.info("Sub graph PageRank: " + Arrays.toString(subPGRep));
 			
@@ -771,8 +797,10 @@ public class PageRankSelector {
 			InstNode subCentroid = subRank.get(0).inst;
 			int before = 0, after = 0;
 			boolean recordBefore = true;
+			TreeSet<Integer> lineTrace = new TreeSet<Integer>();
 			for (int i = 0; i < sortedSub.size(); i++) {
 				InstNode curNode = sortedSub.get(i);
+				lineTrace.add(curNode.callerLine);
 				
 				if (curNode.equals(subCentroid)) {
 					recordBefore = false;
@@ -789,13 +817,19 @@ public class PageRankSelector {
 			GraphProfile gp = new GraphProfile();
 			gp.fileName = this.fileName;
 			gp.graph = this.graph;
+			gp.startInst = startSub;
 			gp.centroidWrapper = subRank.get(0);
+			gp.endInst = endSub;
 			gp.before = before;
 			gp.after = after;
 			gp.pgRep = subPGRep;
 			//gp.instDist = subGraph.getDist();
-			gp.instDist = StaticTester.genDistribution(this.graph.getDist());
+			//gp.instDist = StaticTester.genDistribution(this.graph.getDist());
+			gp.instDist = StaticTester.genDistribution(this.graph.getInstPool());
 			gp.normDist = StaticTester.normalizeDist(gp.instDist, gp.pgRep.length);
+			gp.lineTrace = lineTrace;
+			System.out.println("Centroid: " + gp.centroidWrapper.inst);
+			System.out.println("PG Rank: " + gp.centroidWrapper.pageRank);
 			
 			return gp;
 		}
@@ -863,11 +897,15 @@ public class PageRankSelector {
 				
 				if (sim >= simThreshold) {
 					HotZone zone = new HotZone();
+					zone.setSubStart(subProfile.startInst);
 					zone.setSubCentroid(subProfile.centroidWrapper.inst);
-					zone.setSubPgRank(subProfile.centroidWrapper.pageRank);
+					zone.setSubEnd(subProfile.endInst);
+					zone.setSubTrace(StringUtil.concateLineTrace(subProfile.lineTrace));
+					//zone.setSubPgRank(subProfile.centroidWrapper.pageRank);
 					zone.setStartInst(segments.get(0));
 					zone.setCentralInst(cand);
 					zone.setEndInst(segments.get(segments.size() - 1));
+					zone.setTargetTrace(StringUtil.concateLineTrace(segInfo.lineTrace));
 					zone.setLevDist(dist);
 					zone.setSimilarity(sim);
 					zone.setInstDistance(segInfo.instDistWithSub);
@@ -879,7 +917,7 @@ public class PageRankSelector {
 					hits.add(zone);
 				}
 			}
-			logger.info("Crawler ends: " + this.crawlerId);
+			logger.info("Crawler hits: " + this.crawlerId + " " + hits.size());
 			return hits;
 		}
 	}

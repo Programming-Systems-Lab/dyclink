@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.google.gson.reflect.TypeToken;
 
+import edu.columbia.psl.cc.analysis.GraphReducer;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
@@ -84,6 +85,10 @@ public class GraphConstructor {
 		
 		File baseDirProbe = new File(baseDir);
 		if (!baseDirProbe.exists()) {
+			if (MIBConfiguration.getInstance().isReduceGraph()) {
+				GraphReducer gr = new GraphReducer(rawGraph);
+				gr.reduceGraph();
+			}
 			return ;
 		}
 		
@@ -253,6 +258,11 @@ public class GraphConstructor {
 				InstPool calleePool = callee.getInstPool();
 				GraphUtil.unionInstPools(rawGraph.getInstPool(), calleePool);
 			}
+			
+			if (MIBConfiguration.getInstance().isReduceGraph()) {
+				GraphReducer gr = new GraphReducer(rawGraph);
+				gr.reduceGraph();
+			}
 		} catch (Exception ex) {
 			logger.error("Exception: ", ex);
 		}
@@ -260,7 +270,8 @@ public class GraphConstructor {
 	
 	public static void main(String[] args) {
 		//File testFile = new File("./test/cern.colt.matrix.linalg.Algebra:hypot:0:0:130.json");
-		File testFile = new File("/Users/mikefhsu/Mike/Research/ec2/mib_sandbox/jama_graphs/Jama.EigenvalueDecomposition:<init>:0:1:1515059.json");
+		//File testFile = new File("/Users/mikefhsu/Mike/Research/ec2/mib_sandbox/jama_graphs/Jama.EigenvalueDecomposition:<init>:0:1:1515059.json");
+		File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/template/cc.expbase.ReduceTest:objAdd:0:0:2212.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
 		GraphConstructor constructor = new GraphConstructor();
 		constructor.reconstructGraph(testGraph, true);
@@ -276,7 +287,11 @@ public class GraphConstructor {
 		}
 		System.out.println("Actual edge size: " + eCount);
 		
-		String methodName = testGraph.getMethodName();
+		GraphReducer gr = new GraphReducer(testGraph);
+		gr.reduceGraph();
+		System.out.println("Reduce result: " + gr.getGraph().getInstPool().size());
+		
+		/*String methodName = testGraph.getMethodName();
 		TreeSet<Integer> lineTrace = new TreeSet<Integer>();
 		for (InstNode inst: testGraph.getInstPool()) {
 			if (inst.getFromMethod().contains(methodName)) {
@@ -284,17 +299,17 @@ public class GraphConstructor {
 				lineTrace.add(line);
 			}
 		}
-		System.out.println("Line trace: " + lineTrace);
+		System.out.println("Line trace: " + lineTrace);*/
 		
-		/*String fileName = "./test/" + testGraph.getShortMethodKey() + "_re";
-		List<InstNode> sorted = GraphUtil.sortInstPool(testGraph.getInstPool(), true);
+		String fileName = "./test/" + testGraph.getShortMethodKey() + "_re";
+		/*List<InstNode> sorted = GraphUtil.sortInstPool(testGraph.getInstPool(), true);
 		for (InstNode inst: sorted) {
 			System.out.println(inst);
 			System.out.println(inst.getStartTime());
 			System.out.println(inst.getChildFreqMap());
 			System.out.println();
 		}*/
-		//GsonManager.writeJsonGeneric(testGraph, fileName, graphToken, 8);
+		GsonManager.writeJsonGeneric(testGraph, fileName, graphToken, 8);
 	}
 
 }

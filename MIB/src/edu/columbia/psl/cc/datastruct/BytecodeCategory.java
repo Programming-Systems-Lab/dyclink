@@ -25,9 +25,15 @@ public class BytecodeCategory {
 	
 	private static HashMap<Integer, HashSet<Integer>> catMap = new HashMap<Integer, HashSet<Integer>>();
 	
+	private static HashSet<Integer> replacedOps = new HashSet<Integer>();
+	
 	static {
 		loadOpcodeTable();
 		loadOpcodeCategory();
+		
+		replacedOps.add(Opcodes.GETFIELD);
+		replacedOps.add(Opcodes.GETSTATIC);
+		replacedOps.add(Opcodes.AALOAD);
 	}
 	
 	private static void loadOpcodeCategory() {		
@@ -215,6 +221,10 @@ public class BytecodeCategory {
 		allMethods.addAll(objMethodOps());
 		allMethods.addAll(staticMethodOps());
 		return allMethods;
+	}
+	
+	public static HashSet<Integer> replacedOps() {
+		return replacedOps;
 	}
 	
 	public static HashSet<Integer> asmPrimitiveSort() {

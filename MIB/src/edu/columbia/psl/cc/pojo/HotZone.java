@@ -4,15 +4,23 @@ import edu.columbia.psl.cc.datastruct.InstPool;
 
 public class HotZone {
 	
+	private InstNode subStart;
+	
 	private InstNode subCentroid;
 	
-	private double subPgRank;
+	//private double subPgRank;
+	
+	private InstNode subEnd;
+	
+	private String subTrace;
 	
 	private InstNode startInst;
 	
 	private InstNode centralInst;
 	
 	private InstNode endInst;
+	
+	private String targetTrace;
 	
 	private int levDist;
 	
@@ -32,6 +40,14 @@ public class HotZone {
 	
 	private String targetGraphId;
 	
+	public InstNode getSubStart() {
+		return this.subStart;
+	}
+	
+	public void setSubStart(InstNode subStart) {
+		this.subStart = subStart;
+	}
+	
 	public InstNode getSubCentroid() {
 		return this.subCentroid;
 	}
@@ -40,13 +56,29 @@ public class HotZone {
 		this.subCentroid = subCentroid;
 	}
 	
-	public double getSubPgRank() {
+	public InstNode getSubEnd() {
+		return this.subEnd;
+	}
+	
+	public void setSubEnd(InstNode subEnd) {
+		this.subEnd = subEnd;
+	}
+	
+	public String getSubTrace() {
+		return this.subTrace;
+	}
+	
+	public void setSubTrace(String subTrace) {
+		this.subTrace = subTrace;
+	}
+	
+	/*public double getSubPgRank() {
 		return this.subPgRank;
 	}
 	
 	public void setSubPgRank(double subPgRank) {
 		this.subPgRank = subPgRank;
-	}
+	}*/
 
 	public InstNode getStartInst() {
 		return startInst;
@@ -70,6 +102,14 @@ public class HotZone {
 
 	public void setEndInst(InstNode endInst) {
 		this.endInst = endInst;
+	}
+	
+	public String getTargetTrace() {
+		return this.targetTrace;
+	}
+	
+	public void setTargetTrace(String targetTrace) {
+		this.targetTrace = targetTrace;
 	}
 
 	public int getLevDist() {
