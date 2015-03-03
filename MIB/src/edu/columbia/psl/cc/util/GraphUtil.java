@@ -864,21 +864,35 @@ public class GraphUtil {
 			if (f == null) 
 				continue ;
 			
-			int idx = Integer.valueOf(f.getAddInfo());
-			HashSet<InstNode> parentNodes = parentMap.get(idx);
-			
-			for (InstNode parentNode: parentNodes) {				
-				parentNode.increChild(f.getThreadId(), 
-						f.getThreadMethodIdx(), 
-						f.getIdx(), 
-						freq);
-				f.registerParent(parentNode.getThreadId(), 
-						parentNode.getThreadMethodIdx(), 
-						parentNode.getIdx(), 
-						MIBConfiguration.INST_DATA_DEP);
+			if (f.inheritedInfo != null) {
+				for (Integer inheritedVar: f.inheritedInfo) {
+					HashSet<InstNode> parentNodes = parentMap.get(inheritedVar);
+
+					for (InstNode parentNode: parentNodes) {				
+						parentNode.increChild(f.getThreadId(), 
+								f.getThreadMethodIdx(), 
+								f.getIdx(), 
+								freq);
+						f.registerParent(parentNode.getThreadId(), 
+								parentNode.getThreadMethodIdx(), 
+								parentNode.getIdx(), 
+								MIBConfiguration.INST_DATA_DEP);
+					}
+				}
+			} else {
+				int idx = Integer.valueOf(f.getAddInfo());
+				HashSet<InstNode> parentNodes = parentMap.get(idx);
 				
-				//parentNode.getChildFreqMap().remove(calleeInstId);
-				//removeRecorder.add(parentNode);
+				for (InstNode parentNode: parentNodes) {				
+					parentNode.increChild(f.getThreadId(), 
+							f.getThreadMethodIdx(), 
+							f.getIdx(), 
+							freq);
+					f.registerParent(parentNode.getThreadId(), 
+							parentNode.getThreadMethodIdx(), 
+							parentNode.getIdx(), 
+							MIBConfiguration.INST_DATA_DEP);
+				}
 			}
 		}
 	}

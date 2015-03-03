@@ -94,8 +94,7 @@ public class SearchUtil {
 		return ret;
 	}*/
 	
-	public static HashSet<InstNode> possibleSingleAssignment(InstNode subNode, 
-			List<InstNode> targetPool, double geoPercent) {
+	public static HashSet<InstNode> possibleSingleAssignment(InstNode subNode, List<InstNode> targetPool) {
 		HashSet<InstNode> ret = new HashSet<InstNode>();
 		int simStrat = MIBConfiguration.getInstance().getSimStrategy();
 		
@@ -123,12 +122,12 @@ public class SearchUtil {
 		}
 		
 		//Locate geo center
-		int center = (int)(targetPool.size() * geoPercent);
+		/*int center = (int)(targetPool.size() * geoPercent);
 		if (center >= targetPool.size()) {
 			center--;
 		}
 		InstNode centerNode = targetPool.get(center);
-		ret.add(centerNode);
+		ret.add(centerNode);*/
 		
 		return ret;
 	}

@@ -75,6 +75,8 @@ public class PageRankSelector {
 	
 	private static int assignmentThreshold = MIBConfiguration.getInstance().getAssignmentThreshold();
 	
+	private static int simStrategy = MIBConfiguration.getInstance().getSimStrategy();
+	
 	private static String sumHeader = "lib1,lib2,inst_thresh,inst_cat,method1,method2,method_f_1,method_f_2,m_compare,sub_crawl,sub_crawl_filter,s_threshold,t_threshold,time,timestamp\n";
 	
 	private static String header = "sub,sid,target,tid,s_start,s_centroid,s_centroid_line,s_centroid_caller,s_end,s_trace,t_start,t_centroid,t_centroid_line,t_centroid_caller,t_end,t_trace,seg_size,inst_dist,dist,similarity\n";
@@ -86,9 +88,25 @@ public class PageRankSelector {
 			} else if (i1.pageRank > i2.pageRank) {
 				return -1;
 			} else {
-				if (i1.inst.getOp().getOpcode() > i2.inst.getOp().getOpcode()) {
+				int i1Number = -1;
+				int i2Number = -2;
+				if (simStrategy == MIBConfiguration.INST_STRAT) {
+					i1Number = i1.inst.getOp().getOpcode();
+					i2Number = i2.inst.getOp().getOpcode();
+				} else if (simStrategy == MIBConfiguration.SUBSUB_STRAT) {
+					i1Number = i1.inst.getOp().getSubSubCatId();
+					i2Number = i2.inst.getOp().getSubSubCatId();
+				} else if (simStrategy == MIBConfiguration.SUB_STRAT) {
+					i1Number = i1.inst.getOp().getSubCatId();
+					i2Number = i2.inst.getOp().getSubCatId();
+				} else {
+					i1Number = i1.inst.getOp().getCatId();
+					i2Number = i2.inst.getOp().getCatId();
+				}
+				
+				if (i1Number > i2Number) {
 					return 1;
-				} else if (i1.inst.getOp().getOpcode() < i2.inst.getOp().getOpcode()) {
+				} else if (i1Number < i2Number) {
 					return -1;
 				} else {
 					return 0;
@@ -282,20 +300,31 @@ public class PageRankSelector {
 			List<InstNode> seg = new ArrayList<InstNode>();
 			TreeSet<Integer> lineTrace = new TreeSet<Integer>();
 			
+			int start = -1;
+			int extStart = -1;
+			int end = -1;
+			int extEnd = - 1;
 			for (int i = 0; i < sortedTarget.size(); i++) {
 				InstNode curNode = sortedTarget.get(i);
 				if (curNode.equals(inst)) {
 					//collect backward
-					int start = i - subProfile.before;
+					start = i - subProfile.before;
+					extStart = start - 5;
 					if (start < 0)
 						start = 0;
+					if (extStart < 0)
+						extStart = 0;
 					
-					int end = i + subProfile.after;
+					end = i + subProfile.after;
+					extEnd = end + 5;
 					if (end > sortedTarget.size() - 1)
 						end = sortedTarget.size() - 1;
+					if (extEnd > sortedTarget.size() - 1)
+						extEnd = sortedTarget.size() - 1;
 					
 					//seg.addAll(sortedTarget.subList(start, end + 1));
-					for (int j = start; j <= end; j++) {
+					
+					for (int j = extStart; j <= extEnd; j++) {
 						InstNode toAdd = sortedTarget.get(j);
 						seg.add(toAdd);
 						lineTrace.add(toAdd.callerLine);
@@ -309,14 +338,32 @@ public class PageRankSelector {
 				//logger.info("Give up too-short assignment: " + inst + " size " + seg.size());
 				continue ;
 			} else {
+				start = start - extStart;
+				end = end - extStart;
+				extEnd = extEnd - extStart;
+				extStart = 0;
+				
+				List<InstNode> oriSeg = seg.subList(start, end + 1);
+				List<InstNode> extSSeg = seg.subList(extStart, extEnd + 1);
+				
+				double[] oriSegDist = StaticTester.genDistribution(oriSeg);
+				double[] extSSegDist = StaticTester.genDistribution(extSSeg);
+				
+				double[] oriSegDistNorm = StaticTester.normalizeDist(oriSegDist, oriSeg.size());
+				double[] extSSegDistNorm = StaticTester.normalizeDist(extSSegDist, extSSeg.size());
+				System.out.println("Original static score: " + StaticTester.normalizeEucDistance(subProfile.normDist, oriSegDistNorm));
+				System.out.println("ExtS static score: " + StaticTester.normalizeEucDistance(subProfile.normDist, extSSegDistNorm));
+				
 				double[] segDist = StaticTester.genDistribution(seg);
-				//double[] subDist = subProfile.instDist;
 				
 				SegInfo si = new SegInfo();
-				si.seg = seg;
+				/*si.seg = seg;
 				si.normInstDistribution = StaticTester.normalizeDist(segDist, seg.size());;
 				si.instDistWithSub = StaticTester.normalizeEucDistance(subProfile.normDist, 
-						si.normInstDistribution);
+						si.normInstDistribution);*/
+				si.seg = extSSeg;
+				si.normInstDistribution = extSSegDistNorm;
+				si.instDistWithSub = StaticTester.normalizeEucDistance(subProfile.normDist, extSSegDistNorm);
 				si.lineTrace = lineTrace;
 				
 				if (si.instDistWithSub <= staticThreshold) {
@@ -859,10 +906,9 @@ public class PageRankSelector {
 				String targetGraphName) {
 			List<InstNode> sortedTarget = GraphUtil.sortInstPool(targetGraph.getInstPool(), true);
 			
-			double geoPercent = ((double)(subProfile.before + 1))/ (subProfile.before + 1 + subProfile.after);
-			HashSet<InstNode> miAssignments = SearchUtil.possibleSingleAssignment(subProfile.centroidWrapper.inst, 
-					sortedTarget, 
-					geoPercent);
+			//double geoPercent = ((double)(subProfile.before + 1))/ (subProfile.before + 1 + subProfile.after);
+			HashSet<InstNode> miAssignments = 
+					SearchUtil.possibleSingleAssignment(subProfile.centroidWrapper.inst, sortedTarget);
 			logger.info("Target graph vs Sub graph: " + targetGraphName + " " + subGraphName);
 			logger.info("Thread index: " + crawlerId);
 			logger.info("Possible assignments: " + miAssignments.size());
@@ -896,6 +942,16 @@ public class PageRankSelector {
 				double sim = levenSimilarity(dist, subProfile.pgRep.length);
 				
 				if (sim >= simThreshold) {
+					System.out.println("Sub pg rank: " + Arrays.toString(subProfile.pgRep));
+					System.out.println("Can pg rank: " + Arrays.toString(candPGRep));
+					
+					System.out.println("Sub important: " + subProfile.centroidWrapper.inst);
+					System.out.println("Can important: " + ranks.get(0).inst);
+					System.out.println("Can page rank");
+					for (InstWrapper iw: ranks) {
+						System.out.println(iw.inst);
+						System.out.println(iw.pageRank);
+					}
 					HotZone zone = new HotZone();
 					zone.setSubStart(subProfile.startInst);
 					zone.setSubCentroid(subProfile.centroidWrapper.inst);

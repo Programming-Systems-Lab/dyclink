@@ -15,6 +15,7 @@ import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.util.GraphUtil;
+import edu.columbia.psl.cc.util.StringUtil;
 
 public class GraphReducer {
 	
@@ -40,13 +41,16 @@ public class GraphReducer {
 	
 	public void reduceGraph() {
 		InstPool pool = this.theGraph.getInstPool();
+		HashSet<String> readVars = this.theGraph.getFirstReadLocalVars();
 		List<InstNode> sortedPool = GraphUtil.sortInstPool(pool, true);
 		
 		HashSet<InstNode> toRemove = new HashSet<InstNode>();
 		for (int i = sortedPool.size() - 1; i >=0; i--) {
 			InstNode inst = sortedPool.get(i);
 			int opcode = inst.getOp().getOpcode();
+			HashSet<Integer> inheritedInfo = new HashSet<Integer>();
 			
+			boolean needJump = false;
 			if (replacedOps.contains(opcode) && !toRemove.contains(inst)) {
 				OpcodeObj reduceOp = null;
 				if (opcode == Opcodes.GETFIELD || opcode == Opcodes.GETSTATIC) {
@@ -67,11 +71,58 @@ public class GraphReducer {
 					}
 				} else if (opcode == Opcodes.AALOAD) {
 					reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ALOAD);
+				} else if (opcode == Opcodes.PUTFIELD || opcode == Opcodes.PUTSTATIC) {
+					int typeSort = parseSort(inst.getAddInfo());
+					if (typeSort == Type.ARRAY || typeSort == Type.OBJECT) {
+						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ASTORE);
+					} else if (typeSort == Type.BYTE || typeSort == Type.CHAR || typeSort == Type.INT || typeSort == Type.SHORT) {
+						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ISTORE);
+					} else if (typeSort == Type.LONG) {
+						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.LSTORE);
+					} else if (typeSort == Type.DOUBLE) {
+						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.DSTORE);
+					} else if (typeSort == Type.FLOAT) {
+						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.FSTORE);
+					} else {
+						logger.error("Upcategorized type: " + inst.getAddInfo());
+						System.exit(-1);
+					}
+					needJump = true;
+				} else if (opcode == Opcodes.AASTORE) {
+					reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ASTORE);
+					needJump = true;
 				}
+				
 				inst.originalOp = inst.getOp();
 				inst.setOp(reduceOp);
 				
-				this.collectFamily(inst, toRemove);
+				if (!needJump) {
+					this.collectFamily(inst, toRemove, readVars, inheritedInfo);
+				} else {
+					InstNode parentLoad = null;
+					for (String parentKey: inst.getInstDataParentList()) {
+						InstNode parentInst = pool.searchAndGet(parentKey);
+						
+						if (parentInst == null) {
+							logger.error("Cannot find parent to reduce graph: " + inst);
+							logger.error("Parent key: " + parentKey);
+							System.exit(-1);
+						}
+						
+						if (parentLoad == null 
+								|| parentInst.getStartTime() < parentLoad.getStartTime()) {
+							parentLoad = parentInst;
+						}
+					}
+					toRemove.add(parentLoad);
+					this.collectFamily(parentLoad, toRemove, readVars, inheritedInfo);
+				}
+				
+				if (inheritedInfo.size() > 0) {
+					String instKey = StringUtil.genIdxKey(inst.getThreadId(), inst.getThreadMethodIdx(), inst.getIdx());
+					readVars.add(instKey);
+					inst.inheritedInfo = inheritedInfo;
+				}
 			}
 		}
 		
@@ -83,11 +134,20 @@ public class GraphReducer {
 		}
 	}
 	
-	private void collectFamily(InstNode inst, HashSet<InstNode> recorder) {
+	private void collectFamily(InstNode inst, 
+			HashSet<InstNode> recorder, 
+			HashSet<String> readVars, HashSet<Integer> inheritedInfo) {
 		for (String parentKey: inst.getInstDataParentList()) {
 			InstNode parentInst = this.theGraph.getInstPool().searchAndGet(parentKey);
 			recorder.add(parentInst);
-			this.collectFamily(parentInst, recorder);
+			
+			if (readVars != null && readVars.contains(parentKey)) {
+				readVars.remove(parentKey);
+				int var = Integer.parseInt(parentInst.getAddInfo());
+				inheritedInfo.add(var);
+			}
+			
+			this.collectFamily(parentInst, recorder, readVars, inheritedInfo);
 		}
 	}
 	

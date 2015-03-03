@@ -1,13 +1,10 @@
 package edu.columbia.psl.cc.pojo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
-import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class InstNode {
@@ -23,6 +20,8 @@ public class InstNode {
 	public transient OpcodeObj originalOp;
 	
 	protected String addInfo = "";
+	
+	public HashSet<Integer> inheritedInfo;
 	
 	protected String fromMethod = "";
 	

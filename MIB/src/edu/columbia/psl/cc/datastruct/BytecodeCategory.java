@@ -34,6 +34,9 @@ public class BytecodeCategory {
 		replacedOps.add(Opcodes.GETFIELD);
 		replacedOps.add(Opcodes.GETSTATIC);
 		replacedOps.add(Opcodes.AALOAD);
+		replacedOps.add(Opcodes.PUTFIELD);
+		replacedOps.add(Opcodes.PUTSTATIC);
+		replacedOps.add(Opcodes.AASTORE);
 	}
 	
 	private static void loadOpcodeCategory() {		
