@@ -22,7 +22,7 @@ public class HotZone {
 	
 	private String targetTrace;
 	
-	private int levDist;
+	//private int levDist;
 	
 	private double similarity;
 	
@@ -112,13 +112,13 @@ public class HotZone {
 		this.targetTrace = targetTrace;
 	}
 
-	public int getLevDist() {
+	/*public int getLevDist() {
 		return levDist;
 	}
 
 	public void setLevDist(int levDist) {
 		this.levDist = levDist;
-	}
+	}*/
 
 	public double getSimilarity() {
 		return similarity;

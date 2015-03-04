@@ -77,9 +77,11 @@ public class PageRankSelector {
 	
 	private static int simStrategy = MIBConfiguration.getInstance().getSimStrategy();
 	
+	private static double simDiff = Math.pow(10, -3);
+	
 	private static String sumHeader = "lib1,lib2,inst_thresh,inst_cat,method1,method2,method_f_1,method_f_2,m_compare,sub_crawl,sub_crawl_filter,s_threshold,t_threshold,time,timestamp\n";
 	
-	private static String header = "sub,sid,target,tid,s_start,s_centroid,s_centroid_line,s_centroid_caller,s_end,s_trace,t_start,t_centroid,t_centroid_line,t_centroid_caller,t_end,t_trace,seg_size,inst_dist,dist,similarity\n";
+	private static String header = "sub,sid,target,tid,s_start,s_centroid,s_centroid_line,s_centroid_caller,s_end,s_trace,t_start,t_centroid,t_centroid_line,t_centroid_caller,t_end,t_trace,seg_size,inst_dist,similarity\n";
 	
 	private static Comparator<InstWrapper> pageRankSorter = new Comparator<InstWrapper>() {
 		public int compare(InstWrapper i1, InstWrapper i2) {
@@ -114,11 +116,6 @@ public class PageRankSelector {
 			}
 		}
 	};
-	
-	private static double levenSimilarity(int dist, int base) {
-		double sim = 1 - ((double)dist/base);
-		return sim;
-	}
 	
 	private InstPool myPool;
 	
@@ -298,7 +295,6 @@ public class PageRankSelector {
 		
 		for (InstNode inst: assignments) {
 			List<InstNode> seg = new ArrayList<InstNode>();
-			TreeSet<Integer> lineTrace = new TreeSet<Integer>();
 			
 			int start = -1;
 			int extStart = -1;
@@ -322,13 +318,7 @@ public class PageRankSelector {
 					if (extEnd > sortedTarget.size() - 1)
 						extEnd = sortedTarget.size() - 1;
 					
-					//seg.addAll(sortedTarget.subList(start, end + 1));
-					
-					for (int j = extStart; j <= extEnd; j++) {
-						InstNode toAdd = sortedTarget.get(j);
-						seg.add(toAdd);
-						lineTrace.add(toAdd.callerLine);
-					}
+					seg.addAll(sortedTarget.subList(extStart, extEnd + 1));
 					break ;
 				}
 			}
@@ -344,40 +334,45 @@ public class PageRankSelector {
 				extStart = 0;
 				
 				List<InstNode> oriSeg = seg.subList(start, end + 1);
-				List<InstNode> extSSeg = seg.subList(extStart, extEnd + 1);
 				
-				double[] oriSegDist = StaticTester.genDistribution(oriSeg);
-				double[] extSSegDist = StaticTester.genDistribution(extSSeg);
+				//Ori is with same size, seg is with a little buffer
+				double[] oriSegDist = StaticTester.genDistribution(oriSeg, simStrategy);
+				double[] segDist = StaticTester.genDistribution(seg, simStrategy);
 				
 				double[] oriSegDistNorm = StaticTester.normalizeDist(oriSegDist, oriSeg.size());
-				double[] extSSegDistNorm = StaticTester.normalizeDist(extSSegDist, extSSeg.size());
-				System.out.println("Original static score: " + StaticTester.normalizeEucDistance(subProfile.normDist, oriSegDistNorm));
-				System.out.println("ExtS static score: " + StaticTester.normalizeEucDistance(subProfile.normDist, extSSegDistNorm));
+				double oriSegDistance = StaticTester.normalizeEucDistance(subProfile.normDist, oriSegDistNorm);
 				
-				double[] segDist = StaticTester.genDistribution(seg);
+				double[] segDistNorm = StaticTester.normalizeDist(segDist, seg.size());
+				double segDistance = StaticTester.normalizeEucDistance(subProfile.normDist, segDistNorm);
 				
-				SegInfo si = new SegInfo();
-				/*si.seg = seg;
-				si.normInstDistribution = StaticTester.normalizeDist(segDist, seg.size());;
-				si.instDistWithSub = StaticTester.normalizeEucDistance(subProfile.normDist, 
-						si.normInstDistribution);*/
-				si.seg = extSSeg;
-				si.normInstDistribution = extSSegDistNorm;
-				si.instDistWithSub = StaticTester.normalizeEucDistance(subProfile.normDist, extSSegDistNorm);
-				si.lineTrace = lineTrace;
+				double[] repDist = null;
+				double repEucDistance = - 1;
+				List<InstNode> repSeg = null;
+				TreeSet<Integer> repLineTrace = new TreeSet<Integer>();
+				if (segDistance <= oriSegDistance || (segDistance - oriSegDistance <= simDiff)) {
+					repDist = segDistNorm;
+					repEucDistance = segDistance;
+					repSeg = seg;
+				} else {
+					repDist = oriSegDistNorm;
+					repEucDistance = oriSegDistance;
+					repSeg = oriSeg;
+				}
 				
-				if (si.instDistWithSub <= staticThreshold) {
+				for (InstNode ri: repSeg) {
+					repLineTrace.add(ri.callerLine);
+				}
+				
+				if (repEucDistance < staticThreshold) {
+					SegInfo si = new SegInfo();
+					si.seg = repSeg;
+					si.normInstDistribution = repDist;
+					si.instDistWithSub = repEucDistance;
+					si.lineTrace = repLineTrace;
+					
 					candSegs.put(inst, si);
 					staticScoreRecorder.add(si.instDistWithSub);
-				} /*else {
-					logger.info("Give up less likely inst: " + inst + " " + si.instDistWithSub);
-				}*/
-				
-				/*if (ChiTester.shouldTest(subDist, subProfile.pgRep.length, segDist, seg.size())) {
-					candSegs.put(inst, seg);
-				} else {
-					logger.info("Give up less likely inst: " + inst);
-				}*/
+				}
 			}
 		}
 		
@@ -537,6 +532,9 @@ public class PageRankSelector {
 			//Construct and profile template (sub graphs)
 			List<GraphProfile> templateProfiles = parallelizeProfiling(templates);
 			
+			logger.info("Template profiles: " + templateProfiles.size());
+			logger.info("Test profiles: " + testProfiles.size());
+			
 			List<SubGraphCrawler> crawlers = new ArrayList<SubGraphCrawler>();
 			
 			//Sub: template, Target: test
@@ -641,7 +639,6 @@ public class PageRankSelector {
 							"," + hit.getTargetTrace() +
 							"," + hit.getSegs().size() + 
 							"," + hit.getInstDistance() +
-							"," + hit.getLevDist() + 
 							"," + hit.getSimilarity() + "\n");
 					sb.append(rawRecorder);
 				}
@@ -749,7 +746,7 @@ public class PageRankSelector {
 		
 		int[] pgRep;
 		
-		double[] instDist;
+		double[] selectedDist;
 		
 		double[] normDist;
 		
@@ -833,10 +830,14 @@ public class PageRankSelector {
 			boolean partialPool = MIBConfiguration.getInstance().isReduceGraph();
 			PageRankSelector subSelector = new PageRankSelector(this.graph.getInstPool(), partialPool, true);
 			List<InstWrapper> subRank = subSelector.computePageRank();
-			for (InstWrapper iw: subRank) {
+			
+			/*for (InstWrapper iw: subRank) {
 				System.out.println(iw.inst);
 				System.out.println(iw.pageRank);
-			}
+			}*/
+			
+			/*List<InstWrapper> selectedSub = PercentageSelector.selectImportantInstWrappers(subRank);
+			int[] subPGRep = SearchUtil.generatePageRankRep(selectedSub);*/
 			int[] subPGRep = SearchUtil.generatePageRankRep(subRank);
 			//logger.info("Sub graph PageRank: " + Arrays.toString(subPGRep));
 			
@@ -872,11 +873,10 @@ public class PageRankSelector {
 			gp.pgRep = subPGRep;
 			//gp.instDist = subGraph.getDist();
 			//gp.instDist = StaticTester.genDistribution(this.graph.getDist());
-			gp.instDist = StaticTester.genDistribution(this.graph.getInstPool());
-			gp.normDist = StaticTester.normalizeDist(gp.instDist, gp.pgRep.length);
+			double[] instDist = StaticTester.genDistribution(this.graph.getInstPool(), simStrategy);
+			gp.normDist = StaticTester.normalizeDist(instDist, subRank.size());
+			//gp.selectedDist = PercentageSelector.selectImportantInsts(subRank);
 			gp.lineTrace = lineTrace;
-			System.out.println("Centroid: " + gp.centroidWrapper.inst);
-			System.out.println("PG Rank: " + gp.centroidWrapper.pageRank);
 			
 			return gp;
 		}
@@ -932,26 +932,33 @@ public class PageRankSelector {
 				List<InstWrapper> ranks = ranker.computePageRank();
 				int[] candPGRep = SearchUtil.generatePageRankRep(ranks);
 				
-				int dist = 0;
+				/*List<InstWrapper> selectedRanks = PercentageSelector.selectImportantInstWrappers(ranks);
+				int[] candPGRep = SearchUtil.generatePageRankRep(selectedRanks);*/
+				
+				/*int dist = 0;
 				if (candPGRep.length == 0) {
 					dist = subProfile.pgRep.length;
 				} else {
-					dist = LevenshteinDistance.calculateSimilarity(subProfile.pgRep, candPGRep);
+					dist = LevenshteinDistance.calculateDistance(subProfile.pgRep, candPGRep);
+				}
+				double sim = LevenshteinDistance.levenSimilarity(dist, subProfile.pgRep.length);*/
+				
+				double sim = -1;
+				if (candPGRep.length == 0) {
+					sim = 0;
+				} else {
+					JaroWinklerDistance measurer = new JaroWinklerDistance();
+					sim = measurer.proximity(subProfile.pgRep, candPGRep);
 				}
 				
-				double sim = levenSimilarity(dist, subProfile.pgRep.length);
-				
 				if (sim >= simThreshold) {
-					System.out.println("Sub pg rank: " + Arrays.toString(subProfile.pgRep));
+					/*System.out.println("Sub pg rank: " + Arrays.toString(subProfile.pgRep));
 					System.out.println("Can pg rank: " + Arrays.toString(candPGRep));
+					System.out.println("Dynamic similarity: " + sim);
 					
 					System.out.println("Sub important: " + subProfile.centroidWrapper.inst);
-					System.out.println("Can important: " + ranks.get(0).inst);
-					System.out.println("Can page rank");
-					for (InstWrapper iw: ranks) {
-						System.out.println(iw.inst);
-						System.out.println(iw.pageRank);
-					}
+					System.out.println("Can important: " + ranks.get(0).inst);*/
+					
 					HotZone zone = new HotZone();
 					zone.setSubStart(subProfile.startInst);
 					zone.setSubCentroid(subProfile.centroidWrapper.inst);
@@ -962,7 +969,7 @@ public class PageRankSelector {
 					zone.setCentralInst(cand);
 					zone.setEndInst(segments.get(segments.size() - 1));
 					zone.setTargetTrace(StringUtil.concateLineTrace(segInfo.lineTrace));
-					zone.setLevDist(dist);
+					//zone.setLevDist(dist);
 					zone.setSimilarity(sim);
 					zone.setInstDistance(segInfo.instDistWithSub);
 					zone.setSegs(segPool);

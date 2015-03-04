@@ -43,7 +43,7 @@
   "pgMaxIter": 50,
   "pgEpsilon": 1.0E-5,
   "staticThreshold": 0.1,
-  "simThreshold": 0.42,
+  "simThreshold": 0.82,
   "assignmentThreshold": 100,
   "simStrategy": 2,
   "testMethodThresh": -1,

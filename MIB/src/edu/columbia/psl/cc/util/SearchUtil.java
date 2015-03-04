@@ -150,5 +150,4 @@ public class SearchUtil {
 		}
 		return ret;
 	}
-
 }

@@ -1,5 +1,6 @@
 package edu.columbia.psl.cc.analysis;
 
+import java.sql.Types;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -57,7 +58,7 @@ public class GraphReducer {
 					int typeSort = parseSort(inst.getAddInfo());
 					if (typeSort == Type.ARRAY || typeSort == Type.OBJECT) {
 						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ALOAD);
-					} else if (typeSort == Type.BYTE || typeSort == Type.CHAR || typeSort == Type.INT || typeSort == Type.SHORT) {
+					} else if (typeSort == Type.BOOLEAN || typeSort == Type.BYTE || typeSort == Type.CHAR || typeSort == Type.INT || typeSort == Type.SHORT) {
 						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ILOAD);
 					} else if (typeSort == Type.LONG) {
 						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.LLOAD);
@@ -66,7 +67,7 @@ public class GraphReducer {
 					} else if (typeSort == Type.FLOAT) {
 						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.FLOAD);
 					} else {
-						logger.error("Uncategorized type: " + inst.getAddInfo());
+						logger.error("Uncategorized type: " + inst.getAddInfo() + " " + typeSort);
 						System.exit(-1);
 					}
 				} else if (opcode == Opcodes.AALOAD) {
@@ -75,7 +76,7 @@ public class GraphReducer {
 					int typeSort = parseSort(inst.getAddInfo());
 					if (typeSort == Type.ARRAY || typeSort == Type.OBJECT) {
 						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ASTORE);
-					} else if (typeSort == Type.BYTE || typeSort == Type.CHAR || typeSort == Type.INT || typeSort == Type.SHORT) {
+					} else if (typeSort == Type.BOOLEAN || typeSort == Type.BYTE || typeSort == Type.CHAR || typeSort == Type.INT || typeSort == Type.SHORT) {
 						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ISTORE);
 					} else if (typeSort == Type.LONG) {
 						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.LSTORE);
@@ -84,7 +85,7 @@ public class GraphReducer {
 					} else if (typeSort == Type.FLOAT) {
 						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.FSTORE);
 					} else {
-						logger.error("Upcategorized type: " + inst.getAddInfo());
+						logger.error("Upcategorized type: " + inst.getAddInfo() + " " + typeSort);
 						System.exit(-1);
 					}
 					needJump = true;
@@ -158,6 +159,6 @@ public class GraphReducer {
 	public static void main(String[] args) {
 		String addInfo = "org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64.qralg.Lorg/ejml/alg/dense/decomposition/svd/implicitqr/SvdImplicitQrAlgorithm;:2";
 		System.out.println("Add info sort: " + parseSort(addInfo));
-		System.out.println("Object sort: " + Type.OBJECT);
+		System.out.println("Object sort: " + Type.BOOLEAN);
 	}
 }

@@ -125,9 +125,9 @@ public class DBConnector {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			Connection connect = DriverManager.getConnection(url, username, password);
-			String query = "INSERT INTO result_table (comp_id, sub, sid, target, tid, s_centroid, s_centroid_line, " +
-					"t_start, t_start_line, t_start_caller, t_centroid, t_centroid_line, t_centroid_caller, t_end, t_end_line, t_end_caller, " +
-					"seg_size, static_dist, dyn_dist, similarity) " + 
+			String query = "INSERT INTO result_table2 (comp_id, sub, sid, target, tid, s_start, s_centroid, s_centroid_line, s_centroid_caller, s_end, s_trace, " +
+					"t_start, t_centroid, t_centroid_line, t_centroid_caller, t_end, t_trace, " +
+					"seg_size, static_dist, similarity) " + 
 					"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			
 			PreparedStatement pStmt = connect.prepareStatement(query);
@@ -138,20 +138,20 @@ public class DBConnector {
 				pStmt.setString(3, hotzone.getSubGraphId());
 				pStmt.setString(4, hotzone.getTargetGraphName());
 				pStmt.setString(5, hotzone.getTargetGraphId());
-				pStmt.setString(6, hotzone.getSubCentroid().toString());
-				pStmt.setInt(7, hotzone.getSubCentroid().getLinenumber());
-				pStmt.setString(8, hotzone.getStartInst().toString());
-				pStmt.setInt(9, hotzone.getStartInst().getLinenumber());
-				pStmt.setInt(10, hotzone.getStartInst().callerLine);
-				pStmt.setString(11, hotzone.getCentralInst().toString());
-				pStmt.setInt(12, hotzone.getCentralInst().getLinenumber());
-				pStmt.setInt(13, hotzone.getCentralInst().callerLine);
-				pStmt.setString(14, hotzone.getEndInst().toString());
-				pStmt.setInt(15, hotzone.getEndInst().getLinenumber());
-				pStmt.setInt(16, hotzone.getEndInst().callerLine);
-				pStmt.setInt(17, hotzone.getSegs().size());
-				pStmt.setDouble(18, hotzone.getInstDistance());
-				pStmt.setInt(19, hotzone.getLevDist());
+				pStmt.setString(6, hotzone.getSubStart().toString());
+				pStmt.setString(7, hotzone.getSubCentroid().toString());
+				pStmt.setInt(8, hotzone.getSubCentroid().getLinenumber());
+				pStmt.setInt(9, hotzone.getSubCentroid().callerLine);
+				pStmt.setString(10, hotzone.getSubEnd().toString());
+				pStmt.setString(11, hotzone.getSubTrace());
+				pStmt.setString(12, hotzone.getStartInst().toString());
+				pStmt.setString(13, hotzone.getCentralInst().toString());
+				pStmt.setInt(14, hotzone.getCentralInst().getLinenumber());
+				pStmt.setInt(15, hotzone.getCentralInst().callerLine);
+				pStmt.setString(16, hotzone.getEndInst().toString());
+				pStmt.setString(17, hotzone.getTargetTrace());
+				pStmt.setInt(18, hotzone.getSegs().size());
+				pStmt.setDouble(19, hotzone.getInstDistance());
 				pStmt.setDouble(20, hotzone.getSimilarity());
 				
 				pStmt.addBatch();

@@ -1,31 +1,24 @@
 package edu.columbia.psl.cc.analysis;
 
-import java.io.File;
-import java.util.Arrays;
 import java.util.Collection;
-
-import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
-import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
-import edu.columbia.psl.cc.util.GraphConstructor;
-import edu.columbia.psl.cc.util.GsonManager;
 
 public class StaticTester {
 	
 	private static double eucNorm = Math.sqrt(2);
 	
-	private static int simStrategy = MIBConfiguration.getInstance().getSimStrategy();
+	//private static int simStrategy = MIBConfiguration.getInstance().getSimStrategy();
 	
 	/**
 	 * Generate distribution from a collection of instructions
 	 * @param insts
 	 * @return
 	 */
-	public static double[] genDistribution(Collection<InstNode> insts) {
+	public static double[] genDistribution(Collection<InstNode> insts, int simStrategy) {
 		if (simStrategy == MIBConfiguration.INST_STRAT) {
 			double[] ret = new double[256];
 			
@@ -66,7 +59,7 @@ public class StaticTester {
 	 * @param instDist
 	 * @return
 	 */
-	public static double[] genDistribution(double[] instDist) {
+	public static double[] genDistribution(double[] instDist, int simStrategy) {
 		if (simStrategy == MIBConfiguration.INST_STRAT) {
 			return instDist;
 		} else if (MIBConfiguration.getInstance().getSimStrategy() 

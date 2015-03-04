@@ -41,7 +41,12 @@ public class LevenshteinDistance implements MIBSimilarity<String>{
 		}
 	}
 	
-	public static int calculateSimilarity(int[] a0, int[] a1) {
+	public static double levenSimilarity(int dist, int base) {
+		double sim = 1 - ((double)dist/base);
+		return sim;
+	}
+	
+	public static int calculateDistance(int[] a0, int[] a1) {
 		int len0 = a0.length + 1;
 		int len1 = a1.length + 1;
 		                                                     
@@ -128,7 +133,7 @@ public class LevenshteinDistance implements MIBSimilarity<String>{
 		//int[] a1 = {(int)'b', (int)'b', (int)'g', (int)'c', (int)'b', (int)'a', (int)'g', (int)'c', (int)'b', (int)'b', (int)'g', (int)'c', (int)'b', (int)'p'};
 		int[] a0 = {2, 5, 4, 8, 9, 1, 2};
 		int[] a1 = {2, 4, 5, 9, 8, 1, 2};
-		System.out.println("Test array: " + calculateSimilarity(a0, a1));
+		System.out.println("Test array: " + calculateDistance(a0, a1));
 	}
 
 	@Override
