@@ -98,7 +98,7 @@ public class GraphReducer {
 				inst.setOp(reduceOp);
 				
 				if (!needJump) {
-					this.collectFamily(inst, toRemove, readVars, inheritedInfo);
+					this.collectFamily(inst, toRemove, readVars, inheritedInfo, false);
 				} else {
 					InstNode parentLoad = null;
 					for (String parentKey: inst.getInstDataParentList()) {
@@ -115,8 +115,7 @@ public class GraphReducer {
 							parentLoad = parentInst;
 						}
 					}
-					toRemove.add(parentLoad);
-					this.collectFamily(parentLoad, toRemove, readVars, inheritedInfo);
+					this.collectFamily(parentLoad, toRemove, readVars, inheritedInfo, true);
 				}
 				
 				if (inheritedInfo.size() > 0) {
@@ -137,7 +136,20 @@ public class GraphReducer {
 	
 	private void collectFamily(InstNode inst, 
 			HashSet<InstNode> recorder, 
-			HashSet<String> readVars, HashSet<Integer> inheritedInfo) {
+			HashSet<String> readVars, 
+			HashSet<Integer> inheritedInfo, 
+			boolean removeInst) {
+		
+		if (removeInst) {
+			recorder.add(inst);
+			String instKey = StringUtil.genIdxKey(inst.getThreadId(), inst.getThreadMethodIdx(), inst.getIdx());
+			if (readVars != null && readVars.contains(instKey)) {
+				readVars.remove(instKey);
+				int var = Integer.parseInt(inst.getAddInfo());
+				inheritedInfo.add(var);
+			}
+		}
+		
 		for (String parentKey: inst.getInstDataParentList()) {
 			InstNode parentInst = this.theGraph.getInstPool().searchAndGet(parentKey);
 			recorder.add(parentInst);
@@ -148,7 +160,7 @@ public class GraphReducer {
 				inheritedInfo.add(var);
 			}
 			
-			this.collectFamily(parentInst, recorder, readVars, inheritedInfo);
+			this.collectFamily(parentInst, recorder, readVars, inheritedInfo, false);
 		}
 	}
 	

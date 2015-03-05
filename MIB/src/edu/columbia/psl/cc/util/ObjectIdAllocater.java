@@ -40,9 +40,9 @@ public class ObjectIdAllocater {
 		return threadIndexer.get();
 	}
 	
-	/*public static int getIndex() {
+	public static int getIndex() {
 		return indexer.getAndIncrement();
-	}*/
+	}
 	
 	/*public static int getIndex() {
 		long curThreadId = getThreadId();
@@ -60,7 +60,7 @@ public class ObjectIdAllocater {
 		objectIdMemory.remove(curThreadId);
 	}*/
 	
-	public static int getIndex(Object target) {
+	/*public static int getIndex(Object target) {
 		Class<?> targetClass = target.getClass();
 		try {
 			int newId = indexer.getAndIncrement();
@@ -72,7 +72,7 @@ public class ObjectIdAllocater {
 			logger.error("Exception: ", ex);
 		}
 		return - 1;
-	}
+	}*/
 	
 	public static int getClassMethodIndex(String className, String methodName, String desc) {
 		Class<?> correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(className, methodName, desc, false);

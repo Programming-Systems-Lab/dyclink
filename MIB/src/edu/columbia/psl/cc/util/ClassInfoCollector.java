@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.objectweb.asm.Type;
 
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
@@ -14,6 +15,8 @@ import edu.columbia.psl.cc.pojo.ClassMethodInfo;
 import edu.columbia.psl.cc.pojo.InstNode;
 
 public class ClassInfoCollector {
+	
+	private static Logger logger = Logger.getLogger(ClassInfoCollector.class);
 		
 	private static HashMap<String, ClassMethodInfo> classMethodInfoMap = new HashMap<String, ClassMethodInfo>();
 	
@@ -233,7 +236,8 @@ public class ClassInfoCollector {
 			}
 			System.out.println("Return type: " + m.getReturnType());
 		}*/
-		String className = "org.ujmp.core.doublematrix.calculation.general.decomposition.Solve$1";
+		
+		/*String className = "org.ujmp.core.doublematrix.calculation.general.decomposition.Solve$1";
 		String fieldName = "MATRIXSQUARELARGEMULTITHREADED";
 		System.out.println("Class name: " + retrieveCorrectClassByField(className, fieldName).getName());
 		try {
@@ -247,7 +251,10 @@ public class ClassInfoCollector {
 			Object o = new Object();
 		} catch (Exception ex) {
 			ex.printStackTrace();
-		}
+		}*/
+		initiateClassMethodInfo("a", "b", "(Lorg/la4j/matrix/Matrix;)Z", false);
+		String classMethodCacheKey = StringUtil.concateKey("a", "b", "(Lorg/la4j/matrix/Matrix;)Z");
+		System.out.println(classMethodInfoMap.get(classMethodCacheKey).endIdx);
 	}
 
 }

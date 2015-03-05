@@ -107,6 +107,7 @@ public class MethodStackRecorder {
 	public MethodStackRecorder(String className, 
 			String methodName, 
 			String methodDesc, 
+			boolean isStatic, 
 			int objId) {
 		
 		if (TimeController.isOverTime()) {
@@ -122,16 +123,23 @@ public class MethodStackRecorder {
 		this.shortMethodKey = GlobalRecorder.getGlobalName(this.methodKey);
 		Type methodType = Type.getMethodType(this.methodDesc);
 		this.methodArgSize = methodType.getArgumentTypes().length;
-		if (!methodType.getReturnType().getDescriptor().equals("V")) {
+		if (methodType.getReturnType().getSort() == Type.VOID) {
+			this.methodReturnSize = 0;
+		} else if (methodType.getReturnType().getSort() == Type.DOUBLE 
+				|| methodType.getReturnType().getSort() == Type.LONG) {
+			this.methodReturnSize = 2;
+		} else {
 			this.methodReturnSize = 1;
 		}
+			
+		/*if (!methodType.getReturnType().getDescriptor().equals("V")) {
+			this.methodReturnSize = 1;
+		}*/
 		
 		//this.smm = GlobalRecorder.getStaticMethodMiner(this.shortMethodKey);
 		//this.threadId = Thread.currentThread().getId();
 		
-		if (objId == 0)
-			this.staticMethod = true;
-		
+		this.staticMethod = isStatic;
 		this.objId = objId;
 		
 		ClassInfoCollector.initiateClassMethodInfo(className, 
@@ -680,6 +688,10 @@ public class MethodStackRecorder {
 		Type[] args = cmi.args;
 		Type rType = cmi.returnType;
 		int endIdx = cmi.endIdx;
+		
+		if (owner.contains("RawQRDecompositor") && name.equals("applicableTo")) {
+			logger.info("----------Check endIdx: " + endIdx);
+		}
 		
 		try {
 			//String ownerName = owner.replace("/", ".");
@@ -1302,6 +1314,10 @@ public class MethodStackRecorder {
 	public void dumpGraph() {
 		if (this.stopRecord)
 			return ;
+		
+		if (!this.staticMethod && objId <=0) {
+			logger.error("Check non-static method with 0 objId: " + this.methodKey);
+		}
 		
 		if (GlobalRecorder.checkUndersizedMethod(this.shortMethodKey)) {
 			logger.info("Leave " + " undersized" +

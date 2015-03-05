@@ -157,6 +157,11 @@ public class GraphConstructor {
 						HashSet<InstNode> cReadNodes = new HashSet<InstNode>();
 						for (String cString: cReads) {
 							InstNode cReadNode = callee.getInstPool().searchAndGet(cString);
+							
+							if (cReadNode == null) {
+								logger.error("Cannot find read node: " + cString);
+							}
+							
 							cReadNodes.add(cReadNode);
 						}
 						

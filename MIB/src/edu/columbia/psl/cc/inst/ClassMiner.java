@@ -73,7 +73,12 @@ public class ClassMiner extends ClassVisitor{
 			logger.info("Instrumenting class " + name + " extends " + superName);
 			this.cv.visitField(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, 
 					MIBConfiguration.getMibIdGen(), "I", null, 1);
-			this.cv.visitField(Opcodes.ACC_PUBLIC, MIBConfiguration.getMibId(), "I", null, null);
+			
+			//this.cv.visitField(Opcodes.ACC_PUBLIC, MIBConfiguration.getMibId(), "I", null, null);
+			//Only the object before Object has this objId, all children/grandchildren inherit its value
+			String superReplace = this.superName.replace("/", ".");
+			if (!StringUtil.shouldIncludeClass(superReplace))
+				this.cv.visitField(Opcodes.ACC_PUBLIC, MIBConfiguration.getMibId(), "I", null, null);
 		} else {
 			logger.info("Not instrument interface: " + name);
 		}

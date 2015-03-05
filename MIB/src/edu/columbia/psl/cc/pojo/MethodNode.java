@@ -24,10 +24,10 @@ public class MethodNode extends InstNode {
 	public static HashMap<GraphTemplate, Double> extractCallee(HashMap<String, GraphWithFreq> callees, 
 			int maxGraphFreq) {
 		
-		logger.info("Callee graph original");
+		/*logger.info("Callee graph original");
 		for (String key: callees.keySet()) {
 			logger.info(key+ " " + callees.get(key).freq); 
-		}
+		}*/
 		
 		int totalFreq = 0;
 		for (GraphWithFreq graF: callees.values()) {

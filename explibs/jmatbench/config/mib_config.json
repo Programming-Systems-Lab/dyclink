@@ -45,6 +45,7 @@
   "pgEpsilon": 1.0E-5,
   "staticThreshold": 0.1,
   "simThreshold": 0.6,
+  "assignmentThreshold": 100,
   "simStrategy": 2,
   "testMethodThresh": -1,
   "threadInit": 0,
@@ -56,6 +57,7 @@
   "templateMode": true,
   "overallAnalysis": false,
   "debug": false,
+  "reduceGraph": true,
   "cacheGraph": true,
   "dburl": "jdbc:mysql://127.0.0.1:3306/dyclink",
   "dbusername": "root"

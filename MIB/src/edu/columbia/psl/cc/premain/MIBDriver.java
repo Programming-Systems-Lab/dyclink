@@ -160,11 +160,16 @@ public class MIBDriver {
 		TypeToken<NameMap> nameToken = new TypeToken<NameMap>(){};
 		NameMap nameMap = GsonManager.readJsonGeneric(file, nameToken);
 		
-		GlobalRecorder.setGlobalNameMap(nameMap.getGlobalNameMap());
-		GlobalRecorder.setShortNameCounter(nameMap.getShortNameCounter());
-		GlobalRecorder.setRecursiveMethods(nameMap.getRecursiveMethods());
-		GlobalRecorder.setUndersizedMethods(nameMap.getUndersizedMethods());
-		GlobalRecorder.setUntransformedClass(nameMap.getUntransformedClass());
+		if (nameMap.getGlobalNameMap() != null)
+			GlobalRecorder.setGlobalNameMap(nameMap.getGlobalNameMap());
+		if (nameMap.getShortNameCounter() != null)
+			GlobalRecorder.setShortNameCounter(nameMap.getShortNameCounter());
+		if (nameMap.getRecursiveMethods() != null)
+			GlobalRecorder.setRecursiveMethods(nameMap.getRecursiveMethods());
+		if (nameMap.getUndersizedMethods() != null)
+			GlobalRecorder.setUndersizedMethods(nameMap.getUndersizedMethods());
+		if (nameMap.getUntransformedClass() != null)
+			GlobalRecorder.setUntransformedClass(nameMap.getUntransformedClass());
 		System.out.println("Show name map from last execution: " + GlobalRecorder.getGlobalNameMap().size());
 	}
 	

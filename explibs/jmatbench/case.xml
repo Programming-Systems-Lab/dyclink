@@ -1,13 +1,13 @@
 <jmbench.tools.runtime.RuntimeEvaluationTest>
   <randomSeed>4266357105038578992</randomSeed>
   <numTrials>0</numTrials>
-  <nameAlgorithm>svd</nameAlgorithm>
-  <dimen>4</dimen>
-  <classFactory>jmbench.impl.runtime.UjmpAlgorithmFactory</classFactory>
-  <generator class="jmbench.tools.runtime.generator.SvdGenerator"/>
+  <nameAlgorithm>invertSymmPosDef</nameAlgorithm>
+  <dimen>3</dimen>
+  <classFactory>jmbench.impl.runtime.La4jAlgorithmFactory</classFactory>
+  <generator class="jmbench.tools.runtime.generator.InvertSymmPosDefGenerator"/>
   <goalRuntime>3000</goalRuntime>
   <maxRuntime>600000</maxRuntime>
   <sanityCheck>false</sanityCheck>
   <estimatedTrials>0</estimatedTrials>
-  <classConfigure>jmbench.impl.configure.UjmpLibraryConfigure</classConfigure>
+  <classConfigure>jmbench.impl.configure.DoNothingSpecialConfigure</classConfigure>
 </jmbench.tools.runtime.RuntimeEvaluationTest>

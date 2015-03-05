@@ -676,8 +676,23 @@ public class PageRankSelector {
 		String username = MIBConfiguration.getInstance().getDbusername();
 		System.out.println("DB URL: " + url);
 		
-		char[] passArray = console.readPassword("DB password: ");
-		String password = new String(passArray);
+		
+		boolean constructOnly = false;
+		if (args.length == 1 && args[0].equals("t")) {
+			constructOnly = true;
+		}
+		
+		String password = null;
+		if (args.length == 3) {
+			password = args[0];
+			MIBConfiguration.getInstance().setTemplateDir(args[1]);
+			MIBConfiguration.getInstance().setTestDir(args[2]);
+		} else {
+			char[] passArray = console.readPassword("DB password: ");
+			password = new String(passArray);
+		}
+		String templateDir = MIBConfiguration.getInstance().getTemplateDir();
+		String testDir = MIBConfiguration.getInstance().getTestDir();
 		
 		DBConnector connector = new DBConnector();
 		if (!connector.probeDB(url, username, password)) {
@@ -695,25 +710,17 @@ public class PageRankSelector {
 				System.exit(1);
 			}
 		}
-		
-		String templateDir = MIBConfiguration.getInstance().getTemplateDir();
-		String testDir = MIBConfiguration.getInstance().getTestDir();
 				
 		logger.info("Start PageRank analysis for Bytecode subgraph mining");
 		logger.info("Similarity strategy: " + MIBConfiguration.getInstance().getSimStrategy());
 		logger.info("Assignemnt threshold: " + assignmentThreshold);
 		logger.info("Static threshold: " + staticThreshold);
 		logger.info("Dynamic threshold: " + simThreshold);
-		logger.info("Lib1 direcotry: " + (new File(MIBConfiguration.getInstance().getTemplateDir())).getAbsolutePath());
-		logger.info("Lib2 direcotry: " + (new File(MIBConfiguration.getInstance().getTestDir())).getAbsolutePath());
+		logger.info("Lib1 direcotry: " + (new File(templateDir)).getAbsolutePath());
+		logger.info("Lib2 direcotry: " + (new File(testDir)).getAbsolutePath());
 		//logger.info("Alpha: " + alpha);
 		//logger.info("Max iteration: " + maxIteration);
 		//logger.info("Epsilon: " + epsilon);
-		
-		boolean constructOnly = false;
-		if (args.length > 0 && args[0].equals("t")) {
-			constructOnly = true;
-		}
 		
 		initiateSubGraphMining(templateDir, testDir, url, username, password, constructOnly);
 	}

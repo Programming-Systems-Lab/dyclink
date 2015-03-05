@@ -882,6 +882,10 @@ public class GraphUtil {
 			} else {
 				int idx = Integer.valueOf(f.getAddInfo());
 				HashSet<InstNode> parentNodes = parentMap.get(idx);
+				if (parentNodes == null) {
+					logger.error("Missing idx for retrieving parent: " + idx);
+					logger.error(parentMap);
+				}
 				
 				for (InstNode parentNode: parentNodes) {				
 					parentNode.increChild(f.getThreadId(), 

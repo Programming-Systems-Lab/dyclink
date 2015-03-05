@@ -199,7 +199,7 @@ public class BytecodeCategory {
 	public static HashSet<Integer> staticMethodOps() {
 		HashSet<Integer> ret = new HashSet<Integer>();
 		ret.add(184);
-		ret.add(186);
+		//ret.add(186);
 		return ret;
 	}
 	
@@ -223,6 +223,7 @@ public class BytecodeCategory {
 		HashSet<Integer> allMethods = new HashSet<Integer>();
 		allMethods.addAll(objMethodOps());
 		allMethods.addAll(staticMethodOps());
+		allMethods.add(Opcodes.INVOKEDYNAMIC);
 		return allMethods;
 	}
 	
