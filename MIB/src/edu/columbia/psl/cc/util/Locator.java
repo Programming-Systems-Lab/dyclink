@@ -126,6 +126,7 @@ public class Locator {
 			int startIdx = -1;
 			int endIdx = -1;
 			boolean match = true;
+			StringBuilder lineBuilder = new StringBuilder();
 			int realCentroidOpcode = inst.getOp().getOpcode();
 			if (realCentroidOpcode != expCentroidOpcode)
 				match = false;
@@ -155,7 +156,11 @@ public class Locator {
 						if (oriStart == startIdx) {
 							match = false;
 						}
-					}
+					} 
+					InstNode finalStartNode = sortedTarget.get(startIdx);
+					lineBuilder.append(finalStartNode.callerLine + ":");
+					lineBuilder.append(inst.callerLine + ":");
+						
 					
 					if (realEndOp != expEndOp) {
 						int oriEnd = endIdx;
@@ -164,6 +169,8 @@ public class Locator {
 							match = false;
 						}
 					}
+					InstNode finalEndNode = sortedTarget.get(endIdx);
+					lineBuilder.append(finalEndNode.callerLine);
 					
 					seg.addAll(sortedTarget.subList(startIdx, endIdx + 1));
 					break ;
@@ -191,7 +198,7 @@ public class Locator {
 					si.seg = seg;
 					si.normInstDistribution = segDist;
 					si.instDistWithSub = segDistance;
-					si.lineTrace = lineTrace;
+					si.lineTrace = lineBuilder.toString();
 					si.match = match;
 					
 					candSegs.put(inst, si);

@@ -525,7 +525,7 @@ public class PageRankSelector {
 							"," + hit.getCentralInst().callerLine + 
 							"," + hit.getEndInst() + 
 							"," + hit.getTargetTrace() +
-							"," + hit.getSegs().size() + 
+							"," + hit.getSegSize() + 
 							"," + hit.getInstDistance() +
 							"," + hit.getSimilarity() + "\n");
 					sb.append(rawRecorder);
@@ -620,7 +620,8 @@ public class PageRankSelector {
 		
 		public double instDistWithSub;
 		
-		public TreeSet<Integer> lineTrace;
+		//public TreeSet<Integer> lineTrace;
+		public String lineTrace;
 		
 		public boolean match;
 	}
@@ -647,7 +648,7 @@ public class PageRankSelector {
 		
 		public double[] normDist;
 		
-		public TreeSet<Integer> lineTrace;
+		public String lineTrace;
 	}
 	
 	private static class WeightedEdge {
@@ -742,10 +743,10 @@ public class PageRankSelector {
 			InstNode subCentroid = subRank.get(0).inst;
 			int before = 0, after = 0;
 			boolean recordBefore = true;
-			TreeSet<Integer> lineTrace = new TreeSet<Integer>();
+			//TreeSet<Integer> lineTrace = new TreeSet<Integer>();
 			for (int i = 0; i < sortedSub.size(); i++) {
 				InstNode curNode = sortedSub.get(i);
-				lineTrace.add(curNode.callerLine);
+				//lineTrace.add(curNode.callerLine);
 				
 				if (curNode.equals(subCentroid)) {
 					recordBefore = false;
@@ -759,6 +760,7 @@ public class PageRankSelector {
 				}
 			}
 			
+			String lineTrace = startSub.callerLine + ":" + subCentroid.callerLine + ":" + endSub.callerLine;
 			GraphProfile gp = new GraphProfile();
 			gp.fileName = this.fileName;
 			gp.graph = this.graph;
@@ -819,11 +821,15 @@ public class PageRankSelector {
 				realSubCompNum += candSegs.size();
 			}
 			
+			List<Double> simCollector = new ArrayList<Double>();
 			for (InstNode cand: candSegs.keySet()) {
 				SegInfo segInfo = candSegs.get(cand);
 				List<InstNode> segments = segInfo.seg;
 				InstPool segPool = new InstPool();
-				segPool.addAll(segments);
+				//segPool.addAll(segments);
+				for (InstNode segInst: segments) {
+					segPool.add(segInst);
+				}
 				
 				PageRankSelector ranker = new PageRankSelector(segPool, true, true);
 				List<InstWrapper> ranks = ranker.computePageRank();
@@ -867,21 +873,39 @@ public class PageRankSelector {
 					zone.setSubStart(subProfile.startInst);
 					zone.setSubCentroid(subProfile.centroidWrapper.inst);
 					zone.setSubEnd(subProfile.endInst);
-					zone.setSubTrace(StringUtil.concateLineTrace(subProfile.lineTrace));
+					zone.setSubTrace(subProfile.lineTrace);
 					//zone.setSubPgRank(subProfile.centroidWrapper.pageRank);
 					zone.setStartInst(segments.get(0));
 					zone.setCentralInst(cand);
 					zone.setEndInst(segments.get(segments.size() - 1));
-					zone.setTargetTrace(StringUtil.concateLineTrace(segInfo.lineTrace));
+					zone.setTargetTrace(segInfo.lineTrace);
 					//zone.setLevDist(dist);
 					zone.setSimilarity(sim);
 					zone.setInstDistance(segInfo.instDistWithSub);
-					zone.setSegs(segPool);
+					zone.setSegSize(segPool.size());
+					//zone.setSegs(segPool);
 					zone.setSubGraphName(subGraphName);
 					zone.setSubGraphId(subProfile.graph.getThreadId() + "-" + subProfile.graph.getThreadMethodId());
 					zone.setTargetGraphName(targetGraphName);
 					zone.setTargetGraphId(targetGraph.getThreadId() + "-" + targetGraph.getThreadMethodId());
 					hits.add(zone);
+					
+					simCollector.add(zone.getSimilarity());
+				}
+			}
+			
+			int limit = 5;
+			if (hits.size() >= limit) {
+				logger.info("Too many hits: " + hits.size());
+				Collections.sort(simCollector, Collections.reverseOrder());
+				double bound = simCollector.get(limit - 1);
+				
+				Iterator<HotZone> hzIterator = hits.iterator();
+				while (hzIterator.hasNext()) {
+					HotZone hz = hzIterator.next();
+					if (hz.getSimilarity() < bound) {
+						hzIterator.remove();
+					}
 				}
 			}
 			logger.info("Crawler hits: " + this.crawlerId + " " + hits.size());

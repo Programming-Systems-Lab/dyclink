@@ -150,7 +150,7 @@ public class DBConnector {
 				pStmt.setInt(15, hotzone.getCentralInst().callerLine);
 				pStmt.setString(16, hotzone.getEndInst().toString());
 				pStmt.setString(17, hotzone.getTargetTrace());
-				pStmt.setInt(18, hotzone.getSegs().size());
+				pStmt.setInt(18, hotzone.getSegSize());
 				pStmt.setDouble(19, hotzone.getInstDistance());
 				pStmt.setDouble(20, hotzone.getSimilarity());
 				

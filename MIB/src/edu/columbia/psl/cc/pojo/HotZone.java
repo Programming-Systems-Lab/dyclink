@@ -30,7 +30,7 @@ public class HotZone {
 	
 	private InstPool subGraph;
 	
-	private InstPool segs;
+	private int segSize;
 	
 	private String subGraphName;
 	
@@ -136,20 +136,12 @@ public class HotZone {
 		this.instDistance = instDistance;
 	}
 
-	public InstPool getSubGraph() {
-		return subGraph;
+	public int getSegSize() {
+		return this.segSize;
 	}
 
-	public void setSubGraph(InstPool subGraph) {
-		this.subGraph = subGraph;
-	}
-
-	public InstPool getSegs() {
-		return segs;
-	}
-
-	public void setSegs(InstPool segs) {
-		this.segs = segs;
+	public void setSegSize(int segSize) {
+		this.segSize = segSize;
 	}
 	
 	public void setSubGraphName(String subGraphName) {
