@@ -38,6 +38,7 @@ import edu.columbia.psl.cc.util.DBConnector;
 import edu.columbia.psl.cc.util.GraphConstructor;
 import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.GsonManager;
+import edu.columbia.psl.cc.util.Locator;
 import edu.columbia.psl.cc.util.SearchUtil;
 import edu.columbia.psl.cc.util.StringUtil;
 import edu.columbia.psl.cc.util.TemplateLoader;
@@ -73,11 +74,11 @@ public class PageRankSelector {
 	
 	private static double simThreshold = MIBConfiguration.getInstance().getSimThreshold();
 	
-	private static int assignmentThreshold = MIBConfiguration.getInstance().getAssignmentThreshold();
-	
 	private static int simStrategy = MIBConfiguration.getInstance().getSimStrategy();
 	
-	private static double simDiff = Math.pow(10, -3);
+	private static int assignmentThreshold = MIBConfiguration.getInstance().getAssignmentThreshold();
+	
+	//private static double simDiff = Math.pow(10, -3);
 	
 	private static String sumHeader = "lib1,lib2,inst_thresh,inst_cat,method1,method2,method_f_1,method_f_2,m_compare,sub_crawl,sub_crawl_filter,s_threshold,t_threshold,time,timestamp\n";
 	
@@ -285,119 +286,6 @@ public class PageRankSelector {
 			ret.add(sorted.get(i).inst);
 		}
 		return ret;
-	}
-	
-	public static HashMap<InstNode, SegInfo> locateSegments(HashSet<InstNode> assignments, 
-			List<InstNode> sortedTarget, 
-			GraphProfile subProfile) {
-		HashMap<InstNode, SegInfo> candSegs = new HashMap<InstNode, SegInfo>();
-		List<Double> staticScoreRecorder = new ArrayList<Double>();
-		
-		for (InstNode inst: assignments) {
-			List<InstNode> seg = new ArrayList<InstNode>();
-			
-			int start = -1;
-			int extStart = -1;
-			int end = -1;
-			int extEnd = - 1;
-			for (int i = 0; i < sortedTarget.size(); i++) {
-				InstNode curNode = sortedTarget.get(i);
-				if (curNode.equals(inst)) {
-					//collect backward
-					start = i - subProfile.before;
-					extStart = start - 5;
-					if (start < 0)
-						start = 0;
-					if (extStart < 0)
-						extStart = 0;
-					
-					end = i + subProfile.after;
-					extEnd = end + 5;
-					if (end > sortedTarget.size() - 1)
-						end = sortedTarget.size() - 1;
-					if (extEnd > sortedTarget.size() - 1)
-						extEnd = sortedTarget.size() - 1;
-					
-					seg.addAll(sortedTarget.subList(extStart, extEnd + 1));
-					break ;
-				}
-			}
-			
-			//Temporarily set it as 0.8. Not consider the too-short assignment
-			if (seg.size() < subProfile.pgRep.length * 0.8) {
-				//logger.info("Give up too-short assignment: " + inst + " size " + seg.size());
-				continue ;
-			} else {
-				start = start - extStart;
-				end = end - extStart;
-				extEnd = extEnd - extStart;
-				extStart = 0;
-				
-				List<InstNode> oriSeg = seg.subList(start, end + 1);
-				
-				//Ori is with same size, seg is with a little buffer
-				double[] oriSegDist = StaticTester.genDistribution(oriSeg, simStrategy);
-				double[] segDist = StaticTester.genDistribution(seg, simStrategy);
-				
-				double[] oriSegDistNorm = StaticTester.normalizeDist(oriSegDist, oriSeg.size());
-				double oriSegDistance = StaticTester.normalizeEucDistance(subProfile.normDist, oriSegDistNorm);
-				
-				double[] segDistNorm = StaticTester.normalizeDist(segDist, seg.size());
-				double segDistance = StaticTester.normalizeEucDistance(subProfile.normDist, segDistNorm);
-				
-				double[] repDist = null;
-				double repEucDistance = - 1;
-				List<InstNode> repSeg = null;
-				TreeSet<Integer> repLineTrace = new TreeSet<Integer>();
-				if (segDistance <= oriSegDistance || (segDistance - oriSegDistance <= simDiff)) {
-					repDist = segDistNorm;
-					repEucDistance = segDistance;
-					repSeg = seg;
-				} else {
-					repDist = oriSegDistNorm;
-					repEucDistance = oriSegDistance;
-					repSeg = oriSeg;
-				}
-				
-				for (InstNode ri: repSeg) {
-					repLineTrace.add(ri.callerLine);
-				}
-				
-				if (repEucDistance < staticThreshold) {
-					SegInfo si = new SegInfo();
-					si.seg = repSeg;
-					si.normInstDistribution = repDist;
-					si.instDistWithSub = repEucDistance;
-					si.lineTrace = repLineTrace;
-					
-					candSegs.put(inst, si);
-					staticScoreRecorder.add(si.instDistWithSub);
-				}
-			}
-		}
-		
-		if (candSegs.size() <= assignmentThreshold) {
-			return candSegs;
-		} else {
-			Collections.sort(staticScoreRecorder);
-			double bound = staticScoreRecorder.get(assignmentThreshold - 1);
-			//logger.info("candSegs after static filter: " + candSegs.size());
-			//logger.info("Static score recorder: " + staticScoreRecorder);
-			//logger.info("Bound: " + bound);
-			
-			Iterator<InstNode> candKeyIterator = candSegs.keySet().iterator();
-			while (candKeyIterator.hasNext()) {
-				InstNode tmpInst = candKeyIterator.next();
-				SegInfo tmpSI = candSegs.get(tmpInst);
-				
-				if (tmpSI.instDistWithSub > bound) {
-					//logger.info("Removed: " + tmpInst + " " + tmpSI.instDistWithSub);
-					candKeyIterator.remove();
-				}
-			}
-			//logger.info("candSeg after removal: " + candSegs.size());
-			return candSegs;
-		}
 	}
 	
 	public static void filterGraphs(HashMap<String, GraphTemplate> graphs) {
@@ -725,39 +613,41 @@ public class PageRankSelector {
 		initiateSubGraphMining(templateDir, testDir, url, username, password, constructOnly);
 	}
 	
-	private static class SegInfo {
-		List<InstNode> seg;
+	public static class SegInfo {
+		public List<InstNode> seg;
 		
-		double[] normInstDistribution;
+		public double[] normInstDistribution;
 		
-		double instDistWithSub;
+		public double instDistWithSub;
 		
-		TreeSet<Integer> lineTrace;
+		public TreeSet<Integer> lineTrace;
+		
+		public boolean match;
 	}
 	
-	private static class GraphProfile {
+	public static class GraphProfile {
 		
-		String fileName;
+		public String fileName;
 		
-		GraphTemplate graph;
+		public GraphTemplate graph;
 		
-		InstNode startInst;
+		public InstNode startInst;
 		
-		InstWrapper centroidWrapper;
+		public InstWrapper centroidWrapper;
 		
-		InstNode endInst;
+		public InstNode endInst;
 		
-		int before;
+		public int before;
 		
-		int after; 
+		public int after; 
 		
-		int[] pgRep;
+		public int[] pgRep;
 		
-		double[] selectedDist;
+		public double[] selectedDist;
 		
-		double[] normDist;
+		public double[] normDist;
 		
-		TreeSet<Integer> lineTrace;
+		public TreeSet<Integer> lineTrace;
 	}
 	
 	private static class WeightedEdge {
@@ -915,12 +805,12 @@ public class PageRankSelector {
 			
 			//double geoPercent = ((double)(subProfile.before + 1))/ (subProfile.before + 1 + subProfile.after);
 			HashSet<InstNode> miAssignments = 
-					SearchUtil.possibleSingleAssignment(subProfile.centroidWrapper.inst, sortedTarget);
+					Locator.possibleSingleAssignment(subProfile.centroidWrapper.inst, sortedTarget);
 			logger.info("Target graph vs Sub graph: " + targetGraphName + " " + subGraphName);
 			logger.info("Thread index: " + crawlerId);
 			logger.info("Possible assignments: " + miAssignments.size());
 			logger.info("Sub-graph size: " + subProfile.pgRep.length);
-			HashMap<InstNode, SegInfo> candSegs = locateSegments(miAssignments, sortedTarget, subProfile);
+			HashMap<InstNode, SegInfo> candSegs = Locator.locateSegments(miAssignments, sortedTarget, subProfile);
 			logger.info("Real assignments: " + candSegs.size());
 			List<HotZone> hits = new ArrayList<HotZone>();
 			
@@ -954,13 +844,20 @@ public class PageRankSelector {
 				if (candPGRep.length == 0) {
 					sim = 0;
 				} else {
-					JaroWinklerDistance measurer = new JaroWinklerDistance();
+					JaroWinklerDistance measurer = null;
+					if (segInfo.match) {
+						measurer = new JaroWinklerDistance(0.8, 5);
+					} else {
+						measurer = new JaroWinklerDistance();
+					}
 					sim = measurer.proximity(subProfile.pgRep, candPGRep);
 				}
 				
 				if (sim >= simThreshold) {
 					/*System.out.println("Sub pg rank: " + Arrays.toString(subProfile.pgRep));
+					System.out.println("Sub linetrace: " + subProfile.lineTrace);
 					System.out.println("Can pg rank: " + Arrays.toString(candPGRep));
+					System.out.println("Can linetrace: " + segInfo.lineTrace);
 					System.out.println("Dynamic similarity: " + sim);
 					
 					System.out.println("Sub important: " + subProfile.centroidWrapper.inst);

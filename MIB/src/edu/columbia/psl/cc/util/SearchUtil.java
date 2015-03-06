@@ -1,5 +1,6 @@
 package edu.columbia.psl.cc.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -93,44 +94,6 @@ public class SearchUtil {
 		
 		return ret;
 	}*/
-	
-	public static HashSet<InstNode> possibleSingleAssignment(InstNode subNode, List<InstNode> targetPool) {
-		HashSet<InstNode> ret = new HashSet<InstNode>();
-		int simStrat = MIBConfiguration.getInstance().getSimStrategy();
-		
-		for (InstNode targetNode: targetPool) {
-			
-			int targetId = -1;
-			int subId = -1;
-			if (simStrat == MIBConfiguration.INST_STRAT) {
-				targetId = targetNode.getOp().getOpcode();
-				subId = subNode.getOp().getOpcode();
-			} else if (simStrat == MIBConfiguration.SUBSUB_STRAT) {
-				targetId = targetNode.getOp().getSubSubCatId();
-				subId = subNode.getOp().getSubSubCatId();
-			} else if (simStrat == MIBConfiguration.SUB_STRAT) {
-				targetId = targetNode.getOp().getSubCatId();
-				subId = subNode.getOp().getSubCatId();
-			} else {
-				targetId = targetNode.getOp().getCatId();
-				subId = subNode.getOp().getCatId();
-			}
-			
-			if (targetId == subId) {
-				ret.add(targetNode);
-			}
-		}
-		
-		//Locate geo center
-		/*int center = (int)(targetPool.size() * geoPercent);
-		if (center >= targetPool.size()) {
-			center--;
-		}
-		InstNode centerNode = targetPool.get(center);
-		ret.add(centerNode);*/
-		
-		return ret;
-	}
 	
 	public static int[] generatePageRankRep(List<InstWrapper> pgList) {
 		int[] ret = new int[pgList.size()];

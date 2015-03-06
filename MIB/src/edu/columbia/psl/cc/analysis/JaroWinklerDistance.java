@@ -117,8 +117,8 @@ public class JaroWinklerDistance {
 		// System.out.println("numHalfTransposed=" + numHalfTransposed);
 		int numTransposed = numHalfTransposed / 2;
 
-		// System.out.println("numCommon=" + numCommon
-		// + " numTransposed=" + numTransposed);
+		/* System.out.println("numCommon=" + numCommon
+		 + " numTransposed=" + numTransposed);*/
 		double numCommonD = numCommon;
 		double weight = (numCommonD / len1 + numCommonD / len2 + (numCommon - numTransposed)
 				/ numCommonD) / 3.0;
@@ -158,12 +158,18 @@ public class JaroWinklerDistance {
 			0.70, 4);
 	
 	public static void main(String[] args) {
-		int[] v1 = {14, 7, 3, 9, 14, 14, 14, 3, 14, 7, 7, 5, 14, 3, 22, 22, 7, 3, 22, 3, 5, 7, 14, 5, 3, 3, 5, 16, 16, 3, 3};
+		/*int[] v1 = {14, 7, 3, 9, 14, 14, 14, 3, 14, 7, 7, 5, 14, 3, 22, 22, 7, 3, 22, 3, 5, 7, 14, 5, 3, 3, 5, 16, 16, 3, 3};
 		int[] v2 = {14, 7, 3, 9, 14, 14, 14, 3, 7, 14, 22, 22, 15, 3, 3, 7, 5, 3, 22, 14, 5, 5, 7, 16, 7, 7, 7, 5, 5, 14, 16, 3, 3};
 		System.out.println(JARO_WINKLER_DISTANCE.proximity(v1, v2));
 		int dist = LevenshteinDistance.calculateDistance(v1, v2);
 		int base = Math.max(v1.length, v2.length);
-		System.out.println(LevenshteinDistance.levenSimilarity(dist, base));
+		System.out.println(LevenshteinDistance.levenSimilarity(dist, base));*/
+		int[] v1 = {25, 15, 19, 25, 6, 25, 25, 25, 6, 15, 6, 12, 14, 24, 38, 38, 5, 14, 38, 5, 12, 12, 14, 24, 5, 12, 5, 28, 28, 5, 5, 5, 5, 5, 14, 15, 5, 14, 27, 28, 28, 14, 28, 5, 5, 5, 7, 7, 42, 7, 7, 42, 2, 5, 5, 5, 42, 5, 6, 5};
+		int[] v2 = {25, 15, 19, 25, 6, 25, 25, 15, 6, 25, 38, 27, 6, 38, 38, 40, 12, 14, 37, 5, 24, 12, 12, 5, 5, 5, 12, 12, 14, 15, 5, 12, 28, 28, 14, 5, 5, 40, 28, 2, 5, 1, 5, 5, 5, 5, 7, 7, 42, 5, 7, 7, 42, 2, 5, 7, 5, 5, 7, 42, 5};
+		//int[] v1 = {1, 2, 3, 4, 5};
+		//int[] v2 = {5, 4, 3, 2, 1};
+		System.out.println(JARO_DISTANCE.proximity(v1, v2));
+		System.out.println(JARO_WINKLER_DISTANCE.proximity(v1, v2));
 	}
 
 }
