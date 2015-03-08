@@ -19,6 +19,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.collections15.Transformer;
@@ -53,6 +54,8 @@ public class PageRankSelector {
 	private static int subCompNum = 0;
 	
 	private static int realSubCompNum = 0;
+	
+	private static Semaphore dbLock = new Semaphore(140, true);
 	
 	private static Object countLock = new Object();
 	
@@ -564,26 +567,34 @@ public class PageRankSelector {
 		String username = MIBConfiguration.getInstance().getDbusername();
 		System.out.println("DB URL: " + url);
 		
-		
 		boolean constructOnly = false;
 		if (args.length == 1 && args[0].equals("t")) {
 			constructOnly = true;
 		}
 		
 		String password = null;
+		boolean shouldDB = true;
 		if (args.length == 3) {
 			password = args[0];
 			MIBConfiguration.getInstance().setTemplateDir(args[1]);
 			MIBConfiguration.getInstance().setTestDir(args[2]);
 		} else {
-			char[] passArray = console.readPassword("DB password: ");
-			password = new String(passArray);
+			System.out.println("Store result into DB?");
+			Scanner scanner = new Scanner(System.in);
+			shouldDB = scanner.nextBoolean();
+			if (shouldDB) {
+				char[] passArray = console.readPassword("DB password: ");
+				password = new String(passArray);
+			} else {
+				password = null;
+			}
+			
 		}
 		String templateDir = MIBConfiguration.getInstance().getTemplateDir();
 		String testDir = MIBConfiguration.getInstance().getTestDir();
 		
 		DBConnector connector = new DBConnector();
-		if (!connector.probeDB(url, username, password)) {
+		if (shouldDB && !connector.probeDB(url, username, password)) {
 			System.out.println("No DB connection. Wanna execute experiment still?");
 			Scanner scanner = new Scanner(System.in);
 			
@@ -679,8 +690,10 @@ public class PageRankSelector {
 		
 		@Override
 		public void run() {
+			dbLock.acquireUninterruptibly();
 			DBConnector connector = new DBConnector();
 			connector.writeDetailTableResult(url, username, password, compResultId, zones);
+			dbLock.release();
 		}
 	}
 	
@@ -709,6 +722,7 @@ public class PageRankSelector {
 			logger.info("Graph name with profiler idx: " + this.graph.getMethodKey() + " " + this.profilerIdx);
 			GraphConstructor constructor = new GraphConstructor();
 			constructor.reconstructGraph(this.graph, true);
+			constructor.cleanObjInit(this.graph);
 			return profileGraph();
 		}
 		
@@ -729,7 +743,9 @@ public class PageRankSelector {
 			PageRankSelector subSelector = new PageRankSelector(this.graph.getInstPool(), partialPool, true);
 			List<InstWrapper> subRank = subSelector.computePageRank();
 			
-			/*for (InstWrapper iw: subRank) {
+			/*System.out.println("Check sub graph rank");
+			for (int i = 0; i < 20; i++) {
+				InstWrapper iw = subRank.get(i);
 				System.out.println(iw.inst);
 				System.out.println(iw.pageRank);
 			}*/
@@ -860,9 +876,20 @@ public class PageRankSelector {
 				}
 				
 				if (sim >= simThreshold) {
-					/*System.out.println("Sub pg rank: " + Arrays.toString(subProfile.pgRep));
+					/*System.out.println("Check target ranks");
+					for (int i = 0; i < 20; i++) {
+						InstWrapper iw = ranks.get(i);
+						System.out.println(iw.inst);
+						System.out.println(iw.pageRank);
+					}
+					
+					int[] subCopy = new int[20];
+					System.arraycopy(subProfile.pgRep, 0, subCopy, 0, 20);
+					System.out.println("Sub pg rank: " + Arrays.toString(subCopy));
 					System.out.println("Sub linetrace: " + subProfile.lineTrace);
-					System.out.println("Can pg rank: " + Arrays.toString(candPGRep));
+					int[] candCopy = new int[20];
+					System.arraycopy(candPGRep, 0, candCopy, 0, 20);
+					System.out.println("Can pg rank: " + Arrays.toString(candCopy));
 					System.out.println("Can linetrace: " + segInfo.lineTrace);
 					System.out.println("Dynamic similarity: " + sim);
 					

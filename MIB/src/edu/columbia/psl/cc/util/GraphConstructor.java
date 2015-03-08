@@ -11,6 +11,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
+import org.objectweb.asm.Opcodes;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -27,6 +28,8 @@ public class GraphConstructor {
 	private static Logger logger = Logger.getLogger(GraphConstructor.class);
 	
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
+	
+	private static String objInit = "java.lang.Object:<init>:():V";
 	
 	private double maxFreqFromParents(Collection<InstNode> parents, String myId) {
 		double ret = 0;
@@ -273,10 +276,47 @@ public class GraphConstructor {
 		}
 	}
 	
+	public void cleanObjInit(GraphTemplate constructedGraph) {
+		HashSet<InstNode> toRemove = new HashSet<InstNode>();
+		InstPool pool = constructedGraph.getInstPool();
+		for (InstNode inst: pool) {
+			int opcode = inst.getOp().getOpcode();
+			if (opcode == Opcodes.INVOKESPECIAL && !toRemove.contains(inst)) {
+				String addInfo = inst.getAddInfo();
+				
+				if (addInfo != null && addInfo.equals(objInit)) {
+					this.collectSingleParent(inst, pool, toRemove);
+				}
+			}
+		}
+		
+		for (InstNode r: toRemove) {
+			pool.remove(r);
+		}
+	}
+	
+	public void collectSingleParent(InstNode inst, InstPool pool, HashSet<InstNode> recorder) {
+		recorder.add(inst);
+		
+		for (String parentKey: inst.getInstDataParentList()) {
+			InstNode parentNode = pool.searchAndGet(parentKey);
+			
+			if (parentNode == null) {
+				logger.error("Missing parent when cleaning obj init: " + parentKey);
+				continue ;
+			}
+			
+			//Singel child, which is me
+			if (parentNode.getChildFreqMap().size() == 1) {
+				this.collectSingleParent(parentNode, pool, recorder);
+			}
+		}
+	} 
+	
 	public static void main(String[] args) {
 		//File testFile = new File("./test/cern.colt.matrix.linalg.Algebra:hypot:0:0:130.json");
 		//File testFile = new File("/Users/mikefhsu/Mike/Research/ec2/mib_sandbox/jama_graphs/Jama.EigenvalueDecomposition:<init>:0:1:1515059.json");
-		File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/template/cc.expbase.ReduceTest:objAdd:0:0:2212.json");
+		File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64:decompose:0:0:14.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
 		GraphConstructor constructor = new GraphConstructor();
 		constructor.reconstructGraph(testGraph, true);
@@ -306,7 +346,7 @@ public class GraphConstructor {
 		}
 		System.out.println("Line trace: " + lineTrace);*/
 		
-		String fileName = "./test/" + testGraph.getShortMethodKey() + "_re";
+		String fileName = "/Users/mikefhsu/Desktop/" + testGraph.getShortMethodKey() + "_re2.json";
 		/*List<InstNode> sorted = GraphUtil.sortInstPool(testGraph.getInstPool(), true);
 		for (InstNode inst: sorted) {
 			System.out.println(inst);

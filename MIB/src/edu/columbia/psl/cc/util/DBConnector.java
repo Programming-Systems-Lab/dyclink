@@ -36,7 +36,9 @@ public class DBConnector {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			Connection connect = DriverManager.getConnection(baseurl, username, password);
-			return connect.isValid(10);
+			boolean probe = connect.isValid(10);
+			connect.close();
+			return probe;
 			//String query = "SELECT User, Password FROM User WHERE User = \'" + username + "\' and Password = \'" + password + "\';";
 			/*String query = "SELECT User, Password FROM User";
 			System.out.println("Query string: " + query);

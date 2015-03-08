@@ -27,7 +27,7 @@ import edu.columbia.psl.cc.pojo.InstNode;
 
 public class TraceAnalyzer {
 	
-private static String graphRepo = "../";
+	private static String graphRepo = "/Users/mikefhsu/Mike/Research/ec2/mib_sandbox_v2/";
 	
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 	
@@ -81,17 +81,19 @@ private static String graphRepo = "../";
 					"ON rt.sub = max_rec.sub and rt.sid = max_rec.sid and rt.target = max_rec.target and rt.similarity = max_rec.sim " +
 					"ORDER BY rt.sub, rt.sid, rt.target, rt.tid, rt.similarity;";*/
 			
-			String query = "SELECT rt.* FROM result_table rt " +
-					"INNER JOIN (SELECT sub, sid, target, t_start_caller, MAX(similarity) as sim " +
-					"FROM result_table " +
-					"WHERE comp_id=? and seg_size >=20 and target NOT LIKE '%ejml%' and sub NOT LIKE '%ejml%' and similarity > ? " +
+			String query = "SELECT rt.* FROM result_table2 rt " +
+					"INNER JOIN (SELECT sub, sid, target, MAX(similarity) as sim " +
+					"FROM result_table2 " +
+					"WHERE comp_id=? and seg_size >=20 and target NOT LIKE '%ejml%' and sub NOT LIKE '%ejml%' and similarity >= ? " +
 					"GROUP BY sub, sid, target) max_rec " +
-					"ON rt.sub = max_rec.sub and rt.sid = max_rec.sid and rt.target = max_rec.target and rt.similarity = max_rec.sim;";
+					"ON rt.sub = max_rec.sub and rt.sid = max_rec.sid and rt.target = max_rec.target and rt.similarity = max_rec.sim " +
+					"WHERE comp_id=?;";
 					//"ORDER BY rt.sub, rt.sid, rt.target, rt.tid, rt.t_start_caller, rt.t_centroid_caller, rt.t_end_caller, rt.similarity;";
 			
 			PreparedStatement pStmt = connect.prepareStatement(query);
 			pStmt.setInt(1, compId);
 			pStmt.setDouble(2, MIBConfiguration.getInstance().getSimThreshold());
+			pStmt.setInt(3, compId);
 			ResultSet result = pStmt.executeQuery();
 			
 			HashMap<String, TreeSet<Integer>> subCache = new HashMap<String, TreeSet<Integer>>();

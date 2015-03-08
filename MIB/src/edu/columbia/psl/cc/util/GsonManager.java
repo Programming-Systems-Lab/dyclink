@@ -119,6 +119,11 @@ public class GsonManager {
 			} else {
 				f = new File(fileName);
 			}
+			
+			if (!f.exists()) {
+				f.createNewFile();
+			}
+			
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
 			bw.write(toWrite);
 			bw.close();

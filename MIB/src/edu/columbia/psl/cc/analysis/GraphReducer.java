@@ -24,6 +24,8 @@ public class GraphReducer {
 	
 	private static HashSet<Integer> replacedOps = BytecodeCategory.replacedOps();
 	
+	private static HashSet<Integer> methodOps = BytecodeCategory.methodOps();
+	
 	private GraphTemplate theGraph;
 	
 	public GraphReducer(GraphTemplate theGraph) {
@@ -40,6 +42,27 @@ public class GraphReducer {
 		return typeSort;
 	}
 	
+	public static OpcodeObj parseMethodSort(String methodInfo) {
+		String[] parsed = methodInfo.split(":");
+		String returnType = parsed[parsed.length - 1];
+		
+		if (returnType.equals("Z") 
+				|| returnType.equals("B") 
+				|| returnType.equals("C") 
+				|| returnType.equals("S") 
+				|| returnType.equals("I")) {
+			return BytecodeCategory.getOpcodeObj(Opcodes.ILOAD);
+		} else if (returnType.equals("J")) {
+			return BytecodeCategory.getOpcodeObj(Opcodes.LLOAD);
+		} else if (returnType.equals("F")) {
+			return BytecodeCategory.getOpcodeObj(Opcodes.FLOAD);
+		} else if (returnType.equals("D")) {
+			return BytecodeCategory.getOpcodeObj(Opcodes.DLOAD);
+		} else {
+			return BytecodeCategory.getOpcodeObj(Opcodes.ALOAD);
+		}
+	}
+	
 	public void reduceGraph() {
 		InstPool pool = this.theGraph.getInstPool();
 		HashSet<String> readVars = this.theGraph.getFirstReadLocalVars();
@@ -52,7 +75,9 @@ public class GraphReducer {
 			HashSet<Integer> inheritedInfo = new HashSet<Integer>();
 			
 			boolean needJump = false;
-			if (replacedOps.contains(opcode) && !toRemove.contains(inst)) {
+			boolean shouldReplace = replacedOps.contains(opcode);
+			//boolean shouldReplaceMethod = methodOps.contains(opcode) && StringUtil.shouldIncludeClass(inst.getAddInfo());
+			if (shouldReplace && !toRemove.contains(inst)) {
 				OpcodeObj reduceOp = null;
 				if (opcode == Opcodes.GETFIELD || opcode == Opcodes.GETSTATIC) {
 					int typeSort = parseSort(inst.getAddInfo());
@@ -92,7 +117,9 @@ public class GraphReducer {
 				} else if (opcode == Opcodes.AASTORE) {
 					reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ASTORE);
 					needJump = true;
-				}
+				} /*else if (shouldReplaceMethod) {
+					reduceOp = parseMethodSort(inst.getAddInfo());
+				}*/
 				
 				inst.originalOp = inst.getOp();
 				inst.setOp(reduceOp);
