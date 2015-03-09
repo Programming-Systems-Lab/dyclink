@@ -1,6 +1,7 @@
 package edu.columbia.psl.cc.analysis;
 
 import java.sql.Types;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -113,7 +114,9 @@ public class GraphReducer {
 						logger.error("Upcategorized type: " + inst.getAddInfo() + " " + typeSort);
 						System.exit(-1);
 					}
-					needJump = true;
+					
+					if (opcode == Opcodes.PUTFIELD)
+						needJump = true;
 				} else if (opcode == Opcodes.AASTORE) {
 					reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ASTORE);
 					needJump = true;
@@ -123,6 +126,11 @@ public class GraphReducer {
 				
 				inst.originalOp = inst.getOp();
 				inst.setOp(reduceOp);
+				
+				if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC) {
+					//Class op, do not need to collect parents to remove
+					continue ;
+				}
 				
 				if (!needJump) {
 					this.collectFamily(inst, toRemove, readVars, inheritedInfo, false);
@@ -142,6 +150,10 @@ public class GraphReducer {
 							parentLoad = parentInst;
 						}
 					}
+					String finalParentKey = StringUtil.genIdxKey(parentLoad.getThreadId(), 
+							parentLoad.getThreadMethodIdx(), 
+							parentLoad.getIdx());
+					inst.getInstDataParentList().remove(finalParentKey);
 					this.collectFamily(parentLoad, toRemove, readVars, inheritedInfo, true);
 				}
 				
@@ -177,7 +189,9 @@ public class GraphReducer {
 			}
 		}
 		
-		for (String parentKey: inst.getInstDataParentList()) {
+		Iterator<String> instDataParentIT = inst.getInstDataParentList().iterator();
+		while (instDataParentIT.hasNext()) {
+			String parentKey = instDataParentIT.next();
 			InstNode parentInst = this.theGraph.getInstPool().searchAndGet(parentKey);
 			recorder.add(parentInst);
 			
@@ -185,6 +199,10 @@ public class GraphReducer {
 				readVars.remove(parentKey);
 				int var = Integer.parseInt(parentInst.getAddInfo());
 				inheritedInfo.add(var);
+				
+				if (!removeInst) {
+					instDataParentIT.remove();
+				}
 			}
 			
 			this.collectFamily(parentInst, recorder, readVars, inheritedInfo, false);

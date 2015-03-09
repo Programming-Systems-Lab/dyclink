@@ -302,6 +302,7 @@ public class GraphConstructor {
 			InstNode parentNode = pool.searchAndGet(parentKey);
 			
 			if (parentNode == null) {
+				logger.error("Current node: " + inst);
 				logger.error("Missing parent when cleaning obj init: " + parentKey);
 				continue ;
 			}
@@ -316,12 +317,13 @@ public class GraphConstructor {
 	public static void main(String[] args) {
 		//File testFile = new File("./test/cern.colt.matrix.linalg.Algebra:hypot:0:0:130.json");
 		//File testFile = new File("/Users/mikefhsu/Mike/Research/ec2/mib_sandbox/jama_graphs/Jama.EigenvalueDecomposition:<init>:0:1:1515059.json");
-		File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64:decompose:0:0:14.json");
+		//File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64:decompose:0:0:14.json");
+		File testFile = new File("/Users/mikefhsu/Mike/Research/ec2/mib_sandbox_v2/colt_graphs/cern.jet.math.Functions:plusMult:0:0:3646031.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
 		GraphConstructor constructor = new GraphConstructor();
 		constructor.reconstructGraph(testGraph, true);
 		System.out.println("Recorded graph size: " + testGraph.getVertexNum());
-		System.out.println("Actual graph size: " + testGraph.getInstPool().size());
+		System.out.println("Reduced graph size: " + testGraph.getInstPool().size());
 		
 		System.out.println("Recorded edge size: " + testGraph.getEdgeNum());
 		int eCount = 0;
@@ -330,11 +332,17 @@ public class GraphConstructor {
 			//System.out.println(inst.callerLine);
 			eCount += inst.getChildFreqMap().size();
 		}
-		System.out.println("Actual edge size: " + eCount);
+		System.out.println("Reduced edge size: " + eCount);
+		String fileName = "/Users/mikefhsu/Desktop/" + testGraph.getShortMethodKey() + "_re.json";
+		GsonManager.writeJsonGeneric(testGraph, fileName, graphToken, 8);
 		
-		GraphReducer gr = new GraphReducer(testGraph);
+		System.out.println("Clean object init");
+		constructor.cleanObjInit(testGraph);
+		System.out.println("Clean object vertex size: " + testGraph.getInstPool().size());
+		
+		/*GraphReducer gr = new GraphReducer(testGraph);
 		gr.reduceGraph();
-		System.out.println("Reduce result: " + gr.getGraph().getInstPool().size());
+		System.out.println("Reduce result: " + gr.getGraph().getInstPool().size());*/
 		
 		/*String methodName = testGraph.getMethodName();
 		TreeSet<Integer> lineTrace = new TreeSet<Integer>();
@@ -346,7 +354,7 @@ public class GraphConstructor {
 		}
 		System.out.println("Line trace: " + lineTrace);*/
 		
-		String fileName = "/Users/mikefhsu/Desktop/" + testGraph.getShortMethodKey() + "_re2.json";
+		String fileName2 = "/Users/mikefhsu/Desktop/" + testGraph.getShortMethodKey() + "_re2.json";
 		/*List<InstNode> sorted = GraphUtil.sortInstPool(testGraph.getInstPool(), true);
 		for (InstNode inst: sorted) {
 			System.out.println(inst);
@@ -354,7 +362,7 @@ public class GraphConstructor {
 			System.out.println(inst.getChildFreqMap());
 			System.out.println();
 		}*/
-		GsonManager.writeJsonGeneric(testGraph, fileName, graphToken, 8);
+		GsonManager.writeJsonGeneric(testGraph, fileName2, graphToken, 8);
 	}
 
 }

@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.collections15.Transformer;
@@ -55,7 +56,9 @@ public class PageRankSelector {
 	
 	private static int realSubCompNum = 0;
 	
-	private static Semaphore dbLock = new Semaphore(140, true);
+	private static int dbWriteNum = 10;
+	
+	private static Semaphore dbLock = new Semaphore(dbWriteNum, true);
 	
 	private static Object countLock = new Object();
 	
@@ -498,8 +501,8 @@ public class PageRankSelector {
 			String compareName = lib1Name + "-" + lib2Name;
 			String csvName = MIBConfiguration.getInstance().getResultDir() + "/" + compareName + now.getTime() + ".csv";
 			
-			ExecutorService dbExecutor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
 			int writerCount = 0;
+			List<HotZone> buffer = new ArrayList<HotZone>();
 			for (Future<List<HotZone>> future: resultRecorder) {
 				List<HotZone> zones = future.get();
 				
@@ -539,17 +542,64 @@ public class PageRankSelector {
 				
 				//Write hotzones to DB
 				if (compResultId >= 0 && zones.size() > 0) {
-					DBWriter dbWriter = new DBWriter(url, username, password, compResultId, zones);
-					dbExecutor.submit(dbWriter);
-					writerCount++;
+					buffer.addAll(zones);
+				}
+				
+				if (buffer.size() >= 5000) {
+					ExecutorService dbExecutor = Executors.newFixedThreadPool(1);
+					DBWriter dbWriter = new DBWriter(url, username, password, compResultId, buffer);
+					Future<Boolean> submitFuture = dbExecutor.submit(dbWriter);
+					boolean submitResult = submitFuture.get(60, TimeUnit.SECONDS);
+					try {
+						if (submitResult)
+							writerCount++;
+						else {
+							logger.error("Write in time but fails: " + buffer.size());
+						}
+					} catch (Exception ex) {
+						ex.printStackTrace();
+						submitFuture.cancel(true);
+						logger.error("Fail to write " + buffer.size() + " zones");
+					} finally {
+						buffer.clear();
+						dbExecutor.shutdown();
+						while (!dbExecutor.isTerminated());
+						logger.info("Buffer size: " + buffer.size());
+						logger.info("Current writer after dbExecutor: " + writerCount);
+					}
 					//DBConnector connector = new DBConnector();
 					//connector.writeDetailTableResult(url, username, password, compResultId, zones);
 				}
 			}
-			System.out.println("Total writer: " + writerCount);
-			dbExecutor.shutdown();
-			while (!dbExecutor.isTerminated());
-			System.out.println("Storing data ends");
+			
+			if (buffer.size() > 0) {
+				ExecutorService dbExecutor = Executors.newFixedThreadPool(1);
+				DBWriter dbWriter = new DBWriter(url, username, password, compResultId, buffer);
+				Future<Boolean> submitFuture = dbExecutor.submit(dbWriter);
+				boolean submitResult = submitFuture.get(60, TimeUnit.SECONDS);
+				try {					
+					if (submitResult)
+						writerCount++;
+					else {
+						logger.error("Write in time but fails: " + buffer.size());
+					}
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					submitFuture.cancel(true);
+					logger.error("Fail to write " + buffer.size() + " zones");
+				} finally {
+					buffer.clear();
+					dbExecutor.shutdown();
+					while (!dbExecutor.isTerminated());
+					logger.info("Buffer size (residue): " + buffer.size());
+					logger.info("Current writer after dbExecutor (residue): " + writerCount);
+				}
+			}
+			
+			logger.info("Total writer: " + writerCount);
+			//dbExecutor.shutdown();
+			//while (!dbExecutor.isTerminated());
+			logger.info("Storing data ends");
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -622,6 +672,7 @@ public class PageRankSelector {
 		//logger.info("Epsilon: " + epsilon);
 		
 		initiateSubGraphMining(templateDir, testDir, url, username, password, constructOnly);
+		System.out.println("Process ends");
 	}
 	
 	public static class SegInfo {
@@ -668,7 +719,7 @@ public class PageRankSelector {
 		double edgeWeight;
 	}
 	
-	private static class DBWriter implements Runnable {
+	private static class DBWriter implements Callable<Boolean>{
 		String url;
 		
 		String username;
@@ -689,11 +740,9 @@ public class PageRankSelector {
 		}
 		
 		@Override
-		public void run() {
-			dbLock.acquireUninterruptibly();
+		public Boolean call() {
 			DBConnector connector = new DBConnector();
-			connector.writeDetailTableResult(url, username, password, compResultId, zones);
-			dbLock.release();
+			return connector.writeDetailTableResult(url, username, password, compResultId, zones);
 		}
 	}
 	

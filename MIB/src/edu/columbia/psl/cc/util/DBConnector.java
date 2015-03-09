@@ -119,12 +119,25 @@ public class DBConnector {
 		return -1;
 	}
 	
-	public void writeDetailTableResult(String url, 
+	public boolean writeDetailTableResult(String url, 
 			String username, 
 			String password, 
 			int compId,
 			List<HotZone> hotzones) {
 		try {
+			
+			String writerLabel = "";
+			if (hotzones.size() > 0) {
+				HotZone zone = hotzones.get(0);
+				writerLabel = zone.getTargetGraphName() + " vs " + zone.getSubGraphName();
+				logger.info(writerLabel + " starts");
+				logger.info("Hotzone to write: " + hotzones.size());
+			} else {
+				logger.info("Empty zones");
+				return true;
+			}
+			
+			
 			Class.forName("com.mysql.jdbc.Driver");
 			Connection connect = DriverManager.getConnection(url, username, password);
 			String query = "INSERT INTO result_table2 (comp_id, sub, sid, target, tid, s_start, s_centroid, s_centroid_line, s_centroid_caller, s_end, s_trace, " +
@@ -133,7 +146,8 @@ public class DBConnector {
 					"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			
 			PreparedStatement pStmt = connect.prepareStatement(query);
-			for (int i = 0; i < hotzones.size(); i++) {
+			int hotSize = hotzones.size();
+			for (int i = 0; i < hotSize; i++) {
 				HotZone hotzone = hotzones.get(i);
 				pStmt.setInt(1, compId);
 				pStmt.setString(2, hotzone.getSubGraphName());
@@ -157,18 +171,18 @@ public class DBConnector {
 				pStmt.setDouble(20, hotzone.getSimilarity());
 				
 				pStmt.addBatch();
-				
-				if ((i % 100) == 0) {
-					pStmt.executeBatch();
-				}
 			}
 			pStmt.executeBatch();
 			
 			pStmt.close();
 			connect.close();
+			
+			logger.info(writerLabel + " ends");
+			return true;
 		} catch (Exception ex) {
 			logger.error("Exception: ", ex);
 		}
+		return false;
 	}
 	
 	public static void main(String args[]) {

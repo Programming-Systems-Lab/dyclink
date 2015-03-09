@@ -30,7 +30,7 @@
   "labelmapDir": "./labelmap",
   "resultDir": "./results",
   "debugDir": "./debug",
-  "cacheDir": "/Users/mikefhsu/ccws/MIBTester/cache",
+  "cacheDir": "/Users/mikefhsu/Mike/Research/ec2/mib_sandbox_v2/cache",
   "controlWeight": 1.0,
   "instDataWeight": 1.0,
   "writeDataWeight": 1.0,
