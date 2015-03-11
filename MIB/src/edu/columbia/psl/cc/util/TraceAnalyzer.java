@@ -10,8 +10,10 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -31,6 +33,8 @@ public class TraceAnalyzer {
 	
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 	
+	private static String header = "MethodPair,Seg_thresh,Avg_seg,Sim_thresh,Sim,Lines/Clone";
+	
 	private File searchFile(List<String> possibleDirs, final String fileEnd) {
 		FilenameFilter ff = new FilenameFilter() {
 			@Override
@@ -49,6 +53,34 @@ public class TraceAnalyzer {
 			}
 		}
 		return null;
+	}
+	
+	public MethodTrace constructLineTrace(Collection<InstNode> insts) {
+		MethodTrace mt = new MethodTrace();
+		
+		HashMap<String, TreeSet<Integer>> lineTraceMap = new HashMap<String, TreeSet<Integer>>();
+		for (InstNode inst: insts) {
+			String methodName = inst.getFromMethod();
+			
+			if (lineTraceMap.containsKey(methodName)) {
+				lineTraceMap.get(methodName).add(inst.getLinenumber());
+			} else {
+				TreeSet<Integer> lineTrace = new TreeSet<Integer>();
+				lineTrace.add(inst.getLinenumber());
+				lineTraceMap.put(methodName, lineTrace);
+			}
+		}
+		
+		int sum = 0;
+		for (String methodName: lineTraceMap.keySet()) {
+			int lineNum = lineTraceMap.get(methodName).size();
+			sum += lineNum;
+		}
+		
+		mt.unitTrace = lineTraceMap;
+		mt.lineSum = sum;
+		
+		return mt;
 	}
 	
 	public void analyzeResult(String url, String username, String password, int compId) {
@@ -82,44 +114,29 @@ public class TraceAnalyzer {
 					"ORDER BY rt.sub, rt.sid, rt.target, rt.tid, rt.similarity;";*/
 			
 			String query = "SELECT rt.* FROM result_table2 rt " +
-					"INNER JOIN (SELECT sub, sid, target, MAX(similarity) as sim " +
+					"INNER JOIN (SELECT sub, target, MAX(similarity) as sim " +
 					"FROM result_table2 " +
-					"WHERE comp_id=? and seg_size >=20 and target NOT LIKE '%ejml%' and sub NOT LIKE '%ejml%' and similarity >= ? " +
-					"GROUP BY sub, sid, target) max_rec " +
-					"ON rt.sub = max_rec.sub and rt.sid = max_rec.sid and rt.target = max_rec.target and rt.similarity = max_rec.sim " +
+					"WHERE comp_id=? and seg_size >=? and (target LIKE '%ejml%' or sub NOT LIKE '%ejml%') and similarity >= ? " +
+					"GROUP BY sub, target) max_rec " +
+					"ON rt.sub = max_rec.sub and rt.target = max_rec.target and rt.similarity = max_rec.sim " +
 					"WHERE comp_id=?;";
 					//"ORDER BY rt.sub, rt.sid, rt.target, rt.tid, rt.t_start_caller, rt.t_centroid_caller, rt.t_end_caller, rt.similarity;";
 			
+			int instThreshold = 300;
+			double simThreshold = 0.795;
+			
 			PreparedStatement pStmt = connect.prepareStatement(query);
 			pStmt.setInt(1, compId);
-			pStmt.setDouble(2, MIBConfiguration.getInstance().getSimThreshold());
-			pStmt.setInt(3, compId);
+			pStmt.setInt(2, instThreshold);
+			pStmt.setDouble(3, simThreshold);
+			pStmt.setInt(4, compId);
 			ResultSet result = pStmt.executeQuery();
 			
-			HashMap<String, TreeSet<Integer>> subCache = new HashMap<String, TreeSet<Integer>>();
-			HashMap<String, double[]> subInfoCache = new HashMap<String, double[]>();
-			HashMap<String, GraphTemplate> targetCache = new HashMap<String, GraphTemplate>();
+			HashMap<String, GraphTemplate> graphCache = new HashMap<String, GraphTemplate>();
+			HashMap<String, double[]> graphInfoCache = new HashMap<String, double[]>();
 			
-			Comparator<TraceObject> traceSorter = new Comparator<TraceObject>() {
-				public int compare(TraceObject to1, TraceObject to2) {
-					String subRep1 = to1.sub + "-" + to1.subTrace.toString();
-					String subRep2 = to2.sub + "-" + to2.subTrace.toString();
-					int subCompare = subRep1.compareTo(subRep2);
-					if (subCompare != 0)
-						return subCompare;
-					else {
-						String targetRep1 = to1.target + "-" + to1.targetTrace.toString();
-						String targetRep2 = to2.target + "-" + to2.targetTrace.toString();
-						int targetCompare = targetRep1.compareTo(targetRep2);
-						if (targetCompare != 0)
-							return targetCompare;
-						else {
-							return 0;
-						}
-					}
-				}
-			};
-			TreeMap<TraceObject, Double> traceMap = new TreeMap<TraceObject, Double>(traceSorter);
+			//TreeMap<TraceObject, Double> traceMap = new TreeMap<TraceObject, Double>(traceSorter);
+			HashMap<TreeSet<String>, TraceObject> traceMap = new HashMap<TreeSet<String>, TraceObject>();
 			while (result.next()) {
 				//Get graph object
 				String subId = result.getString("sid").replace("-", ":") + ".json";
@@ -131,62 +148,88 @@ public class TraceAnalyzer {
 				double similarity = result.getDouble("similarity");
 				double staticSimilarity = result.getDouble("static_dist");
 				
-				TreeSet<Integer> subTrace = null;
-				String subLabel = null;
-				double degree = 0;
-				if (!subCache.containsKey(subId)) {
-					File subFile = searchFile(possibleDirs, subId);
-					//System.out.println("Test id: " + subId);
-					GraphTemplate subGraph = GsonManager.readJsonGeneric(subFile, graphToken);
-					//System.out.println("Test graph name: " + subGraph.getMethodName());
-					
-					subTrace = new TreeSet<Integer>();
-					for (InstNode inst: subGraph.getInstPool()) {
-						subTrace.add(inst.getLinenumber());
-					}
-					double[] subInfo = {subGraph.getVertexNum(), subGraph.getEdgeNum()};
-					subLabel = subGraph.getVertexNum() + ":" + subGraph.getEdgeNum();
-					subCache.put(subId, subTrace);
-					subInfoCache.put(subId, subInfo);
-					degree = subInfo[1]/subInfo[0];
+				TreeSet<String> traceKey = new TreeSet<String>();
+				traceKey.add(subName);
+				traceKey.add(targetName);
+				
+				TraceObject traceObject = null;
+				if (traceMap.containsKey(traceKey)) {
+					traceObject = traceMap.get(traceKey);
 				} else {
-					subTrace = subCache.get(subId);
-					double[] subInfo = subInfoCache.get(subId);
-					subLabel = subInfo[0] + ":" + subInfo[1];
-					degree = subInfo[1]/subInfo[0];
+					traceObject = new TraceObject();
+					traceObject.rep.put(subName, subId);
+					traceObject.rep.put(targetName, targetId);
+					traceMap.put(traceKey, traceObject);
 				}
 				
-				if (degree < 1) {
-					//System.out.println("Give up pair: " + subName + " vs " + targetName);
-					//System.out.println("Sub degree: " + degree);
+				traceObject.segSizes.add(segSize);
+				traceObject.similarities.add(similarity);
+				
+				String graphLabel = null;
+				double degree = 0;
+				GraphTemplate subGraph = null;
+				if (!graphCache.containsKey(subId)) {
+					File subFile = searchFile(possibleDirs, subId);
+					//System.out.println("Test id: " + subId);
+					subGraph = GsonManager.readJsonGeneric(subFile, graphToken);
+					//System.out.println("Test graph name: " + subGraph.getMethodName());
+					GraphConstructor reconstructor = new GraphConstructor();
+					reconstructor.reconstructGraph(subGraph, false);
+					reconstructor.cleanObjInit(subGraph);
+					MethodTrace mt = this.constructLineTrace(subGraph.getInstPool());
+					subGraph.methodTrace = mt;
+					
+					/*double[] subInfo = {subGraph.getVertexNum(), subGraph.getEdgeNum()};
+					graphLabel = subGraph.getVertexNum() + ":" + subGraph.getEdgeNum();
+					
+					graphCache.put(subId, subGraph);
+					graphInfoCache.put(subId, subInfo);
+					degree = subInfo[1]/subInfo[0];*/
+				} else {
+					subGraph = graphCache.get(subId);
+				}
+				
+				/*if (degree < 1) {
 					continue ;
+				}*/
+				if (!traceObject.methodsTraceMap.containsKey(subName)) {
+					traceObject.methodsTraceMap.put(subName, subGraph.methodTrace);
+				} else {
+					int currentLinecount = traceObject.methodsTraceMap.get(subName).lineSum;
+					if (subGraph.methodTrace.lineSum > currentLinecount) {
+						traceObject.methodsTraceMap.put(subName, subGraph.methodTrace);
+						traceObject.rep.put(subName, subId);
+					}
 				}
 				
 				GraphTemplate targetGraph = null;
-				if (!targetCache.containsKey(targetId)) {
+				if (!graphCache.containsKey(targetId)) {
 					//System.out.println("Target id: " + targetId);
 					File targetFile = searchFile(possibleDirs, targetId);
 					targetGraph = GsonManager.readJsonGeneric(targetFile, graphToken);
 					GraphConstructor reconstructor = new GraphConstructor();
-					reconstructor.reconstructGraph(targetGraph, true);
+					reconstructor.reconstructGraph(targetGraph, false);
+					reconstructor.cleanObjInit(targetGraph);
+					MethodTrace mt = this.constructLineTrace(targetGraph.getInstPool());
+					targetGraph.methodTrace = mt;
 					//System.out.println("Target graph name: " + targetGraph.getMethodName());
-					targetCache.put(targetId, targetGraph);
+					graphCache.put(targetId, targetGraph);
 				} else {
-					targetGraph = targetCache.get(targetId);
+					targetGraph = graphCache.get(targetId);
 				}
 				
-				String targetLabel = targetGraph.getVertexNum() + ":" + targetGraph.getEdgeNum();
 				List<InstNode> segments = GraphUtil.sortInstPool(targetGraph.getInstPool(), true);
 				int counter = 0;
 				boolean startRecord = false;
-				TreeSet<Integer> targetTrace = new TreeSet<Integer>();
+				List<InstNode> requiredSegments = new ArrayList<InstNode>();
 				for (InstNode s: segments) {
 					if (s.toString().equals(tStartInst)) {
 						startRecord = true;
 					}
 					
 					if (startRecord) {
-						targetTrace.add(s.callerLine);
+						//targetTrace.add(s.callerLine);
+						requiredSegments.add(s);
 						counter++;
 						
 						if (counter == segSize) {
@@ -195,47 +238,56 @@ public class TraceAnalyzer {
 					}
 				}
 				
-				TraceObject to = new TraceObject();
-				to.sub = subName;
-				to.subLabel = subLabel;
-				to.subTrace = subTrace;
-				to.target = targetName;
-				to.targetLabel = targetLabel;
-				to.targetTrace = targetTrace;
-				to.segSize = segSize;
-				to.staticSimilarity = staticSimilarity;
-				
-				if (!traceMap.containsKey(to)) {
-					traceMap.put(to, similarity);
+				MethodTrace targetSegTrace = this.constructLineTrace(requiredSegments);
+				if (!traceObject.methodsTraceMap.containsKey(targetName)) {
+					traceObject.methodsTraceMap.put(targetName, targetSegTrace);
 				} else {
-					if (similarity > traceMap.get(to)) {
-						traceMap.put(to, similarity);
+					int currentLinecount = traceObject.methodsTraceMap.get(targetName).lineSum;
+					if (targetSegTrace.lineSum > currentLinecount) {
+						traceObject.methodsTraceMap.put(targetName, targetSegTrace);
+						traceObject.rep.put(targetName, targetId);
 					}
 				}
 			}
 			
 			StringBuilder sb = new StringBuilder();
-			sb.append("*****************************************************************\n");
-			sb.append(lib1 + " vs " + lib2 + "\n");
-			for (TraceObject to: traceMap.keySet()) {
-				sb.append("Test graph: " + to.sub + " " + to.subLabel + "\n");
-				sb.append("Test line trace: ");
-				sb.append(to.subTrace + "\n");
-				sb.append("Target graph: " + to.target + " " + to.targetLabel + "\n");
-				sb.append("Target line trace: ");
-				sb.append(to.targetTrace + "\n");
-				sb.append("Seg size: " + to.segSize + "\n");
-				sb.append("Static similarity: " + to.staticSimilarity);
-				sb.append("Similarity: " + traceMap.get(to) + "\n");
-				sb.append("========================================\n");
-				sb.append("\n");
+			sb.append(header + "\n");
+			for (TreeSet<String> methods: traceMap.keySet()) {
+				StringBuilder methodPair = new StringBuilder();
+				TraceObject to = traceMap.get(methods);
+				for (String method: methods) {
+					methodPair.append(method + "-");
+				}
+				sb.append(methodPair.substring(0, methodPair.length()) + ",");
+				sb.append(instThreshold + ",");
+				
+				double avgSeg = to.getAvgSegSize();
+				sb.append(avgSeg + ",");
+				
+				sb.append(simThreshold + ",");
+				double avgSim = to.getAvgSim();
+				sb.append(avgSim + ",");
+				
+				int lineSum = 0;
+				for (String methodName: to.methodsTraceMap.keySet()) {
+					MethodTrace mt = to.methodsTraceMap.get(methodName);
+					lineSum += mt.lineSum;
+				}
+				double avgLine = ((double)lineSum)/to.methodsTraceMap.size();
+				sb.append(avgLine + "\n");
+				
+				System.out.println("Method pair: " + methodPair.toString());
+				System.out.println("Method rep: " + to.rep);
+				System.out.println("Method trace:");
+				for (String m: to.methodsTraceMap.keySet()) {
+					System.out.println(m);
+					System.out.println(to.methodsTraceMap.get(m).unitTrace);
+				}
+				System.out.println();
 			}
-			sb.append("*****************************************************************\n");
-			sb.append("\n");
-			//System.out.println(sb.toString());
 			
 			String compName = lib1 + "-" + lib2;
-			File f = new File(MIBConfiguration.getInstance().getResultDir() + "/" + compName + ".txt");
+			File f = new File(MIBConfiguration.getInstance().getResultDir() + "/" + compName + ".csv");
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
 			bw.append(sb.toString());
 			bw.flush();
@@ -287,52 +339,54 @@ public class TraceAnalyzer {
 	}
 	
 	public static class TraceObject {
-		public String sub;
 		
-		public String subLabel;
+		public TreeMap<String, String> rep = new TreeMap<String, String>();
 		
-		public TreeSet<Integer> subTrace;
+		public TreeMap<String, MethodTrace> methodsTraceMap = 
+				new TreeMap<String, MethodTrace>();
 		
-		public String target;
+		public List<Integer> segSizes = new ArrayList<Integer>();
 		
-		public String targetLabel;
+		public List<Double> staticDist = new ArrayList<Double>();
 		
-		public TreeSet<Integer> targetTrace;
+		public List<Double> similarities = new ArrayList<Double>();
 		
-		public double staticSimilarity;
+		public String methods() {
+			return methodsTraceMap.keySet().toString();
+		}
 		
-		public int segSize;
-		
-		@Override
-		public boolean equals(Object o) {
-			if (!(o instanceof TraceObject)) {
-				return false;
+		public double getAvgSegSize() {
+			int sum = 0;
+			for (Integer i: segSizes) {
+				sum += i.intValue();
 			}
 			
-			TraceObject to = (TraceObject) o;
-			if (!to.sub.equals(this.sub))
-				return false;
-			
-			if (!to.subTrace.equals(this.subTrace))
-				return false;
-			
-			if (!to.target.equals(this.target))
-				return false;
-			
-			if (!to.targetTrace.equals(this.targetTrace))
-				return false;
-			
-			return true;
+			return ((double)sum)/segSizes.size();
 		}
 		
-		@Override
-		public int hashCode() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(this.sub + "-");
-			sb.append(this.subTrace.toString() + "-");
-			sb.append(this.target + "-");
-			sb.append(this.targetTrace.toString());
-			return sb.toString().hashCode();
+		public double getAvgStaticDist() {
+			double sum = 0.0;
+			for (Double d: staticDist) {
+				sum += d.doubleValue();
+			}
+			
+			return sum/staticDist.size();
 		}
+		
+		public double getAvgSim() {
+			double sum = 0.0;
+			for (Double d: similarities) {
+				sum += d.doubleValue();
+			}
+			
+			return sum/similarities.size();
+		}
+	}
+	
+	public static class MethodTrace {
+		
+		public HashMap<String, TreeSet<Integer>> unitTrace;
+		
+		public int lineSum;
 	}
 }

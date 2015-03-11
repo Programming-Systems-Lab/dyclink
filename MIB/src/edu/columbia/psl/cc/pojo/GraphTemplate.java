@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import edu.columbia.psl.cc.datastruct.InstPool;
+import edu.columbia.psl.cc.util.TraceAnalyzer.MethodTrace;
 
 public class GraphTemplate {
 	
@@ -52,9 +54,7 @@ public class GraphTemplate {
 	
 	public transient HashMap<String, GraphTemplate> calleeRequired;
 	
-	public transient HashSet<ReducedNode> aggs = new HashSet<ReducedNode>();
-	
-	public transient HashSet<InstNode> nodeInAggs = new HashSet<InstNode>();
+	public transient MethodTrace methodTrace;
 	
 	/*private Map<String, HashSet<InstNode>> firstReadFields;
 	

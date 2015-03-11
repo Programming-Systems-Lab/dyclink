@@ -60,18 +60,22 @@ public class ObjectIdAllocater {
 		objectIdMemory.remove(curThreadId);
 	}*/
 	
-	/*public static int getIndex(Object target) {
+	/*public static void genIndex(Object target) {
 		Class<?> targetClass = target.getClass();
 		try {
-			int newId = indexer.getAndIncrement();
 			Field idField = targetClass.getDeclaredField(MIBConfiguration.getMibId());
 			idField.setAccessible(true);
-			idField.setInt(target, newId);
-			return newId;
+			
+			int curId = idField.getInt(target);
+			if (curId > 0) {
+				return ;
+			} else {
+				int newId = indexer.getAndIncrement();
+				idField.setInt(target, newId);
+			}
 		} catch (Exception ex) {
 			logger.error("Exception: ", ex);
 		}
-		return - 1;
 	}*/
 	
 	public static int getClassMethodIndex(String className, String methodName, String desc) {

@@ -139,7 +139,7 @@ public class MethodStackRecorder {
 		//this.smm = GlobalRecorder.getStaticMethodMiner(this.shortMethodKey);
 		//this.threadId = Thread.currentThread().getId();
 		
-		this.staticMethod = isStatic;
+		this.staticMethod = isStatic;		
 		this.objId = objId;
 		
 		ClassInfoCollector.initiateClassMethodInfo(className, 
@@ -688,10 +688,6 @@ public class MethodStackRecorder {
 		Type[] args = cmi.args;
 		Type rType = cmi.returnType;
 		int endIdx = cmi.endIdx;
-		
-		if (owner.contains("RawQRDecompositor") && name.equals("applicableTo")) {
-			logger.info("----------Check endIdx: " + endIdx);
-		}
 		
 		try {
 			//String ownerName = owner.replace("/", ".");
@@ -1315,10 +1311,6 @@ public class MethodStackRecorder {
 		if (this.stopRecord)
 			return ;
 		
-		if (!this.staticMethod && objId <=0) {
-			logger.error("Check non-static method with 0 objId: " + this.methodKey);
-		}
-		
 		if (GlobalRecorder.checkUndersizedMethod(this.shortMethodKey)) {
 			logger.info("Leave " + " undersized" +
 					" " + this.methodKey + 
@@ -1405,22 +1397,13 @@ public class MethodStackRecorder {
 		gt.setInstPool(this.pool);
 		gt.setDist(dist);
 		
-		logger.info("Total edge count: " + gt.getEdgeNum());
-		logger.info("Total vertex count: " + gt.getVertexNum());
+		//logger.info("Total edge count: " + gt.getEdgeNum());
+		//logger.info("Total vertex count: " + gt.getVertexNum());
 		
 		//String dumpKey = StringUtil.genKeyWithId(this.methodKey, String.valueOf(this.threadId));
 		String dumpKey = StringUtil.genKeyWithId(this.shortMethodKey, String.valueOf(this.threadId));
 		boolean registerLatest = (!this.methodName.equals("<clinit>"));
 		GlobalRecorder.registerGraph(dumpKey, gt, registerLatest);
-		
-		/*if (this.methodName.equals(clinit)) {
-			GlobalRecorder.registerLoadedClass(StringUtil.cleanPunc(this.className, "."), 
-					dumpKey);
-		}*/
-		
-		/*if (this.recursive) {
-			GlobalRecorder.registerRecursiveMethod(dumpKey);
-		}*/
 		
 		//Debugging, check graph group
 		if (MIBConfiguration.getInstance().isDebug()) {
@@ -1435,7 +1418,7 @@ public class MethodStackRecorder {
 		}
 		
 		//gt.calleeCache = this.calleeCache;
-		this.showStackSimulator();
+		//this.showStackSimulator();
 		logger.info("Leave " + 
 				" " + this.methodKey + 
 				" " + this.threadId + 

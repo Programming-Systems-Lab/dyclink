@@ -214,8 +214,10 @@ public class StringUtil {
 	public static void main (String[] args) {
 		//String name = "1234:6.json";
 		//System.out.println("Remove 6: " + removeUUID(name));
-		String name = "SvdImplicitQrDecompose_D64";
-		System.out.println(cleanPunc(name, "."));
+		//String name = "SvdImplicitQrDecompose_D64";
+		//System.out.println(cleanPunc(name, "."));
+		String name = "sun/util/PreHashedMap";
+		System.out.println("Include: " + StringUtil.shouldIncludeClass(name.replace("/", ".")));
 	}
 
 }

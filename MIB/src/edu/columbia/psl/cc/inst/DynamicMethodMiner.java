@@ -27,6 +27,8 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	private static String methodStackRecorder = Type.getInternalName(MethodStackRecorder.class);
 	
+	private static String globalRecorder = Type.getInternalName(GlobalRecorder.class);
+	
 	//private static String virtualRecorder = Type.getInternalName(ReplayMethodStackRecorder.class);
 	
 	private static String srHandleCommon = MIBConfiguration.getSrHandleCommon();
@@ -389,13 +391,14 @@ public class DynamicMethodMiner extends MethodVisitor {
 				this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMibId(), "I");
 			}*/
 			
+			logger.info("Should gen ID: " + (!StringUtil.shouldIncludeClass(superReplace) && genObjId));
 			if (!StringUtil.shouldIncludeClass(superReplace) && genObjId) {
 				/*this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 				this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ObjectIdAllocater.class), 
 						"getIndex", 
 						"(Ljava/lang/Object;)I");*/
-				
+				logger.info("Obj ID holder: " + this.className + " " + this.myName);
 				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 				this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ObjectIdAllocater.class), 
 						"getIndex", 
@@ -408,6 +411,10 @@ public class DynamicMethodMiner extends MethodVisitor {
 			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 			this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, MIBConfiguration.getMibId(), "I");
 			this.mv.visitFieldInsn(Opcodes.PUTFIELD, methodStackRecorder, "objId", "I");
+			
+			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+			this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, MIBConfiguration.getMibId(), "I");
+			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, globalRecorder, "initUnIdGraphs", "(I)V");
 		}
 	}
 	
@@ -635,6 +642,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 			if (owner.equals(this.superName)) {
 				genObjId = true;
 			}
+			logger.info("Possible cand to gen obj id: " + genObjId);
 			this.initConstructor(genObjId);
 			this.superVisited = true;
 			this.aload0Lock = false;

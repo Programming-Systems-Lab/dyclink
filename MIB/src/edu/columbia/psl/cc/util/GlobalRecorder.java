@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
+import org.objectweb.asm.Opcodes;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -54,6 +55,8 @@ public class GlobalRecorder {
 	
 	private static HashMap<Integer, GraphTemplate> latestGraphs = new HashMap<Integer, GraphTemplate>();
 	
+	private static HashMap<Integer, List<GraphTemplate>> unIdChildGraphs = new HashMap<Integer, List<GraphTemplate>>();
+	
 	private static Object timeLock = new Object();
 	
 	private static Object loadClassLock = new Object();
@@ -73,6 +76,8 @@ public class GlobalRecorder {
 	private static Object vRecorderLock = new Object();
 	
 	private static Object graphRecorderLock = new Object();
+	
+	private static Object unIdChildLock = new Object();
 	
 	public static void registerLoadedClass(String className, String shortClinit) {
 		synchronized(loadClassLock) {
@@ -314,6 +319,12 @@ public class GlobalRecorder {
 				int threadId = ObjectIdAllocater.getThreadId();
 				latestGraphs.put(threadId, graph);
 			}
+			
+			//Rarely happens. If the parent constructor calls the child method before child constructor
+			if (!graph.isStaticMethod() && graph.getObjId() == 0) {
+				logger.info("Register method touched before constructor: " + graph.getMethodKey());
+				GlobalRecorder.registerUnIdGraph(graph);
+			}
 		}
 	}
 	
@@ -395,6 +406,55 @@ public class GlobalRecorder {
 	
 	public static HashSet<String> getUntransformedClass() {
 		return untransformedClass;
+	}
+	
+	public static void registerUnIdGraph(GraphTemplate unIdGraph) {
+		synchronized(unIdChildLock) {
+			int threadId = ObjectIdAllocater.getThreadId();
+			
+			if (unIdChildGraphs.containsKey(threadId)) {
+				unIdChildGraphs.get(threadId).add(unIdGraph);
+			} else {
+				List<GraphTemplate> childQueue = new ArrayList<GraphTemplate>();
+				childQueue.add(unIdGraph);
+				unIdChildGraphs.put(threadId, childQueue);
+			}
+		}
+	}
+	
+	public static void initUnIdGraphs(int objId) {
+		List<GraphTemplate> toGives = null;
+		synchronized(unIdChildLock) {
+			int threadId = ObjectIdAllocater.getThreadId();
+			if (!unIdChildGraphs.containsKey(threadId)) {
+				return ;
+			}
+			toGives = unIdChildGraphs.remove(threadId);
+		}
+		
+		//Rarely happens...
+		if (toGives != null) {
+			for (GraphTemplate toGive: toGives) {
+				toGive.setObjId(objId);
+				
+				for (InstNode inst: toGive.getInstPool()) {
+					int opcode = inst.getOp().getOpcode();
+					if (opcode == Opcodes.GETFIELD || opcode == Opcodes.PUTFIELD) {
+						try {
+							String[] parsedInfo = inst.getAddInfo().split(":");
+							String newInfo = parsedInfo[0];
+							int curObjId = Integer.valueOf(parsedInfo[parsedInfo.length - 1]);
+							if (curObjId == 0) {
+								newInfo = newInfo + ":" + objId;
+							}
+							inst.setAddInfo(newInfo);
+						} catch (Exception ex) {
+							logger.info("Exception: " + ex);
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	public static void clearContext() {
