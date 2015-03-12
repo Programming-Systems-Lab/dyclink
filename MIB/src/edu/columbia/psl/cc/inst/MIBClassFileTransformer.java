@@ -45,9 +45,9 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 		//Check protection domain
 		if (protectionDomain != null) {			
 			String codeLocation = protectionDomain.getCodeSource().getLocation().getPath();
-			//System.out.println("Class name: " + className);
-			//System.out.println("Code location: " + codeLocation);
-			//System.out.println("Is test class: " + StringUtil.isTestClass(codeLocation));
+			/*System.out.println("Class name: " + className);
+			System.out.println("Code location: " + codeLocation);
+			System.out.println("Is test class: " + StringUtil.isTestClass(codeLocation));*/
 			if (StringUtil.isTestClass(codeLocation)) {
 				MIBConfiguration.getInstance().getExcludeClass().add(name);
 				return classfileBuffer;

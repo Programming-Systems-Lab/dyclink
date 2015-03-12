@@ -170,10 +170,10 @@ public class MethodStackRecorder {
 			}
 		}
 		
-		logger.info("Enter " + 
+		/*logger.info("Enter " + 
 				" " + this.methodKey + 
 				" " + this.threadId + 
-				" " + this.threadMethodId);
+				" " + this.threadMethodId);*/
 		
 		//Load possible clinit
 		if (this.methodName.equals(init)) {
@@ -799,7 +799,7 @@ public class MethodStackRecorder {
 					
 					if (childGraph.getObjId() == this.objId 
 							&& childGraph.getShortMethodKey().equals(this.shortMethodKey)) {
-						logger.info("Recursive object: " + this.objId + " " + this.shortMethodKey);
+						//logger.info("Recursive object: " + this.objId + " " + this.shortMethodKey);
 						GlobalRecorder.registerRecursiveMethod(childGraph.getShortMethodKey());
 					}
 					
@@ -876,7 +876,7 @@ public class MethodStackRecorder {
 				}
 			}
 		} catch (Exception ex) {
-			logger.error("Exception: ", ex);
+			logger.error("Exception: " + this.methodName + " " + this.threadId + " " + this.threadMethodId, ex);
 		}
 	}
 	
@@ -1419,10 +1419,10 @@ public class MethodStackRecorder {
 		
 		//gt.calleeCache = this.calleeCache;
 		//this.showStackSimulator();
-		logger.info("Leave " + 
+		/*logger.info("Leave " + 
 				" " + this.methodKey + 
 				" " + this.threadId + 
-				" " + this.threadMethodId);
+				" " + this.threadMethodId);*/
 	}
 	
 	private void serializeGraphs(String dumpKey, GraphTemplate gt) {
