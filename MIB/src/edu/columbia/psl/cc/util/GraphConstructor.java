@@ -318,7 +318,7 @@ public class GraphConstructor {
 		//File testFile = new File("./test/cern.colt.matrix.linalg.Algebra:hypot:0:0:130.json");
 		//File testFile = new File("/Users/mikefhsu/Mike/Research/ec2/mib_sandbox/jama_graphs/Jama.EigenvalueDecomposition:<init>:0:1:1515059.json");
 		//File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64:decompose:0:0:14.json");
-		File testFile = new File("/Users/mikefhsu/Mike/Research/ec2/mib_sandbox_v2/ejml_graphs/org.ejml.alg.dense.decomposition.svd.implicitqr.SvdImplicitQrAlgorithm:performImplicitSingleStep:0:3:10943694.json");
+		File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/cc.expbase.TemplateMethod:forMethod:0:0:8.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
 		GraphConstructor constructor = new GraphConstructor();
 		constructor.reconstructGraph(testGraph, true);

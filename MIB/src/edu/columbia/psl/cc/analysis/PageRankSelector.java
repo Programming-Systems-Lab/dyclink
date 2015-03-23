@@ -771,7 +771,7 @@ public class PageRankSelector {
 			logger.info("Graph name with profiler idx: " + this.graph.getMethodKey() + " " + this.profilerIdx);
 			GraphConstructor constructor = new GraphConstructor();
 			constructor.reconstructGraph(this.graph, true);
-			constructor.cleanObjInit(this.graph);
+			constructor.cleanObjInit(this.graph);			
 			return profileGraph();
 		}
 		
@@ -781,6 +781,7 @@ public class PageRankSelector {
 				return null;
 			}
 			List<InstNode> sortedSub = GraphUtil.sortInstPool(this.graph.getInstPool(), true);
+			
 			InstNode startSub = sortedSub.get(0);
 			InstNode endSub = sortedSub.get(sortedSub.size() - 1);
 			

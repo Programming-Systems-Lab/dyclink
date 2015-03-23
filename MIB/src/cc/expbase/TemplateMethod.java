@@ -24,7 +24,7 @@ public class TemplateMethod extends TemplateParent {
 	
 	private int iVar;
 	
-	private double iDouble;
+	private double iDouble = 17.569;
 	
 	ArrayList<Integer> fakeList = new ArrayList<Integer>();
 	
@@ -126,9 +126,9 @@ public class TemplateMethod extends TemplateParent {
 	}
 	
 	public int doubleIf(double input) {
-		int ret = 54;
-		if (input > 0) {
-			ret = 1;
+		int ret = 0;
+		if (input > 1) {
+			ret = 2;
 		} else {
 			ret = 0;
 		}

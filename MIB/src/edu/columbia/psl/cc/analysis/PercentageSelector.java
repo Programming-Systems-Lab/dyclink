@@ -10,9 +10,7 @@ import edu.columbia.psl.cc.pojo.InstNode;
 
 public class PercentageSelector {
 	
-	private static double percentThresh = 0.80;
-	
-	public static List<InstNode> selectImportantInsts(List<InstWrapper> instsWithPg) {
+	public static List<InstNode> selectImportantInsts(List<InstWrapper> instsWithPg, double percentThresh) {
 		double curSum = 0;
 		List<InstNode> selected = new ArrayList<InstNode>();
 		
@@ -27,16 +25,15 @@ public class PercentageSelector {
 		return selected;
 	}
 	
-	public static List<InstWrapper> selectImportantInstWrappers(List<InstWrapper> instsWithPg) {
+	public static List<InstWrapper> selectImportantInstWrappers(List<InstWrapper> instsWithPg, double percentThresh) {
 		double curSum = 0;
+		int instNum = (int)(instsWithPg.size() * percentThresh);
 		List<InstWrapper> selected = new ArrayList<InstWrapper>();
 		
-		for (InstWrapper iw: instsWithPg) {
+		for (int i = 0; i < instNum; i++) {
+			InstWrapper iw = instsWithPg.get(i);
 			selected.add(iw);
 			curSum += iw.pageRank;
-			
-			if (curSum >= percentThresh)
-				break;
 		}
 		
 		return selected;
