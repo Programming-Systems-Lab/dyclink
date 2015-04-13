@@ -401,8 +401,9 @@ public class TemplateMethod extends TemplateParent {
 		String init = "<init>";
 		System.out.println(init.equals("<init>"));*/
 		TemplateMethod tm = new TemplateMethod();
-		tm.forMethod();
-		tm.multiply(1, 2);
+		//tm.call3();
+		//tm.forMethod();
+		tm.multiply(8, 1);
 		//tm.doObject(tm);
 		//tm.call1();
 		/*byte a = 1;

@@ -3,6 +3,7 @@ package edu.columbia.psl.cc.util;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import org.apache.log4j.Logger;
 
@@ -24,13 +25,42 @@ public class NetworkAnalyzer {
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 	
 	public static void main(String[] args) {
-		double printPercent = 0.1;
+		Scanner scanner = new Scanner(System.in);
+		
+		System.out.println("Lib1:");
+		String lib1 = scanner.nextLine();
+		
+		System.out.println("Lib2:");
+		String lib2 = scanner.nextLine();
+		
+		System.out.println("Target id:");
+		String targetId = scanner.nextLine();
+		
+		System.out.println("Target start instruction:");
+		String targetStart = scanner.nextLine();
+		
+		System.out.println("Target seg size:");
+		int targetSegSize = Integer.valueOf(scanner.nextLine());
+		
+		System.out.println("Sub id:");
+		String subId = scanner.nextLine();
+		
+		System.out.println("Percentage of instructions:");
+		double printPercent = Double.valueOf(scanner.nextLine());
+		
+		List<String> possibleDirs = new ArrayList<String>();
+		possibleDirs.add(TraceAnalyzer.graphRepo + lib1);
+		possibleDirs.add(TraceAnalyzer.graphRepo + lib2);
+		File targetFile = TraceAnalyzer.searchFile(possibleDirs, targetId);
+		File subFile = TraceAnalyzer.searchFile(possibleDirs, subId);
+		
+		/*double printPercent = 0.1;
 		String targetDir = "/Users/mikefhsu/Mike/Research/ec2/mib_sandbox_v3/commonmath_graphs/";
 		String subDir = "/Users/mikefhsu/Mike/Research/ec2/mib_sandbox_v3/jama_graphs/";
 		
 		String targetGraphName = "org.apache.commons.math3.linear.SingularValueDecomposition:<init>:0:2:5596616.json";
 		String targetStart = "org.apache.commons.math3.linear.SingularValueDecomposition:<init>:(Lorg.apache.commons.math3.linear.RealMatrix):V 2 5596616 376 21 iload 10";
-		String targetCentroid = "org.apache.commons.math3.linear.SingularValueDecomposition:<init>:(Lorg.apache.commons.math3.linear.RealMatrix):V 2 5596616 673 99 dadd ";
+		//String targetCentroid = "org.apache.commons.math3.linear.SingularValueDecomposition:<init>:(Lorg.apache.commons.math3.linear.RealMatrix):V 2 5596616 673 99 dadd ";
 		String subGraphName = "Jama.Matrix:solve:0:1:3811439.json";
 		
 		int targetSegSize = 390;
@@ -40,7 +70,7 @@ public class NetworkAnalyzer {
 		
 		//Load graph template
 		File targetFile = new File(targetFileName);
-		File subFile = new File(subFileName);
+		File subFile = new File(subFileName);*/
 		
 		//Construct the full graph
 		//Clean object init
@@ -96,21 +126,21 @@ public class NetworkAnalyzer {
 				counter++;
 			}
 			
-			if (inst.toString().equals(targetCentroid)) {
+			/*if (inst.toString().equals(targetCentroid)) {
 				isCentroid = true;
 			}
 			
 			if (start && !isCentroid) {
 				before++;
-			}
+			}*/
 			
 			if (counter == targetSegSize) {
 				break;
 			}
 		}
 		System.out.println("Target seg size: " + targetSeg.size());
-		System.out.println("Before: " + before);
-		System.out.println("After: " + (targetSeg.size() - before - 1));
+		//System.out.println("Before: " + before);
+		//System.out.println("After: " + (targetSeg.size() - before - 1));
 		
 		PageRankSelector targetSelector = new PageRankSelector(targetSeg, true, true);
 		List<InstWrapper> targetRank = targetSelector.computePageRank();

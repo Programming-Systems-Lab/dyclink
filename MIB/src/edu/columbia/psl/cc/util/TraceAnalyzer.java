@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -29,15 +30,16 @@ import edu.columbia.psl.cc.pojo.InstNode;
 
 public class TraceAnalyzer {
 	
-	private static String graphRepo = "/Users/mikefhsu/Mike/Research/ec2/mib_sandbox_v3/";
+	public static String graphRepo = "/Users/mikefhsu/Mike/Research/ec2/mib_sandbox_v3/";
 	
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 	
-	private static String header = "Method1,M1Trace,M1LOC,Method2,M2Trace,M2LOC";
+	private static String header = "target,tid,t_start,t_trace,tLOC,sub,sid,s_centroid,s_strace,sLOC,inst_size,similarity";
 	
 	private static String summaryHeader = "Insts,Similarity,# Clones,LOC,LOC/Clone";
 	
-	private File searchFile(List<String> possibleDirs, final String fileEnd) {
+	public static File searchFile(List<String> possibleDirs, String fileName) {
+		final String fileEnd = ":" + fileName + ".json";
 		FilenameFilter ff = new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
@@ -57,7 +59,7 @@ public class TraceAnalyzer {
 		return null;
 	}
 	
-	public MethodTrace constructLineTrace(Collection<InstNode> insts) {
+	public MethodTrace constructLineTrace(Collection<InstNode> insts, boolean clean) {
 		MethodTrace mt = new MethodTrace();
 		
 		HashMap<String, TreeSet<Integer>> lineTraceMap = new HashMap<String, TreeSet<Integer>>();
@@ -76,6 +78,59 @@ public class TraceAnalyzer {
 				TreeSet<Integer> instTrace = new TreeSet<Integer>();
 				instTrace.add(inst.getIdx());
 				instTraceMap.put(methodName, instTrace);
+			}
+		}
+		
+		if (clean) {
+			int gapLimit = 15;
+			for (String methodName: lineTraceMap.keySet()) {
+				TreeSet<Integer> lineTrace = lineTraceMap.get(methodName);
+				
+				List<Integer> lineBackup = new ArrayList<Integer>(lineTrace);
+				
+				int curNumber = -1;
+				int mid = lineBackup.size()/2;
+				int start = 0;
+				int end = lineBackup.size();
+				for (int i = mid; i >= 0; i--) {
+					int tmp = lineBackup.get(i);
+					if (curNumber == -1) {
+						curNumber = tmp;
+					} else {
+						int gap = curNumber - tmp;
+						if (gap > gapLimit) {
+							start = i + 1;
+							System.out.println("Break start: " + start);
+							break ;
+						}
+						curNumber = tmp;
+					}
+				}
+				
+				curNumber = -1;
+				for (int i = mid; i < lineBackup.size(); i++) {
+					int tmp = lineBackup.get(i);
+					if (curNumber == -1) {
+						curNumber = tmp;
+					} else {
+						int gap = tmp - curNumber;
+						if (gap > gapLimit) {
+							end = i;
+							System.out.println("Break end: " + end);
+							break ;
+						}
+						curNumber = tmp;
+					}
+				}
+				
+				lineTrace.clear();
+				lineTrace.addAll(lineBackup.subList(start, end));
+				System.out.println("Start: " + start);
+				System.out.println("End: " + end);
+				
+				System.out.println("Original line trace: " + lineBackup);
+				System.out.println("Filtered line trace: " + lineTrace);
+				
 			}
 		}
 		
@@ -159,8 +214,8 @@ public class TraceAnalyzer {
 					"WHERE comp_id=? and seg_size >=? and similarity >= ? " +
 					"GROUP BY sub, target) max_rec " +
 					"ON rt.sub = max_rec.sub and rt.target = max_rec.target and rt.similarity = max_rec.sim and rt.seg_size >= ? " +
-					"WHERE comp_id=?;";
-					//"ORDER BY rt.sub, rt.sid, rt.target, rt.tid, rt.t_start_caller, rt.t_centroid_caller, rt.t_end_caller, rt.similarity;";
+					"WHERE comp_id=? " +
+					"ORDER BY rt.sub, rt.sid, rt.target, rt.tid, rt.s_trace, rt.t_trace;";
 			
 			System.out.println("Inst threshold: " + instThreshold);
 			System.out.println("Similarity threshold: " + simThreshold);
@@ -184,10 +239,11 @@ public class TraceAnalyzer {
 			while (result.next()) {
 				totalCloneNum++;
 				//Get graph object
-				String subId = result.getString("sid").replace("-", ":") + ".json";
+				String subId = result.getString("sid").replace("-", ":");
 				String subName = result.getString("sub");
 				String subTrace = result.getString("s_trace");
-				String targetId = result.getString("tid").replace("-", ":") + ".json";
+				String sCentroidInst = result.getString("s_centroid");
+				String targetId = result.getString("tid").replace("-", ":");
 				String targetName = result.getString("target");
 				String targetTrace = result.getString("t_trace");
 				String tStartInst = result.getString("t_start");
@@ -216,7 +272,7 @@ public class TraceAnalyzer {
 					GraphConstructor reconstructor = new GraphConstructor();
 					reconstructor.reconstructGraph(subGraph, false);
 					reconstructor.cleanObjInit(subGraph);
-					MethodTrace mt = this.constructLineTrace(subGraph.getInstPool());
+					MethodTrace mt = this.constructLineTrace(subGraph.getInstPool(), false);
 					subGraph.methodTrace = mt;
 					graphCache.put(subId, subGraph);
 				} else {
@@ -231,7 +287,7 @@ public class TraceAnalyzer {
 					GraphConstructor reconstructor = new GraphConstructor();
 					reconstructor.reconstructGraph(targetGraph, false);
 					reconstructor.cleanObjInit(targetGraph);
-					MethodTrace mt = this.constructLineTrace(targetGraph.getInstPool());
+					MethodTrace mt = this.constructLineTrace(targetGraph.getInstPool(), false);
 					targetGraph.methodTrace = mt;
 					//System.out.println("Target graph name: " + targetGraph.getMethodName());
 					graphCache.put(targetId, targetGraph);
@@ -261,7 +317,7 @@ public class TraceAnalyzer {
 				System.out.println("Seg size: " + segSize);
 				System.out.println("Real size: " + requiredSegments.size());
 				
-				MethodTrace targetSegTrace = this.constructLineTrace(requiredSegments);
+				MethodTrace targetSegTrace = this.constructLineTrace(requiredSegments, false);
 				double cloneLines = ((double)(subGraph.methodTrace.lineSum + targetSegTrace.lineSum))/2;
 				totalCloneLines += cloneLines;
 				
@@ -281,48 +337,68 @@ public class TraceAnalyzer {
 							gt.sub = subName;
 							gt.subTrace = subTrace;
 							gt.repSubId = subId;
+							gt.subCentroidInst = sCentroidInst;
 							gt.subMethodTrace = subGraph.methodTrace;
 							
 							gt.target = targetName;
 							gt.targetTrace = targetTrace;
 							gt.repTargetId = targetId;
+							gt.targetStartInst = tStartInst;
 							gt.targetMethodTrace = targetSegTrace;
 							
+							gt.instSize = segSize;
+							gt.similarity = similarity;
+							
 							lineTraceMap.put(lineTraceKey, gt);
+							traceObject.maxSim = similarity;
 						}
 					} else {
 						GraphTuple gt = new GraphTuple();
 						gt.sub = subName;
 						gt.subTrace = subTrace;
 						gt.repSubId = subId;
+						gt.subCentroidInst = sCentroidInst;
 						gt.subMethodTrace = subGraph.methodTrace;
 						
 						gt.target = targetName;
 						gt.targetTrace = targetTrace;
 						gt.repTargetId = targetId;
+						gt.targetStartInst = tStartInst;
 						gt.targetMethodTrace = targetSegTrace;
 						
+						gt.instSize = segSize;
+						gt.similarity = similarity;
+						
 						lineTraceMap.put(lineTraceKey, gt);
+						traceObject.maxSim = similarity;
 					}
-				} else {
+				} else if (traceObject.graphMap.size() == 0 || (similarity > traceObject.maxSim)){
+					traceObject.graphMap.clear();
+					
 					HashMap<String, GraphTuple> lineTraceMap = new HashMap<String, GraphTuple>();
 					String lineTraceKey = subTrace + "-" + targetTrace;
 					GraphTuple gt = new GraphTuple();
 					gt.sub = subName;
 					gt.subTrace = subTrace;
 					gt.repSubId = subId;
+					gt.subCentroidInst = sCentroidInst;
 					gt.subMethodTrace = subGraph.methodTrace;
 					
 					gt.target = targetName;
 					gt.targetTrace = targetTrace;
 					gt.repTargetId = targetId;
+					gt.targetStartInst = tStartInst;
 					gt.targetMethodTrace = targetSegTrace;
+					
+					gt.instSize = segSize;
+					gt.similarity = similarity;
 					
 					lineTraceMap.put(lineTraceKey, gt);
 					traceObject.graphMap.put(subTargetKey, lineTraceMap);
+					traceObject.maxSim = similarity;
 					System.out.println("Sub target key: " + subTargetKey);
 					System.out.println("Line trace key: " + lineTraceKey);
-					System.out.println("Target seg trace size: " + targetSegTrace.unitInstTrace);
+					System.out.println("Target seg trace size: " + targetSegTrace.unitInstTrace.size());
 				}
 			}
 			
@@ -331,72 +407,31 @@ public class TraceAnalyzer {
 				TraceObject to = traceMap.get(methodTup);
 				
 				//System.out.println("Clone types #: " + to.graphMap.size());
-				HashMap<String, HashMap<String, TreeSet<Integer>>> totalRecorder = 
-						new HashMap<String, HashMap<String, TreeSet<Integer>>>();
-				HashMap<String, HashMap<String, TreeSet<Integer>>> totalInstRecorder = 
-						new HashMap<String, HashMap<String, TreeSet<Integer>>>();
-				//Only 2 keys: sub + target, target+ sub
+				//Only 1 key left: sub + target or target + sub
 				for (String subTargetKey: to.graphMap.keySet()) {
 					System.out.println("Sub-target key: " + subTargetKey);
-					
-					//Merge line trace under the same sub+target
-					HashMap<String, TreeSet<Integer>> subTraceUnion = new HashMap<String, TreeSet<Integer>>();
-					HashMap<String, TreeSet<Integer>> subInstTraceUnion = new HashMap<String, TreeSet<Integer>>();
-					
-					HashMap<String, TreeSet<Integer>> targetTraceUnion = new HashMap<String, TreeSet<Integer>>();
-					HashMap<String, TreeSet<Integer>> targetInstTraceUnion = new HashMap<String, TreeSet<Integer>>();
-					
+										
 					HashMap<String, GraphTuple> cloneTraceMap = to.graphMap.get(subTargetKey);
 					for (String lineTraceRep: cloneTraceMap.keySet()) {
-						System.out.println("Line trace: " + lineTraceRep);
 						GraphTuple gt = cloneTraceMap.get(lineTraceRep);
+						StringBuilder rawData = new StringBuilder();
+						rawData.append(gt.target + ",");
+						rawData.append(gt.repTargetId + ",");
+						rawData.append(gt.targetStartInst + ",");
+						rawData.append(gt.targetMethodTrace.unitTrace.toString().replace(",", ":") + ",");
+						rawData.append(gt.targetMethodTrace.lineSum + ",");
 						
-						System.out.println("Sub trace: " + gt.subMethodTrace.unitTrace);
-						System.out.println("Sub lines: " + gt.subMethodTrace.lineSum);
-						System.out.println("Sub insts: " + gt.subMethodTrace.instSum);
-						System.out.println("Target seg trace: " + gt.targetMethodTrace.unitTrace);
-						System.out.println("Target lines: " + gt.targetMethodTrace.lineSum);
-						System.out.println("Target insts: " + gt.targetMethodTrace.instSum);
+						rawData.append(gt.sub + ",");
+						rawData.append(gt.repSubId + ",");
+						rawData.append(gt.subCentroidInst + ",");
+						rawData.append(gt.subMethodTrace.unitTrace.toString().replace(",", ":") + ",");
+						rawData.append(gt.subMethodTrace.lineSum + ",");
+						rawData.append(gt.instSize + ",");
+						rawData.append(gt.similarity + "\n");
 						
-						this.combineMap(gt.subMethodTrace.unitTrace, subTraceUnion);
-						this.combineMap(gt.subMethodTrace.unitInstTrace, subInstTraceUnion);
-						
-						this.combineMap(gt.targetMethodTrace.unitTrace, targetTraceUnion);
-						this.combineMap(gt.targetMethodTrace.unitInstTrace, targetInstTraceUnion);
-					}
-					
-					String[] keys = subTargetKey.split("-");
-					if (totalRecorder.size() == 0) {
-						totalRecorder.put(keys[0], subTraceUnion);
-						totalInstRecorder.put(keys[0], subInstTraceUnion);
-						
-						totalRecorder.put(keys[1], targetTraceUnion);
-						totalInstRecorder.put(keys[1], targetInstTraceUnion);
-					} else {
-						HashMap<String, TreeSet<Integer>> preSub = totalRecorder.get(keys[0]);
-						this.combineMap(subTraceUnion, preSub);
-						HashMap<String, TreeSet<Integer>> preSubInsts = totalInstRecorder.get(keys[0]);
-						this.combineMap(subInstTraceUnion, preSubInsts);
-						
-						HashMap<String, TreeSet<Integer>> preTarget = totalRecorder.get(keys[1]);
-						this.combineMap(targetTraceUnion, preTarget);
-						HashMap<String, TreeSet<Integer>> preTargetInsts = totalInstRecorder.get(keys[1]);
-						this.combineMap(targetInstTraceUnion, preTargetInsts);
+						sb.append(rawData.toString());
 					}
 				}
-				
-				System.out.println("Combined result");
-				for (String methodKey: totalRecorder.keySet()) {
-					System.out.println("Method: " + methodKey);
-					HashMap<String, TreeSet<Integer>> lineTrace = totalRecorder.get(methodKey);
-					int lineNumber = this.sumUp(totalRecorder.get(methodKey));
-					//int instNumber = this.sumUp(totalInstRecorder.get(methodKey));
-					System.out.println("Line trace: " + totalRecorder.get(methodKey));
-					System.out.println("Line number:" + this.sumUp(totalRecorder.get(methodKey)));
-					//System.out.println("Inst number: " + this.sumUp(totalInstRecorder.get(methodKey)));
-					sb.append(methodKey + "," + lineTrace.toString().replace(",", ":") + "," + lineNumber + ",");
-				}
-				sb.append("\n");
 				System.out.println();
 			}
 			double avgLinePerClone = totalCloneLines/totalCloneNum;
@@ -514,6 +549,8 @@ public class TraceAnalyzer {
 		//public HashMap<String, GraphTuple> graphMap = new HashMap<String, GraphTuple>();
 		
 		public HashMap<String, HashMap<String, GraphTuple>> graphMap = new HashMap<String, HashMap<String, GraphTuple>>();
+		
+		public double maxSim;
 	}
 	
 	public static class MethodTrace {
@@ -533,9 +570,13 @@ public class TraceAnalyzer {
 		
 		public String repSubId;
 		
+		public String subCentroidInst;
+		
 		public String target;
 		
 		public String repTargetId;
+		
+		public String targetStartInst;
 		
 		public String subTrace;
 		
@@ -544,6 +585,10 @@ public class TraceAnalyzer {
 		private MethodTrace subMethodTrace;
 		
 		private MethodTrace targetMethodTrace;
+		
+		private int instSize;
+		
+		private double similarity;
 		
 		public void setSubMethodTrace(MethodTrace subMethodTrace) {
 			this.subMethodTrace = subMethodTrace;

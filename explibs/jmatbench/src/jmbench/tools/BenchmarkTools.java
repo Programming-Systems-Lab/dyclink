@@ -204,7 +204,7 @@ public class BenchmarkTools {
         if(verbose)
             System.out.println("Memory = "+allocatedMemory+" MB");
 
-        /*String []params = new String[10];
+        String []params = new String[10];
         params[0] = app;
         params[1] = "-server";
         params[2] = "-Xms"+allocatedMemory+"M";
@@ -214,9 +214,9 @@ public class BenchmarkTools {
         params[6] = "jmbench.tools.EvaluatorSlave";
         params[7] = "case.xml";
         params[8] = Integer.toString(numTrials);
-        params[9] = Long.toString(requestID);*/
+        params[9] = Long.toString(requestID);
         
-        String []params = new String[13];
+        /*String []params = new String[13];
         params[0] = app;
         params[1] = "-javaagent:lib/mib.jar";
         params[2] = "-XX:-UseSplitVerifier";
@@ -229,7 +229,7 @@ public class BenchmarkTools {
         params[9] = "jmbench.tools.EvaluatorSlave";
         params[10] = "case.xml";
         params[11] = Integer.toString(numTrials);
-        params[12] = Long.toString(requestID);
+        params[12] = Long.toString(requestID);*/
         
         return params;
     }
