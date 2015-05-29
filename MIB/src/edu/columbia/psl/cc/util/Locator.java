@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 
+import org.apache.log4j.Logger;
+
 import edu.columbia.psl.cc.analysis.StaticTester;
 import edu.columbia.psl.cc.analysis.PageRankSelector.GraphProfile;
 import edu.columbia.psl.cc.analysis.PageRankSelector.SegInfo;
@@ -21,6 +23,8 @@ public class Locator {
 	private static double staticThreshold = MIBConfiguration.getInstance().getStaticThreshold();
 	
 	private static int simStrat = MIBConfiguration.getInstance().getSimStrategy();
+	
+	private static Logger logger = Logger.getLogger(Locator.class);
 	
 	public static int getInstructionOp(InstNode inst) {
 		if (simStrat == MIBConfiguration.INST_STRAT) {
@@ -179,7 +183,8 @@ public class Locator {
 			
 			//Temporarily set it as 0.8. Not consider the too-short assignment
 			if (seg.size() < subProfile.pgRep.length * 0.8) {
-				//logger.info("Give up too-short assignment: " + inst + " size " + seg.size());
+				//System.out.println("Give up too-short assignment: " + inst + " size " + seg.size() + " " + subProfile.pgRep.length);
+				//logger.info("Give up too-short assignment: " + inst + " size " + seg.size() + " " + subProfile.pgRep.length);
 				continue ;
 			} else {				
 				//Ori is with same size, seg is with a little buffer

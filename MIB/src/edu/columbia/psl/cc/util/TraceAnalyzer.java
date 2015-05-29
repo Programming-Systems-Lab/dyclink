@@ -39,7 +39,7 @@ public class TraceAnalyzer {
 	private static String summaryHeader = "Insts,Similarity,# Clones,LOC,LOC/Clone";
 	
 	public static File searchFile(List<String> possibleDirs, String fileName) {
-		final String fileEnd = ":" + fileName + ".json";
+		final String fileEnd = ":" + fileName + ".json";	
 		FilenameFilter ff = new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {

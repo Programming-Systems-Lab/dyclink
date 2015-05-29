@@ -364,8 +364,10 @@ public class TemplateMethod extends TemplateParent {
 	
 	public void forMethod() {
 		for (int i = 0; i < 3; i++) {
-			//int c = this.add2(i);
-			int d = this.doubleIf(i);
+			for (int j = 0; j < 5; j++) {
+				//int c = this.add2(i);
+				int d = this.doubleIf(i);
+			}
 		}
 	}
 	
@@ -402,8 +404,8 @@ public class TemplateMethod extends TemplateParent {
 		System.out.println(init.equals("<init>"));*/
 		TemplateMethod tm = new TemplateMethod();
 		//tm.call3();
-		//tm.forMethod();
-		tm.multiply(8, 1);
+		tm.forMethod();
+		//tm.multiply(8, 1);
 		//tm.doObject(tm);
 		//tm.call1();
 		/*byte a = 1;

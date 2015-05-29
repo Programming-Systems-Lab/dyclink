@@ -1,6 +1,6 @@
 package cc.expbase;
 
-public class MyObject {
+public class MyObject2 {
 	
 	private int[] myArray;
 	
@@ -20,7 +20,7 @@ public class MyObject {
 		return ret;
 	}
 	
-	public int addObj(MyObject mo) {
+	public int addObj(MyObject2 mo) {
 		if (mo.myI <= 5) {
 			int ret = mo.myI - 5 + mo.myJ;
 			ret *= mo.myI;
@@ -31,23 +31,25 @@ public class MyObject {
 		}
 	}
 	
+	public int setAndSum(int[] arr) {
+		this.myArray = arr;
+		
+		int ret = 0;
+		for (int i = 0; i < arr.length; i++) {
+			ret += arr[i];
+		}
+		
+		return ret;
+	}
+	
 	public static void main(String[] args) {
-		MyObject mo = new MyObject();
+		MyObject2 mo = new MyObject2();
 		//int[] arr = {1, 2};
 		//mo.setAndSum(arr);
-		/*for (int i = 0; i < 10; i++) {
-			mo.myI = i;
-			mo.myJ = 1;
-			System.out.println(mo.addObj(mo));
-			System.out.println(mo.add(i, 1));
-		}*/
-		
 		mo.myI = 2;
 		mo.myJ = 1;
 		System.out.println(mo.addObj(mo));
 		System.out.println(mo.add(2, 1));
-		
 	}
 
 }
-
