@@ -110,7 +110,7 @@ public class Locator {
 		
 		return ret;
 	}
-	
+			
 	public static HashMap<InstNode, SegInfo> locateSegments(HashSet<InstNode> assignments, 
 			List<InstNode> sortedTarget, 
 			GraphProfile subProfile) {
@@ -120,7 +120,7 @@ public class Locator {
 		InstNode subStartNode = subProfile.startInst;
 		int expStartOp = getInstructionOp(subStartNode);
 		InstNode subCentroid = subProfile.centroidWrapper.inst;
-		int expCentroidOpcode = subCentroid.getOp().getOpcode();
+		//int expCentroidOpcode = subCentroid.getOp().getOpcode();
 		InstNode subEndNode = subProfile.endInst;
 		int expEndOp = getInstructionOp(subEndNode);
 		
@@ -131,9 +131,9 @@ public class Locator {
 			int endIdx = -1;
 			boolean match = true;
 			StringBuilder lineBuilder = new StringBuilder();
-			int realCentroidOpcode = inst.getOp().getOpcode();
+			/*int realCentroidOpcode = inst.getOp().getOpcode();
 			if (realCentroidOpcode != expCentroidOpcode)
-				match = false;
+				match = false;*/
 			
 			for (int i = 0; i < sortedTarget.size(); i++) {
 				InstNode curNode = sortedTarget.get(i);

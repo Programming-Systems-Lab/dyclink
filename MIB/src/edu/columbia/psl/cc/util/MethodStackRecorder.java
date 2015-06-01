@@ -195,11 +195,7 @@ public class MethodStackRecorder {
 			this.firstReadLocalVars.add(localVarIdxKey);
 		}
 	}
-		
-	private void updatePath(InstNode fullInst) {
-		//this.path.add(fullInst);
-	}
-		
+			
 	private void updateCachedMap(InstNode parent, InstNode child, int depType) {
 		if (depType == MIBConfiguration.INST_DATA_DEP) {
 			parent.increChild(child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
@@ -345,7 +341,6 @@ public class MethodStackRecorder {
 		//this.updateTime(fullInst);
 		
 		this.updateControlRelation(fullInst);
-		this.updatePath(fullInst);
 		
 		this.updateStackSimulator(times, fullInst);
 		//this.showStackSimulator();
@@ -401,7 +396,6 @@ public class MethodStackRecorder {
 		fullInst.setLinenumber(this.linenumber);
 		//this.updateTime(fullInst);
 		this.updateControlRelation(fullInst);
-		this.updatePath(fullInst);
 		
 		if (BytecodeCategory.readFieldCategory().contains(opcat) && objId >= 0) {
 			//Add info for field: owner + name + desc + objId
@@ -470,7 +464,6 @@ public class MethodStackRecorder {
 		fullInst.setLinenumber(this.linenumber);
 		//this.updateTime(fullInst);
 		this.updateControlRelation(fullInst);
-		this.updatePath(fullInst);
 		
 		int inputSize = oo.getInList().size();
 		if (inputSize > 0) {
@@ -551,7 +544,6 @@ public class MethodStackRecorder {
 			//Dup inst will be replaced later. No need to add any dep
 			this.updateControlRelation(fullInst);
 		}
-		this.updatePath(fullInst);
 		
 		//The store instruction will be the sink. The inst on the stack will be source
 		boolean hasUpdate = false;
@@ -629,7 +621,6 @@ public class MethodStackRecorder {
 		//this.updateTime(fullInst);
 		
 		this.updateControlRelation(fullInst);
-		this.updatePath(fullInst);
 		
 		for (int i = 0; i < dim; i++) {
 			InstNode tmpInst = this.safePop();

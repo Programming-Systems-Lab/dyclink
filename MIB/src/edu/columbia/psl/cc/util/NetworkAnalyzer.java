@@ -15,6 +15,7 @@ import edu.columbia.psl.cc.analysis.InstWrapper;
 import edu.columbia.psl.cc.analysis.JaroWinklerDistance;
 import edu.columbia.psl.cc.analysis.PageRankSelector;
 import edu.columbia.psl.cc.analysis.PercentageSelector;
+import edu.columbia.psl.cc.analysis.StaticTester;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
@@ -53,25 +54,7 @@ public class NetworkAnalyzer {
 		possibleDirs.add(TraceAnalyzer.graphRepo + lib2);
 		File targetFile = TraceAnalyzer.searchFile(possibleDirs, targetId);
 		File subFile = TraceAnalyzer.searchFile(possibleDirs, subId);
-		
-		/*double printPercent = 0.1;
-		String targetDir = "/Users/mikefhsu/Mike/Research/ec2/mib_sandbox_v3/commonmath_graphs/";
-		String subDir = "/Users/mikefhsu/Mike/Research/ec2/mib_sandbox_v3/jama_graphs/";
-		
-		String targetGraphName = "org.apache.commons.math3.linear.SingularValueDecomposition:<init>:0:2:5596616.json";
-		String targetStart = "org.apache.commons.math3.linear.SingularValueDecomposition:<init>:(Lorg.apache.commons.math3.linear.RealMatrix):V 2 5596616 376 21 iload 10";
-		//String targetCentroid = "org.apache.commons.math3.linear.SingularValueDecomposition:<init>:(Lorg.apache.commons.math3.linear.RealMatrix):V 2 5596616 673 99 dadd ";
-		String subGraphName = "Jama.Matrix:solve:0:1:3811439.json";
-		
-		int targetSegSize = 390;
-		
-		String targetFileName = targetDir + targetGraphName;
-		String subFileName = subDir + subGraphName;
-		
-		//Load graph template
-		File targetFile = new File(targetFileName);
-		File subFile = new File(subFileName);*/
-		
+				
 		//Construct the full graph
 		//Clean object init
 		GraphTemplate targetGraph = GsonManager.readJsonGeneric(targetFile, graphToken);

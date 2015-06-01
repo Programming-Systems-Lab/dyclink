@@ -694,10 +694,13 @@ public class PageRankSelector {
 		
 		public GraphTemplate graph;
 		
+		//The geographic start
 		public InstNode startInst;
 		
+		//The inst with highest pg
 		public InstWrapper centroidWrapper;
 		
+		//The geographic end
 		public InstNode endInst;
 		
 		public int before;
@@ -888,11 +891,12 @@ public class PageRankSelector {
 			}
 			
 			List<Double> simCollector = new ArrayList<Double>();
+			int expCentroidOpcode = subProfile.centroidWrapper.inst.getOp().getOpcode();
 			for (InstNode cand: candSegs.keySet()) {
 				SegInfo segInfo = candSegs.get(cand);
 				List<InstNode> segments = segInfo.seg;
 				InstPool segPool = new InstPool();
-				//segPool.addAll(segments);
+				
 				for (InstNode segInst: segments) {
 					segPool.add(segInst);
 				}
@@ -900,6 +904,8 @@ public class PageRankSelector {
 				PageRankSelector ranker = new PageRankSelector(segPool, true, true);
 				List<InstWrapper> ranks = ranker.computePageRank();
 				int[] candPGRep = SearchUtil.generatePageRankRep(ranks);
+				int realCentroidOpcode = ranks.get(0).inst.getOp().getOpcode();
+				boolean centerMatch = (expCentroidOpcode == realCentroidOpcode);
 				
 				/*List<InstWrapper> selectedRanks = PercentageSelector.selectImportantInstWrappers(ranks);
 				int[] candPGRep = SearchUtil.generatePageRankRep(selectedRanks);*/
@@ -917,7 +923,7 @@ public class PageRankSelector {
 					sim = 0;
 				} else {
 					JaroWinklerDistance measurer = null;
-					if (segInfo.match) {
+					if (segInfo.match && centerMatch) {
 						measurer = new JaroWinklerDistance(0.8, 5);
 					} else {
 						measurer = new JaroWinklerDistance();
