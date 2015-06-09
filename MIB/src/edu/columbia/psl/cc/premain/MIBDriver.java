@@ -27,7 +27,9 @@ import com.google.gson.reflect.TypeToken;
 import edu.columbia.psl.cc.analysis.HorizontalMerger;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.InstPool;
+import edu.columbia.psl.cc.pojo.FieldRecord;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
+import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.NameMap;
 import edu.columbia.psl.cc.pojo.StaticMethodMiner;
 import edu.columbia.psl.cc.util.Analyzer;
@@ -128,6 +130,12 @@ public class MIBDriver {
 			logger.info("Select dominant graphs: " + targetClass);
 			selectDominantGraphs();
 			
+			if (MIBConfiguration.getInstance().isFieldTrack()) {
+				//Construct relations between w and r fields
+				logger.info("Construct global edges");
+				constructGlobalRelations();
+			}
+			
 			updateConfig();
 			
 			if (mConfig.isOverallAnalysis()) {
@@ -201,6 +209,18 @@ public class MIBDriver {
 		
 		//HorizontalMerger.startExtraction(allGraphs);
 		HorizontalMerger.startExtractionFast(allGraphs);
+	}
+	
+	public static void constructGlobalRelations() {
+		HashMap<String, FieldRecord> globalRelations = GlobalRecorder.getAllFieldRelations();
+		for (FieldRecord fr: globalRelations.values()) {
+			InstNode wInst = fr.getWriteInst();
+			InstNode rInst = fr.getReadInst();
+			double freq = fr.getFreq();
+			wInst.increChild(rInst.getThreadId(), rInst.getThreadMethodIdx(), rInst.getIdx(), freq);
+			rInst.registerParent(wInst.getThreadId(), wInst.getThreadMethodIdx(), wInst.getIdx(), MIBConfiguration.WRITE_DATA_DEP);
+			System.out.println(wInst + " " + rInst);
+		}
 	}
 	
 	public static void selectDominantGraphsWithTestMethodName(String testName) {

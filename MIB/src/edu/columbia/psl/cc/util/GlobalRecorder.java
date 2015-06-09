@@ -2,10 +2,12 @@ package edu.columbia.psl.cc.util;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,6 +19,7 @@ import org.objectweb.asm.Opcodes;
 import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.pojo.FieldRecord;
 import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
@@ -46,8 +49,10 @@ public class GlobalRecorder {
 	
 	private static HashMap<String, AtomicInteger> shortNameCounter = new HashMap<String, AtomicInteger>();
 	
-	private static HashMap<String, InstNode> globalWriteFieldRecorder = new HashMap<String, InstNode>();
+	private static HashMap<String, InstNode> writeFieldMap = new HashMap<String, InstNode>();
 	
+	private static FieldRecorder fRecorder = new FieldRecorder();
+		
 	private static HashSet<String> recursiveMethodRecorder = new HashSet<String>();
 	
 	//private static HashMap<String, List<GraphTemplate>> graphRecorder = new HashMap<String, List<GraphTemplate>>();
@@ -121,83 +126,56 @@ public class GlobalRecorder {
 		}
 	}
 	
-	public static void updateGlobalWriteFieldRecorder(String field, InstNode writeNode) {
+	public static void registerWriteField(String field, InstNode writeField) {
 		synchronized(writeFieldLock) {
-			globalWriteFieldRecorder.put(field, writeNode);
+			writeFieldMap.put(field, writeField);
 		}
 	}
 	
-	public static InstNode getWriteFieldNode(String field) {
+	public static InstNode getWriteField(String field) {
 		synchronized(writeFieldLock) {
-			return globalWriteFieldRecorder.get(field);
+			return writeFieldMap.get(field);
 		}
 	}
 	
-	public static void replaceWriteFieldNodes(GraphTemplate graph, InstNode replace) {
+	public static void registerAllWriteFields(HashMap<String, InstNode> writeFields) {
 		synchronized(writeFieldLock) {
-			HashMap<String, String> writeNodes = graph.getLatestWriteFields();
-			
-			logger.info("Replacement for under-sized graph: " + graph.getMethodKey());
-			for (String writeField: writeNodes.keySet()) {
-				InstNode curNode = graph.getInstPool().searchAndGet(writeNodes.get(writeField));
-				InstNode globalNode = globalWriteFieldRecorder.get(writeField);
-				
-				if (globalNode != null && curNode.equals(globalNode)) {
-					globalWriteFieldRecorder.put(writeField, replace);
-					logger.info(globalNode + " => " + replace); 
-				}
+			writeFieldMap.putAll(writeFields);
+		}
+	}
+	
+	public static void removeWriteFields(Collection<String> fields) {
+		synchronized(writeFieldLock) {
+			for (String f: fields) {
+				writeFieldMap.remove(f);
 			}
 		}
 	}
-	
-	/**
-	 * Consider to use observer pattern in next version
-	 * @param graph
-	 */
-	public static void replaceWriteFieldNodes(GraphTemplate graph) {
+		
+	public static void registerRWFieldHistory(InstNode writeInst, InstNode readInst) {
 		synchronized(writeFieldLock) {
-			HashMap<String, String> writeNodes = graph.getLatestWriteFields();
-			
-			logger.info("Replacement for graph group: " + graph.getMethodKey());
-			//HashSet<String> toRemove = new HashSet<String>();
-			HashSet<InstNode> toRemove = new HashSet<InstNode>();
-			for (String writeField: writeNodes.keySet()) {
-				InstNode curNode = graph.getInstPool().searchAndGet(writeNodes.get(writeField));
-				InstNode globalNode = globalWriteFieldRecorder.get(writeField);
-				
-				InstNode remove = new InstNode();
-				remove.setFromMethod(globalNode.getFromMethod());
-				remove.setThreadId(globalNode.getThreadId());
-				remove.setThreadMethodIdx(globalNode.getThreadMethodIdx());
-				toRemove.add(remove);
-				/*String globalId = StringUtil.genIdxKey(globalNode.getFromMethod(), 
-						globalNode.getThreadId(), globalNode.getThreadMethodIdx(), globalNode.getIdx());
-				toRemove.add(globalId);*/
-				
-				globalWriteFieldRecorder.put(writeField, curNode);
-				logger.info(globalNode + " => " + curNode);
-			}
-			
-			//Ensure the removed node not exist in global record
-			for (String existField: globalWriteFieldRecorder.keySet()) {
-				InstNode existNode = globalWriteFieldRecorder.get(existField);
-				
-				for (InstNode remove: toRemove) {
-					Iterator<String> childKeyIT = existNode.getChildFreqMap().keySet().iterator();
-					while (childKeyIT.hasNext()) {
-						String childKey = childKeyIT.next();
-						String[] parsed = StringUtil.parseIdxKey(childKey);
-						if (Integer.valueOf(parsed[0]) == remove.getThreadId() 
-								&& Integer.valueOf(parsed[1]) == remove.getThreadMethodIdx() 
-								&& Integer.valueOf(parsed[2]) == remove.getIdx()) {
-							childKeyIT.remove();
-						}
-					}
-				}
-			}
+			fRecorder.registerHistory(writeInst, readInst);
 		}
 	}
 	
+	public static void increHistoryFreq(String writeKey, String readKey) {
+		synchronized(writeFieldLock) {
+			fRecorder.increHistoryFreq(writeKey, readKey);
+		}
+	}
+	
+	public static void removeHistory(String writeKey, String readKey) {
+		synchronized(writeFieldLock) {
+			fRecorder.removeHistory(writeKey, readKey);
+		}
+	}
+	
+	public static HashMap<String, FieldRecord> getAllFieldRelations() {
+		synchronized(writeFieldLock) {
+			return fRecorder.getHistory();
+		}
+	}
+				
 	public static String registerGlobalName(String className, String methodName, String fullName) {
 		String shortNameNoKey = StringUtil.cleanPunc(className, ".") + 
 				":" + StringUtil.cleanPunc(methodName);
@@ -305,7 +283,6 @@ public class GlobalRecorder {
 					if (!subRecord.containsKey(groupKey))
 						subRecord.put(groupKey, graph);
 				}
-				//graphRecorder.get(shortKey).add(graph);
 			} else {
 				//List<GraphTemplate> gQueue = new ArrayList<GraphTemplate>();
 				//gQueue.add(graph);
@@ -334,18 +311,7 @@ public class GlobalRecorder {
 			latestGraphs.put(threadId, latestGraph);
 		}
 	}
-	
-	/*public static GraphTemplate getLatestGraph(String shortKey) {
-		synchronized(graphRecorderLock) {
-			List<GraphTemplate> gQueue = graphRecorder.get(shortKey);
-			if (gQueue == null || gQueue.size() == 0)
-				return null;
-			else {
-				return gQueue.get(gQueue.size() - 1);
-			}
-		}
-	}*/
-	
+		
 	public static GraphTemplate getLatestGraph(int threadId) {
 		synchronized(graphRecorderLock) {
 			return latestGraphs.remove(threadId);
@@ -464,7 +430,8 @@ public class GlobalRecorder {
 		}
 		
 		synchronized(writeFieldLock) {
-			globalWriteFieldRecorder.clear();
+			writeFieldMap.clear();
+			fRecorder.cleanRecorder();
 		}
 		
 		synchronized(timeLock) {

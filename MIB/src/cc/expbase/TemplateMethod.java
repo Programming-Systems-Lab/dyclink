@@ -37,6 +37,10 @@ public class TemplateMethod extends TemplateParent {
 	public double[] b = new double[3];
 	
 	public int m = 5;
+	
+	static {
+		
+	}
  	
 	public TemplateMethod() {
 		this("12", 18, "34");
@@ -49,7 +53,6 @@ public class TemplateMethod extends TemplateParent {
 	public static void doNothing(int a) {
 		
 	}
-	
 	
 	public static final YAMethod ya = new YAMethod() {
 		@Override
@@ -158,7 +161,6 @@ public class TemplateMethod extends TemplateParent {
 		ym.addSomething(fakeList);
 	}
 	
-	//@extractTemplate
 	public int fieldTest() {
 		this.iVar = 5;
 		int ret = this.iVar + sVar;
@@ -166,7 +168,6 @@ public class TemplateMethod extends TemplateParent {
 		return ret;
 	}
 	
-	//@extractTemplate
 	public void dummy(int a, int b) {
 		String ret = "";
 		int c = 5;
@@ -403,8 +404,9 @@ public class TemplateMethod extends TemplateParent {
 		String init = "<init>";
 		System.out.println(init.equals("<init>"));*/
 		TemplateMethod tm = new TemplateMethod();
+		tm.fieldTest();
 		//tm.call3();
-		tm.forMethod();
+		//tm.forMethod();
 		//tm.multiply(8, 1);
 		//tm.doObject(tm);
 		//tm.call1();

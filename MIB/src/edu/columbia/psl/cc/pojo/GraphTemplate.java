@@ -45,7 +45,7 @@ public class GraphTemplate {
 	private HashSet<String> firstReadLocalVars;
 	
 	private HashMap<String, String> latestWriteFields;
-	
+		
 	private List<String> methodCalls;
 	
 	private double[] dist;
@@ -56,12 +56,10 @@ public class GraphTemplate {
 	
 	public transient MethodTrace methodTrace;
 	
-	/*private Map<String, HashSet<InstNode>> firstReadFields;
+	public transient HashMap<String, InstNode> writeFields;
 	
-	private Map<String, InstNode> writeFields;
-	
-	private long maxTime;*/
-	
+	public transient HashMap<String, String> fieldRelations;
+		
 	public GraphTemplate() {
 		
 	}
@@ -76,7 +74,7 @@ public class GraphTemplate {
 		this.edgeNum = copy.getEdgeNum();
 		this.staticMethod = copy.isStaticMethod();
 		this.firstReadLocalVars = new HashSet<String>(copy.getFirstReadLocalVars());
-		this.latestWriteFields = new HashMap<String, String>(copy.getLatestWriteFields());
+		//this.latestWriteFields = new HashMap<String, String>(copy.getLatestWriteFields());
 		
 		this.pool = new InstPool();
 		this.path = new ArrayList<InstNode>();
@@ -201,14 +199,14 @@ public class GraphTemplate {
 		return this.firstReadLocalVars;
 	}
 	
-	public void setLatestWriteFields(HashMap<String, String> latestWriteFields) {
+	/*public void setLatestWriteFields(HashMap<String, String> latestWriteFields) {
 		this.latestWriteFields = latestWriteFields;
 	}
 	
 	public HashMap<String, String> getLatestWriteFields() {
 		return this.latestWriteFields;
-	}
-	
+	}*/
+		
 	public void setMethodCalls(List<String> methodCalls) {
 		this.methodCalls = methodCalls;
 	}
@@ -216,22 +214,6 @@ public class GraphTemplate {
 	public List<String> getMethodCalls() {
 		return this.methodCalls;
 	}
-	
-	/*public void setFirstReadFields(Map<String, HashSet<InstNode>> firstReadFields) {
-		this.firstReadFields = firstReadFields;
-	}
-	
-	public Map<String, HashSet<InstNode>> getFirstReadFields() {
-		return this.firstReadFields;
-	}
-	
-	public void setWriteFields(Map<String, InstNode> writeFields) {
-		this.writeFields = writeFields;
-	}
-	
-	public Map<String, InstNode> getWriteFields() {
-		return writeFields;
-	}*/
 	
 	public void setThreadId(int threadId) {
 		this.threadId = threadId;
@@ -264,14 +246,6 @@ public class GraphTemplate {
 	public double[] getDist() {
 		return this.dist;
 	}
-	
-	/*public void setMaxTime(long maxTime) {
-		this.maxTime = maxTime;
-	}
-	
-	public long getMaxTime() {
-		return this.maxTime;
-	}*/
 	
 	public void showGraph() {
 		for (InstNode inst: this.pool) {

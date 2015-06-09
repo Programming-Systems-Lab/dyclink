@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class MethodNode extends InstNode {
@@ -99,15 +100,7 @@ public class MethodNode extends InstNode {
 			this.calleeInfo.parentReplay.put(idx, parentSet);
 		}
 	}
-	
-	/*public void registerChildReplace(InstNode lastBeforeReturn) {
-		String lastString = StringUtil.genIdxKey(lastBeforeReturn.getThreadId(), 
-				lastBeforeReturn.getThreadMethodIdx(), 
-				lastBeforeReturn.getIdx());
 		
-		this.calleeInfo.childIdx = lastString;
-	}*/
-	
 	public void registerDomCalleeIdx(String domCalleeIdx, 
 			double normFreq, 
 			InstNode lastBeforeReturn) {
@@ -139,6 +132,27 @@ public class MethodNode extends InstNode {
 			//Not helpful for current approach, so save some time.
 			gf = this.callees.get(groupKey);
 			gf.freq++;
+			
+			//The rw history of callee has been registered, need to remove
+			HashMap<String, String> cRW = callee.fieldRelations;
+			for (String w: cRW.keySet()) {
+				String r = cRW.get(w);
+				GlobalRecorder.removeHistory(w, r);
+			}
+			
+			//Incre history freq
+			HashMap<String, String> curRW = gf.callee.fieldRelations;
+			for (String w: curRW.keySet()) {
+				String r = curRW.get(w);
+				GlobalRecorder.increHistoryFreq(w, r);
+			}
+			
+			//Remove write fields
+			HashMap<String, InstNode> cWriteFields = callee.writeFields;
+			GlobalRecorder.removeWriteFields(cWriteFields.keySet());
+			
+			//Insert the original relations back
+			GlobalRecorder.registerAllWriteFields(gf.callee.writeFields);
 		} else {
 			gf = new GraphWithFreq();
 			gf.callee = callee;

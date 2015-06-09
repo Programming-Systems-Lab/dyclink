@@ -28,6 +28,9 @@ public class NetworkAnalyzer {
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
 		
+		System.out.println("Base repo: ");
+		String baseRepo = scanner.nextLine();
+		
 		System.out.println("Lib1:");
 		String lib1 = scanner.nextLine();
 		
@@ -50,8 +53,8 @@ public class NetworkAnalyzer {
 		double printPercent = Double.valueOf(scanner.nextLine());
 		
 		List<String> possibleDirs = new ArrayList<String>();
-		possibleDirs.add(TraceAnalyzer.graphRepo + lib1);
-		possibleDirs.add(TraceAnalyzer.graphRepo + lib2);
+		possibleDirs.add(baseRepo + lib1);
+		possibleDirs.add(baseRepo + lib2);
 		File targetFile = TraceAnalyzer.searchFile(possibleDirs, targetId);
 		File subFile = TraceAnalyzer.searchFile(possibleDirs, subId);
 				

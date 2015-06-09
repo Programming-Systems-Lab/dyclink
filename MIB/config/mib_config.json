@@ -30,7 +30,7 @@
   "labelmapDir": "./labelmap",
   "resultDir": "./results",
   "debugDir": "./debug",
-  "cacheDir": "/Users/mikefhsu/Mike/Research/ec2/mib_sandbox_v3/cache",
+  "cacheDir": "./cache",
   "controlWeight": 1.0,
   "instDataWeight": 1.0,
   "writeDataWeight": 1.0,
@@ -49,10 +49,10 @@
   "testMethodThresh": -1,
   "threadInit": 0,
   "threadMethodIdxRecord": {
-    "0": 25
+    "0": 10
   },
   "annotGuard": false,
-  "fieldTrack": false,
+  "fieldTrack": true,
   "cleanTemplate": false,
   "cleanTest": false,
   "templateMode": false,

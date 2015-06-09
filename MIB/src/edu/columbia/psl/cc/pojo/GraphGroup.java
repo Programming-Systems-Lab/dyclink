@@ -7,9 +7,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 public class GraphGroup extends HashMap<String, List<GraphTemplate>>{
-	
-	private static Logger logger = Logger.getLogger(GraphGroup.class);
-		
+			
 	/**
 	 * 
 	 */
@@ -23,12 +21,7 @@ public class GraphGroup extends HashMap<String, List<GraphTemplate>>{
 		return String.valueOf(linenumber) + ":" + nodeNum + ":" + depNum;
 	}
 	
-	public GraphTemplate getGraph(int linenumber, GraphTemplate graph) {
-		if (graph.getLatestWriteFields().size() > 0) {
-			logger.info("Graph writes fields. Choose not to replace: " + graph.getMethodKey() + " " + graph.getThreadId() + " " + graph.getThreadMethodId());
-			return null;
-		}
-		
+	public GraphTemplate getGraph(int linenumber, GraphTemplate graph) {		
 		String groupKey = groupKey(linenumber, graph.getVertexNum(), graph.getEdgeNum());
 		List<GraphTemplate> graphsInGroup = this.get(groupKey);
 		
@@ -38,23 +31,6 @@ public class GraphGroup extends HashMap<String, List<GraphTemplate>>{
 			GraphTemplate existGraph = graphsInGroup.get(0);
 			return existGraph;
 		}
-		
-		/*if (existGraph == null) {
-			return null;
-		} else {
-			return existGraph;
-		}*/
-		
-		/*if (existGraph == null) {
-			return null;
-		} else if (!existGraph.getLatestWriteFields().keySet().equals(graph.getLatestWriteFields().keySet())) {
-			logger.info("Capture similar graph but write fields not matched");
-			logger.info("Exist graph: " + existGraph.getLatestWriteFields().keySet());
-			logger.info("Current graph: " + graph.getLatestWriteFields().keySet());
-			return null;
-		} else {
-			return existGraph;
-		}*/
 	}
 
 	public void addGraph(int linenumber, GraphTemplate graph) {

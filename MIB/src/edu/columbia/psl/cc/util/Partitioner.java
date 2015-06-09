@@ -43,6 +43,9 @@ public class Partitioner {
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
 		
+		System.out.println("Base repo: ");
+		String baseRepo = scanner.nextLine();
+		
 		System.out.println("Lib:");
 		String lib1 = scanner.nextLine();
 		
@@ -50,7 +53,7 @@ public class Partitioner {
 		String targetId = scanner.nextLine();
 		
 		List<String> possibleDir = new ArrayList<String>();
-		possibleDir.add(TraceAnalyzer.graphRepo + lib1);
+		possibleDir.add(baseRepo + lib1);
 		
 		File targetFile = TraceAnalyzer.searchFile(possibleDir, targetId);
 		Partitioner partioner = new Partitioner(targetFile);
