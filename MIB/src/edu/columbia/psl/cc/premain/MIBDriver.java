@@ -126,16 +126,16 @@ public class MIBDriver {
 			logger.info("Dump nameMap: " + targetClass);
 			serializeNameMap();
 			
-			//Dump all graphs in memory
-			logger.info("Select dominant graphs: " + targetClass);
-			selectDominantGraphs();
-			
 			if (MIBConfiguration.getInstance().isFieldTrack()) {
 				//Construct relations between w and r fields
 				logger.info("Construct global edges");
 				constructGlobalRelations();
 			}
 			
+			//Dump all graphs in memory
+			logger.info("Select dominant graphs: " + targetClass);
+			selectDominantGraphs();
+						
 			updateConfig();
 			
 			if (mConfig.isOverallAnalysis()) {

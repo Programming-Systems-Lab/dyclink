@@ -402,7 +402,7 @@ public class MethodStackRecorder {
 				
 				if (writeInst == null) {
 					//Some inst and static fields are possible NOT to be initialized
-					logger.warn("Field access error: cannot find wite inst for " + fullInst);
+					logger.warn("Field access warning: cannot find wite inst for " + fullInst);
 				} else {
 					GlobalRecorder.registerRWFieldHistory(writeInst, fullInst);
 					

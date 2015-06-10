@@ -38,10 +38,6 @@ public class TemplateMethod extends TemplateParent {
 	
 	public int m = 5;
 	
-	static {
-		
-	}
- 	
 	public TemplateMethod() {
 		this("12", 18, "34");
 	}
