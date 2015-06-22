@@ -1,25 +1,13 @@
 package edu.columbia.psl.cc.premain;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.lang.reflect.Method;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.TreeMap;
 import java.util.HashMap;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.JarFile;
-import java.util.zip.ZipOutputStream;
 
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
 import com.google.gson.reflect.TypeToken;
@@ -32,14 +20,9 @@ import edu.columbia.psl.cc.pojo.FieldRecord;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.NameMap;
-import edu.columbia.psl.cc.pojo.StaticMethodMiner;
-import edu.columbia.psl.cc.util.Analyzer;
-import edu.columbia.psl.cc.util.DynamicGraphAnalyzer;
 import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.ObjectIdAllocater;
-import edu.columbia.psl.cc.util.StaticBytecodeCatAnalyzer;
-import edu.columbia.psl.cc.util.TemplateLoader;
 
 public class MIBDriver {
 	

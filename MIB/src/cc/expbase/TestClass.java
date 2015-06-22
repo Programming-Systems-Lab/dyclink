@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 public class TestClass extends TemplateParent {
 	
@@ -33,6 +34,20 @@ public class TestClass extends TemplateParent {
 		k++;
 		
 		int[] a = new int[3];
+		int[] aClone = a.clone();
+		System.out.println("Check type: " + Type.getType("java/util/ArrayList").getSort());
+		System.out.println("Array type: " + Type.ARRAY);
+		System.out.println("Object type: " + Type.OBJECT);
+		System.out.println("Boolean type: " + Type.BOOLEAN);
+		System.out.println("Byte type: " + Type.BYTE);
+		System.out.println("Short type: " + Type.SHORT);
+		System.out.println("Int type: " + Type.INT);
+		System.out.println("Long type: " + Type.LONG);
+		System.out.println("Float type: " + Type.FLOAT);
+		System.out.println("Double type: " + Type.DOUBLE);
+		System.out.println("Method type: " + Type.METHOD);
+		System.out.println("Void type: " + Type.VOID);
+		System.out.println("Char type: " + Type.CHAR);
 		
 		for (int b = 0 ; b < 10; b++) {
 			System.out.println("For loop");

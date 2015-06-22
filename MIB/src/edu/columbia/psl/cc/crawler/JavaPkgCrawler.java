@@ -15,7 +15,7 @@ import edu.columbia.psl.cc.util.GsonManager;
 public class JavaPkgCrawler {
 	
 	//Save 0 for default
-	private static AtomicInteger ai = new AtomicInteger(1);
+	private static AtomicInteger ai = new AtomicInteger(NativePackages.defaultId + 1);
 	
 	public static void main(String[] args) {
 		//String website = args[0];

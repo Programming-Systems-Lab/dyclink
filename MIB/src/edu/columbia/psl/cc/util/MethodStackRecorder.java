@@ -14,6 +14,7 @@ import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.analysis.StaticTester;
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.crawler.NativePackages;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.ClassMethodInfo;
@@ -34,6 +35,8 @@ public class MethodStackRecorder {
 	private static String init = "<init>";
 	
 	private static String clinit = "<clinit>";
+	
+	private static String defaultPkgId = String.valueOf(NativePackages.defaultId);
 		
 	private String className;
 	
@@ -662,9 +665,9 @@ public class MethodStackRecorder {
 		int endIdx = cmi.endIdx;
 		
 		try {
-			//String ownerName = owner.replace("/", ".");
 			String curMethodKey = StringUtil.genKey(owner, name, desc);
 			if (TimeController.isOverTime()) {
+				curMethodKey = StringUtil.genKeyWithId(curMethodKey, defaultPkgId);
 				InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 						this.threadId, 
 						this.threadMethodId, 
@@ -705,6 +708,9 @@ public class MethodStackRecorder {
 						|| !StringUtil.shouldIncludeMethod(name, desc)
 						|| GlobalRecorder.checkUndersizedMethod(GlobalRecorder.getGlobalName(realMethodKey)) 
 						|| GlobalRecorder.checkUntransformedClass(correctClass.getName())) {
+					String pkgName = StringUtil.extractPkg(correctClass.getName());
+					String npId = String.valueOf(GlobalRecorder.getNativePackageId(pkgName));
+					curMethodKey = StringUtil.genKeyWithId(curMethodKey, npId);
 					InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 							this.threadId, 
 							this.threadMethodId, 
@@ -721,6 +727,8 @@ public class MethodStackRecorder {
 				GraphTemplate childGraph = GlobalRecorder.getLatestGraph(this.threadId);
 				if (childGraph == null) {
 					logger.error("No child graph can be retrieved: " + realMethodKey);
+					//Add default np ID
+					curMethodKey = StringUtil.genKeyWithId(curMethodKey, defaultPkgId);
 					InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 							this.threadId, 
 							this.threadMethodId, 
@@ -733,6 +741,8 @@ public class MethodStackRecorder {
 				} else if (!childGraph.getMethodName().equals(name) || !childGraph.getMethodDesc().equals(desc)) {
 					logger.error("Incompatible graph: " + childGraph.getMethodKey());
 					logger.error("Wanted: " + correctClass.getName() + " " + name + " " + desc);
+					//Add default np ID
+					curMethodKey = StringUtil.genKeyWithId(curMethodKey, defaultPkgId);
 					InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 							this.threadId, 
 							this.threadMethodId, 
@@ -941,10 +951,7 @@ public class MethodStackRecorder {
 		if (this.beforeReturn != null) {
 			gt.setLastBeforeReturn(this.beforeReturn);
 			//logger.info("Before return inst: " + this.beforeReturn);
-		} else {
-			//logger.info("No before return inst");
 		}
-		//gt.setPath(this.path);
 		
 		HashMap<String, GraphTemplate> calleeRequired = new HashMap<String, GraphTemplate>();
 		Iterator<InstNode> instIterator = this.pool.iterator();

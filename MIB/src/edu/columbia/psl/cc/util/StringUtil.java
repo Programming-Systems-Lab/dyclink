@@ -119,10 +119,23 @@ public class StringUtil {
 		return searchKey + "-" + objId;
 	}
 	
+	/**
+	 * Append the id to the existing key, used in multiple purposes
+	 * @param key
+	 * @param id
+	 * @return
+	 */
 	public static String genKeyWithId(String key, String id) {
 		return key + ":" + id;
 	}
-	
+		
+	/**
+	 * Generate keys based a method's class name, method name and method desc
+	 * @param className
+	 * @param methodName
+	 * @param methodDesc
+	 * @return
+	 */
 	public static String genKey(String className, String methodName, String methodDesc) {
 		String[] parsedDesc = StringUtil.parseDesc(methodDesc);
 		String key = StringUtil.cleanPunc(className, ".") 
@@ -130,6 +143,12 @@ public class StringUtil {
 				+ ":" + parsedDesc[0] 
 				+ ":" + parsedDesc[1];
 		return key;
+	}
+	
+	public static String extractPkg(String className) {
+		int dotIdx = className.lastIndexOf(".");
+		String pkg = className.substring(0, dotIdx);
+		return pkg;
 	}
 	
 	public static String genIdxKey(int threadId, 
@@ -216,8 +235,10 @@ public class StringUtil {
 		//System.out.println("Remove 6: " + removeUUID(name));
 		//String name = "SvdImplicitQrDecompose_D64";
 		//System.out.println(cleanPunc(name, "."));
-		String name = "sun/util/PreHashedMap";
-		System.out.println("Include: " + StringUtil.shouldIncludeClass(name.replace("/", ".")));
+		//String name = "sun/util/PreHashedMap";
+		//System.out.println("Include: " + StringUtil.shouldIncludeClass(name.replace("/", ".")));
+		String name = "sun.util.PreHashedMap";
+		System.out.println("Pkg name: " + extractPkg(name));
 	}
 
 }

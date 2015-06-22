@@ -227,7 +227,7 @@ public class GlobalRecorder {
 		if (nativePackages.containsKey(packageName)) {
 			return nativePackages.get(packageName);
 		} else {
-			return 0;
+			return NativePackages.defaultId;
 		}
 	}
 		
@@ -294,7 +294,8 @@ public class GlobalRecorder {
 						subRecord.put(groupKey, graph);
 					} else {
 						GraphTemplate inRecord = subRecord.get(groupKey);
-						if (graph.getThreadId() == inRecord.getThreadId() && graph.getThreadMethodId() < inRecord.getThreadMethodId()) {
+						if (graph.getThreadId() == inRecord.getThreadId() 
+								&& graph.getThreadMethodId() < inRecord.getThreadMethodId()) {
 							subRecord.put(groupKey, graph);
 						}
 					}
@@ -303,9 +304,6 @@ public class GlobalRecorder {
 						subRecord.put(groupKey, graph);
 				}
 			} else {
-				//List<GraphTemplate> gQueue = new ArrayList<GraphTemplate>();
-				//gQueue.add(graph);
-				//graphRecorder.put(shortKey, gQueue);
 				HashMap<String, GraphTemplate> subRecord = new HashMap<String, GraphTemplate>();
 				subRecord.put(groupKey, graph);
 				graphRecorder.put(shortKey, subRecord);
