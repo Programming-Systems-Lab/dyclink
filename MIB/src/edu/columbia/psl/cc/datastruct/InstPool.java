@@ -88,6 +88,9 @@ public class InstPool extends TreeSet<InstNode> {
 				newRet.setAddInfo(ret.getAddInfo());
 				newRet.setStartTime(ret.getStartTime());
 				newRet.setUpdateTime(ret.getUpdateTime());
+				
+				//Check this part
+				newRet.setRelatedObj(ret.getRelatedObj());
 				//newRet.setInstDataParentList(ret.getInstDataParentList());
 				//newRet.setControlParentList(ret.getControlParentList());
 				//newRet.setChildFreqMap(ret.getChildFreqMap());

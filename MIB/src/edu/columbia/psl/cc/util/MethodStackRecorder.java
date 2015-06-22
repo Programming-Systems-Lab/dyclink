@@ -1,15 +1,10 @@
 package edu.columbia.psl.cc.util;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
-import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 import org.objectweb.asm.Opcodes;
@@ -21,16 +16,12 @@ import edu.columbia.psl.cc.analysis.StaticTester;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
-import edu.columbia.psl.cc.inst.BlockAnalyzer.Block;
-import edu.columbia.psl.cc.inst.BlockAnalyzer.InstTuple;
 import edu.columbia.psl.cc.pojo.ClassMethodInfo;
 import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
-import edu.columbia.psl.cc.pojo.StaticInitGraphTemplate;
-import edu.columbia.psl.cc.pojo.StaticMethodMiner;
 
 public class MethodStackRecorder {
 	
@@ -59,16 +50,11 @@ public class MethodStackRecorder {
 	private int methodArgSize = 0;
 	
 	private int methodReturnSize = 0;
-	
-	//private StaticMethodMiner smm;
 		
 	private Stack<InstNode> stackSimulator = new Stack<InstNode>();
 	
 	private InstNode curControlInst;
-	
-	//For goto, if next label is not correct, remove the control inst
-	//private boolean checkLabel = false;
-	
+		
 	//Key: local var idx, Val: inst node
 	private Map<Integer, InstNode> localVarRecorder = new HashMap<Integer, InstNode>();
 	
@@ -80,17 +66,13 @@ public class MethodStackRecorder {
 	private HashSet<String> firstReadLocalVars = new HashSet<String>();
 	
 	private HashSet<Integer> shouldRecordReadLocalVars = new HashSet<Integer>();
-	
-	private List<InstNode> path = new ArrayList<InstNode>();
-	
-	private List<String> methodCalls = new ArrayList<String>();
-	
+		
 	protected String curLabel = null;
 	
 	public int linenumber = 0;
 	
 	protected InstPool pool = new InstPool();
-	
+		
 	private InstNode beforeReturn;
 	
 	private int threadId = -1;

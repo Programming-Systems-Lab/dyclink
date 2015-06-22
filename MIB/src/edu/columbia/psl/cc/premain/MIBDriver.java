@@ -26,6 +26,7 @@ import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.analysis.HorizontalMerger;
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.crawler.NativePackages;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.FieldRecord;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
@@ -160,25 +161,35 @@ public class MIBDriver {
 	public static void setupGlobalRecorder() {
 		String fileName = MIBConfiguration.getInstance().getLabelmapDir() + "/nameMap.json";
 		File file = new File(fileName);
-		
-		if (!file.exists()) {
-			return ;
+				
+		if (file.exists()) {
+			TypeToken<NameMap> nameToken = new TypeToken<NameMap>(){};
+			NameMap nameMap = GsonManager.readJsonGeneric(file, nameToken);
+			
+			if (nameMap.getGlobalNameMap() != null)
+				GlobalRecorder.setGlobalNameMap(nameMap.getGlobalNameMap());
+			if (nameMap.getShortNameCounter() != null)
+				GlobalRecorder.setShortNameCounter(nameMap.getShortNameCounter());
+			if (nameMap.getRecursiveMethods() != null)
+				GlobalRecorder.setRecursiveMethods(nameMap.getRecursiveMethods());
+			if (nameMap.getUndersizedMethods() != null)
+				GlobalRecorder.setUndersizedMethods(nameMap.getUndersizedMethods());
+			if (nameMap.getUntransformedClass() != null)
+				GlobalRecorder.setUntransformedClass(nameMap.getUntransformedClass());
+			//System.out.println("Show name map from last execution: " + GlobalRecorder.getGlobalNameMap().size());
 		}
 		
-		TypeToken<NameMap> nameToken = new TypeToken<NameMap>(){};
-		NameMap nameMap = GsonManager.readJsonGeneric(file, nameToken);
-		
-		if (nameMap.getGlobalNameMap() != null)
-			GlobalRecorder.setGlobalNameMap(nameMap.getGlobalNameMap());
-		if (nameMap.getShortNameCounter() != null)
-			GlobalRecorder.setShortNameCounter(nameMap.getShortNameCounter());
-		if (nameMap.getRecursiveMethods() != null)
-			GlobalRecorder.setRecursiveMethods(nameMap.getRecursiveMethods());
-		if (nameMap.getUndersizedMethods() != null)
-			GlobalRecorder.setUndersizedMethods(nameMap.getUndersizedMethods());
-		if (nameMap.getUntransformedClass() != null)
-			GlobalRecorder.setUntransformedClass(nameMap.getUntransformedClass());
-		System.out.println("Show name map from last execution: " + GlobalRecorder.getGlobalNameMap().size());
+		String npFileName = MIBConfiguration.getInstance().getLabelmapDir() + "/nativePackages.json";
+		File npFile = new File(npFileName);
+		if (npFile.exists()) {
+			TypeToken<NativePackages> npToken = new TypeToken<NativePackages>(){};
+			NativePackages nativePackages = GsonManager.readJsonGeneric(npFile, npToken);
+			HashMap<String, Integer> nativeMap = nativePackages.getNativePackages();
+			
+			if (nativeMap != null) {
+				GlobalRecorder.setNativePackages(nativeMap);
+			}
+		}
 	}
 	
 	public static void updateConfig() {

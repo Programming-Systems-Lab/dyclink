@@ -19,6 +19,7 @@ import org.objectweb.asm.Opcodes;
 import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.crawler.NativePackages;
 import edu.columbia.psl.cc.pojo.FieldRecord;
 import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
@@ -40,6 +41,8 @@ public class GlobalRecorder {
 	
 	//Key: full name, Val: short name
 	private static HashMap<String, String> globalNameMap = new HashMap<String, String>();
+	
+	private static HashMap<String, Integer> nativePackages = new HashMap<String, Integer>();
 	
 	private static HashSet<String> undersizedMethods = new HashSet<String>();
 	
@@ -212,10 +215,26 @@ public class GlobalRecorder {
 		return globalNameMap;
 	}
 	
+	public static void setNativePackages(HashMap<String, Integer> nativePackages) {
+		GlobalRecorder.nativePackages = nativePackages;
+	}
+	
+	public static HashMap<String, Integer> getNativePackages() {
+		return nativePackages;
+	}
+	
+	public static int getNativePackageId(String packageName) {
+		if (nativePackages.containsKey(packageName)) {
+			return nativePackages.get(packageName);
+		} else {
+			return 0;
+		}
+	}
+		
 	public static void setShortNameCounter(HashMap<String, Integer> rawCounter) {
 		for (String key: rawCounter.keySet()) {
-			int lastCounter = rawCounter.get(key)
-;			AtomicInteger ai = new AtomicInteger();
+			int lastCounter = rawCounter.get(key);
+			AtomicInteger ai = new AtomicInteger();
 			ai.set(lastCounter);
 			shortNameCounter.put(key, ai);
 		}

@@ -1,21 +1,23 @@
 package edu.columbia.psl.cc.crawler;
 
-import java.util.List;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class NativePackages {
 	
-	private List<String> nativePackages = new ArrayList<String>();
+	//Key: api, Val: id
+	private HashMap<String, Integer> nativePackages = new HashMap<String, Integer>();
 	
-	public void addNativePackage(String nativePackage) {
-		this.nativePackages.add(nativePackage);
+	public void addNativePackage(String nativePackage, int id) {
+		if (!this.nativePackages.containsKey(nativePackage)) {
+			this.nativePackages.put(nativePackage, id);
+		}
 	}
-	
-	public List<String> getNativePackages() {
+		
+	public HashMap<String, Integer> getNativePackages() {
 		return this.nativePackages;
 	}
 	
-	public void setNativePackages(List<String> nativePackages) {
+	public void setNativePackages(HashMap<String, Integer> nativePackages) {
 		this.nativePackages = nativePackages;
 	}
 	
