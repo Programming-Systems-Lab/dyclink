@@ -25,19 +25,7 @@ public class Locator {
 	private static int simStrat = MIBConfiguration.getInstance().getSimStrategy();
 	
 	private static Logger logger = Logger.getLogger(Locator.class);
-	
-	public static int getInstructionOp(InstNode inst) {
-		if (simStrat == MIBConfiguration.INST_STRAT) {
-			return inst.getOp().getOpcode();
-		} else if (simStrat == MIBConfiguration.SUBSUB_STRAT) {
-			return inst.getOp().getSubSubCatId();
-		} else if (simStrat == MIBConfiguration.SUB_STRAT) {
-			return inst.getOp().getSubCatId();
-		} else {
-			return inst.getOp().getCatId();
-		}
-	}
-	
+		
 	public static int searchBetter(int oriIdx, 
 			int expOp, 
 			int centroid, 
@@ -50,7 +38,7 @@ public class Locator {
 				int backward = oriIdx - curExpand;
 				if (backward >= 0) {
 					InstNode check = sortedTarget.get(backward);
-					int checkOp = getInstructionOp(check);
+					int checkOp = SearchUtil.getInstructionOp(check);
 					
 					if (checkOp == expOp) {
 						return backward;
@@ -60,7 +48,7 @@ public class Locator {
 				int forward = oriIdx + curExpand;
 				if (forward <= sortedTarget.size() - 1 && forward <= centroid - 1) {
 					InstNode check = sortedTarget.get(forward);
-					int checkOp = getInstructionOp(check);
+					int checkOp = SearchUtil.getInstructionOp(check);
 					
 					if (checkOp == expOp) {
 						return forward;
@@ -74,7 +62,7 @@ public class Locator {
 				int forward = oriIdx + curExpand;
 				if (forward <= sortedTarget.size() - 1 && forward <= centroid - 1) {
 					InstNode check = sortedTarget.get(forward);
-					int checkOp = getInstructionOp(check);
+					int checkOp = SearchUtil.getInstructionOp(check);
 					
 					if (checkOp == expOp) {
 						return forward;
@@ -84,7 +72,7 @@ public class Locator {
 				int backward = oriIdx - curExpand;
 				if (backward >= 0) {
 					InstNode check = sortedTarget.get(backward);
-					int checkOp = getInstructionOp(check);
+					int checkOp = SearchUtil.getInstructionOp(check);
 					
 					if (checkOp == expOp) {
 						return backward;
@@ -98,11 +86,11 @@ public class Locator {
 	
 	public static HashSet<InstNode> possibleSingleAssignment(InstNode subNode, List<InstNode> targetPool) {
 		HashSet<InstNode> ret = new HashSet<InstNode>();
-		int subId = getInstructionOp(subNode);
+		int subId = SearchUtil.getInstructionOp(subNode);
 		
 		for (InstNode targetNode: targetPool) {
 			
-			int targetId = getInstructionOp(targetNode);			
+			int targetId = SearchUtil.getInstructionOp(targetNode);			
 			if (targetId == subId) {
 				ret.add(targetNode);
 			}
@@ -118,11 +106,11 @@ public class Locator {
 		List<Double> staticScoreRecorder = new ArrayList<Double>();
 		
 		InstNode subStartNode = subProfile.startInst;
-		int expStartOp = getInstructionOp(subStartNode);
+		int expStartOp = SearchUtil.getInstructionOp(subStartNode);
 		InstNode subCentroid = subProfile.centroidWrapper.inst;
 		//int expCentroidOpcode = subCentroid.getOp().getOpcode();
 		InstNode subEndNode = subProfile.endInst;
-		int expEndOp = getInstructionOp(subEndNode);
+		int expEndOp = SearchUtil.getInstructionOp(subEndNode);
 		
 		for (InstNode inst: assignments) {
 			List<InstNode> seg = new ArrayList<InstNode>();
@@ -150,8 +138,8 @@ public class Locator {
 					InstNode startNode = sortedTarget.get(startIdx);
 					InstNode endNode = sortedTarget.get(endIdx);
 					
-					int realStartOp = getInstructionOp(startNode);
-					int realEndOp = getInstructionOp(endNode);
+					int realStartOp = SearchUtil.getInstructionOp(startNode);
+					int realEndOp = SearchUtil.getInstructionOp(endNode);
 					
 					if (realStartOp != expStartOp) {
 						//Search around little bit
@@ -188,7 +176,7 @@ public class Locator {
 				continue ;
 			} else {				
 				//Ori is with same size, seg is with a little buffer
-				double[] segDist = StaticTester.genDistribution(seg, simStrat);
+				double[] segDist = StaticTester.genDistribution(seg);
 				
 				double[] segDistNorm = StaticTester.normalizeDist(segDist, seg.size());
 				double segDistance = StaticTester.normalizeEucDistance(subProfile.normDist, segDistNorm);

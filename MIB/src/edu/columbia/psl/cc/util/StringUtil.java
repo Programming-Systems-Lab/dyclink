@@ -151,6 +151,12 @@ public class StringUtil {
 		return pkg;
 	}
 	
+	public static int extractPkgId(String addInfo) {
+		String[] infoArr = addInfo.split(":");
+		String valString = infoArr[infoArr.length - 1];
+		return Integer.valueOf(valString);
+	}
+	
 	public static String genIdxKey(int threadId, 
 			int threadMethodIdx, 
 			int idx) {

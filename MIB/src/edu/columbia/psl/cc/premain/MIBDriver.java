@@ -162,6 +162,10 @@ public class MIBDriver {
 			//System.out.println("Show name map from last execution: " + GlobalRecorder.getGlobalNameMap().size());
 		}
 		
+		setupNativePackages();
+	}
+	
+	public static void setupNativePackages() {
 		String npFileName = MIBConfiguration.getInstance().getLabelmapDir() + "/nativePackages.json";
 		File npFile = new File(npFileName);
 		if (npFile.exists()) {

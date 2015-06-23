@@ -35,6 +35,7 @@ import edu.columbia.psl.cc.pojo.HotZone;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.NameMap;
+import edu.columbia.psl.cc.premain.MIBDriver;
 import edu.columbia.psl.cc.util.DBConnector.Comparison;
 import edu.columbia.psl.cc.util.DBConnector;
 import edu.columbia.psl.cc.util.GraphConstructor;
@@ -97,21 +98,8 @@ public class PageRankSelector {
 			} else if (i1.pageRank > i2.pageRank) {
 				return -1;
 			} else {
-				int i1Number = -1;
-				int i2Number = -2;
-				if (simStrategy == MIBConfiguration.INST_STRAT) {
-					i1Number = i1.inst.getOp().getOpcode();
-					i2Number = i2.inst.getOp().getOpcode();
-				} else if (simStrategy == MIBConfiguration.SUBSUB_STRAT) {
-					i1Number = i1.inst.getOp().getSubSubCatId();
-					i2Number = i2.inst.getOp().getSubSubCatId();
-				} else if (simStrategy == MIBConfiguration.SUB_STRAT) {
-					i1Number = i1.inst.getOp().getSubCatId();
-					i2Number = i2.inst.getOp().getSubCatId();
-				} else {
-					i1Number = i1.inst.getOp().getCatId();
-					i2Number = i2.inst.getOp().getCatId();
-				}
+				int i1Number = SearchUtil.getInstructionOp(i1.inst);
+				int i2Number = SearchUtil.getInstructionOp(i2.inst);
 				
 				if (i1Number > i2Number) {
 					return 1;
@@ -659,7 +647,11 @@ public class PageRankSelector {
 				System.exit(1);
 			}
 		}
-				
+		
+		if (MIBConfiguration.getInstance().isNativeClass()) {
+			MIBDriver.setupNativePackages();
+		}
+		
 		logger.info("Start PageRank analysis for Bytecode subgraph mining");
 		logger.info("Similarity strategy: " + MIBConfiguration.getInstance().getSimStrategy());
 		logger.info("Assignemnt threshold: " + assignmentThreshold);
@@ -841,7 +833,7 @@ public class PageRankSelector {
 			gp.pgRep = subPGRep;
 			//gp.instDist = subGraph.getDist();
 			//gp.instDist = StaticTester.genDistribution(this.graph.getDist());
-			double[] instDist = StaticTester.genDistribution(this.graph.getInstPool(), simStrategy);
+			double[] instDist = StaticTester.genDistribution(this.graph.getInstPool());
 			gp.normDist = StaticTester.normalizeDist(instDist, subRank.size());
 			//gp.selectedDist = PercentageSelector.selectImportantInsts(subRank);
 			gp.lineTrace = lineTrace;

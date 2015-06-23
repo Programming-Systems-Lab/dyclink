@@ -117,7 +117,7 @@ public class MIBConfiguration {
 	
 	private double writeDataWeight;
 	
-	private int idxExpandFactor;
+	//private int idxExpandFactor;
 	
 	private int precisionDigit;
 	
@@ -167,7 +167,9 @@ public class MIBConfiguration {
 	
 	private boolean reduceGraph;
 	
-	private boolean cacheGraph;
+	//private boolean cacheGraph;
+	
+	private boolean nativeClass;
 	
 	private String dburl;
 	
@@ -369,13 +371,13 @@ public class MIBConfiguration {
 		this.writeDataWeight = writeDataWeight;
 	}
 	
-	public int getIdxExpandFactor() {
+	/*public int getIdxExpandFactor() {
 		return this.idxExpandFactor;
 	}
 	
 	public void setIdxExpandFactor(int idxExpandFactor) {
 		this.idxExpandFactor = idxExpandFactor;
-	}
+	}*/
 
 	public int getPrecisionDigit() {
 		return precisionDigit;
@@ -609,12 +611,20 @@ public class MIBConfiguration {
 		this.reduceGraph = reduceGraph;
 	}
 	
-	public boolean isCacheGraph() {
+	/*public boolean isCacheGraph() {
 		return this.cacheGraph;
 	}
 	
 	public void setCacheGraph(boolean cacheGraph) {
 		this.cacheGraph = cacheGraph;
+	}*/
+	
+	public boolean isNativeClass() {
+		return this.nativeClass;
+	}
+	
+	public void setNativeClass(boolean nativeClass) {
+		this.nativeClass = nativeClass;
 	}
 	
 	public void setDburl(String dburl) {
@@ -649,7 +659,7 @@ public class MIBConfiguration {
 		sb.append("control weigtht: " + this.controlWeight + "\n");
 		sb.append("inst data weigtht: " + this.instDataWeight + "\n");
 		sb.append("write data weight: " + this.writeDataWeight + "\n");
-		sb.append("idx expand factor: " + this.idxExpandFactor + "\n");
+		//sb.append("idx expand factor: " + this.idxExpandFactor + "\n");
 		sb.append("precision digit: " + this.precisionDigit + "\n");
 		sb.append("parallel factor: " + this.parallelFactor + "\n");
 		sb.append("minimum inst number: " + this.instThreshold + "\n");
@@ -669,7 +679,8 @@ public class MIBConfiguration {
 		sb.append("template mode: " + this.templateMode + "\n");
 		sb.append("overall analysis: " + this.overallAnalysis + "\n");
 		sb.append("reduce graph: " + this.reduceGraph + "\n");
-		sb.append("cache graphs: " + this.cacheGraph + "\n");
+		//sb.append("cache graphs: " + this.cacheGraph + "\n");
+		sb.append("native classification: " + this.nativeClass + "\n");
 		sb.append("debug: " + this.debug + "\n");
 		return sb.toString();
 	}

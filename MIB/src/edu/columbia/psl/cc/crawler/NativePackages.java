@@ -10,8 +10,7 @@ import edu.columbia.psl.cc.util.GsonManager;
 
 public class NativePackages {
 	
-	//Rigt after the 255th bytecode, facilitate the static dist calculation
-	public static int defaultId = 256;
+	public static int defaultId = 0;
 	
 	//Key: api, Val: id
 	private HashMap<String, Integer> nativePackages = new HashMap<String, Integer>();

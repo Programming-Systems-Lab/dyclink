@@ -1,18 +1,19 @@
 package edu.columbia.psl.cc.util;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
 import edu.columbia.psl.cc.analysis.InstWrapper;
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 
 public class SearchUtil {
+	
+	private static int simStrat = MIBConfiguration.getInstance().getSimStrategy();
 	
 	public static int[] generateBytecodeFreq(InstPool pool) {
 		int[] ret = new int[256];
@@ -99,18 +100,39 @@ public class SearchUtil {
 		int[] ret = new int[pgList.size()];
 		int counter = 0;
 		for (InstWrapper iw: pgList) {
-			if (MIBConfiguration.getInstance().getSimStrategy() == MIBConfiguration.INST_STRAT) {
-				ret[counter++] = iw.inst.getOp().getOpcode();
-			} else if (MIBConfiguration.getInstance().getSimStrategy() == MIBConfiguration.SUBSUB_STRAT) {
-				ret[counter++] = iw.inst.getOp().getSubSubCatId();
-			} else if (MIBConfiguration.getInstance().getSimStrategy() == MIBConfiguration.SUB_STRAT) {
-				ret[counter++] = iw.inst.getOp().getSubCatId();
-			} else {
-				ret[counter++] = iw.inst.getOp().getCatId();
-			}
-			//ret[counter++] = iw.inst.getOp().getOpcode();
-			//ret[counter++] = iw.inst.getOp().getCatId();
+			int repOp = SearchUtil.getInstructionOp(iw.inst);
+			ret[counter++] = repOp;
 		}
 		return ret;
+	}
+	
+	public static int getInstructionOp(InstNode inst) {
+		boolean nativeClass = MIBConfiguration.getInstance().isNativeClass();
+		
+		if (nativeClass && BytecodeCategory.methodOps().contains(inst.getOp().getOpcode())) {
+			return baseLength() + StringUtil.extractPkgId(inst.getAddInfo());
+		}
+		
+		if (simStrat == MIBConfiguration.INST_STRAT) {
+			return inst.getOp().getOpcode();
+		} else if (simStrat == MIBConfiguration.SUBSUB_STRAT) {
+			return inst.getOp().getSubSubCatId();
+		} else if (simStrat == MIBConfiguration.SUB_STRAT) {
+			return inst.getOp().getSubCatId();
+		} else {
+			return inst.getOp().getCatId();
+		}
+	}
+	
+	public static int baseLength() {
+		if (simStrat == MIBConfiguration.INST_STRAT) {
+			return 256;
+		} else if (simStrat == MIBConfiguration.SUBSUB_STRAT) {
+			return 63;
+		} else if (simStrat == MIBConfiguration.SUB_STRAT) {
+			return 43;
+		} else {
+			return 21;
+		}
 	}
 }

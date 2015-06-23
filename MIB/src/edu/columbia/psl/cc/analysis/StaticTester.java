@@ -1,101 +1,43 @@
 package edu.columbia.psl.cc.analysis;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
+import edu.columbia.psl.cc.util.GlobalRecorder;
+import edu.columbia.psl.cc.util.SearchUtil;
 
 public class StaticTester {
 	
 	private static double eucNorm = Math.sqrt(2);
-	
+		
 	//private static int simStrategy = MIBConfiguration.getInstance().getSimStrategy();
+	
 	
 	/**
 	 * Generate distribution from a collection of instructions
 	 * @param insts
 	 * @return
 	 */
-	public static double[] genDistribution(Collection<InstNode> insts, int simStrategy) {
-		if (simStrategy == MIBConfiguration.INST_STRAT) {
-			double[] ret = new double[256];
-			
-			for (InstNode inst: insts) {
-				ret[inst.getOp().getOpcode()] += 1;
-			}
-			
-			return ret;
-		} else if (simStrategy == MIBConfiguration.SUBSUB_STRAT) {
-			double[] ret = new double[63];
-			
-			for (InstNode inst: insts) {
-				ret[inst.getOp().getSubSubCatId()] += 1;
-			}
-			
-			return ret;
-		} else if (simStrategy == MIBConfiguration.SUB_STRAT) {
-			double[] ret = new double[43];
-			
-			for (InstNode inst: insts) {
-				ret[inst.getOp().getSubCatId()] += 1;
-			}
-			
-			return ret;
-		} else {
-			double[] ret = new double[21];
-			
-			for (InstNode inst: insts) {
-				ret[inst.getOp().getCatId()] += 1;
-			}
-			
-			return ret;
+	public static double[] genDistribution(Collection<InstNode> insts) {
+		int baseLength = SearchUtil.baseLength();
+		int totalLength = baseLength + GlobalRecorder.getNativePackages().size() + 1;
+		System.out.println("Base length: " + baseLength);
+		System.out.println("Native length: " + GlobalRecorder.getNativePackages().size());
+		System.out.println("Total length: " + totalLength);
+		double[] ret = new double[totalLength];
+		
+		for (InstNode inst: insts) {
+			int repOp = SearchUtil.getInstructionOp(inst);
+			ret[repOp] += 1;
 		}
+		
+		return ret;
 	}
-	
-	/**
-	 * Generate distribution from instruction distribution
-	 * @param instDist
-	 * @return
-	 */
-	public static double[] genDistribution(double[] instDist, int simStrategy) {
-		if (simStrategy == MIBConfiguration.INST_STRAT) {
-			return instDist;
-		} else if (MIBConfiguration.getInstance().getSimStrategy() 
-				== MIBConfiguration.SUBSUB_STRAT) {
-			double[] ret = new double[63];
-			
-			for (int i = 0; i < instDist.length; i++) {
-				OpcodeObj oo = BytecodeCategory.getOpcodeObj(i);
-				if (oo != null)
-					ret[oo.getSubSubCatId()] += instDist[i];
-			}
-			
-			return ret;
-		} else if (simStrategy == MIBConfiguration.SUB_STRAT) {
-			double[] ret = new double[43];
-			
-			for (int i = 0; i < instDist.length; i++) {
-				OpcodeObj oo = BytecodeCategory.getOpcodeObj(i);
-				if (oo != null)
-					ret[oo.getSubCatId()] += instDist[i];
-			}
-			
-			return ret;
-		} else {
-			double[] ret = new double[21];
-			
-			for (int i = 0; i < instDist.length; i++) {
-				OpcodeObj oo = BytecodeCategory.getOpcodeObj(i);
-				if (oo != null)
-					ret[oo.getCatId()] += instDist[i];
-			}
-			
-			return ret;
-		}
-	}
-	
+		
 	public static void sumDistribution(double[] caller, double[] callee) {
 		for (int i = 0; i < caller.length; i++) {
 			caller[i] = caller[i] + callee[i];

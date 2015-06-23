@@ -32,7 +32,7 @@ public class Partitioner {
 	
 	public void partition() {
 		for (InstNode inst: this.graph.getInstPool()) {
-			int opCat = Locator.getInstructionOp(inst);
+			int opCat = SearchUtil.getInstructionOp(inst);
 			boolean isArrayStore = (opCat == 18 || opCat == 19 || opCat == 20);
 			if (inst.getChildFreqMap().size() == 0 && !isArrayStore) {
 				System.out.println("Possible sink: " + inst);

@@ -38,12 +38,4 @@ public class PercentageSelector {
 		
 		return selected;
 	}
-	
-	public static double[] generateImportantDistribution(List<InstNode> selected) {
-		int simStrategy = MIBConfiguration.SUBSUB_STRAT;
-		double[] subsubDistribution = StaticTester.genDistribution(selected, simStrategy);
-		double[] normalizedDistribution = StaticTester.normalizeDist(subsubDistribution, selected.size());
-		return normalizedDistribution;
-	}
-
 }
