@@ -160,10 +160,10 @@ public class MethodStackRecorder {
 				" " + this.threadMethodId);*/
 		
 		//Load possible clinit
-		if (this.methodName.equals(init)) {
+		/*if (this.methodName.equals(init)) {
 			//Instead of using NEW, let init to attempt loading clinit
 			this.checkNGetClInit(this.className);
-		}
+		}*/
 	}
 	
 	private void stopLocalVar(int localVarId) {
@@ -320,7 +320,7 @@ public class MethodStackRecorder {
 				instIdx, 
 				opcode, 
 				addInfo, 
-				false);
+				InstPool.REGULAR);
 		fullInst.setLinenumber(this.linenumber);
 		//this.updateTime(fullInst);
 		
@@ -357,11 +357,11 @@ public class MethodStackRecorder {
 		Class<?> targetClass = ClassInfoCollector.retrieveCorrectClassByField(owner, name);
 		//logger.info("Class owner of field with objId: " + targetClass + " " + owner + " " + name);
 		
-		if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC) {
+		/*if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC) {
 			//JVM will load the owner, not the exact class
 			if (!owner.equals(this.className))
 				this.checkNGetClInit(targetClass.getName());
-		}
+		}*/
 		
 		String fieldKey = targetClass.getName() + "." + name + "." + desc;
 		
@@ -376,7 +376,7 @@ public class MethodStackRecorder {
 				instIdx, 
 				opcode, 
 				fieldKey, 
-				false);
+				InstPool.FIELD);
 		fullInst.setLinenumber(this.linenumber);
 		this.updateControlRelation(fullInst);
 		
@@ -385,15 +385,14 @@ public class MethodStackRecorder {
 				//Add info for field: owner + name + desc + objId
 				InstNode writeInst = GlobalRecorder.getWriteField(fieldKey);
 				
-				if (writeInst == null) {
-					//Some inst and static fields are possible NOT to be initialized
-					logger.warn("Field access warning: cannot find wite inst for " + fullInst);
-				} else {
+				if (writeInst != null) {
 					GlobalRecorder.registerRWFieldHistory(writeInst, fullInst);
-					
 					String writeIdx = FieldRecorder.toIndex(writeInst);
 					String readIdx = FieldRecorder.toIndex(fullInst);
 					this.rwFieldRelations.put(writeIdx, readIdx);
+				} else {
+					//Some inst and static fields are possible NOT to be initialized
+					logger.warn("Field access warning: cannot find wite inst for " + fullInst);
 				}
 			} else if (BytecodeCategory.writeFieldCategory().contains(opcat) && objId >= 0) {
 				GlobalRecorder.registerWriteField(fieldKey, fullInst);
@@ -444,7 +443,7 @@ public class MethodStackRecorder {
 				instIdx, 
 				opcode, 
 				addInfo, 
-				false);
+				InstPool.REGULAR);
 		fullInst.setLinenumber(this.linenumber);
 		//this.updateTime(fullInst);
 		this.updateControlRelation(fullInst);
@@ -504,7 +503,7 @@ public class MethodStackRecorder {
 					instIdx, 
 					opcode, 
 					String.valueOf(localVarIdx), 
-					false);
+					InstPool.REGULAR);
 		} else {
 			fullInst = this.pool.searchAndGet(this.methodKey, 
 					this.threadId, 
@@ -512,7 +511,7 @@ public class MethodStackRecorder {
 					instIdx, 
 					opcode, 
 					"", 
-					false);
+					InstPool.REGULAR);
 		}
 		fullInst.setLinenumber(this.linenumber);
 		//this.updateTime(fullInst);
@@ -600,7 +599,7 @@ public class MethodStackRecorder {
 				instIdx, 
 				Opcodes.MULTIANEWARRAY, 
 				addInfo, 
-				false);
+				InstPool.REGULAR);
 		fullInst.setLinenumber(this.linenumber);
 		//this.updateTime(fullInst);
 		
@@ -674,7 +673,7 @@ public class MethodStackRecorder {
 						instIdx, 
 						opcode, 
 						curMethodKey, 
-						false);
+						InstPool.REGULAR);
 				this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 				return ;
 			} else {
@@ -717,7 +716,7 @@ public class MethodStackRecorder {
 							instIdx, 
 							opcode, 
 							curMethodKey, 
-							false);
+							InstPool.REGULAR);
 					this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 					return ;
 				}
@@ -735,7 +734,7 @@ public class MethodStackRecorder {
 							instIdx, 
 							opcode, 
 							curMethodKey, 
-							false);
+							InstPool.REGULAR);
 					this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 					return ;
 				} else if (!childGraph.getMethodName().equals(name) || !childGraph.getMethodDesc().equals(desc)) {
@@ -749,7 +748,7 @@ public class MethodStackRecorder {
 							instIdx, 
 							opcode, 
 							curMethodKey, 
-							false);
+							InstPool.REGULAR);
 					this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 					GlobalRecorder.recoverLatestGraph(childGraph);
 					//System.out.println("Recorder time: " + (System.nanoTime() - startTime));
@@ -763,7 +762,7 @@ public class MethodStackRecorder {
 							instIdx, 
 							opcode, 
 							curMethodKey, 
-							true);
+							InstPool.METHOD);
 					fullInst.setLinenumber(linenum);
 					//this.updateTime(fullInst);
 					this.updateControlRelation(fullInst);

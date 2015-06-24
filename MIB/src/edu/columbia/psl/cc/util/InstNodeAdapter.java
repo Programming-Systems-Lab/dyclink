@@ -22,6 +22,7 @@ import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
+import edu.columbia.psl.cc.pojo.FieldNode;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.MethodNode.CalleeInfo;
@@ -85,10 +86,21 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		InstNode inst = null;
 		JsonElement calleeProbe = object.get("calleeInfo");
 		if (calleeProbe == null) {
-			inst = this.pool.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo, false);
+			JsonElement fieldProbe = object.get("globalChildIdx");
+			if (fieldProbe == null) {
+				inst = this.pool.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo, InstPool.REGULAR);
+			} else {
+				inst = this.pool.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo, InstPool.FIELD);
+				FieldNode fInst = (FieldNode)inst;
+				
+				JsonArray globalChild = fieldProbe.getAsJsonArray();
+				for (int i = 0; i < globalChild.size(); i++) {
+					fInst.addGlobalChild(globalChild.get(i).getAsString());
+				}
+			}
 		} else {
 			JsonObject calleeInfo = calleeProbe.getAsJsonObject();
-			inst = this.pool.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo, true);
+			inst = this.pool.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo, InstPool.METHOD);
 			MethodNode mn = (MethodNode)inst;
 			TypeToken<CalleeInfo> infoType = new TypeToken<CalleeInfo>(){};
 			CalleeInfo info = context.deserialize(calleeInfo, infoType.getType());

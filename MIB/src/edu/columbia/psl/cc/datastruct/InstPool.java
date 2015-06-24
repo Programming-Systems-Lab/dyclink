@@ -6,6 +6,7 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
+import edu.columbia.psl.cc.pojo.FieldNode;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.util.GlobalRecorder;
@@ -21,6 +22,12 @@ public class InstPool extends TreeSet<InstNode> {
 	private static Logger logger = Logger.getLogger(InstPool.class);
 	
 	public static boolean DEBUG;
+	
+	public static int REGULAR = 0;
+	
+	public static int METHOD = 1;
+	
+	public static int FIELD = 2;
 	
 	private HashMap<String, InstNode> instMap = new HashMap<String, InstNode>();
 	
@@ -68,13 +75,13 @@ public class InstPool extends TreeSet<InstNode> {
 			int idx, 
 			int opcode, 
 			String addInfo, 
-			boolean genMethodNode) {
+			int instType) {
 		String idxKey = StringUtil.genIdxKey(threadId, threadMethodIdx, idx);
 		if (this.instMap.containsKey(idxKey)) {
 			InstNode ret = this.instMap.get(idxKey);
 			
 			//Handle the case that the instruction type changes (rarely happens, for interface method)
-			if (genMethodNode && !(ret instanceof MethodNode)) {
+			if ((instType == METHOD) && !(ret instanceof MethodNode)) {
 				logger.info("Inst node type changes: " + ret);
 				ret.getInstDataParentList();
 				ret.getControlParentList();
@@ -106,10 +113,12 @@ public class InstPool extends TreeSet<InstNode> {
 		}
 		
 		InstNode probe = null;
-		if (genMethodNode) {
+		if (instType == REGULAR) {
+			probe = new InstNode();
+		} else if(instType == METHOD) {
 			probe = new MethodNode();
 		} else {
-			probe = new InstNode();
+			probe = new FieldNode();
 		}
 		
 		//Create new 
@@ -197,14 +206,14 @@ public class InstPool extends TreeSet<InstNode> {
 				1, 
 				92, 
 				"", 
-				false);
+				InstPool.REGULAR);
 		InstNode i2 = pool.searchAndGet("a", 
 				0, 
 				0, 
 				2, 
 				92, 
 				"", 
-				false);
+				InstPool.REGULAR);
 		System.out.println("Pool size: " + pool.size());
 	}
 }

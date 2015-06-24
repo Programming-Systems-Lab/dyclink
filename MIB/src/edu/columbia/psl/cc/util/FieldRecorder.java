@@ -23,11 +23,7 @@ public class FieldRecorder {
 	}
 	
 	public static String toIndex(InstNode inst) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(inst.getThreadId() + "-");
-		sb.append(inst.getThreadMethodIdx() + "-");
-		sb.append(inst.getIdx());
-		return sb.toString();
+		return StringUtil.genIdxKey(inst.getThreadId(), inst.getThreadMethodIdx(), inst.getIdx());
 	}
 	
 	public void registerHistory(InstNode writeInst, InstNode readInst) {

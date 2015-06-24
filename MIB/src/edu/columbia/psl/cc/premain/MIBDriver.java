@@ -3,6 +3,7 @@ package edu.columbia.psl.cc.premain;
 import java.io.File;
 import java.lang.reflect.Method;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -16,6 +17,7 @@ import edu.columbia.psl.cc.analysis.HorizontalMerger;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.crawler.NativePackages;
 import edu.columbia.psl.cc.datastruct.InstPool;
+import edu.columbia.psl.cc.pojo.FieldNode;
 import edu.columbia.psl.cc.pojo.FieldRecord;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
@@ -23,6 +25,7 @@ import edu.columbia.psl.cc.pojo.NameMap;
 import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.ObjectIdAllocater;
+import edu.columbia.psl.cc.util.StringUtil;
 
 public class MIBDriver {
 	
@@ -211,12 +214,16 @@ public class MIBDriver {
 	
 	public static void constructGlobalRelations() {
 		HashMap<String, FieldRecord> globalRelations = GlobalRecorder.getAllFieldRelations();
+		
 		for (FieldRecord fr: globalRelations.values()) {
-			InstNode wInst = fr.getWriteInst();
-			InstNode rInst = fr.getReadInst();
+			FieldNode wInst = (FieldNode)fr.getWriteInst();
+			FieldNode rInst = (FieldNode)fr.getReadInst();
 			double freq = fr.getFreq();
 			wInst.increChild(rInst.getThreadId(), rInst.getThreadMethodIdx(), rInst.getIdx(), freq);
 			rInst.registerParent(wInst.getThreadId(), wInst.getThreadMethodIdx(), wInst.getIdx(), MIBConfiguration.WRITE_DATA_DEP);
+			
+			String rIdx = StringUtil.genIdxKey(rInst.getThreadId(), rInst.getThreadMethodIdx(), rInst.getIdx());
+			wInst.addGlobalChild(rIdx);
 			System.out.println(wInst + " " + rInst);
 		}
 	}

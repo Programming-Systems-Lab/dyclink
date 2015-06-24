@@ -389,10 +389,6 @@ public class TemplateMethod extends TemplateParent {
 		this.iDouble = 5.0 + this.pVar;
 		double ret = this.call2() + this.pVar + this.iVar;
 	}
-	
-	public void doObject(TemplateParent tp) {
-		
-	}
 		
 	public static void main(String[] args) {
 		//int i = TemplateMethod.parentVar;

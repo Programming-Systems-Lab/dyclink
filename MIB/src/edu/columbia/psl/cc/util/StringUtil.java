@@ -160,8 +160,6 @@ public class StringUtil {
 	public static String genIdxKey(int threadId, 
 			int threadMethodIdx, 
 			int idx) {
-		//String shortFromMethod = GlobalRecorder.getGlobalName(fromMethod);
-		//return shortFromMethod + "-" + threadId + "-" + threadMethodIdx + "-" + idx;
 		return genThreadWithMethodIdx(threadId, threadMethodIdx) + "-" + idx;
 	}
 	

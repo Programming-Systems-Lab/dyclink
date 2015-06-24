@@ -636,7 +636,7 @@ public class GraphUtil {
 						0, 
 						protoFrom.getIdx(), 
 						protoFrom.getOp().getOpcode(), 
-						protoFrom.getAddInfo(), false);
+						protoFrom.getAddInfo(), InstPool.REGULAR);
 				sumFrom.setLinenumber(protoFrom.getLinenumber());
 				if (sumFrom.getStartTime() < 0) {
 					//sumFrom.setStartDigit(protoFrom.getStartDigit());
@@ -652,7 +652,7 @@ public class GraphUtil {
 						0,
 						protoTo.getIdx(),
 						protoTo.getOp().getOpcode(),
-						protoTo.getAddInfo(), false);
+						protoTo.getAddInfo(), InstPool.REGULAR);
 				sumTo.setLinenumber(protoTo.getLinenumber());
 				if (sumTo.getStartTime() < 0) {
 					//sumTo.setStartDigit(protoTo.getStartDigit());

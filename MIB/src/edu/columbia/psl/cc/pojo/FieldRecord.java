@@ -1,5 +1,7 @@
 package edu.columbia.psl.cc.pojo;
 
+import edu.columbia.psl.cc.util.FieldRecorder;
+
 public class FieldRecord {
 	
 	private InstNode writeInst;
@@ -33,10 +35,7 @@ public class FieldRecord {
 	}
 	
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(this.writeInst.toString() + "-");
-		sb.append(this.readInst.toString());
-		return sb.toString();
+		return FieldRecorder.toIndex(this.writeInst, this.readInst);
 	}
 	
 	@Override
