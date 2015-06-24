@@ -33,6 +33,7 @@ import edu.columbia.psl.cc.datastruct.VarPairPool;
 import edu.columbia.psl.cc.datastruct.VarPool;
 import edu.columbia.psl.cc.pojo.CostObj;
 import edu.columbia.psl.cc.pojo.ExtObj;
+import edu.columbia.psl.cc.pojo.FieldNode;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
@@ -437,9 +438,17 @@ public class GraphUtil {
 		for (InstNode inst: g.getInstPool()) {
 			TreeMap<String, Double> childMap = inst.getChildFreqMap();
 			
+			HashSet<String> globalChild = null;
+			if (inst instanceof FieldNode) {
+				FieldNode fInst = (FieldNode)inst;
+				globalChild = fInst.getGlobalChildIdx();
+			}
+			
 			for (String cKey: childMap.keySet()) {
-				double val = childMap.get(cKey) * times;
-				childMap.put(cKey, val);
+				if (globalChild != null && globalChild.contains(cKey)) {
+					double val = childMap.get(cKey) * times;
+					childMap.put(cKey, val);
+				}
 			}
 		}
 	}

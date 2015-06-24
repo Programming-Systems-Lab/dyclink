@@ -159,6 +159,9 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 			MethodNode mn = (MethodNode) inst;
 			TypeToken<CalleeInfo> infoType = new TypeToken<CalleeInfo>(){};
 			result.add("calleeInfo", context.serialize(mn.getCalleeInfo(), infoType.getType()));
+		} else if (inst instanceof FieldNode) {
+			FieldNode fn = (FieldNode) inst;
+			result.add("globalChildIdx", context.serialize(fn.getGlobalChildIdx(), listType.getType()));
 		}
 		
 		return result;

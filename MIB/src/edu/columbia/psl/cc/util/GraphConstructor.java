@@ -168,19 +168,16 @@ public class GraphConstructor {
 							cReadNodes.add(cReadNode);
 						}
 						
-						if (parentFromCaller != null) {
+						if (parentFromCaller != null || controlInsts != null) {
 							double freq = allFreq * frac;
 							GraphUtil.multiplyGraph(callee, freq);	
-							//GraphUtil.dataDepFromParentToChildWithFreq(parentFromCaller, cReadNodes, mnId, freq);
 							GraphUtil.dataDepFromParentToChildWithFreq(parentFromCaller, cReadNodes, freq);
-						}
-						
-						if (controlInsts != null) {
-							for (InstNode controlInst: controlInsts) {
-								double freq = controlInst.getChildFreqMap().get(mnId) * frac;
-								GraphUtil.controlDepFromParentToChildWithFreq(controlInst, cReadNodes, freq);
-								//controlInst.getChildFreqMap().remove(mnId);
-								//pRemoveMn.add(controlInst);
+							
+							if (controlInsts != null) {
+								for (InstNode controlInst: controlInsts) {
+									double conFreq = controlInst.getChildFreqMap().get(mnId) * frac;
+									GraphUtil.controlDepFromParentToChildWithFreq(controlInst, cReadNodes, conFreq);
+								}
 							}
 						}
 						

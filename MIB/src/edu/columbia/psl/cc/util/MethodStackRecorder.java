@@ -955,7 +955,7 @@ public class MethodStackRecorder {
 		HashMap<String, GraphTemplate> calleeRequired = new HashMap<String, GraphTemplate>();
 		Iterator<InstNode> instIterator = this.pool.iterator();
 		int edgeNum = 0, vertexNum = 0;
-		double[] dist = new double[256];
+		//double[] dist = new double[256];
 		while (instIterator.hasNext()) {
 			InstNode curInst = instIterator.next();
 			curInst.removeRelatedObj();
@@ -987,12 +987,12 @@ public class MethodStackRecorder {
 							+ childNum;
 					mn.clearCallees();
 					
-					StaticTester.sumDistribution(dist, repCallee.getDist());
+					//StaticTester.sumDistribution(dist, repCallee.getDist());
 				}
 				vertexNum--;
 				edgeNum = edgeNum - instParentNum - controlParentNum;
 			} else {
-				dist[curInst.getOp().getOpcode()] += 1;
+				//dist[curInst.getOp().getOpcode()] += 1;
 				edgeNum += childNum;
 			}
 		}
@@ -1016,7 +1016,7 @@ public class MethodStackRecorder {
 		gt.fieldRelations = totalRwFieldRelations;
 		
 		gt.setInstPool(this.pool);
-		gt.setDist(dist);
+		//gt.setDist(dist);
 		
 		//logger.info("Total edge count: " + gt.getEdgeNum());
 		//logger.info("Total vertex count: " + gt.getVertexNum());

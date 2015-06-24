@@ -48,7 +48,7 @@ public class GraphTemplate {
 		
 	private List<String> methodCalls;
 	
-	private double[] dist;
+	//private double[] dist;
 	
 	//public transient HashMap<String, GraphGroup> calleeCache;
 	
@@ -239,13 +239,13 @@ public class GraphTemplate {
 		return this.objId;
 	}
 	
-	public void setDist(double[] dist) {
+	/*public void setDist(double[] dist) {
 		this.dist = dist;
 	}
 	
 	public double[] getDist() {
 		return this.dist;
-	}
+	}*/
 	
 	public void showGraph() {
 		for (InstNode inst: this.pool) {
