@@ -957,7 +957,8 @@ public class MethodStackRecorder {
 		
 		HashMap<String, GraphTemplate> calleeRequired = new HashMap<String, GraphTemplate>();
 		Iterator<InstNode> instIterator = this.pool.iterator();
-		int edgeNum = 0, vertexNum = 0;
+		int edgeNum = 0, vertexNum = this.pool.size();
+		int eDelta = 0, vDelta = 0;
 		//double[] dist = new double[256];
 		while (instIterator.hasNext()) {
 			InstNode curInst = instIterator.next();
@@ -975,24 +976,20 @@ public class MethodStackRecorder {
 					double normFreq = repCallees.get(repCallee);
 					mn.registerDomCalleeIdx(repKey, normFreq, repCallee.getLastBeforeReturn());
 					calleeRequired.put(repKey, repCallee);
-					
-					/*if (repCallee.getLastBeforeReturn() != null) {
-						mn.registerChildReplace(repCallee.getLastBeforeReturn());
-					}*/
-					
-					vertexNum += (repCallee.getVertexNum());
+										
+					vDelta += (repCallee.getVertexNum());
 					int firstReadNum = repCallee.getFirstReadLocalVars().size();
 					int delta = repCallee.getEdgeNum() 
 							+ firstReadNum 
 							+ firstReadNum * controlParentNum
 							+ childNum;
-					edgeNum += delta;
+					eDelta += delta;
 					
-					System.out.println("ID: " + repCallee.getThreadMethodId() + " edge num: " + delta);
+					/*System.out.println("ID: " + repCallee.getThreadMethodId() + " edge num: " + delta);
 					System.out.println(repCallee.getEdgeNum() 
 							+ " " + firstReadNum + " " 
 							+ firstReadNum * controlParentNum + " " 
-							+ childNum);
+							+ childNum);*/
 					//StaticTester.sumDistribution(dist, repCallee.getDist());
 				}
 				mn.clearCallees();
@@ -1000,16 +997,18 @@ public class MethodStackRecorder {
 				//If there is instFreq, the MethodNode eventually becomes InstNode, so keep v and e
 				//else recompute the v and e
 				if (Math.abs(mn.getRegularState().instFreq - 0) < EPSILON) {
-					vertexNum--;
-					edgeNum = edgeNum - instParentNum - controlParentNum;
-					System.out.println("Minus ID: " + mn.getThreadMethodIdx());
+					vDelta--;
+					eDelta = eDelta - instParentNum - controlParentNum - childNum;
 				}
-			} else {
-				//dist[curInst.getOp().getOpcode()] += 1;
-				edgeNum += childNum;
 			}
+			edgeNum += childNum;
 		}
-		vertexNum += this.pool.size();
+		/*System.out.println("Graph v: " + vertexNum);
+		System.out.println("Graph e: " + edgeNum);
+		System.out.println("vDelta: " + vDelta);
+		System.out.println("eDelta: " + eDelta);*/
+		vertexNum = vertexNum + vDelta;
+		edgeNum = edgeNum + eDelta;
 		
 		gt.setEdgeNum(edgeNum);
 		gt.setVertexNum(vertexNum);
