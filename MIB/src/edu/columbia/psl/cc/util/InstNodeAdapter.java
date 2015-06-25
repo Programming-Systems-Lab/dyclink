@@ -26,6 +26,7 @@ import edu.columbia.psl.cc.pojo.FieldNode;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.MethodNode.CalleeInfo;
+import edu.columbia.psl.cc.pojo.MethodNode.RegularState;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 
 public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializer<InstNode>{
@@ -47,9 +48,7 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		int threadMethodIdx = object.get("threadMethodIdx").getAsInt();
 		int idx = object.get("idx").getAsInt();
 		int linenumber = object.get("linenumber").getAsInt();
-		//long startDigit = object.get("startDigit").getAsLong();
 		long startTime = object.get("startTime").getAsLong();
-		//long updateDigit = object.get("updateDigit").getAsLong();
 		long updateTime = object.get("updateTime").getAsLong();
 		int opcode = object.get("op").getAsInt();
 		String addInfo = object.get("addInfo").getAsString();
@@ -99,33 +98,31 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 				}
 			}
 		} else {
-			JsonObject calleeInfo = calleeProbe.getAsJsonObject();
 			inst = this.pool.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo, InstPool.METHOD);
 			MethodNode mn = (MethodNode)inst;
+			
+			JsonObject calleeInfo = calleeProbe.getAsJsonObject();
 			TypeToken<CalleeInfo> infoType = new TypeToken<CalleeInfo>(){};
 			CalleeInfo info = context.deserialize(calleeInfo, infoType.getType());
 			mn.setCalleeInfo(info);
-		}
-		/*if (BytecodeCategory.writeFieldCategory().contains(inst.getOp().getCatId())) {
-			InstNode nodeInMemory = GlobalRecorder.getWriteFieldNode(inst.getAddInfo());
-			if (nodeInMemory != null && nodeInMemory.equals(inst)) {
-				this.pool.remove(inst);
-				this.pool.add(nodeInMemory);
-				return nodeInMemory;
+			
+			JsonElement rsProbe = object.get("rs");
+			if (rsProbe != null) {
+				JsonObject regularState = rsProbe.getAsJsonObject();
+				TypeToken<RegularState> rsType = new TypeToken<RegularState>(){};
+				RegularState rs = context.deserialize(regularState, rsType.getType());
+				mn.setRegularState(rs);
 			}
-		}*/
+		}
 		
 		inst.setInstDataParentList(instDataParentList);
 		inst.setWriteDataParentList(writeDataParentList);
 		inst.setControlParentList(controlParentList);
 		inst.setChildFreqMap(childFreqMap);
-		//inst.setStartDigit(startDigit);
 		inst.setStartTime(startTime);
-		//inst.setUpdateDigit(updateDigit);
 		inst.setUpdateTime(updateTime);
 		inst.setLinenumber(linenumber);
-		//inst.setChildFreqMap((TreeMap<Integer, Double>)context.deserialize(object.get("childFreqpMap"), childToken.getType()));
-		//inst.setParentList((ArrayList<Integer>)context.deserialize(object.get("parentList"), parentToken.getType()));
+		
 		return inst;
 	}
 
@@ -137,14 +134,10 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		result.addProperty("threadId", inst.getThreadId());
 		result.addProperty("threadMethodIdx", inst.getThreadMethodIdx());
 		result.addProperty("idx", inst.getIdx());
-		//result.addProperty("startDigit", inst.getStartDigit());
 		result.addProperty("startTime", inst.getStartTime());
-		//result.addProperty("updateDigit", inst.getUpdateDigit());
 		result.addProperty("updateTime", inst.getUpdateTime());
 		result.addProperty("linenumber", inst.getLinenumber());
 		result.addProperty("op", inst.getOp().getOpcode());
-		//For debuggin purpose, or we only need opcode
-		//result.addProperty("inst", inst.getOp().getInstruction());
 		result.addProperty("addInfo", inst.getAddInfo());
 		
 		TypeToken<ArrayList<String>> listType = new TypeToken<ArrayList<String>>(){};
@@ -159,6 +152,11 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 			MethodNode mn = (MethodNode) inst;
 			TypeToken<CalleeInfo> infoType = new TypeToken<CalleeInfo>(){};
 			result.add("calleeInfo", context.serialize(mn.getCalleeInfo(), infoType.getType()));
+			
+			if (mn.getRegularState().startTime != 0L || mn.getRegularState().updateTime != 0L) {
+				TypeToken<RegularState> rsType = new TypeToken<RegularState>(){};
+				result.add("rs", context.serialize(mn.getRegularState(), rsType.getType()));
+			}
 		} else if (inst instanceof FieldNode) {
 			FieldNode fn = (FieldNode) inst;
 			result.add("globalChildIdx", context.serialize(fn.getGlobalChildIdx(), listType.getType()));

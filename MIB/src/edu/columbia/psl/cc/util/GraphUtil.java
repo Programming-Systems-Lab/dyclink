@@ -111,21 +111,6 @@ public class GraphUtil {
 						//Impossible
 						return 0;
 					}
-					
-					/*if (i1.getStartDigit() > i2.getStartDigit()) {
-						return 1;
-					} else if (i1.getStartDigit() < i2.getStartDigit()) {
-						return -1;
-					} else {
-						if (i1.getStartTime() > i2.getStartTime()) {
-							return 1;
-						} else if (i1.getStartTime() < i2.getStartTime()) {
-							return - 1;
-						} else {
-							//Impossible
-							return 0;
-						}
-					}*/
 				}
 			};
 		} else {
@@ -140,20 +125,6 @@ public class GraphUtil {
 					} else {
 						return 0;
 					}
-					
-					/*if (i1.getUpdateDigit() > i2.getUpdateDigit()) {
-						return 1;
-					} else if (i1.getUpdateDigit() < i2.getUpdateDigit()) {
-						return -1;
-					} else {
-						if (i1.getUpdateTime() > i2.getUpdateTime()) {
-							return 1;
-						} else if (i1.getUpdateTime() < i2.getUpdateTime()) {
-							return -1;
-						} else {
-							return 0;
-						}
-					}*/
 				}
 			};
 		}

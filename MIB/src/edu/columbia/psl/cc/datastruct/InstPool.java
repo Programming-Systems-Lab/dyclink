@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import edu.columbia.psl.cc.pojo.FieldNode;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
+import edu.columbia.psl.cc.pojo.MethodNode.RegularState;
 import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
@@ -38,15 +39,9 @@ public class InstPool extends TreeSet<InstNode> {
 	private void updateTime(InstNode fullInst) {
 		long curTime = GlobalRecorder.getCurTime();
 		if (fullInst.getStartTime() < 0) {
-			/*fullInst.setStartDigit(curTime[1]);
-			fullInst.setStartTime(curTime[0]);
-			fullInst.setUpdateDigit(curTime[1]);
-			fullInst.setUpdateTime(curTime[0]);*/
 			fullInst.setStartTime(curTime);
 			fullInst.setUpdateTime(curTime);
 		} else {
-			/*fullInst.setUpdateDigit(curTime[1]);
-			fullInst.setUpdateTime(curTime[0]);*/
 			fullInst.setUpdateTime(curTime);
 		}
  	}
@@ -75,16 +70,15 @@ public class InstPool extends TreeSet<InstNode> {
 			int idx, 
 			int opcode, 
 			String addInfo, 
-			int instType) {
+			int request) {
 		String idxKey = StringUtil.genIdxKey(threadId, threadMethodIdx, idx);
 		if (this.instMap.containsKey(idxKey)) {
 			InstNode ret = this.instMap.get(idxKey);
 			
 			//Handle the case that the instruction type changes (rarely happens, for interface method)
-			if ((instType == METHOD) && !(ret instanceof MethodNode)) {
+			if ((request == METHOD) && !(ret instanceof MethodNode)) {
+				//InstNode first and then method
 				logger.info("Inst node type changes: " + ret);
-				ret.getInstDataParentList();
-				ret.getControlParentList();
 				
 				InstNode newRet = new MethodNode();
 				newRet.setFromMethod(ret.getFromMethod());
@@ -96,16 +90,45 @@ public class InstPool extends TreeSet<InstNode> {
 				newRet.setStartTime(ret.getStartTime());
 				newRet.setUpdateTime(ret.getUpdateTime());
 				
-				//Check this part
 				newRet.setRelatedObj(ret.getRelatedObj());
-				//newRet.setInstDataParentList(ret.getInstDataParentList());
-				//newRet.setControlParentList(ret.getControlParentList());
-				//newRet.setChildFreqMap(ret.getChildFreqMap());
+				newRet.setInstDataParentList(ret.getInstDataParentList());
+				newRet.setControlParentList(ret.getControlParentList());
+				newRet.setChildFreqMap(ret.getChildFreqMap());
 				
 				this.updateTime(newRet);
+				
+				MethodNode pointer = (MethodNode) newRet;
+				pointer.getRegularState().startTime = pointer.getStartTime();
+				pointer.getRegularState().updateTime = pointer.getUpdateTime();
+				if (newRet.getInstDataParentList().size() > 0) {
+					String pId = newRet.getInstDataParentList().get(0);
+					InstNode pNode = this.searchAndGet(pId);
+					
+					if (pNode != null) {
+						//Use a inst data parent to ident
+						double curFreq = pNode.getChildFreqMap().get(idxKey);
+						pointer.getRegularState().instFreq = curFreq;
+					} else {
+						logger.error("Null parent when replacing inst. PID " + pId + " CID: " + idxKey);
+					}
+				}
+				
 				this.remove(ret);
 				this._addInst(idxKey, newRet);
 				return newRet;
+			} else if ((request == REGULAR) && !(ret.getClass().equals(InstNode.class))) {
+				//MethodNode first and then InstNode
+				this.updateTime(ret);
+				
+				MethodNode pointer = (MethodNode) ret;
+				RegularState rs = pointer.getRegularState();
+				if (rs.startTime == 0L) {
+					rs.startTime = pointer.getStartTime();
+				}
+				rs.updateTime = pointer.getUpdateTime();
+				rs.instFreq++;
+				
+				return ret;
 			}
 			
 			this.updateTime(ret);
@@ -113,9 +136,9 @@ public class InstPool extends TreeSet<InstNode> {
 		}
 		
 		InstNode probe = null;
-		if (instType == REGULAR) {
+		if (request == REGULAR) {
 			probe = new InstNode();
-		} else if(instType == METHOD) {
+		} else if(request == METHOD) {
 			probe = new MethodNode();
 		} else {
 			probe = new FieldNode();

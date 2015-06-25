@@ -19,6 +19,8 @@ public class MethodNode extends InstNode {
 	private CalleeInfo calleeInfo = new CalleeInfo();
 	
 	private HashMap<String, GraphWithFreq> callees = new HashMap<String, GraphWithFreq>();
+		
+	private RegularState rs = new RegularState();
 	
 	private int maxGraphFreq = 0;
 	
@@ -83,6 +85,14 @@ public class MethodNode extends InstNode {
 		return this.calleeInfo;
 	}
 	
+	public void setRegularState(RegularState rs) {
+		this.rs = rs;
+	}
+	
+	public RegularState getRegularState() {
+		return this.rs;
+	}
+		
 	public void registerParentReplay(int idx, InstNode instParent) {
 		String parentString = StringUtil.genIdxKey(instParent.getThreadId(), 
 				instParent.getThreadMethodIdx(), 
@@ -177,12 +187,22 @@ public class MethodNode extends InstNode {
 		return this.maxGraphFreq;
 	}
 	
+	/**
+	 * Record callee graph with frequency in runtime
+	 * @author mikefhsu
+	 *
+	 */
 	public static class GraphWithFreq {
 		public GraphTemplate callee;
 		
 		public int freq = 0;
 	}
 	
+	/**
+	 * Record parent info and the necessary info. for callee graphs
+	 * @author mikefhsu
+	 *
+	 */
 	public static class CalleeInfo {
 		
 		public List<MetaGraph> metaCallees;
@@ -191,11 +211,24 @@ public class MethodNode extends InstNode {
 		
 	}
 	
+	/**
+	 * Required infor for callee graphs
+	 * @author mikefhsu
+	 *
+	 */
 	public static class MetaGraph {
 		public String calleeIdx;
 		
 		public double normFreq;
 		
 		public String lastInstString;
+	}
+	
+	public static class RegularState {
+		public double instFreq;
+		
+		public long startTime;
+		
+		public long updateTime;
 	}
 }

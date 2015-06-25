@@ -32,6 +32,8 @@ public class MethodStackRecorder {
 	
 	public static int CONSTRUCTOR_DEFAULT = -5;
 	
+	public static double EPSILON = 0.0001;
+	
 	private static String init = "<init>";
 	
 	private static String clinit = "<clinit>";
@@ -342,14 +344,14 @@ public class MethodStackRecorder {
 		int objId = 0;
 		if (opcode == Opcodes.GETFIELD) {
 			objId = ObjectIdAllocater.parseObjId(this.stackSimulator.peek().getRelatedObj());
-			this.stackSimulator.peek().removeRelatedObj();
+			//this.stackSimulator.peek().removeRelatedObj();
 		} else if (opcode == Opcodes.PUTFIELD) {
 			if (typeSort == Type.LONG || typeSort == Type.DOUBLE) {
 				objId = ObjectIdAllocater.parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 3).getRelatedObj());
-				this.stackSimulator.get(this.stackSimulator.size() - 3).removeRelatedObj();
+				//this.stackSimulator.get(this.stackSimulator.size() - 3).removeRelatedObj();
 			} else {
 				objId = ObjectIdAllocater.parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 2).getRelatedObj());
-				this.stackSimulator.get(this.stackSimulator.size() - 2).removeRelatedObj();
+				//this.stackSimulator.get(this.stackSimulator.size() - 2).removeRelatedObj();
 			}
 		}
 		
@@ -398,7 +400,8 @@ public class MethodStackRecorder {
 				GlobalRecorder.registerWriteField(fieldKey, fullInst);
 				this.writeFields.put(fieldKey, fullInst);
 			} else {
-				logger.error("Error: fail to retrieve object ID " + opcode + " " + instIdx + " " + owner + " " + desc);
+				logger.error("Current method: " + this.methodName);
+				logger.error("Error: fail to retrieve object ID " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 			}
 		}
 		
@@ -963,7 +966,6 @@ public class MethodStackRecorder {
 			int childNum = curInst.getChildFreqMap().size();
 			if (curInst instanceof MethodNode) {
 				MethodNode mn = (MethodNode) curInst;
-				//GraphTemplate repCallee = MethodNode.extractCallee(mn.getCallees(), mn.getMaxCalleeFreq());
 				HashMap<GraphTemplate, Double> repCallees = MethodNode.extractCallee(mn.getCallees(), mn.getMaxCalleeFreq());
 				
 				int instParentNum = mn.getInstDataParentList().size();
@@ -980,17 +982,28 @@ public class MethodStackRecorder {
 					
 					vertexNum += (repCallee.getVertexNum());
 					int firstReadNum = repCallee.getFirstReadLocalVars().size();
-					edgeNum = edgeNum 
-							+ repCallee.getEdgeNum() 
+					int delta = repCallee.getEdgeNum() 
 							+ firstReadNum 
 							+ firstReadNum * controlParentNum
 							+ childNum;
-					mn.clearCallees();
+					edgeNum += delta;
 					
+					System.out.println("ID: " + repCallee.getThreadMethodId() + " edge num: " + delta);
+					System.out.println(repCallee.getEdgeNum() 
+							+ " " + firstReadNum + " " 
+							+ firstReadNum * controlParentNum + " " 
+							+ childNum);
 					//StaticTester.sumDistribution(dist, repCallee.getDist());
 				}
-				vertexNum--;
-				edgeNum = edgeNum - instParentNum - controlParentNum;
+				mn.clearCallees();
+				
+				//If there is instFreq, the MethodNode eventually becomes InstNode, so keep v and e
+				//else recompute the v and e
+				if (Math.abs(mn.getRegularState().instFreq - 0) < EPSILON) {
+					vertexNum--;
+					edgeNum = edgeNum - instParentNum - controlParentNum;
+					System.out.println("Minus ID: " + mn.getThreadMethodIdx());
+				}
 			} else {
 				//dist[curInst.getOp().getOpcode()] += 1;
 				edgeNum += childNum;
@@ -1002,7 +1015,7 @@ public class MethodStackRecorder {
 		gt.setVertexNum(vertexNum);
 		gt.calleeRequired = calleeRequired;
 		
-		//Accumulate write fields and field rw relations from callees
+		//Accumulate write fields and field rw relations from callees		
 		HashMap<String, InstNode> totalWriteFields = new HashMap<String, InstNode>();
 		HashMap<String, String> totalRwFieldRelations = new HashMap<String, String>();
 		for (GraphTemplate child: calleeRequired.values()) {
