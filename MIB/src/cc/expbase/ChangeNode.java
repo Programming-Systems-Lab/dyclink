@@ -16,9 +16,9 @@ public class ChangeNode {
 		
 		for (int i = 0; i < 5; i++) {
 			if (i % 2 == 0) {
-				a = myList;
+				a = myList; //3 times
 			} else {
-				a = javaList;
+				a = javaList; //2 times
 			}
 			a.add(i);
 		}

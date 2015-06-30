@@ -105,9 +105,9 @@ public class InstPool extends TreeSet<InstNode> {
 					InstNode pNode = this.searchAndGet(pId);
 					
 					if (pNode != null) {
-						//Use a inst data parent to ident
+						//Use a inst data parent to identify frequency
 						double curFreq = pNode.getChildFreqMap().get(idxKey);
-						pointer.getRegularState().instFreq = curFreq;
+						pointer.getRegularState().count = (int)curFreq;
 					} else {
 						logger.error("Null parent when replacing inst. PID " + pId + " CID: " + idxKey);
 					}
@@ -126,7 +126,7 @@ public class InstPool extends TreeSet<InstNode> {
 					rs.startTime = pointer.getStartTime();
 				}
 				rs.updateTime = pointer.getUpdateTime();
-				rs.instFreq++;
+				rs.count++;
 				
 				return ret;
 			}

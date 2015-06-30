@@ -24,8 +24,18 @@ public class MethodNode extends InstNode {
 	
 	private int maxGraphFreq = 0;
 	
-	public static HashMap<GraphTemplate, Double> extractCallee(HashMap<String, GraphWithFreq> callees, 
-			int maxGraphFreq) {
+	/**
+	 * Filter out graphs whose frequency < (mean - std)
+	 * @param mn
+	 * @return
+	 */
+	public static HashMap<GraphTemplate, Double> extractCallee(MethodNode mn) {
+		HashMap<String, GraphWithFreq> callees = mn.callees;
+		int maxGraphFreq = mn.getMaxCalleeFreq();
+		int instFreq = 0;
+		if (mn.rs.count > 0) {
+			instFreq = mn.rs.count;
+		}
 		
 		/*logger.info("Callee graph original");
 		for (String key: callees.keySet()) {
@@ -36,6 +46,7 @@ public class MethodNode extends InstNode {
 		for (GraphWithFreq graF: callees.values()) {
 			totalFreq += graF.freq;
 		}
+		totalFreq += instFreq;
 		
 		HashMap<GraphTemplate, Double> ret = new HashMap<GraphTemplate, Double>();
 		if (maxGraphFreq >= domPass * totalFreq) {
@@ -50,14 +61,38 @@ public class MethodNode extends InstNode {
 			return null;
 		}
 		
-		double meanFreq = ((double)totalFreq)/callees.values().size();
+		double meanFreq = 0;
+		double stdSum = 0;
+		double std = 0;
+		
+		if (instFreq != 0) {
+			meanFreq = ((double)totalFreq)/(callees.values().size() + 1);
+		} else {
+			meanFreq = ((double)totalFreq)/callees.values().size();
+		}
+		
+		for (GraphWithFreq graF: callees.values()) {
+			stdSum += Math.pow(graF.freq - meanFreq, 2);
+		}
+		if (instFreq != 0) {
+			stdSum += Math.pow(instFreq - meanFreq, 2);
+		}
+		
+		if (instFreq != 0) {
+			std = Math.sqrt((stdSum)/(callees.values().size()));
+		} else {
+			std = Math.sqrt((stdSum)/(callees.values().size() - 1));
+		}
+		
+		double lowBound = meanFreq - std;
+		
+		/*double meanFreq = ((double)totalFreq)/callees.values().size();
 		double stdSum = 0;
 		for (GraphWithFreq graF: callees.values()) {
 			stdSum += Math.pow(graF.freq - meanFreq, 2);
 		}
 		double std = Math.sqrt((stdSum) / (callees.values().size() - 1));
-		double lowBound = meanFreq - std;
-		//int lowBoundInt = (int)(lowBound + 0.5);
+		double lowBound = meanFreq - std;*/
 		
 		List<GraphWithFreq> cache = new ArrayList<GraphWithFreq>();
 		int newTotal = 0;
@@ -66,6 +101,12 @@ public class MethodNode extends InstNode {
 				cache.add(graF);
 				newTotal += graF.freq;
 			}
+		}
+		
+		//Summarize the fraction here.
+		if (mn.rs.count > 0) {
+			newTotal += mn.rs.count;
+			mn.rs.instFrac = ((double)mn.rs.count)/newTotal;
 		}
 		
 		logger.info("Callee graph filtering");
@@ -225,7 +266,9 @@ public class MethodNode extends InstNode {
 	}
 	
 	public static class RegularState {
-		public double instFreq;
+		public transient int count;
+		
+		public double instFrac;
 		
 		public long startTime;
 		

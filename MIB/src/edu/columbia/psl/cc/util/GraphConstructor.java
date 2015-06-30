@@ -18,10 +18,12 @@ import com.google.gson.reflect.TypeToken;
 import edu.columbia.psl.cc.analysis.GraphReducer;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.InstPool;
+import edu.columbia.psl.cc.pojo.FieldNode;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.MethodNode.MetaGraph;
+import edu.columbia.psl.cc.pojo.MethodNode.RegularState;
 
 public class GraphConstructor {
 	
@@ -120,14 +122,15 @@ public class GraphConstructor {
 					Set<InstNode> cRemoveMn = new HashSet<InstNode>();
 					
 					HashMap<Integer, HashSet<InstNode>> parentFromCaller = null;
+					HashSet<InstNode> allParents = null;
 					double allFreq = 0;
 					if (mn.getCalleeInfo().parentReplay != null && mn.getCalleeInfo().parentReplay.size() > 0) {
 						parentFromCaller = retrieveParentsWithIdx(mn.getCalleeInfo().parentReplay, rawGraph.getInstPool());
 						
-						HashSet<InstNode> allParents = flattenParentMap(parentFromCaller.values());
+						allParents = flattenParentMap(parentFromCaller.values());
 						allFreq = maxFreqFromParents(allParents, mnId);
 					}
-					
+										
 					HashSet<InstNode> controlInsts = null;
 					if (mn.getControlParentList().size() > 0) {
 						controlInsts = GraphUtil.retrieveRequiredParentInsts(mn, 
@@ -182,14 +185,11 @@ public class GraphConstructor {
 						}
 						
 						if (childMap.size() > 0) {
-							//String calleeChildReplaceId = meta.lastInstString;
-							//InstNode calleeChildReplace = callee.getInstPool().searchAndGet(calleeChildReplaceId);
 							
 							InstNode calleeChildReplace = callee.getLastBeforeReturn();
 							if (calleeChildReplace == null) {
 								logger.info("Current inst: " + inst);
 								logger.info("Find no last inst in callee: " + calleeId);
-								//System.exit(1);
 								continue ;
 							}
 							
@@ -198,9 +198,9 @@ public class GraphConstructor {
 								double cFreq = childMap.get(childKey) * frac;	
 								
 								if (childNode == null) {
-									logger.info("Current inst: " + inst);
+									/*logger.info("Current inst: " + inst);
 									logger.info("Empty child: " + childKey);
-									logger.info("Search toMerge");
+									logger.info("Search toMerge");*/
 									
 									//In the merge
 									for (GraphTemplate toM: toMerge) {
@@ -213,7 +213,6 @@ public class GraphConstructor {
 								if (childNode == null) {
 									logger.error("Current inst: " + inst);
 									logger.error("Missing inst: " + childKey);
-									//System.exit(1);
 									continue ;
 								}
 								
@@ -232,28 +231,56 @@ public class GraphConstructor {
 						}
 					}
 					
-					//Remove inst parent
-					if (parentFromCaller != null) {
-						for (Integer i: parentFromCaller.keySet()) {
-							HashSet<InstNode> parents = parentFromCaller.get(i);
-							for (InstNode pNode: parents) {
-								pNode.getChildFreqMap().remove(mnId);
+					if (mn.getRegularState() != null && mn.getRegularState().instFrac > 0) {
+						if (allParents != null) {
+							//Only for inst changes type, e.g. inst->method
+							double pFreq = allFreq * mn.getRegularState().instFrac;
+							for (InstNode p: allParents) {
+								p.resetChild(mnId, pFreq);
 							}
 						}
-					}
-					
-					//Remove control parent
-					if (controlInsts != null) {
-						for (InstNode pInst: controlInsts) {
-							pInst.getChildFreqMap().remove(mnId);
+						
+						if (controlInsts != null) {
+							for (InstNode c: controlInsts) {
+								double cFreq = c.getChildFreqMap().get(mnId) * mn.getRegularState().instFrac;
+								c.resetChild(mnId, cFreq);
+							}
 						}
+						
+						if (childMap.size() > 0) {
+							for (String childKey: childMap.keySet()) {
+								double childFreq = childMap.get(childKey) * mn.getRegularState().instFrac;
+								childMap.put(childKey, childFreq);
+							}
+						}
+						mn.setStartTime(mn.getRegularState().startTime);
+						mn.setUpdateTime(mn.getRegularState().updateTime);
+						
+						mn.setCalleeInfo(null);
+					} else {
+						//Remove inst parent
+						if (parentFromCaller != null) {
+							for (Integer i: parentFromCaller.keySet()) {
+								HashSet<InstNode> parents = parentFromCaller.get(i);
+								for (InstNode pNode: parents) {
+									pNode.getChildFreqMap().remove(mnId);
+								}
+							}
+						}
+						
+						//Remove control parent
+						if (controlInsts != null) {
+							for (InstNode pInst: controlInsts) {
+								pInst.getChildFreqMap().remove(mnId);
+							}
+						}
+						
+						for (InstNode cInst: cRemoveMn) {
+							cInst.getInstDataParentList().remove(mnId);
+						}
+						
+						rawGraph.getInstPool().remove(inst);
 					}
-					
-					for (InstNode cInst: cRemoveMn) {
-						cInst.getInstDataParentList().remove(mnId);
-					}
-					
-					rawGraph.getInstPool().remove(inst);
 				} else if (addCallerLine) {
 					inst.callerLine = inst.getLinenumber();
 				}
@@ -315,8 +342,9 @@ public class GraphConstructor {
 		//File testFile = new File("./test/cern.colt.matrix.linalg.Algebra:hypot:0:0:130.json");
 		//File testFile = new File("/Users/mikefhsu/Mike/Research/ec2/mib_sandbox/jama_graphs/Jama.EigenvalueDecomposition:<init>:0:1:1515059.json");
 		//File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64:decompose:0:0:14.json");
-		File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/cc.expbase.TemplateMethod:forMethod:0:0:8.json");
+		//File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/cc.expbase.TemplateMethod:forMethod:0:0:8.json");
 		//File testFile = new File("/Users/mikefhsu/MiKe/Research/ec2/mib_sandbox_v3/jama_graphs/Jama.Matrix:solve:0:1:3811439.json");
+		File testFile = new File("./test/cc.expbase.ChangeNode:changeList:0:0:2.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
 		GraphConstructor constructor = new GraphConstructor();
 		constructor.reconstructGraph(testGraph, true);
@@ -325,18 +353,26 @@ public class GraphConstructor {
 		
 		System.out.println("Recorded edge size: " + testGraph.getEdgeNum());
 		int eCount = 0;
+		int globalDeps = 0;
+		
+		//Exclude global deps here
 		for (InstNode inst: testGraph.getInstPool()) {
-			//System.out.println("Inst: " + inst);
-			//System.out.println(inst.callerLine);
 			eCount += inst.getChildFreqMap().size();
+			
+			if (inst instanceof FieldNode) {
+				int globalCount = ((FieldNode)inst).getGlobalChildIdx().size();
+				globalDeps += globalCount;
+			}
 		}
-		System.out.println("Reduced edge size: " + eCount);
+		System.out.println("Reduced edge size with global deps: " + eCount);
+		//This is what we want to check
+		System.out.println("Reduced edge size without global deps: " + (eCount - globalDeps));
 		String fileName = "/Users/mikefhsu/Desktop/" + testGraph.getShortMethodKey() + "_re.json";
 		GsonManager.writeJsonGeneric(testGraph, fileName, graphToken, 8);
 		
-		System.out.println("Clean object init");
+		/*System.out.println("Clean object init");
 		constructor.cleanObjInit(testGraph);
-		System.out.println("Clean object vertex size: " + testGraph.getInstPool().size());
+		System.out.println("Clean object vertex size: " + testGraph.getInstPool().size());*/
 		
 		/*GraphReducer gr = new GraphReducer(testGraph);
 		gr.reduceGraph();
@@ -351,21 +387,6 @@ public class GraphConstructor {
 			}
 		}
 		System.out.println("Line trace: " + lineTrace);*/
-		
-		String fileName2 = "/Users/mikefhsu/Desktop/" + testGraph.getShortMethodKey() + "_re2.json";
-		/*List<InstNode> sorted = GraphUtil.sortInstPool(testGraph.getInstPool(), true);
-		for (InstNode inst: sorted) {
-			System.out.println(inst);
-			System.out.println(inst.getStartTime());
-			System.out.println(inst.getChildFreqMap());
-			System.out.println();
-		}*/
-		GsonManager.writeJsonGeneric(testGraph, fileName2, graphToken, 8);
-		
-		List<InstNode> insts = GraphUtil.sortInstPool(testGraph.getInstPool(), true);
-		for (InstNode inst: insts) {
-			System.out.println(inst);
-		}
 	}
 
 }

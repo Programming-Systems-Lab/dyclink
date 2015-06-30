@@ -967,7 +967,8 @@ public class MethodStackRecorder {
 			int childNum = curInst.getChildFreqMap().size();
 			if (curInst instanceof MethodNode) {
 				MethodNode mn = (MethodNode) curInst;
-				HashMap<GraphTemplate, Double> repCallees = MethodNode.extractCallee(mn.getCallees(), mn.getMaxCalleeFreq());
+				//HashMap<GraphTemplate, Double> repCallees = MethodNode.extractCallee(mn.getCallees(), mn.getMaxCalleeFreq());
+				HashMap<GraphTemplate, Double> repCallees = MethodNode.extractCallee(mn);
 				
 				int instParentNum = mn.getInstDataParentList().size();
 				int controlParentNum = mn.getControlParentList().size();
@@ -996,7 +997,7 @@ public class MethodStackRecorder {
 				
 				//If there is instFreq, the MethodNode eventually becomes InstNode, so keep v and e
 				//else recompute the v and e
-				if (Math.abs(mn.getRegularState().instFreq - 0) < EPSILON) {
+				if (mn.getRegularState().count == 0) {
 					vDelta--;
 					eDelta = eDelta - instParentNum - controlParentNum - childNum;
 				}

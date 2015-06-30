@@ -48,7 +48,7 @@
   "testMethodThresh": -1,
   "threadInit": 0,
   "threadMethodIdxRecord": {
-    "0": 17
+    "0": 8
   },
   "annotGuard": false,
   "fieldTrack": true,
@@ -57,7 +57,7 @@
   "templateMode": false,
   "overallAnalysis": false,
   "debug": false,
-  "reduceGraph": true,
+  "reduceGraph": false,
   "nativeClass": true,
   "dburl": "jdbc:mysql://liberty.cs.columbia.edu:3306/dyclink",
   "dbusername": "root"

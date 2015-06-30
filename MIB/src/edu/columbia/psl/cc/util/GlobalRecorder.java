@@ -131,6 +131,8 @@ public class GlobalRecorder {
 	
 	public static void registerWriteField(String field, InstNode writeField) {
 		synchronized(writeFieldLock) {
+			logger.info("Register field: " + field);
+			logger.info(writeField);
 			writeFieldMap.put(field, writeField);
 		}
 	}

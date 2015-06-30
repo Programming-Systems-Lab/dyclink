@@ -153,7 +153,8 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 			TypeToken<CalleeInfo> infoType = new TypeToken<CalleeInfo>(){};
 			result.add("calleeInfo", context.serialize(mn.getCalleeInfo(), infoType.getType()));
 			
-			if (mn.getRegularState().startTime != 0L || mn.getRegularState().updateTime != 0L) {
+			//Use instFrac rather than count, because this has been summarized
+			if (mn.getRegularState().instFrac > 0) {
 				TypeToken<RegularState> rsType = new TypeToken<RegularState>(){};
 				result.add("rs", context.serialize(mn.getRegularState(), rsType.getType()));
 			}

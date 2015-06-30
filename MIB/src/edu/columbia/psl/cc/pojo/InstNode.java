@@ -93,6 +93,10 @@ public class InstNode {
 			this.childFreqMap.put(idxKey, amount);
 		}
 	}
+	
+	public void resetChild(String idxKey, double amount) {
+		this.childFreqMap.put(idxKey, amount);
+	}
 		
 	public void setInstDataParentList(ArrayList<String> instDataParentList) {
 		this.instDataParentList = instDataParentList;
