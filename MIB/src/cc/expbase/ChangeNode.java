@@ -22,7 +22,6 @@ public class ChangeNode {
 			}
 			a.add(i);
 		}
-		System.out.println(a);
 	}
 	
 	

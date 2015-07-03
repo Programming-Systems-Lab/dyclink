@@ -199,11 +199,11 @@ public class MethodNode extends InstNode {
 			}
 			
 			//Remove write fields
-			HashMap<String, InstNode> cWriteFields = callee.writeFields;
-			GlobalRecorder.removeWriteFields(cWriteFields.keySet());
+			//HashMap<String, InstNode> cWriteFields = callee.writeFields;
+			//GlobalRecorder.removeWriteFields(cWriteFields.keySet());
 			
 			//Insert the original relations back
-			GlobalRecorder.registerAllWriteFields(gf.callee.writeFields);
+			//GlobalRecorder.registerAllWriteFields(gf.callee.writeFields);
 		} else {
 			gf = new GraphWithFreq();
 			gf.callee = callee;

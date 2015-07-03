@@ -2,6 +2,7 @@ package cc.expbase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Stack;
 
 import org.objectweb.asm.Type;
@@ -38,6 +39,21 @@ public class YAMethod {
 		//HashMap<String, Object> h2 = new HashMap<String, Object>();
 		
 		//System.out.println(h1.keySet().equals(h2.keySet()));
+		
+		HashSet<Integer> emptySet = new HashSet<Integer>();
+		System.out.println(emptySet.hashCode());
+		
+		HashSet<Integer> firstSet = new HashSet<Integer>();
+		firstSet.add(1);
+		firstSet.add(2);
+		firstSet.add(3);
+		System.out.println(firstSet.hashCode());
+		
+		HashSet<Integer> secondSet = new HashSet<Integer>();
+		secondSet.add(2);
+		secondSet.add(3);
+		secondSet.add(1);
+		System.out.println(secondSet.hashCode());
 	}
 
 }

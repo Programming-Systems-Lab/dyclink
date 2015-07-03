@@ -43,11 +43,9 @@ public class GraphTemplate {
 	private int vertexNum;
 	
 	private HashSet<String> firstReadLocalVars;
-	
-	private HashMap<String, String> latestWriteFields;
 		
 	private List<String> methodCalls;
-	
+		
 	//private double[] dist;
 	
 	//public transient HashMap<String, GraphGroup> calleeCache;
@@ -56,7 +54,7 @@ public class GraphTemplate {
 	
 	public transient MethodTrace methodTrace;
 	
-	public transient HashMap<String, InstNode> writeFields;
+	//public transient HashMap<String, InstNode> writeFields;
 	
 	public transient HashMap<String, String> fieldRelations;
 		
@@ -214,7 +212,7 @@ public class GraphTemplate {
 	public List<String> getMethodCalls() {
 		return this.methodCalls;
 	}
-	
+		
 	public void setThreadId(int threadId) {
 		this.threadId = threadId;
 	}

@@ -66,7 +66,7 @@ public class MethodStackRecorder {
 	private HashMap<String, String> rwFieldRelations = new HashMap<String, String>();
 		
 	private HashMap<String, InstNode> writeFields = new HashMap<String, InstNode>();
-			
+				
 	//Record which insts might be affecte by field written by parent method
 	private HashSet<String> firstReadLocalVars = new HashSet<String>();
 	
@@ -387,14 +387,14 @@ public class MethodStackRecorder {
 				//Add info for field: owner + name + desc + objId
 				InstNode writeInst = GlobalRecorder.getWriteField(fieldKey);
 				
-				if (writeInst != null) {
+				//Only reccord global read-write in the same method for now
+				if (writeInst != null 
+						&& writeInst.getThreadId() == this.threadId 
+						&& writeInst.getThreadMethodIdx() == this.threadMethodId) {
 					GlobalRecorder.registerRWFieldHistory(writeInst, fullInst);
 					String writeIdx = FieldRecorder.toIndex(writeInst);
 					String readIdx = FieldRecorder.toIndex(fullInst);
 					this.rwFieldRelations.put(writeIdx, readIdx);
-				} else {
-					//Some inst and static fields are possible NOT to be initialized
-					logger.warn("Field access warning: cannot find wite inst for " + fullInst);
 				}
 			} else if (BytecodeCategory.writeFieldCategory().contains(opcat) && objId >= 0) {
 				GlobalRecorder.registerWriteField(fieldKey, fullInst);
@@ -925,6 +925,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void dumpGraph() {
+		GlobalRecorder.removeWriteFields(this.writeFields.keySet());
 		if (this.stopRecord)
 			return ;
 		
@@ -1015,18 +1016,15 @@ public class MethodStackRecorder {
 		gt.setVertexNum(vertexNum);
 		gt.calleeRequired = calleeRequired;
 		
-		//Accumulate write fields and field rw relations from callees		
-		HashMap<String, InstNode> totalWriteFields = new HashMap<String, InstNode>();
-		HashMap<String, String> totalRwFieldRelations = new HashMap<String, String>();
-		for (GraphTemplate child: calleeRequired.values()) {
-			totalWriteFields.putAll(child.writeFields);
-			totalRwFieldRelations.putAll(child.fieldRelations);
+		if (MIBConfiguration.getInstance().isFieldTrack()) {
+			//Accumulate write fields and field rw relations from callees
+			for (GraphTemplate child: calleeRequired.values()) {
+				this.rwFieldRelations.putAll(child.fieldRelations);
+			}
+			
+			//gt.writeFields = this.writeFields;
+			gt.fieldRelations = this.rwFieldRelations;
 		}
-		totalWriteFields.putAll(this.writeFields);
-		totalRwFieldRelations.putAll(this.rwFieldRelations);
-		
-		gt.writeFields = totalWriteFields;
-		gt.fieldRelations = totalRwFieldRelations;
 		
 		gt.setInstPool(this.pool);
 		//gt.setDist(dist);
