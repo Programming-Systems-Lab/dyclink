@@ -25,9 +25,9 @@ public class StaticTester {
 	public static double[] genDistribution(Collection<InstNode> insts) {
 		int baseLength = SearchUtil.baseLength();
 		int totalLength = baseLength + GlobalRecorder.getNativePackages().size() + 1;
-		System.out.println("Base length: " + baseLength);
-		System.out.println("Native length: " + GlobalRecorder.getNativePackages().size());
-		System.out.println("Total length: " + totalLength);
+		//System.out.println("Base length: " + baseLength);
+		//System.out.println("Native length: " + GlobalRecorder.getNativePackages().size());
+		//System.out.println("Total length: " + totalLength);
 		double[] ret = new double[totalLength];
 		
 		for (InstNode inst: insts) {

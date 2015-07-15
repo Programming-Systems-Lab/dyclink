@@ -36,7 +36,7 @@
   "writeDataWeight": 1.0,
   "precisionDigit": 5,
   "parallelFactor": 8,
-  "instThreshold": 0,
+  "instThreshold": 30,
   "instLimit": 3000,
   "pgAlpha": 0.15,
   "pgMaxIter": 50,
@@ -48,7 +48,7 @@
   "testMethodThresh": -1,
   "threadInit": 0,
   "threadMethodIdxRecord": {
-    "0": 19
+    "0": 3537
   },
   "annotGuard": false,
   "fieldTrack": true,

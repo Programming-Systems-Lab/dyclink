@@ -353,14 +353,6 @@ public class DynamicMethodMiner extends MethodVisitor {
 			this.mv.visitLdcInsn(this.myName);
 			this.mv.visitLdcInsn(this.desc);
 			
-			/*if (this.isStatic) {
-				this.mv.visitInsn(Opcodes.ICONST_1);
-				this.mv.visitInsn(Opcodes.ICONST_0);
-			} else {
-				this.mv.visitInsn(Opcodes.ICONST_0);
-				this.convertConst(MethodStackRecorder.CONSTRUCTOR_DEFAULT);
-			}*/
-			
 			this.mv.visitInsn(Opcodes.ICONST_0);
 			this.convertConst(MethodStackRecorder.CONSTRUCTOR_DEFAULT);
 			
@@ -369,6 +361,10 @@ public class DynamicMethodMiner extends MethodVisitor {
 					"<init>", 
 					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZI)V");
 			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
+			
+			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+			this.mv.visitInsn(Opcodes.ICONST_0);
+			this.mv.visitFieldInsn(Opcodes.PUTFIELD, methodStackRecorder, "initConstructor", "Z");
 		}
 	}
 	
@@ -377,27 +373,9 @@ public class DynamicMethodMiner extends MethodVisitor {
 		
 		if (this.shouldInstrument()) {
 			String superReplace = this.superName.replace("/", ".");
-			/*if (StringUtil.shouldIncludeClass(superReplace)) {
-				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
-				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
-				this.mv.visitFieldInsn(Opcodes.GETFIELD, this.superName, MIBConfiguration.getMibId(), "I");
-				this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMibId(), "I");
-			} else {
-				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
-				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
-				this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ObjectIdAllocater.class), 
-						"getIndex", 
-						"(Ljava/lang/Object;)I");
-				this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, MIBConfiguration.getMibId(), "I");
-			}*/
 			
 			logger.info("Should gen ID: " + (!StringUtil.shouldIncludeClass(superReplace) && genObjId));
 			if (!StringUtil.shouldIncludeClass(superReplace) && genObjId) {
-				/*this.mv.visitVarInsn(Opcodes.ALOAD, 0);
-				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
-				this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ObjectIdAllocater.class), 
-						"getIndex", 
-						"(Ljava/lang/Object;)I");*/
 				logger.info("Obj ID holder: " + this.className + " " + this.myName);
 				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 				this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ObjectIdAllocater.class), 
@@ -411,6 +389,10 @@ public class DynamicMethodMiner extends MethodVisitor {
 			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 			this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, MIBConfiguration.getMibId(), "I");
 			this.mv.visitFieldInsn(Opcodes.PUTFIELD, methodStackRecorder, "objId", "I");
+			
+			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+			this.mv.visitInsn(Opcodes.ICONST_1);
+			this.mv.visitFieldInsn(Opcodes.PUTFIELD, methodStackRecorder, "initConstructor","Z");
 			
 			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 			this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, MIBConfiguration.getMibId(), "I");
@@ -545,7 +527,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		
 		if (this.shouldInstrument()) {
 			if (opcode == Opcodes.ALOAD && var == 0 && this.aload0Lock) {
-				this.mv.visitInsn(Opcodes.DUP);
+				//this.mv.visitInsn(Opcodes.DUP);
 			} else if (opcode == Opcodes.ALOAD) {
 				this.updateObjOnVStack();
 			}
@@ -594,7 +576,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		//For merging the graph on the fly, need to visit method before recording them
 		this.mv.visitMethodInsn(opcode, owner, name, desc);
 		if (this.shouldInstrument()) {
-			if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
+			if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>") && !this.aload0Lock) {
 				Type[] argTypes = Type.getMethodType(desc).getArgumentTypes();
 				int traceBack = 0;
 				for (Type t: argTypes) {
@@ -647,15 +629,6 @@ public class DynamicMethodMiner extends MethodVisitor {
 			this.superVisited = true;
 			this.aload0Lock = false;
 			this.constructor = false;
-			
-			/*this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
-			this.mv.visitLdcInsn(owner);
-			this.mv.visitLdcInsn(name);
-			this.mv.visitLdcInsn(desc);
-			this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
-					methodStackRecorder, 
-					srLoadParent, 
-					srLoadParentDesc);*/
 		}
 	}
 	

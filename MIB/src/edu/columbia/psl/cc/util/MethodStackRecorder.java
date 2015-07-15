@@ -71,6 +71,8 @@ public class MethodStackRecorder {
 	private HashSet<String> firstReadLocalVars = new HashSet<String>();
 	
 	private HashSet<Integer> shouldRecordReadLocalVars = new HashSet<Integer>();
+	
+	private HashSet<InstNode> preInsts = new HashSet<InstNode>();
 		
 	protected String curLabel = null;
 	
@@ -86,9 +88,9 @@ public class MethodStackRecorder {
 	
 	public int objId = 0;
 	
-	private HashMap<String, GraphGroup> calleeCache = new HashMap<String, GraphGroup>();
-	
 	private boolean stopRecord = false;
+	
+	public boolean initConstructor = true;
 	
 	public MethodStackRecorder(String className, 
 			String methodName, 
@@ -188,9 +190,6 @@ public class MethodStackRecorder {
 			child.registerParent(parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
 		} else if (depType == MIBConfiguration.WRITE_DATA_DEP) {
 			//write data dep only needs to be recorded once
-			/*String childIdxKey = StringUtil.genIdxKey(child.getFromMethod(), child.getThreadId(), child.getThreadMethodIdx(), child.getIdx());
-			if (parent.getChildFreqMap().containsKey(childIdxKey))
-				return ;*/
 			parent.increChild(child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getWriteDataWeight());
 			child.registerParent(parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
 		} else if (depType == MIBConfiguration.CONTR_DEP) {
@@ -399,8 +398,11 @@ public class MethodStackRecorder {
 			} else if (BytecodeCategory.writeFieldCategory().contains(opcat) && objId >= 0) {
 				GlobalRecorder.registerWriteField(fieldKey, fullInst);
 				this.writeFields.put(fieldKey, fullInst);
+			} else if (!this.initConstructor) {
+				//Only happens for synthetic fields? No other inst has relation to it, so do nothing
+				logger.info("Pre-access fields: " + fullInst);
 			} else {
-				logger.error("Current method: " + this.methodName);
+				logger.error("Current method with incorrect obj id: " + this.methodName + " " + objId);
 				logger.error("Error: fail to retrieve object ID " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 			}
 		}
@@ -1038,16 +1040,10 @@ public class MethodStackRecorder {
 		GlobalRecorder.registerGraph(dumpKey, gt, registerLatest);
 		
 		//Debugging, check graph group
-		if (MIBConfiguration.getInstance().isDebug()) {
-			this.serializeGraphs(dumpKey, gt);
-			
-			logger.info("Graph groups:");
-			for (String searchKey: this.calleeCache.keySet()) {
-				logger.info("Group name: " + searchKey);
-				GraphGroup gGroup = this.calleeCache.get(searchKey);
-				logger.info(gGroup.keySet());
-			}
-		}
+		/*if (MIBConfiguration.getInstance().isDebug()) {
+			logger.info("Debugging dump");
+			serializeGraphs(dumpKey, gt);
+		}*/
 		
 		//gt.calleeCache = this.calleeCache;
 		//this.showStackSimulator();
@@ -1057,7 +1053,7 @@ public class MethodStackRecorder {
 				" " + this.threadMethodId);*/
 	}
 	
-	private void serializeGraphs(String dumpKey, GraphTemplate gt) {
+	private static void serializeGraphs(String dumpKey, GraphTemplate gt) {
 		TypeToken<GraphTemplate> typeToken = new TypeToken<GraphTemplate>(){};
 		if (MIBConfiguration.getInstance().isTemplateMode()) {
 			GsonManager.cacheGraph(dumpKey, 0, false);
