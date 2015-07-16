@@ -14,6 +14,7 @@ import edu.columbia.psl.cc.analysis.StaticTester;
 import edu.columbia.psl.cc.analysis.PageRankSelector.GraphProfile;
 import edu.columbia.psl.cc.analysis.PageRankSelector.SegInfo;
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.InstNode;
 
 public class Locator {
@@ -25,9 +26,29 @@ public class Locator {
 	private static int simStrat = MIBConfiguration.getInstance().getSimStrategy();
 	
 	private static Logger logger = Logger.getLogger(Locator.class);
+	
+	public static boolean equalInst(InstNode i1, InstNode i2) {
+		int i1Code = SearchUtil.getInstructionOp(i1);
+		int i2Code = SearchUtil.getInstructionOp(i2);
+		
+		if (i1Code != i2Code)
+			return false;
+		
+		//If i1 and i2 are native call, also check their input number
+		int i1Raw = i1.getOp().getOpcode();
+		if (BytecodeCategory.methodOps().contains(i1Raw)) {
+			if (i1.getInstDataParentList().size() == i2.getInstDataParentList().size()) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return true;
+		}
+	}
 		
 	public static int searchBetter(int oriIdx, 
-			int expOp, 
+			InstNode expInst, 
 			int centroid, 
 			boolean isHead,
 			List<InstNode> sortedTarget) {
@@ -38,9 +59,8 @@ public class Locator {
 				int backward = oriIdx - curExpand;
 				if (backward >= 0) {
 					InstNode check = sortedTarget.get(backward);
-					int checkOp = SearchUtil.getInstructionOp(check);
 					
-					if (checkOp == expOp) {
+					if (equalInst(expInst, check)) {
 						return backward;
 					}
 				}
@@ -48,9 +68,8 @@ public class Locator {
 				int forward = oriIdx + curExpand;
 				if (forward <= sortedTarget.size() - 1 && forward <= centroid - 1) {
 					InstNode check = sortedTarget.get(forward);
-					int checkOp = SearchUtil.getInstructionOp(check);
 					
-					if (checkOp == expOp) {
+					if (equalInst(expInst, check)) {
 						return forward;
 					}
 				}
@@ -62,9 +81,8 @@ public class Locator {
 				int forward = oriIdx + curExpand;
 				if (forward <= sortedTarget.size() - 1 && forward <= centroid - 1) {
 					InstNode check = sortedTarget.get(forward);
-					int checkOp = SearchUtil.getInstructionOp(check);
 					
-					if (checkOp == expOp) {
+					if (equalInst(expInst, check)) {
 						return forward;
 					}
 				}
@@ -72,9 +90,8 @@ public class Locator {
 				int backward = oriIdx - curExpand;
 				if (backward >= 0) {
 					InstNode check = sortedTarget.get(backward);
-					int checkOp = SearchUtil.getInstructionOp(check);
 					
-					if (checkOp == expOp) {
+					if (equalInst(expInst, check)) {
 						return backward;
 					}
 				}
@@ -86,14 +103,17 @@ public class Locator {
 	
 	public static HashSet<InstNode> possibleSingleAssignment(InstNode subNode, List<InstNode> targetPool) {
 		HashSet<InstNode> ret = new HashSet<InstNode>();
-		int subId = SearchUtil.getInstructionOp(subNode);
-		
+		//int subId = SearchUtil.getInstructionOp(subNode);
+				
 		for (InstNode targetNode: targetPool) {
-			
-			int targetId = SearchUtil.getInstructionOp(targetNode);			
-			if (targetId == subId) {
+			if (equalInst(subNode, targetNode)) {
 				ret.add(targetNode);
 			}
+			
+			/*int targetId = SearchUtil.getInstructionOp(targetNode);
+			if (targetId == subId) {
+				ret.add(targetNode);
+			}*/
 		}
 		
 		return ret;
@@ -106,11 +126,10 @@ public class Locator {
 		List<Double> staticScoreRecorder = new ArrayList<Double>();
 		
 		InstNode subStartNode = subProfile.startInst;
-		int expStartOp = SearchUtil.getInstructionOp(subStartNode);
-		InstNode subCentroid = subProfile.centroidWrapper.inst;
-		//int expCentroidOpcode = subCentroid.getOp().getOpcode();
+		//int expStartOp = SearchUtil.getInstructionOp(subStartNode);
+		//InstNode subCentroid = subProfile.centroidWrapper.inst;
 		InstNode subEndNode = subProfile.endInst;
-		int expEndOp = SearchUtil.getInstructionOp(subEndNode);
+		//int expEndOp = SearchUtil.getInstructionOp(subEndNode);
 		
 		for (InstNode inst: assignments) {
 			List<InstNode> seg = new ArrayList<InstNode>();
@@ -137,14 +156,11 @@ public class Locator {
 					
 					InstNode startNode = sortedTarget.get(startIdx);
 					InstNode endNode = sortedTarget.get(endIdx);
-					
-					int realStartOp = SearchUtil.getInstructionOp(startNode);
-					int realEndOp = SearchUtil.getInstructionOp(endNode);
-					
-					if (realStartOp != expStartOp) {
+										
+					if (!equalInst(subStartNode, startNode)) {
 						//Search around little bit
 						int oriStart = startIdx;
-						startIdx = searchBetter(startIdx, expStartOp, i, true, sortedTarget);
+						startIdx = searchBetter(startIdx, subStartNode, i, true, sortedTarget);
 						if (oriStart == startIdx) {
 							match = false;
 						}
@@ -153,10 +169,9 @@ public class Locator {
 					lineBuilder.append(finalStartNode.callerLine + ":");
 					lineBuilder.append(inst.callerLine + ":");
 						
-					
-					if (realEndOp != expEndOp) {
+					if (!equalInst(subEndNode, endNode)) {
 						int oriEnd = endIdx;
-						endIdx = searchBetter(endIdx, expEndOp, i, false, sortedTarget);
+						endIdx = searchBetter(endIdx, subEndNode, i, false, sortedTarget);
 						if (oriEnd == endIdx) {
 							match = false;
 						}

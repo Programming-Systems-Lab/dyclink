@@ -36,19 +36,19 @@
   "writeDataWeight": 1.0,
   "precisionDigit": 5,
   "parallelFactor": 8,
-  "instThreshold": 30,
+  "instThreshold": 10,
   "instLimit": 3000,
   "pgAlpha": 0.15,
   "pgMaxIter": 50,
   "pgEpsilon": 1.0E-5,
   "staticThreshold": 0.1,
-  "simThreshold": 0.78,
+  "simThreshold": 0.6,
   "assignmentThreshold": 50,
   "simStrategy": 1,
   "testMethodThresh": -1,
   "threadInit": 0,
   "threadMethodIdxRecord": {
-    "0": 3537
+    "0": 19030
   },
   "annotGuard": false,
   "fieldTrack": true,

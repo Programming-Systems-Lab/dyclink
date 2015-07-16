@@ -15,6 +15,8 @@ public class SearchUtil {
 	
 	private static int simStrat = MIBConfiguration.getInstance().getSimStrategy();
 	
+	private static boolean nativeClass = MIBConfiguration.getInstance().isNativeClass();
+	
 	public static int[] generateBytecodeFreq(InstPool pool) {
 		int[] ret = new int[256];
 		
@@ -106,9 +108,7 @@ public class SearchUtil {
 		return ret;
 	}
 	
-	public static int getInstructionOp(InstNode inst) {
-		boolean nativeClass = MIBConfiguration.getInstance().isNativeClass();
-		
+	public static int getInstructionOp(InstNode inst) {		
 		if (nativeClass && BytecodeCategory.methodOps().contains(inst.getOp().getOpcode())) {
 			return baseLength() + StringUtil.extractPkgId(inst.getAddInfo());
 		}

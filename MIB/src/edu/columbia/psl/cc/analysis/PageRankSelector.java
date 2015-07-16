@@ -883,7 +883,7 @@ public class PageRankSelector {
 			}
 			
 			List<Double> simCollector = new ArrayList<Double>();
-			int expCentroidOpcode = subProfile.centroidWrapper.inst.getOp().getOpcode();
+			//int expCentroidOpcode = subProfile.centroidWrapper.inst.getOp().getOpcode();
 			for (InstNode cand: candSegs.keySet()) {
 				SegInfo segInfo = candSegs.get(cand);
 				List<InstNode> segments = segInfo.seg;
@@ -896,8 +896,9 @@ public class PageRankSelector {
 				PageRankSelector ranker = new PageRankSelector(segPool, true, true);
 				List<InstWrapper> ranks = ranker.computePageRank();
 				int[] candPGRep = SearchUtil.generatePageRankRep(ranks);
-				int realCentroidOpcode = ranks.get(0).inst.getOp().getOpcode();
-				boolean centerMatch = (expCentroidOpcode == realCentroidOpcode);
+				//int realCentroidOpcode = ranks.get(0).inst.getOp().getOpcode();
+				//boolean centerMatch = (expCentroidOpcode == realCentroidOpcode);
+				boolean centerMatch = (Locator.equalInst(subProfile.centroidWrapper.inst, ranks.get(0).inst));
 				
 				/*List<InstWrapper> selectedRanks = PercentageSelector.selectImportantInstWrappers(ranks);
 				int[] candPGRep = SearchUtil.generatePageRankRep(selectedRanks);*/
