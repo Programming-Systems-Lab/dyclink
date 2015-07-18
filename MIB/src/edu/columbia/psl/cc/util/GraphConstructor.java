@@ -89,11 +89,12 @@ public class GraphConstructor {
 		String baseDir = MIBConfiguration.getInstance().getCacheDir() + "/" + myId;
 		
 		File baseDirProbe = new File(baseDir);
-		if (!baseDirProbe.exists()) {
+		if (!baseDirProbe.exists()) {			
 			if (MIBConfiguration.getInstance().isReduceGraph()) {
 				GraphReducer gr = new GraphReducer(rawGraph);
 				gr.reduceGraph();
 			}
+			
 			return ;
 		}
 		
@@ -344,7 +345,7 @@ public class GraphConstructor {
 		//File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64:decompose:0:0:14.json");
 		//File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/cc.expbase.TemplateMethod:forMethod:0:0:8.json");
 		//File testFile = new File("/Users/mikefhsu/MiKe/Research/ec2/mib_sandbox_v3/jama_graphs/Jama.Matrix:solve:0:1:3811439.json");
-		File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/basic.CookBook:main:0:0:1.json");
+		File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/bulletinboard/objects.BulletinBoard$WordFrequencyCounter:<init>:0:0:14296.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
 		GraphConstructor constructor = new GraphConstructor();
 		constructor.reconstructGraph(testGraph, true);
@@ -357,6 +358,9 @@ public class GraphConstructor {
 		
 		//Exclude global deps here
 		for (InstNode inst: testGraph.getInstPool()) {
+			System.out.println("Check inst rep op: " + inst.repOp);
+			System.out.println("Check original op: " + SearchUtil.getInstructionOp(inst));
+			System.out.println(inst);
 			eCount += inst.getChildFreqMap().size();
 			
 			if (inst instanceof FieldNode) {

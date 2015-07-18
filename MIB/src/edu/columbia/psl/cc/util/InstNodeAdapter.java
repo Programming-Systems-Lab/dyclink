@@ -84,6 +84,7 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		
 		InstNode inst = null;
 		JsonElement calleeProbe = object.get("calleeInfo");
+		boolean shouldRepOp = true;
 		if (calleeProbe == null) {
 			JsonElement fieldProbe = object.get("globalChildIdx");
 			if (fieldProbe == null) {
@@ -113,6 +114,7 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 				RegularState rs = context.deserialize(regularState, rsType.getType());
 				mn.setRegularState(rs);
 			}
+			shouldRepOp = false;
 		}
 		
 		inst.setInstDataParentList(instDataParentList);
@@ -122,6 +124,9 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		inst.setStartTime(startTime);
 		inst.setUpdateTime(updateTime);
 		inst.setLinenumber(linenumber);
+		if (shouldRepOp) {
+			SearchUtil.repOp(inst);
+		}
 		
 		return inst;
 	}

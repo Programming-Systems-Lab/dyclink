@@ -26,14 +26,8 @@ public class InstNode {
 	protected String fromMethod = "";
 	
 	protected int linenumber;
-	
-	public transient int callerLine;
-	
-	//private long startDigit = 0;
-	
+			
 	protected long startTime = -1;
-	
-	//private long updateDigit = 0;
 	
 	protected long updateTime = -1;
 	
@@ -47,6 +41,10 @@ public class InstNode {
 	protected TreeMap<String, Double> childFreqMap = new TreeMap<String, Double>();
 	
 	private Object relatedObj = null;
+	
+	public transient int callerLine;
+	
+	public transient int repOp = -1;
 	
 	public InstNode() {
 		

@@ -19,13 +19,33 @@ public class BytecodeCategory {
 	
 	//private static String opTablePath = "opcodes/opcode_table.txt";
 		
-	private static HashMap<Integer, String> opcodeCategory = new HashMap<Integer, String>();
+	private static final HashMap<Integer, String> opcodeCategory = new HashMap<Integer, String>();
 	
-	private static HashMap<Integer, OpcodeObj> opcodeTable = new HashMap<Integer, OpcodeObj>();
+	private static final HashMap<Integer, OpcodeObj> opcodeTable = new HashMap<Integer, OpcodeObj>();
 	
-	private static HashMap<Integer, HashSet<Integer>> catMap = new HashMap<Integer, HashSet<Integer>>();
+	private static final HashMap<Integer, HashSet<Integer>> catMap = new HashMap<Integer, HashSet<Integer>>();
 	
-	private static HashSet<Integer> replacedOps = new HashSet<Integer>();
+	private static final HashSet<Integer> replacedOps = new HashSet<Integer>();
+	
+	private static final HashSet<Integer> writeCategory = new HashSet<Integer>();
+	
+	private static final HashSet<Integer> readCategory = new HashSet<Integer>();
+	
+	private static final HashSet<Integer> writeFieldCategory = new HashSet<Integer>();
+	
+	private static final HashSet<Integer> readFieldCategory = new HashSet<Integer>();
+	
+	private static final HashSet<Integer> controlCategory = new HashSet<Integer>();
+	
+	private static final HashSet<Integer> dupCategory = new HashSet<Integer>();
+	
+	private static final HashSet<Integer> staticMethodOps = new HashSet<Integer>();
+	
+	private static final HashSet<Integer> objMethodOps = new HashSet<Integer>();
+	
+	private static final HashSet<Integer> methodOps = new HashSet<Integer>();
+	
+	private static final HashSet<Integer> returnOps = new HashSet<Integer>();
 	
 	static {
 		loadOpcodeTable();
@@ -37,6 +57,33 @@ public class BytecodeCategory {
 		replacedOps.add(Opcodes.PUTFIELD);
 		replacedOps.add(Opcodes.PUTSTATIC);
 		replacedOps.add(Opcodes.AASTORE);
+		
+		writeCategory.add(3);
+		
+		readCategory.add(1);
+		
+		writeFieldCategory.add(15);
+		
+		readFieldCategory.add(14);
+		
+		controlCategory.add(13);
+		
+		dupCategory.add(6);
+		dupCategory.add(7);
+		
+		staticMethodOps.add(Opcodes.INVOKESTATIC);
+		
+		objMethodOps.add(Opcodes.INVOKEVIRTUAL);
+		objMethodOps.add(Opcodes.INVOKEINTERFACE);
+		objMethodOps.add(Opcodes.INVOKESPECIAL);
+		
+		methodOps.addAll(staticMethodOps);
+		methodOps.addAll(objMethodOps);
+		methodOps.add(Opcodes.INVOKEDYNAMIC);
+		
+		for (int i = 172; i <= 177; i++) {
+			returnOps.add(i);
+		}
 	}
 	
 	private static void loadOpcodeCategory() {		
@@ -156,33 +203,38 @@ public class BytecodeCategory {
 	}
 	
 	public static HashSet<Integer> writeCategory() {
-		HashSet<Integer> ret = new HashSet<Integer>();
+		/*HashSet<Integer> ret = new HashSet<Integer>();
 		ret.add(3);
-		return ret;
+		return ret;*/
+		return writeCategory;
 	}
 	
 	public static HashSet<Integer> readCategory() {
-		HashSet<Integer> ret = new HashSet<Integer>();
+		/*HashSet<Integer> ret = new HashSet<Integer>();
 		ret.add(1);
-		return ret;
+		return ret;*/
+		return readCategory;
 	}
 	
 	public static HashSet<Integer> writeFieldCategory() {
-		HashSet<Integer> ret = new HashSet<Integer>();
+		/*HashSet<Integer> ret = new HashSet<Integer>();
 		ret.add(15);
-		return ret;
+		return ret;*/
+		return writeFieldCategory;
 	}
 	
 	public static HashSet<Integer> readFieldCategory() {
-		HashSet<Integer> ret = new HashSet<Integer>();
+		/*HashSet<Integer> ret = new HashSet<Integer>();
 		ret.add(14);
-		return ret;
+		return ret;*/
+		return readFieldCategory;
 	}
 	
 	public static HashSet<Integer> controlCategory() {
-		HashSet<Integer> ret = new HashSet<Integer>();
+		/*HashSet<Integer> ret = new HashSet<Integer>();
 		ret.add(13);
-		return ret;
+		return ret;*/
+		return controlCategory;
 	}
 	
 	/**
@@ -190,41 +242,45 @@ public class BytecodeCategory {
 	 * @return
 	 */
 	public static HashSet<Integer> dupCategory() {
-		HashSet<Integer> ret = new HashSet<Integer>();
+		/*HashSet<Integer> ret = new HashSet<Integer>();
 		ret.add(6);
 		ret.add(7);
-		return ret;
+		return ret;*/
+		return dupCategory;
 	}
 	
 	public static HashSet<Integer> staticMethodOps() {
-		HashSet<Integer> ret = new HashSet<Integer>();
+		/*HashSet<Integer> ret = new HashSet<Integer>();
 		ret.add(184);
-		//ret.add(186);
-		return ret;
+		return ret;*/
+		return staticMethodOps;
 	}
 	
 	public static HashSet<Integer> returnOps() {
-		HashSet<Integer> ret = new HashSet<Integer>();
+		/*HashSet<Integer> ret = new HashSet<Integer>();
 		for (int i = 172; i <= 177; i++) {
 			ret.add(i);
 		}
-		return ret;
+		return ret;*/
+		return returnOps;
 	}
 	
 	public static HashSet<Integer> objMethodOps() {
-		HashSet<Integer> ret = new HashSet<Integer>();
+		/*HashSet<Integer> ret = new HashSet<Integer>();
 		ret.add(182);
 		ret.add(183);
 		ret.add(185);
-		return ret;
+		return ret;*/
+		return objMethodOps;
 	}
 	
 	public static HashSet<Integer> methodOps() {
-		HashSet<Integer> allMethods = new HashSet<Integer>();
+		/*HashSet<Integer> allMethods = new HashSet<Integer>();
 		allMethods.addAll(objMethodOps());
 		allMethods.addAll(staticMethodOps());
 		allMethods.add(Opcodes.INVOKEDYNAMIC);
-		return allMethods;
+		return allMethods;*/
+		return methodOps;
 	}
 	
 	public static HashSet<Integer> replacedOps() {
@@ -250,11 +306,21 @@ public class BytecodeCategory {
 	}
 	
 	public static void main(String[] args) {
-		loadOpcodeTable();
+		/*loadOpcodeTable();
 		for (int opcode: opcodeTable.keySet()) {
 			OpcodeObj oo = opcodeTable.get(opcode);
 			System.out.println(oo.getCatId() + " " + oo.getSubCatId() + " " + oo.getSubSubCatId() + " " + " " + oo.getOpcode() + " " + oo.getInstruction());
-		}
+		}*/
+		System.out.println("Read cat: " + readCategory);
+		System.out.println("Write cat: " + writeCategory);
+		System.out.println("Read field cat: " + readFieldCategory);
+		System.out.println("Write field cat: " + writeFieldCategory);
+		System.out.println("Control cat: " + controlCategory);
+		System.out.println("Dup cat: " + dupCategory);
+		System.out.println("Static method ops: " + staticMethodOps);
+		System.out.println("Obj method ops: " + objMethodOps);
+		System.out.println("Total method ops: " + methodOps);
+		System.out.println("Return ops: " + returnOps);
 	}
 	
 }

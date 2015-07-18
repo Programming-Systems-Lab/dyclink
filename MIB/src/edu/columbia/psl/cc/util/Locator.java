@@ -26,25 +26,9 @@ public class Locator {
 	private static int simStrat = MIBConfiguration.getInstance().getSimStrategy();
 	
 	private static Logger logger = Logger.getLogger(Locator.class);
-	
+		
 	public static boolean equalInst(InstNode i1, InstNode i2) {
-		int i1Code = SearchUtil.getInstructionOp(i1);
-		int i2Code = SearchUtil.getInstructionOp(i2);
-		
-		if (i1Code != i2Code)
-			return false;
-		
-		//If i1 and i2 are native call, also check their input number
-		int i1Raw = i1.getOp().getOpcode();
-		if (BytecodeCategory.methodOps().contains(i1Raw)) {
-			if (i1.getInstDataParentList().size() == i2.getInstDataParentList().size()) {
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			return true;
-		}
+		return (i1.repOp == i2.repOp);
 	}
 		
 	public static int searchBetter(int oriIdx, 

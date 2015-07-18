@@ -17,6 +17,7 @@ import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.util.GraphUtil;
+import edu.columbia.psl.cc.util.SearchUtil;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class GraphReducer {
@@ -126,6 +127,7 @@ public class GraphReducer {
 				
 				inst.originalOp = inst.getOp();
 				inst.setOp(reduceOp);
+				SearchUtil.repOp(inst);
 				
 				if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC) {
 					//Class op, do not need to collect parents to remove

@@ -97,9 +97,11 @@ public class PageRankSelector {
 				return 1;
 			} else if (i1.pageRank > i2.pageRank) {
 				return -1;
-			} else {
-				int i1Number = SearchUtil.getInstructionOp(i1.inst);
-				int i2Number = SearchUtil.getInstructionOp(i2.inst);
+			} else {				
+				//int i1Number = SearchUtil.getInstructionOp(i1.inst);
+				//int i2Number = SearchUtil.getInstructionOp(i2.inst);
+				int i1Number = i1.inst.repOp;
+				int i2Number = i2.inst.repOp;
 				
 				if (i1Number > i2Number) {
 					return 1;

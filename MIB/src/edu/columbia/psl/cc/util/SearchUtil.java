@@ -17,6 +17,39 @@ public class SearchUtil {
 	
 	private static boolean nativeClass = MIBConfiguration.getInstance().isNativeClass();
 	
+	private static int baseLength;
+	
+	static {
+		if (simStrat == MIBConfiguration.INST_STRAT) {
+			baseLength = 256;
+		} else if (simStrat == MIBConfiguration.SUBSUB_STRAT) {
+			baseLength = 63;
+		} else if (simStrat == MIBConfiguration.SUB_STRAT) {
+			baseLength = 43;
+		} else {
+			baseLength = 21;
+		}
+	}
+	
+	/**
+	 * Not really hash, but differentiate native call from the same pkg
+	 * @param inst
+	 * @return
+	 */
+	public static void repOp(InstNode inst) {
+		int rawOp = SearchUtil.getInstructionOp(inst);
+		
+		if (rawOp >= SearchUtil.baseLength()) {
+			//Native call
+			inst.repOp = rawOp * (inst.getInstDataParentList().size() + 1) + inst.getChildFreqMap().size();
+		} else {
+			inst.repOp = rawOp;
+		}
+		/*System.out.println("Check rawOp: " + rawOp);
+		System.out.println("Check repOp: " + inst.repOp);
+		System.out.println(inst);*/
+	}
+	
 	public static int[] generateBytecodeFreq(InstPool pool) {
 		int[] ret = new int[256];
 		
@@ -102,8 +135,8 @@ public class SearchUtil {
 		int[] ret = new int[pgList.size()];
 		int counter = 0;
 		for (InstWrapper iw: pgList) {
-			int repOp = SearchUtil.getInstructionOp(iw.inst);
-			ret[counter++] = repOp;
+			//int repOp = SearchUtil.getInstructionOp(iw.inst);
+			ret[counter++] = iw.inst.repOp;
 		}
 		return ret;
 	}
@@ -125,7 +158,8 @@ public class SearchUtil {
 	}
 	
 	public static int baseLength() {
-		if (simStrat == MIBConfiguration.INST_STRAT) {
+		return baseLength;
+		/*if (simStrat == MIBConfiguration.INST_STRAT) {
 			return 256;
 		} else if (simStrat == MIBConfiguration.SUBSUB_STRAT) {
 			return 63;
@@ -133,6 +167,6 @@ public class SearchUtil {
 			return 43;
 		} else {
 			return 21;
-		}
+		}*/
 	}
 }

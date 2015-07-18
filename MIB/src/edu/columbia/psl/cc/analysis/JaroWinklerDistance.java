@@ -122,13 +122,15 @@ public class JaroWinklerDistance {
 		double numCommonD = numCommon;
 		double weight = (numCommonD / len1 + numCommonD / len2 + (numCommon - numTransposed)
 				/ numCommonD) / 3.0;
-
+		
+		System.out.println("Check original weight: " + weight);
 		if (weight <= mWeightThreshold)
 			return weight;
 		int max = Math.min(mNumChars, Math.min(seq1.length, seq2.length));
 		int pos = 0;
 		while (pos < max && seq1[pos] == seq2[pos])
 			++pos;
+		System.out.println("Check pos: " + pos);
 		if (pos == 0)
 			return weight;
 		return weight + 0.1 * pos * (1.0 - weight);
