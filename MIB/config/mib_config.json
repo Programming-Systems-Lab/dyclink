@@ -24,8 +24,8 @@
   "opCodeCatId": "opcodes/opcode_ids.csv",
   "costTableDir": "./cost_tables/",
   "costLimit": 100,
-  "templateDir": "./template",
-  "testDir": "./test",
+  "templateDir": "./bulletinboard",
+  "testDir": "./hollywood",
   "pathDir": "./path",
   "labelmapDir": "./labelmap",
   "resultDir": "./results",
@@ -48,7 +48,7 @@
   "testMethodThresh": -1,
   "threadInit": 0,
   "threadMethodIdxRecord": {
-    "0": 28527
+    "0": 9496
   },
   "annotGuard": false,
   "fieldTrack": true,
@@ -59,6 +59,6 @@
   "debug": false,
   "reduceGraph": true,
   "nativeClass": true,
-  "dburl": "jdbc:mysql://liberty.cs.columbia.edu:3306/dyclink",
+  "dburl": "jdbc:mysql://liberty.cs.columbia.edu:3306/dyclink?useServerPrepStmts=false&rewriteBatchedStatements=true",
   "dbusername": "root"
 }

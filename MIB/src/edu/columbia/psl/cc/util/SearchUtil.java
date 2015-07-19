@@ -41,7 +41,9 @@ public class SearchUtil {
 		
 		if (rawOp >= SearchUtil.baseLength()) {
 			//Native call
-			inst.repOp = rawOp * (inst.getInstDataParentList().size() + 1) + inst.getChildFreqMap().size();
+			int[] io = StringUtil.extractIO(inst.getAddInfo());
+			//inst.repOp = rawOp * (inst.getInstDataParentList().size() + 1) + inst.getChildFreqMap().size();
+			inst.repOp = rawOp * (io[0] + 1) + io[1];
 		} else {
 			inst.repOp = rawOp;
 		}

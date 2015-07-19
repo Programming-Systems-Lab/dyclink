@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
@@ -128,6 +129,34 @@ public class StringUtil {
 	public static String genKeyWithId(String key, String id) {
 		return key + ":" + id;
 	}
+	
+	/**
+	 * Append multiple ids to the existing key
+	 * @param key
+	 * @param ids
+	 * @return
+	 */
+	public static String genKeyWithIds(String key, String...ids) {
+		for (String id: ids) {
+			key = genKeyWithId(key, id);
+		}
+		return key;
+	}
+	
+	public static String completeMethodKeyWithInfo(String curMethodKey, 
+			String pkgId, 
+			String methodDesc, 
+			int opcode) {
+		int inputArgs = Type.getArgumentTypes(methodDesc).length;
+		
+		//For obj ref
+		if (opcode != Opcodes.INVOKESTATIC)
+			inputArgs += 1;
+		
+		String inputSize = String.valueOf(inputArgs);
+		String outputSize = String.valueOf(Type.getReturnType(methodDesc).getSort() == Type.VOID? 0: 1);
+		return genKeyWithIds(curMethodKey, inputSize, outputSize, pkgId);
+	}
 		
 	/**
 	 * Generate keys based a method's class name, method name and method desc
@@ -155,6 +184,11 @@ public class StringUtil {
 		String[] infoArr = addInfo.split(":");
 		String valString = infoArr[infoArr.length - 1];
 		return Integer.valueOf(valString);
+	}
+	
+	public static int[] extractIO(String addInfo) {
+		String[] infoArr = addInfo.split(":");
+		return new int[] {Integer.valueOf(infoArr[infoArr.length - 3]), Integer.valueOf(infoArr[infoArr.length - 2])};
 	}
 	
 	public static String genIdxKey(int threadId, 

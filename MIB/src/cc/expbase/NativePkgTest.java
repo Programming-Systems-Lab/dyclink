@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 
+import org.objectweb.asm.Type;
+
 public class NativePkgTest {
 		
 	private int sumArray(int[] arr) {
@@ -55,6 +57,10 @@ public class NativePkgTest {
 		return ret;
 	}
 	
+	private void doNothing(String s1, String s2) {
+		
+	}
+	
 	public static void main(String[] args) {
 		int[] arr = new int[]{1, 2, 3};
 		
@@ -77,6 +83,12 @@ public class NativePkgTest {
 		System.out.println(npt.sumArrayByIt(arr));
 		System.out.println(npt.sumSetByIt(set));
 		System.out.println(npt.constructString(s));
+		
+		String methodDesc = "(Ljava/lang/String;Ljava/lang/String;)V";
+		System.out.println("Check input: " + Type.getArgumentTypes(methodDesc).length);
+		System.out.println("Check output: " + Type.getReturnType(methodDesc).getSort());
+		System.out.println("Check obj sort: " + Type.OBJECT);
+		System.out.println("Check void sort: " + Type.VOID);
 	}
 
 }

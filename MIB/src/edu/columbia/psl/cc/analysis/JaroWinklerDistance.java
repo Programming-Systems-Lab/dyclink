@@ -123,17 +123,18 @@ public class JaroWinklerDistance {
 		double weight = (numCommonD / len1 + numCommonD / len2 + (numCommon - numTransposed)
 				/ numCommonD) / 3.0;
 		
-		System.out.println("Check original weight: " + weight);
+		//System.out.println("Check original weight: " + weight);
 		if (weight <= mWeightThreshold)
 			return weight;
 		int max = Math.min(mNumChars, Math.min(seq1.length, seq2.length));
 		int pos = 0;
 		while (pos < max && seq1[pos] == seq2[pos])
 			++pos;
-		System.out.println("Check pos: " + pos);
+		//System.out.println("Check pos: " + pos);
 		if (pos == 0)
 			return weight;
-		return weight + 0.1 * pos * (1.0 - weight);
+		//return weight + 0.1 * pos * (1.0 - weight);
+		return weight + 0.05 * pos * (1.0 - weight);
 
 	}
 
@@ -166,10 +167,10 @@ public class JaroWinklerDistance {
 		int dist = LevenshteinDistance.calculateDistance(v1, v2);
 		int base = Math.max(v1.length, v2.length);
 		System.out.println(LevenshteinDistance.levenSimilarity(dist, base));*/
-		int[] v1 = {25, 15, 19, 25, 6, 25, 25, 25, 6, 15, 6, 12, 14, 24, 38, 38, 5, 14, 38, 5, 12, 12, 14, 24, 5, 12, 5, 28, 28, 5, 5, 5, 5, 5, 14, 15, 5, 14, 27, 28, 28, 14, 28, 5, 5, 5, 7, 7, 42, 7, 7, 42, 2, 5, 5, 5, 42, 5, 6, 5};
-		int[] v2 = {25, 15, 19, 25, 6, 25, 25, 15, 6, 25, 38, 27, 6, 38, 38, 40, 12, 14, 37, 5, 24, 12, 12, 5, 5, 5, 12, 12, 14, 15, 5, 12, 28, 28, 14, 5, 5, 40, 28, 2, 5, 1, 5, 5, 5, 5, 7, 7, 42, 5, 7, 7, 42, 2, 5, 7, 5, 5, 7, 42, 5};
-		//int[] v1 = {1, 2, 3, 4, 5};
-		//int[] v2 = {5, 4, 3, 2, 1};
+		//int[] v1 = {25, 15, 19, 25, 6, 25, 25, 25, 6, 15, 6, 12, 14, 24, 38, 38, 5, 14, 38, 5, 12, 12, 14, 24, 5, 12, 5, 28, 28, 5, 5, 5, 5, 5, 14, 15, 5, 14, 27, 28, 28, 14, 28, 5, 5, 5, 7, 7, 42, 7, 7, 42, 2, 5, 5, 5, 42, 5, 6, 5};
+		//int[] v2 = {25, 15, 19, 25, 6, 25, 25, 15, 6, 25, 38, 27, 6, 38, 38, 40, 12, 14, 37, 5, 24, 12, 12, 5, 5, 5, 12, 12, 14, 15, 5, 12, 28, 28, 14, 5, 5, 40, 28, 2, 5, 1, 5, 5, 5, 5, 7, 7, 42, 5, 7, 7, 42, 2, 5, 7, 5, 5, 7, 42, 5};
+		int[] v1 = {'m', 'a', 'r', 't', 'h', 'a'};
+		int[] v2 = {'m', 'a', 'r', 'h', 't', 'a'};	
 		System.out.println(JARO_DISTANCE.proximity(v1, v2));
 		System.out.println(JARO_WINKLER_DISTANCE.proximity(v1, v2));
 	}

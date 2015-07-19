@@ -714,7 +714,9 @@ public class MethodStackRecorder {
 						|| GlobalRecorder.checkUntransformedClass(correctClass.getName())) {
 					String pkgName = StringUtil.extractPkg(correctClass.getName());
 					String npId = String.valueOf(GlobalRecorder.getNativePackageId(pkgName));
-					curMethodKey = StringUtil.genKeyWithId(curMethodKey, npId);
+					
+					//curMethodKey = StringUtil.genKeyWithId(curMethodKey, npId);
+					curMethodKey = StringUtil.completeMethodKeyWithInfo(curMethodKey, npId, desc, opcode);
 					InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 							this.threadId, 
 							this.threadMethodId, 
@@ -732,7 +734,8 @@ public class MethodStackRecorder {
 				if (childGraph == null) {
 					logger.error("No child graph can be retrieved: " + realMethodKey);
 					//Add default np ID
-					curMethodKey = StringUtil.genKeyWithId(curMethodKey, defaultPkgId);
+					//curMethodKey = StringUtil.genKeyWithId(curMethodKey, defaultPkgId);
+					curMethodKey = StringUtil.completeMethodKeyWithInfo(curMethodKey, defaultPkgId, desc, opcode);
 					InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 							this.threadId, 
 							this.threadMethodId, 
@@ -746,7 +749,8 @@ public class MethodStackRecorder {
 					logger.error("Incompatible graph: " + childGraph.getMethodKey());
 					logger.error("Wanted: " + correctClass.getName() + " " + name + " " + desc);
 					//Add default np ID
-					curMethodKey = StringUtil.genKeyWithId(curMethodKey, defaultPkgId);
+					//curMethodKey = StringUtil.genKeyWithId(curMethodKey, defaultPkgId);
+					curMethodKey = StringUtil.completeMethodKeyWithInfo(curMethodKey, defaultPkgId, desc, opcode);
 					InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 							this.threadId, 
 							this.threadMethodId, 
