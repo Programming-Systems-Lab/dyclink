@@ -103,6 +103,8 @@ public class PageRankSelector {
 				int i1Number = i1.inst.repOp;
 				int i2Number = i2.inst.repOp;
 				
+				//System.out.println("i1 pg repOp: " + i1.inst + " " + i1.pageRank + " " + i1Number);
+				//System.out.println("i2 pg repOp: " + i2.inst + " " + i2.pageRank + " " + i2Number);
 				if (i1Number > i2Number) {
 					return 1;
 				} else if (i1Number < i2Number) {
@@ -267,7 +269,16 @@ public class PageRankSelector {
 		ranker.evaluate();
 		
 		for (InstNode inst: jungGraph.getVertices()) {
-			InstWrapper iw = new InstWrapper(inst, ranker.getVertexScore(inst));
+			double ranking = ranker.getVertexScore(inst);
+			if (Double.isNaN(ranking)) {
+				System.out.println("Suspect inst: " + inst);
+				System.out.println("Inst data parents: " + inst.getInstDataParentList());
+				System.out.println("Write data parents: " + inst.getWriteDataParentList());
+				System.out.println("Child map: " + inst.getChildFreqMap());
+				System.out.println("Page rank: " + ranking);
+				System.exit(-1);
+			}
+			InstWrapper iw = new InstWrapper(inst, ranking);
 			rankList.add(iw);
 		}
 		
@@ -290,9 +301,13 @@ public class PageRankSelector {
 			String key = keyIT.next();
 			GraphTemplate graph = graphs.get(key);
 			String recordKey = graph.getShortMethodKey() + ":" + graph.getVertexNum() + ":" + graph.getEdgeNum();
+			double density = ((double)graph.getEdgeNum())/graph.getVertexNum();
 			if (graphHistory.contains(recordKey)) {
 				keyIT.remove();
 			} else if (graph.getVertexNum() <= MIBConfiguration.getInstance().getInstThreshold()) {
+				keyIT.remove();
+			} else if (density < 0.8) {
+				//BigDecimal?
 				keyIT.remove();
 			} else {
 				graphHistory.add(recordKey);

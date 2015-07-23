@@ -408,18 +408,26 @@ public class GraphUtil {
 	public static void multiplyGraph(GraphTemplate g, double times) {
 		for (InstNode inst: g.getInstPool()) {
 			TreeMap<String, Double> childMap = inst.getChildFreqMap();
-			
-			HashSet<String> globalChild = null;
+						
 			if (inst instanceof FieldNode) {
 				FieldNode fInst = (FieldNode)inst;
-				globalChild = fInst.getGlobalChildIdx();
+				HashSet<String> globalChild = fInst.getGlobalChildIdx();
+				
+				if (globalChild != null && globalChild.size() > 0) {
+					for (String cKey: childMap.keySet()) {
+						if (globalChild.contains(cKey))
+							continue ;
+						
+						double val = childMap.get(cKey) * times;
+						childMap.put(cKey, val);
+					}
+					continue ;
+				}
 			}
 			
-			for (String cKey: childMap.keySet()) {
-				if (globalChild != null && globalChild.contains(cKey)) {
-					double val = childMap.get(cKey) * times;
-					childMap.put(cKey, val);
-				}
+			for (String cKey: childMap.keySet()) {				
+				double val = childMap.get(cKey) * times;
+				childMap.put(cKey, val);
 			}
 		}
 	}

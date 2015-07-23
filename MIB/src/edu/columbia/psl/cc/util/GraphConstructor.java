@@ -137,8 +137,22 @@ public class GraphConstructor {
 						controlInsts = GraphUtil.retrieveRequiredParentInsts(mn, 
 								rawGraph.getInstPool(), 
 								MIBConfiguration.CONTR_DEP);
+						
+						//No data parent
+						if (allFreq == 0)
+							allFreq = maxFreqFromParents(controlInsts, mnId);
 					}
 					
+					if (allFreq == 0) {
+						//No data, no control parent...
+						for (double childVal: mn.getChildFreqMap().values()) {
+							allFreq += childVal;
+						}
+						
+						if (allFreq == 0)
+							allFreq = 1;
+					}
+										
 					for (MetaGraph meta: mn.getCalleeInfo().metaCallees) {
 						String calleeId = meta.calleeIdx;
 						double frac = meta.normFreq;
@@ -172,11 +186,13 @@ public class GraphConstructor {
 							cReadNodes.add(cReadNode);
 						}
 						
+						double freq = allFreq * frac;
+						GraphUtil.multiplyGraph(callee, freq);
 						if (parentFromCaller != null || controlInsts != null) {
-							double freq = allFreq * frac;
-							GraphUtil.multiplyGraph(callee, freq);	
+							//double freq = allFreq * frac;
+							//GraphUtil.multiplyGraph(callee, freq);	
 							GraphUtil.dataDepFromParentToChildWithFreq(parentFromCaller, cReadNodes, freq);
-							
+														
 							if (controlInsts != null) {
 								for (InstNode controlInst: controlInsts) {
 									double conFreq = controlInst.getChildFreqMap().get(mnId) * frac;
@@ -259,7 +275,7 @@ public class GraphConstructor {
 						
 						mn.setCalleeInfo(null);
 					} else {
-						//Remove inst parent
+						//Remove from inst parent
 						if (parentFromCaller != null) {
 							for (Integer i: parentFromCaller.keySet()) {
 								HashSet<InstNode> parents = parentFromCaller.get(i);
@@ -269,13 +285,14 @@ public class GraphConstructor {
 							}
 						}
 						
-						//Remove control parent
+						//Remove from control parent
 						if (controlInsts != null) {
 							for (InstNode pInst: controlInsts) {
 								pInst.getChildFreqMap().remove(mnId);
 							}
 						}
 						
+						//Remove from children
 						for (InstNode cInst: cRemoveMn) {
 							cInst.getInstDataParentList().remove(mnId);
 						}
@@ -309,7 +326,7 @@ public class GraphConstructor {
 			if (opcode == Opcodes.INVOKESPECIAL && !toRemove.contains(inst)) {
 				String addInfo = inst.getAddInfo();
 				
-				if (addInfo != null && addInfo.equals(objInit)) {
+				if (addInfo != null && addInfo.startsWith(objInit)) {
 					this.collectSingleParent(inst, pool, toRemove);
 				}
 			}
@@ -332,7 +349,7 @@ public class GraphConstructor {
 				continue ;
 			}
 			
-			//Singel child, which is me
+			//Single child, which is me
 			if (parentNode.getChildFreqMap().size() == 1) {
 				this.collectSingleParent(parentNode, pool, recorder);
 			}
@@ -345,7 +362,7 @@ public class GraphConstructor {
 		//File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64:decompose:0:0:14.json");
 		//File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/cc.expbase.TemplateMethod:forMethod:0:0:8.json");
 		//File testFile = new File("/Users/mikefhsu/MiKe/Research/ec2/mib_sandbox_v3/jama_graphs/Jama.Matrix:solve:0:1:3811439.json");
-		File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/bulletinboard/objects.BulletinBoard$WordFrequencyCounter:<init>:0:0:14296.json");
+		File testFile = new File("/Users/mikefhsu/ccws/CodeJam/miguelmaurizio/miguelmaurizio.B:main:0:0:4.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
 		GraphConstructor constructor = new GraphConstructor();
 		constructor.reconstructGraph(testGraph, true);
@@ -358,9 +375,11 @@ public class GraphConstructor {
 		
 		//Exclude global deps here
 		for (InstNode inst: testGraph.getInstPool()) {
-			System.out.println("Check inst rep op: " + inst.repOp);
-			System.out.println("Check original op: " + SearchUtil.getInstructionOp(inst));
-			System.out.println(inst);
+			//System.out.println("Check inst rep op: " + inst.repOp);
+			//System.out.println("Check original op: " + SearchUtil.getInstructionOp(inst));
+			if (inst.getThreadMethodIdx() == 4 && inst.getIdx() == 8) {
+				System.out.println("Capture instruction: " + inst);
+			}
 			eCount += inst.getChildFreqMap().size();
 			
 			if (inst instanceof FieldNode) {
@@ -371,6 +390,9 @@ public class GraphConstructor {
 		System.out.println("Reduced edge size with global deps: " + eCount);
 		//This is what we want to check
 		System.out.println("Reduced edge size without global deps: " + (eCount - globalDeps));
+		
+		System.out.println("Clean obj ref");
+		constructor.cleanObjInit(testGraph);
 		String fileName = "/Users/mikefhsu/Desktop/" + testGraph.getShortMethodKey() + "_re.json";
 		GsonManager.writeJsonGeneric(testGraph, fileName, graphToken, 8);
 		
