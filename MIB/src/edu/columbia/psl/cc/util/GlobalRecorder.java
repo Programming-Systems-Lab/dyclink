@@ -20,6 +20,7 @@ import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.crawler.NativePackages;
+import edu.columbia.psl.cc.pojo.FieldNode;
 import edu.columbia.psl.cc.pojo.FieldRecord;
 import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
@@ -173,10 +174,32 @@ public class GlobalRecorder {
 			fRecorder.removeHistory(writeKey, readKey);
 		}
 	}
-	
-	public static HashMap<String, FieldRecord> getAllFieldRelations() {
+		
+	public static int constructGlobalRelations() {
 		synchronized(writeFieldLock) {
-			return fRecorder.getHistory();
+			int counter = 0;
+			for (FieldRecord fr: fRecorder.getHistory().values()) {
+				FieldNode wInst = (FieldNode)fr.getWriteInst();
+				FieldNode rInst = (FieldNode)fr.getReadInst();
+				double freq = fr.getFreq();
+				
+				if (freq > 0) {
+					wInst.increChild(rInst.getThreadId(), rInst.getThreadMethodIdx(), rInst.getIdx(), freq);
+					rInst.registerParent(wInst.getThreadId(), wInst.getThreadMethodIdx(), wInst.getIdx(), MIBConfiguration.WRITE_DATA_DEP);
+					
+					String rIdx = StringUtil.genIdxKey(rInst.getThreadId(), rInst.getThreadMethodIdx(), rInst.getIdx());
+					wInst.addGlobalChild(rIdx);
+					System.out.println(wInst + " " + rInst);
+					counter++;
+				}
+			}
+			return counter;
+		}
+	}
+	
+	public static void zeroGlobalRelations() {
+		synchronized(writeFieldLock) {
+			fRecorder.zeroRecorder();
 		}
 	}
 				

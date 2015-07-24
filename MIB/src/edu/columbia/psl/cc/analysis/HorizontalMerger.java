@@ -133,7 +133,10 @@ public class HorizontalMerger {
 		}
 	}
 	
-	public static void startExtractionFast(HashMap<String, HashMap<String, GraphTemplate>> graphs) {
+	public static void startExtractionFast(HashMap<String, HashMap<String, GraphTemplate>> graphs, boolean initDumpRecord) {
+		if (initDumpRecord)
+			dumpRecord = new HashMap<String, HashSet<String>>();
+		
 		for (String key: graphs.keySet()) {
 			HashMap<String, GraphTemplate> graphGroups = graphs.get(key);
 			

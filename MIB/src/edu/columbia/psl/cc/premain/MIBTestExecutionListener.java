@@ -101,7 +101,7 @@ public class MIBTestExecutionListener extends RunListener{
 			}
 			
 			System.out.println("Start graph extraction: " + description);
-			MIBDriver.selectDominantGraphsWithTestMethodName(description.getClassName() + "-" + description.getMethodName());
+			MIBDriver.selectDominantGraphsWithTestMethodName(description.getClassName() + "-" + description.getMethodName(), false);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		} finally {

@@ -76,6 +76,11 @@ public class MIBDriver {
 			}
 		}
 		
+		//Set up main thread id
+		int mainThreadId = ObjectIdAllocater.getThreadId();
+		ObjectIdAllocater.setMainThreadId(mainThreadId);
+		logger.info("Main thread id: " + mainThreadId);
+		
 		String className = null;
 		String[] newArgs;
 		if (args[0].equals("-jar")) {
@@ -109,24 +114,26 @@ public class MIBDriver {
 			Method mainMethod = targetClass.getMethod("main", String[].class);
 			mainMethod.invoke(null, (Object)newArgs);
 			
-			//Dump name map
-			logger.info("Dump nameMap: " + targetClass);
-			serializeNameMap();
+			ObjectIdAllocater.clearMainThread();
 			
-			if (MIBConfiguration.getInstance().isFieldTrack()) {
-				//Construct relations between w and r fields
-				logger.info("Construct global edges");
-				constructGlobalRelations();
-			}
-			
-			//Dump all graphs in memory
-			logger.info("Select dominant graphs: " + targetClass);
-			selectDominantGraphs();
-						
-			updateConfig();
-			
-			if (mConfig.isOverallAnalysis()) {
-				AnalysisService.invokeFinalAnalysis(mConfig);
+			if (ObjectIdAllocater.isThreadRecorderEmpty()) {
+				//Dump name map
+				logger.info("Dump nameMap: " + targetClass);
+				serializeNameMap();
+				
+				if (MIBConfiguration.getInstance().isFieldTrack()) {
+					//Construct relations between w and r fields
+					logger.info("Construct global edges");
+					GlobalRecorder.constructGlobalRelations();
+				}
+				
+				//Dump all graphs in memory
+				logger.info("Select dominant graphs: " + targetClass);
+				selectDominantGraphs(false);
+							
+				updateConfig();
+			} else {
+				logger.info("Main thread ends without dumping graphs: " + targetClass);
 			}
 		} catch (Exception ex) {
 			logger.error("Exception: ", ex);
@@ -199,45 +206,17 @@ public class MIBDriver {
 		}
 	}
 	
-	public static void selectDominantGraphs() {
+	public static void selectDominantGraphs(boolean reInitDumpRecord) {
 		//Dump all graphs in memory
 		//HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
 		HashMap<String, HashMap<String, GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
-		/*if (MIBConfiguration.getInstance().isCacheGraph()) {
-			logger.info("Dump all graphs.....");
-			GsonManager.cacheAllGraphs(allGraphs);
-		}*/
-		
-		//HorizontalMerger.startExtraction(allGraphs);
-		HorizontalMerger.startExtractionFast(allGraphs);
+		HorizontalMerger.startExtractionFast(allGraphs, reInitDumpRecord);
 	}
-	
-	public static void constructGlobalRelations() {
-		HashMap<String, FieldRecord> globalRelations = GlobalRecorder.getAllFieldRelations();
 		
-		for (FieldRecord fr: globalRelations.values()) {
-			FieldNode wInst = (FieldNode)fr.getWriteInst();
-			FieldNode rInst = (FieldNode)fr.getReadInst();
-			double freq = fr.getFreq();
-			wInst.increChild(rInst.getThreadId(), rInst.getThreadMethodIdx(), rInst.getIdx(), freq);
-			rInst.registerParent(wInst.getThreadId(), wInst.getThreadMethodIdx(), wInst.getIdx(), MIBConfiguration.WRITE_DATA_DEP);
-			
-			String rIdx = StringUtil.genIdxKey(rInst.getThreadId(), rInst.getThreadMethodIdx(), rInst.getIdx());
-			wInst.addGlobalChild(rIdx);
-			System.out.println(wInst + " " + rInst);
-		}
-	}
-	
-	public static void selectDominantGraphsWithTestMethodName(String testName) {
+	public static void selectDominantGraphsWithTestMethodName(String testName, boolean reInitDumpRecord) {
 		//Dump all graphs in memory
 		//HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
 		HashMap<String, HashMap<String, GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
-		/*if (MIBConfiguration.getInstance().isCacheGraph()) {
-			logger.info("Dump all graphs.....");
-			GsonManager.cacheAllGraphs(allGraphs, testName);
-		}*/
-				
-		//HorizontalMerger.startExtraction(allGraphs);
-		HorizontalMerger.startExtractionFast(allGraphs);
+		HorizontalMerger.startExtractionFast(allGraphs, reInitDumpRecord);
 	}
 }

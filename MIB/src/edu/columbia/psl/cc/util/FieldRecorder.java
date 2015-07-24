@@ -73,5 +73,10 @@ public class FieldRecorder {
 	public void cleanRecorder() {
 		this.fieldRecordHistory.clear();
 	}
-
+	
+	public void zeroRecorder() {
+		for (FieldRecord fr: this.fieldRecordHistory.values()) {
+			fr.zeroFreq();
+		}
+	}
 }

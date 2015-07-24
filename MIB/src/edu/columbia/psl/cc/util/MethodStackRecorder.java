@@ -23,6 +23,7 @@ import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
+import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class MethodStackRecorder {
 	
@@ -1043,11 +1044,34 @@ public class MethodStackRecorder {
 		boolean registerLatest = (!this.methodName.equals("<clinit>"));
 		GlobalRecorder.registerGraph(dumpKey, gt, registerLatest);
 		
-		//Debugging, check graph group
-		/*if (MIBConfiguration.getInstance().isDebug()) {
-			logger.info("Debugging dump");
-			serializeGraphs(dumpKey, gt);
-		}*/
+		//Under multi-thread without joining, the methds in last thread need to dump
+		//Slow but rarely happens
+		//System.out.println("Main thread alive: " + ObjectIdAllocater.isMainThreadAlive());
+		//System.out.println("Thread recorder empty: " + ObjectIdAllocater.isThreadRecorderEmpty());
+		//ObjectIdAllocater.checkThreadRecorder();
+		if (ObjectIdAllocater.secondaryDump(this.threadId)) {
+			logger.info("Secondary dump...");
+			
+			//Dump name map
+			logger.info("Dump nameMap: " + this.className + " " + this.methodName);
+			MIBDriver.serializeNameMap();
+			
+			boolean reInitDumpRecorder = true;
+			if (MIBConfiguration.getInstance().isFieldTrack()) {
+				//Construct relations between w and r fields
+				int counter = GlobalRecorder.constructGlobalRelations();
+				reInitDumpRecorder = (counter > 0);
+				logger.info("Construct global edges: " + counter);
+				
+				GlobalRecorder.zeroGlobalRelations();
+			}
+			
+			//Dump all graphs in memory
+			logger.info("Select dominant graphs: " + this.className);
+			MIBDriver.selectDominantGraphs(reInitDumpRecorder);
+						
+			MIBDriver.updateConfig();
+		}
 		
 		//gt.calleeCache = this.calleeCache;
 		//this.showStackSimulator();

@@ -1,6 +1,7 @@
 package edu.columbia.psl.cc.util;
 
 import java.lang.reflect.Field;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,57 +27,66 @@ public class ObjectIdAllocater {
 		}
 	};
 	
-	private static AtomicInteger threadMethodCounter = new AtomicInteger();
-	
 	private static ConcurrentHashMap<String, AtomicInteger> classMethodIndexer = new ConcurrentHashMap<String, AtomicInteger>();
 	
 	private static ConcurrentHashMap<String, AtomicInteger> threadMethodIndexer = new ConcurrentHashMap<String, AtomicInteger>();
 	
 	private static ConcurrentHashMap<Integer, AtomicInteger> threadMethodIndexerFast = new ConcurrentHashMap<Integer, AtomicInteger>();
 	
-	private static ConcurrentHashMap<Long, Integer> objectIdMemory = new ConcurrentHashMap<Long, Integer>();
+	private static BitSet threadRecorder = new BitSet();
 	
-	public static int getThreadId() {
-		return threadIndexer.get();
+	private static int mainThreadId = -1;
+	
+	public static void setMainThreadId(int id) {
+		mainThreadId = id;
 	}
 	
+	public static int getMainThreadId() {
+		return mainThreadId;
+	}
+	
+	public static boolean isMainThreadAlive() {
+		return threadRecorder.get(mainThreadId);
+	}
+	
+	public static void clearMainThread() {
+		threadRecorder.clear(mainThreadId);
+	}
+	
+	public static int getThreadId() {
+		int threadId = threadIndexer.get();
+		threadRecorder.set(threadId);
+		return threadId;
+	}
+		
+	/**
+	 * Main thread is dead and I am the only one left.
+	 * Quick but dirty remedy
+	 * @return
+	 */
+	public static boolean secondaryDump(int threadId) {
+		boolean mainAlive = threadRecorder.get(mainThreadId);
+		if (mainAlive) {
+			return false;
+		}
+		
+		BitSet test = new BitSet();
+		test.set(threadId);
+		test.xor(threadRecorder);
+		return test.isEmpty();
+	}
+	
+	public static boolean isThreadRecorderEmpty() {
+		return threadRecorder.isEmpty();
+	}
+	
+	public static void checkThreadRecorder() {
+		System.out.println("Check threadRecorder: " + threadRecorder);
+	}
+		
 	public static int getIndex() {
 		return indexer.getAndIncrement();
 	}
-	
-	/*public static int getIndex() {
-		long curThreadId = getThreadId();
-		if (objectIdMemory.containsKey(curThreadId)) {
-			return objectIdMemory.get(curThreadId);
-		} else {
-			int newId = indexer.getAndIncrement();
-			objectIdMemory.put(curThreadId, newId);
-			return newId;
-		}
-	}
-	
-	public static void clearIndex() {
-		long curThreadId = getThreadId();
-		objectIdMemory.remove(curThreadId);
-	}*/
-	
-	/*public static void genIndex(Object target) {
-		Class<?> targetClass = target.getClass();
-		try {
-			Field idField = targetClass.getDeclaredField(MIBConfiguration.getMibId());
-			idField.setAccessible(true);
-			
-			int curId = idField.getInt(target);
-			if (curId > 0) {
-				return ;
-			} else {
-				int newId = indexer.getAndIncrement();
-				idField.setInt(target, newId);
-			}
-		} catch (Exception ex) {
-			logger.error("Exception: ", ex);
-		}
-	}*/
 	
 	public static int getClassMethodIndex(String className, String methodName, String desc) {
 		Class<?> correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(className, methodName, desc, false);
