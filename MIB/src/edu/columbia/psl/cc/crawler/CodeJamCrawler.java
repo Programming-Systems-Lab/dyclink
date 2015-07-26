@@ -55,18 +55,20 @@ public class CodeJamCrawler {
 		}
 	}
 	
-	public static int unpackArchive(File tmpFile, File javaFile) {
-		try {
-			if (javaFile.exists()) {
-				javaFile.delete();
-			}
-			
+	public static int unpackArchive(File tmpFile, File pkgDir) {
+		try {			
 			ZipFile zipFile = new ZipFile(tmpFile);
+			int counter = 0;
 			for (Enumeration entries = zipFile.entries(); entries.hasMoreElements();) {
 				ZipEntry entry = (ZipEntry)entries.nextElement();
+				String fileName = pkgDir.getAbsolutePath() + "/" + entry.getName();
+				File javaFile = new File(fileName);
 				writeFile(zipFile.getInputStream(entry), javaFile);
+				
+				System.out.println("Save file to: " + javaFile.getAbsolutePath());
+				counter++;
 			}
-			return 1;
+			return counter;
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -109,7 +111,7 @@ public class CodeJamCrawler {
 				}
 			}
 			
-			File roundDir = new File(codeRepo + "/round" + round);
+			/*File roundDir = new File(codeRepo + "/round" + round);
 			if (!roundDir.exists()) {
 				roundDir.mkdir();
 			}
@@ -117,7 +119,7 @@ public class CodeJamCrawler {
 			File problemDir = new File(roundDir.getAbsolutePath() + "/problem" + problemId);
 			if (!problemDir.exists()) {
 				problemDir.mkdir();
-			}
+			}*/
 			
 			Document codeJamHome = Jsoup.connect(finalUrl).get();
 			
@@ -136,16 +138,17 @@ public class CodeJamCrawler {
 					URL codeUrl = new URL(link);
 					
 					//ReadableByteChannel rbc = Channels.newChannel(codeUrl.openStream());
-					File tmpFile = File.createTempFile("arc", ".zip", problemDir);
+					File userDir = new File(codeRepo + "/" + userName);
+					if (!userDir.exists()) {
+						userDir.mkdir();
+					}
+					
+					File tmpFile = File.createTempFile("arc", ".zip", userDir);
 					tmpFile.deleteOnExit();
 					//FileOutputStream fos = new FileOutputStream(tmpFile);
 					//fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 					writeFile(codeUrl.openStream(), tmpFile);
-					
-					File javaFile = new File(problemDir + "/" + userName + ".java");
-					userCounter += unpackArchive(tmpFile, javaFile);
-					
-					System.out.println("Save file to: " + javaFile.getAbsolutePath());
+					userCounter += unpackArchive(tmpFile, userDir);
 				}
 			}
 			System.out.println("Total code files: " + userCounter);
