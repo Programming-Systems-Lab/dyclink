@@ -29,6 +29,7 @@ public class FieldRecorder {
 	public void registerHistory(InstNode writeInst, InstNode readInst) {
 		String wrIndex = toIndex(writeInst, readInst);
 		
+		//System.out.println("Register: " + wrIndex);
 		FieldRecord fr = null;
 		if (this.fieldRecordHistory.containsKey(wrIndex)) {
 			fr = this.fieldRecordHistory.get(wrIndex);
@@ -44,11 +45,13 @@ public class FieldRecorder {
 	
 	public void increHistoryFreq(String writeKey, String readKey) {
 		String wrIndex = toIndex(writeKey, readKey);
+		//System.out.println("Incre: " + wrIndex);
 		this.fieldRecordHistory.get(wrIndex).increFreq();
 	}
 	
 	public void removeHistory(String writeKey, String readKey) {
 		String wrIndex = toIndex(writeKey, readKey);
+		//System.out.println("Remove: " + wrIndex);
 		this.fieldRecordHistory.remove(wrIndex);
 	}
 	

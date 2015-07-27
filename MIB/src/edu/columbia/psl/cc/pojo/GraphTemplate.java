@@ -50,7 +50,7 @@ public class GraphTemplate {
 	
 	public transient MethodTrace methodTrace;
 	
-	public transient HashMap<String, String> fieldRelations;
+	public transient HashMap<String, HashSet<String>> fieldRelations;
 		
 	public GraphTemplate() {
 		

@@ -1,6 +1,8 @@
 package edu.columbia.psl.cc.util;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -178,6 +180,18 @@ public class GlobalRecorder {
 	public static int constructGlobalRelations() {
 		synchronized(writeFieldLock) {
 			int counter = 0;
+			
+			//Sampling 10% for checking
+			StringBuilder dumpFields = new StringBuilder();
+			int totalSize = fRecorder.getHistory().values().size();
+			int sampleNum = -1;
+			if (totalSize <= 50) {
+				sampleNum = totalSize;
+			} else {
+				sampleNum = (int) (totalSize * 0.1);
+			}			
+			int div = (int)((double)totalSize/sampleNum);
+			
 			for (FieldRecord fr: fRecorder.getHistory().values()) {
 				FieldNode wInst = (FieldNode)fr.getWriteInst();
 				FieldNode rInst = (FieldNode)fr.getReadInst();
@@ -189,10 +203,34 @@ public class GlobalRecorder {
 					
 					String rIdx = StringUtil.genIdxKey(rInst.getThreadId(), rInst.getThreadMethodIdx(), rInst.getIdx());
 					wInst.addGlobalChild(rIdx);
-					//System.out.println(wInst + " " + rInst);
+					
+					if (div != 0 && counter % div == 0) {
+						String wIdx = StringUtil.genIdxKey(wInst.getThreadId(), wInst.getThreadMethodIdx(), wInst.getIdx());
+						dumpFields.append(wIdx + " " + rIdx + "\n");
+					}
+					
 					counter++;
 				}
 			}
+			
+			if (dumpFields.length() > 0) {
+				try {
+					String path ="";
+					if (MIBConfiguration.getInstance().isTemplateMode()) {
+						path = MIBConfiguration.getInstance().getTemplateDir() + "/fields.txt";
+					} else {
+						path = MIBConfiguration.getInstance().getTestDir() + "/fields.txt";
+					}
+					
+					FileWriter fw = new FileWriter(path);
+					BufferedWriter bw = new BufferedWriter(fw);
+					bw.append(dumpFields);
+					bw.close();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+			
 			return counter;
 		}
 	}

@@ -64,7 +64,7 @@ public class MethodStackRecorder {
 	//Key: local var idx, Val: inst node
 	private Map<Integer, InstNode> localVarRecorder = new HashMap<Integer, InstNode>();
 	
-	private HashMap<String, String> rwFieldRelations = new HashMap<String, String>();
+	private HashMap<String, HashSet<String>> rwFieldRelations = new HashMap<String, HashSet<String>>();
 		
 	private HashMap<String, InstNode> writeFields = new HashMap<String, InstNode>();
 				
@@ -394,7 +394,14 @@ public class MethodStackRecorder {
 					GlobalRecorder.registerRWFieldHistory(writeInst, fullInst);
 					String writeIdx = FieldRecorder.toIndex(writeInst);
 					String readIdx = FieldRecorder.toIndex(fullInst);
-					this.rwFieldRelations.put(writeIdx, readIdx);
+					
+					if (this.rwFieldRelations.containsKey(writeIdx)) {
+						this.rwFieldRelations.get(writeIdx).add(readIdx);
+					} else {
+						HashSet<String> reads = new HashSet<String>();
+						reads.add(readIdx);
+						this.rwFieldRelations.put(writeIdx, reads);
+					}
 				}
 			} else if (BytecodeCategory.writeFieldCategory().contains(opcat) && objId >= 0) {
 				GlobalRecorder.registerWriteField(fieldKey, fullInst);
@@ -1057,26 +1064,31 @@ public class MethodStackRecorder {
 		System.out.println("Thread recorder empty: " + ObjectIdAllocater.isThreadRecorderEmpty());
 		ObjectIdAllocater.checkThreadRecorder();*/
 		if (ObjectIdAllocater.secondaryDump(this.threadId)) {
-			logger.info("Secondary dump...");
+			String curMethod = this.className + " " + this.methodName;
+			logger.info("Secondary dump..." + curMethod);
 			
 			//Dump name map
-			logger.info("Dump nameMap: " + this.className + " " + this.methodName);
+			//logger.info("Dump nameMap: " + this.className + " " + this.methodName);
 			MIBDriver.serializeNameMap();
 			
 			boolean reInitDumpRecorder = true;
 			if (MIBConfiguration.getInstance().isFieldTrack()) {
 				//Construct relations between w and r fields
 				int counter = GlobalRecorder.constructGlobalRelations();
+				
+				//If there is no no global edge, just dump the new graphs
 				reInitDumpRecorder = (counter > 0);
-				logger.info("Construct global edges: " + counter);
+				logger.info("Global edges: " + counter);
 				
 				GlobalRecorder.zeroGlobalRelations();
 			}
 			
 			//Dump all graphs in memory
-			logger.info("Select dominant graphs: " + this.className);
+			//logger.info("Select dominant graphs: " + this.className);
 			MIBDriver.selectDominantGraphs(reInitDumpRecorder);			
 			MIBDriver.updateConfig();
+			
+			logger.info(curMethod + " ends secondary dump");
 		}
 		this.clearCurrentThreadId();
 		

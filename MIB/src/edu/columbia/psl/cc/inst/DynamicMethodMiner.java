@@ -573,6 +573,21 @@ public class DynamicMethodMiner extends MethodVisitor {
 	
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+		//Before System.exit(), dump whatwever we have
+		if (opcode == Opcodes.INVOKESTATIC 
+				&& owner.equals("java/lang/System") 
+				&& name.equals("exit") 
+				&& desc.equals("(I)V")) {
+			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+			this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srGraphDump, srGraphDumpDesc);
+			
+			this.mv.visitInsn(Opcodes.ICONST_1);
+			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
+					"edu/columbia/psl/cc/premain/MIBDriver", 
+					"graphing", 
+					"(Z)V");
+		}
+		
 		//For merging the graph on the fly, need to visit method before recording them
 		this.mv.visitMethodInsn(opcode, owner, name, desc);
 		if (this.shouldInstrument()) {

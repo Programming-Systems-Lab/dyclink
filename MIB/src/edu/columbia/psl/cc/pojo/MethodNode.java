@@ -215,17 +215,22 @@ public class MethodNode extends InstNode {
 			gf.freq++;
 			
 			//The rw history of callee has been registered, need to remove
-			HashMap<String, String> cRW = callee.fieldRelations;
+			HashMap<String, HashSet<String>> cRW = callee.fieldRelations;
 			for (String w: cRW.keySet()) {
-				String r = cRW.get(w);
-				GlobalRecorder.removeHistory(w, r);
+				HashSet<String> rs = cRW.get(w);
+				
+				for (String r: rs) {
+					GlobalRecorder.removeHistory(w, r);
+				}
 			}
 			
 			//Incre history freq
-			HashMap<String, String> curRW = gf.callee.fieldRelations;
+			HashMap<String, HashSet<String>> curRW = gf.callee.fieldRelations;
 			for (String w: curRW.keySet()) {
-				String r = curRW.get(w);
-				GlobalRecorder.increHistoryFreq(w, r);
+				HashSet<String> rs = curRW.get(w);
+				for (String r: rs) {
+					GlobalRecorder.increHistoryFreq(w, r);
+				}
 			}
 			
 			//Remove write fields

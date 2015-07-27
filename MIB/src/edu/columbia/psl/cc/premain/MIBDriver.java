@@ -37,6 +37,8 @@ public class MIBDriver {
 	
 	private static TypeToken<MIBConfiguration> configToken = new TypeToken<MIBConfiguration>(){};
 	
+	private static Class memorizedTargetClass;
+	
 	public static String extractMainClassName(String jarFile) {
 		try {
 			JarFile jFile = new JarFile(new File(jarFile));
@@ -108,6 +110,7 @@ public class MIBDriver {
 		
 		try {
 			Class targetClass = Class.forName(className);
+			memorizedTargetClass = targetClass;
 			logger.info("Confirm class: " + targetClass);
 			//logger.info("Class loader: " + targetClass.getClassLoader().getClass().getName() + " " + System.identityHashCode(targetClass.getClassLoader()));
 			
@@ -117,28 +120,40 @@ public class MIBDriver {
 			ObjectIdAllocater.clearMainThread();
 			
 			if (ObjectIdAllocater.isThreadRecorderEmpty()) {
-				//Dump name map
-				logger.info("Dump nameMap: " + targetClass);
-				serializeNameMap();
-				
-				if (MIBConfiguration.getInstance().isFieldTrack()) {
-					//Construct relations between w and r fields
-					logger.info("Construct global edges");
-					GlobalRecorder.constructGlobalRelations();
-				}
-				
-				//Dump all graphs in memory
-				logger.info("Select dominant graphs: " + targetClass);
-				selectDominantGraphs(false);
-				
-				logger.info("Update configuration");
-				updateConfig();
+				graphing(false);
+				logger.info("Class ends: " + targetClass);
 			} else {
 				logger.info("Main thread ends without dumping graphs: " + targetClass);
 			}
 		} catch (Exception ex) {
 			logger.error("Exception: ", ex);
 		}
+	}
+	
+	public static void graphing(boolean emergentDump) {
+		if (emergentDump) {
+			logger.info("Emergent dump");
+		}
+		logger.info("Graphing: " + memorizedTargetClass);
+		
+		//Dump name map
+		//logger.info("Dump nameMap: " + memorizedTargetClass);
+		serializeNameMap();
+		
+		if (MIBConfiguration.getInstance().isFieldTrack()) {
+			//Construct relations between w and r fields
+			//logger.info("Construct global edges");
+			int gEdgeNum = GlobalRecorder.constructGlobalRelations();
+			logger.info("Global edges: " + gEdgeNum);
+		}
+		
+		//Dump all graphs in memory
+		//logger.info("Select dominant graphs: " + memorizedTargetClass);
+		selectDominantGraphs(false);
+		
+		//Update configuration
+		//logger.info("Update configuration");
+		updateConfig();
 	}
 	
 	public static void serializeNameMap() {
