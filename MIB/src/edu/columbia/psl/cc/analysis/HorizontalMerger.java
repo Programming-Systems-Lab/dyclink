@@ -145,16 +145,17 @@ public class HorizontalMerger {
 				dumpRecord.put(key, dumpGroups);
 			}
 			
-			HashSet<String> dumpedGroup = dumpRecord.get(key);
+			HashSet<String> dumpedGroups = dumpRecord.get(key);
 			
 			//Each map only has one graph
 			for (String groupKey: graphGroups.keySet()) {
-				if (dumpedGroup.contains(groupKey)) {
+				if (dumpedGroups.contains(groupKey)) {
 					continue ;
 				}
 				
+				//System.out.println("Check dump: " + key + " " + groupKey);
 				writeGraphHelper(graphGroups.get(groupKey));
-				dumpedGroup.add(groupKey);
+				dumpedGroups.add(groupKey);
 			}
 		}
 	}

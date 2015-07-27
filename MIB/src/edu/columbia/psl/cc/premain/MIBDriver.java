@@ -130,7 +130,8 @@ public class MIBDriver {
 				//Dump all graphs in memory
 				logger.info("Select dominant graphs: " + targetClass);
 				selectDominantGraphs(false);
-							
+				
+				logger.info("Update configuration");
 				updateConfig();
 			} else {
 				logger.info("Main thread ends without dumping graphs: " + targetClass);

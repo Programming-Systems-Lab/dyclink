@@ -401,7 +401,7 @@ public class MethodStackRecorder {
 				this.writeFields.put(fieldKey, fullInst);
 			} else if (!this.initConstructor) {
 				//Only happens for synthetic fields? No other inst has relation to it, so do nothing
-				logger.info("Pre-access fields: " + fullInst);
+				//logger.info("Pre-access fields: " + fullInst);
 			} else {
 				logger.error("Current method with incorrect obj id: " + this.methodName + " " + objId);
 				logger.error("Error: fail to retrieve object ID " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
@@ -933,14 +933,17 @@ public class MethodStackRecorder {
 	
 	public void dumpGraph() {
 		GlobalRecorder.removeWriteFields(this.writeFields.keySet());
-		if (this.stopRecord)
+		if (this.stopRecord) {
+			this.clearCurrentThreadId();
 			return ;
+		}
 		
 		if (GlobalRecorder.checkUndersizedMethod(this.shortMethodKey)) {
-			logger.info("Leave " + " undersized" +
+			/*logger.info("Leave " + " undersized" +
 					" " + this.methodKey + 
 					" " + this.threadId + 
-					" " + this.threadMethodId);
+					" " + this.threadMethodId);*/
+			this.clearCurrentThreadId();
 			return ;
 		}
 		
@@ -967,7 +970,8 @@ public class MethodStackRecorder {
 		Iterator<InstNode> instIterator = this.pool.iterator();
 		int edgeNum = 0, vertexNum = this.pool.size();
 		int eDelta = 0, vDelta = 0;
-		//double[] dist = new double[256];
+		int maxChildVertex = 0;
+		
 		while (instIterator.hasNext()) {
 			InstNode curInst = instIterator.next();
 			curInst.removeRelatedObj();
@@ -994,12 +998,9 @@ public class MethodStackRecorder {
 							+ childNum;
 					eDelta += delta;
 					
-					/*System.out.println("ID: " + repCallee.getThreadMethodId() + " edge num: " + delta);
-					System.out.println(repCallee.getEdgeNum() 
-							+ " " + firstReadNum + " " 
-							+ firstReadNum * controlParentNum + " " 
-							+ childNum);*/
-					//StaticTester.sumDistribution(dist, repCallee.getDist());
+					if (repCallee.getVertexNum() > maxChildVertex) {
+						maxChildVertex = repCallee.getVertexNum();
+					}
 				}
 				mn.clearCallees();
 				
@@ -1016,8 +1017,14 @@ public class MethodStackRecorder {
 		System.out.println("Graph e: " + edgeNum);
 		System.out.println("vDelta: " + vDelta);
 		System.out.println("eDelta: " + eDelta);*/
+		
 		vertexNum = vertexNum + vDelta;
 		edgeNum = edgeNum + eDelta;
+		
+		double domChildFreq = ((double)maxChildVertex)/vertexNum;
+		if (domChildFreq > 0.9) {
+			gt.setChildDominant(true);
+		}
 		
 		gt.setEdgeNum(edgeNum);
 		gt.setVertexNum(vertexNum);
@@ -1046,9 +1053,9 @@ public class MethodStackRecorder {
 		
 		//Under multi-thread without joining, the methds in last thread need to dump
 		//Slow but rarely happens
-		//System.out.println("Main thread alive: " + ObjectIdAllocater.isMainThreadAlive());
-		//System.out.println("Thread recorder empty: " + ObjectIdAllocater.isThreadRecorderEmpty());
-		//ObjectIdAllocater.checkThreadRecorder();
+		/*System.out.println("Main thread alive: " + ObjectIdAllocater.isMainThreadAlive());
+		System.out.println("Thread recorder empty: " + ObjectIdAllocater.isThreadRecorderEmpty());
+		ObjectIdAllocater.checkThreadRecorder();*/
 		if (ObjectIdAllocater.secondaryDump(this.threadId)) {
 			logger.info("Secondary dump...");
 			
@@ -1068,10 +1075,10 @@ public class MethodStackRecorder {
 			
 			//Dump all graphs in memory
 			logger.info("Select dominant graphs: " + this.className);
-			MIBDriver.selectDominantGraphs(reInitDumpRecorder);
-						
+			MIBDriver.selectDominantGraphs(reInitDumpRecorder);			
 			MIBDriver.updateConfig();
 		}
+		this.clearCurrentThreadId();
 		
 		//gt.calleeCache = this.calleeCache;
 		//this.showStackSimulator();
@@ -1081,15 +1088,9 @@ public class MethodStackRecorder {
 				" " + this.threadMethodId);*/
 	}
 	
-	private static void serializeGraphs(String dumpKey, GraphTemplate gt) {
-		TypeToken<GraphTemplate> typeToken = new TypeToken<GraphTemplate>(){};
-		if (MIBConfiguration.getInstance().isTemplateMode()) {
-			GsonManager.cacheGraph(dumpKey, 0, false);
-			GsonManager.writeJsonGeneric(gt, dumpKey, typeToken, MIBConfiguration.TEMPLATE_DIR);
-		} else {
-			GsonManager.cacheGraph(dumpKey, 1, false);
-			GsonManager.writeJsonGeneric(gt, dumpKey, typeToken, MIBConfiguration.TEST_DIR);
+	private void clearCurrentThreadId() {
+		if (this.threadId != ObjectIdAllocater.getMainThreadId()) {
+			ObjectIdAllocater.clearThreadId(this.threadId);
 		}
-		//GsonManager.writePath(dumpKey, this.path);
 	}
 }

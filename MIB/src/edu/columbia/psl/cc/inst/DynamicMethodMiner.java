@@ -576,7 +576,11 @@ public class DynamicMethodMiner extends MethodVisitor {
 		//For merging the graph on the fly, need to visit method before recording them
 		this.mv.visitMethodInsn(opcode, owner, name, desc);
 		if (this.shouldInstrument()) {
-			if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>") && !this.aload0Lock) {
+			//A bit complex here, this to handle passing object before the super or this has been initialized
+			//Only for constructor. But if the object is not this or super, then spassing obj should be fine
+			if (opcode == Opcodes.INVOKESPECIAL 
+					&& name.equals("<init>") 
+					&& (!this.aload0Lock || (!owner.equals(this.superName) && !owner.equals(this.className)))) {
 				Type[] argTypes = Type.getMethodType(desc).getArgumentTypes();
 				int traceBack = 0;
 				for (Type t: argTypes) {

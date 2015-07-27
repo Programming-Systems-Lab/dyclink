@@ -191,6 +191,11 @@ public class MIBConfiguration {
 		return instance;
 	}
 	
+	public static MIBConfiguration reloadInstance() {
+		instance = null;
+		return getInstance();
+	}
+	
 	public static void main(String args[]) {
 		System.out.println(MIBConfiguration.getInstance());
 	}

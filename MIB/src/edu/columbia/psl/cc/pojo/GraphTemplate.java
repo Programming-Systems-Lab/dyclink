@@ -43,18 +43,12 @@ public class GraphTemplate {
 	private int vertexNum;
 	
 	private HashSet<String> firstReadLocalVars;
-		
-	private List<String> methodCalls;
-		
-	//private double[] dist;
-	
-	//public transient HashMap<String, GraphGroup> calleeCache;
+			
+	private boolean childDominant;
 	
 	public transient HashMap<String, GraphTemplate> calleeRequired;
 	
 	public transient MethodTrace methodTrace;
-	
-	//public transient HashMap<String, InstNode> writeFields;
 	
 	public transient HashMap<String, String> fieldRelations;
 		
@@ -205,12 +199,12 @@ public class GraphTemplate {
 		return this.latestWriteFields;
 	}*/
 		
-	public void setMethodCalls(List<String> methodCalls) {
-		this.methodCalls = methodCalls;
+	public void setChildDominant(boolean childDominant) {
+		this.childDominant = childDominant;
 	}
 	
-	public List<String> getMethodCalls() {
-		return this.methodCalls;
+	public boolean isChildDominant() {
+		return this.childDominant;
 	}
 		
 	public void setThreadId(int threadId) {

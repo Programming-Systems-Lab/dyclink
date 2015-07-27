@@ -35,6 +35,8 @@ public class ObjectIdAllocater {
 	
 	private static BitSet threadRecorder = new BitSet();
 	
+	private static Object threadRecorderLock = new Object();
+	
 	private static int mainThreadId = -1;
 	
 	public static void setMainThreadId(int id) {
@@ -46,16 +48,28 @@ public class ObjectIdAllocater {
 	}
 	
 	public static boolean isMainThreadAlive() {
-		return threadRecorder.get(mainThreadId);
+		synchronized(threadRecorderLock) {
+			return threadRecorder.get(mainThreadId);
+		}
 	}
 	
 	public static void clearMainThread() {
-		threadRecorder.clear(mainThreadId);
+		synchronized(threadRecorderLock) {
+			threadRecorder.clear(mainThreadId);
+		}
+	}
+	
+	public static void clearThreadId(int threadId) {
+		synchronized(threadRecorderLock) {
+			threadRecorder.clear(threadId);
+		}
 	}
 	
 	public static int getThreadId() {
 		int threadId = threadIndexer.get();
-		threadRecorder.set(threadId);
+		synchronized(threadRecorderLock) {
+			threadRecorder.set(threadId);
+		}
 		return threadId;
 	}
 		

@@ -14,7 +14,9 @@ public class MethodNode extends InstNode {
 	
 	private static Logger logger = Logger.getLogger(MethodNode.class);
 	
-	private static double domPass = 0.8;
+	private static final double domPass = 0.8;
+	
+	private static final int maxRegistration = 500;
 	
 	private CalleeInfo calleeInfo = new CalleeInfo();
 	
@@ -23,6 +25,8 @@ public class MethodNode extends InstNode {
 	private RegularState rs = new RegularState();
 	
 	private int maxGraphFreq = 0;
+	
+	private int regCounter = 0;
 	
 	/**
 	 * Filter out graphs whose frequency < (mean - std)
@@ -53,6 +57,7 @@ public class MethodNode extends InstNode {
 			for (GraphWithFreq graF: callees.values()) {
 				if (graF.freq == maxGraphFreq) {
 					ret.put(graF.callee, 1.0);
+					//logger.info("Dominant callee graph: " + graF.callee.getThreadMethodId() + " " + graF.freq);
 					return ret;
 				}
 			}
@@ -109,13 +114,32 @@ public class MethodNode extends InstNode {
 			mn.rs.instFrac = ((double)mn.rs.count)/newTotal;
 		}
 		
-		logger.info("Callee graph filtering");
-		for (GraphWithFreq graF: cache) {
-			double frac = ((double)graF.freq)/newTotal;
+		//logger.info("Callee graph filtering: " + mn.getFromMethod());
+		double accu = 0;
+		for (int i = 0; i < cache.size(); i++) {
+			GraphWithFreq graF = cache.get(i);
+			
+			double frac = 0;
+			if (i == cache.size() - 1) {
+				frac = 1 - accu;
+				frac = roundHelper(frac);
+			} else {
+				frac = ((double)graF.freq)/newTotal;
+				frac = roundHelper(frac);
+				accu += frac;
+			}
+			
 			ret.put(graF.callee, frac);
-			logger.info(graF.callee.getVertexNum() + ":" + graF.callee.getEdgeNum() + " " + frac);
+			//logger.info(graF.callee.getVertexNum() + ":" + graF.callee.getEdgeNum() + " " + frac);
 		}
 		return ret;
+	}
+	
+	public static double roundHelper(double frac) {
+		frac = frac * 100;
+		frac = Math.round(frac);
+		frac = frac/100;
+		return frac;
 	}
 	
 	public void setCalleeInfo(CalleeInfo calleeInfo) {
@@ -175,6 +199,12 @@ public class MethodNode extends InstNode {
 	}
 		
 	public void registerCallee(GraphTemplate callee) {
+		//Collect enough for distribution
+		if (this.regCounter > maxRegistration) {
+			return ;
+		}
+		
+		this.regCounter++;
 		//No need for linenumber actually.
 		String groupKey = GraphGroup.groupKey(this.getLinenumber(), callee);
 		GraphWithFreq gf = null;

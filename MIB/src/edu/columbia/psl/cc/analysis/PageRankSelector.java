@@ -307,9 +307,12 @@ public class PageRankSelector {
 			} else if (graph.getVertexNum() <= MIBConfiguration.getInstance().getInstThreshold()) {
 				keyIT.remove();
 			} else if (density < 0.8) {
-				//BigDecimal?
+				logger.info("Low density graph: " + recordKey);
 				keyIT.remove();
-			} else {
+			} else if (graph.isChildDominant()) {
+				logger.info("Child domiant graph: " + recordKey);
+				keyIT.remove();
+			}else {
 				graphHistory.add(recordKey);
 			}
 		}

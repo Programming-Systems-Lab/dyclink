@@ -2,6 +2,8 @@ package edu.columbia.psl.cc.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -56,7 +59,7 @@ public class CrowdExecutor {
 		String binClusterDir = args[1] + "/" + args[2];
 		File codeJamDir = new File(binClusterDir);
 		
-		HashMap<String, String> executableClasses = new HashMap<String, String>();
+		TreeMap<String, String> executableClasses = new TreeMap<String, String>();
 		for (File usrDir: codeJamDir.listFiles()) {
 			if (usrDir.isDirectory() && !usrDir.getName().startsWith(".") && !problems.contains(usrDir.getName())) {
 				String userDirName = usrDir.getName();
@@ -86,23 +89,42 @@ public class CrowdExecutor {
 			String graphRepoPath = executableClasses.get(execClass);
 			
 			//Need to set the grah path
-			MIBConfiguration config = MIBConfiguration.getInstance();
+			MIBConfiguration config = MIBConfiguration.reloadInstance();
 			config.setTemplateMode(false);
 			config.setTestDir(graphRepoPath);
+			
+			System.out.println("Check config before writing: " + config.getThreadMethodIdxRecord());
+			
 			String fileName = "./config/mib_config.json";
 			GsonManager.writeJsonGeneric(config, fileName, configToken, -1);
 			
-			String[] command = {"/Library/Java/JavaVirtualMachines/jdk1.7.0_07.jdk/Contents/Home/bin/java", "-XX:-UseSplitVerifier", "-cp", binDir.getAbsolutePath() + "/:/Users/mikefhsu/ccws/jvm-clones/MIB/lib/*", execClass};
+			String[] command = {"/Library/Java/JavaVirtualMachines/jdk1.7.0_07.jdk/Contents/Home/bin/java", 
+					"-javaagent:/Users/mikefhsu/ccws/jvm-clones/MIB/build/jar/mib.jar", 
+					"-XX:-UseSplitVerifier", 
+					"-Xmx6g", 
+					"-cp", binDir.getAbsolutePath() + "/:/Users/mikefhsu/ccws/jvm-clones/MIB/lib/*", 
+					"edu.columbia.psl.cc.premain.MIBDriver", 
+					execClass};
 			System.out.println("Execute " + Arrays.toString(command));
+			
+			final File tmpLog = File.createTempFile("./tmplog", null);
+			tmpLog.deleteOnExit();
+			
 			ProcessBuilder pBuilder = new ProcessBuilder(command);
+			pBuilder.redirectErrorStream(true).redirectOutput(tmpLog);
 			Process process = pBuilder.start();
 			int errCode = process.waitFor();
-			System.out.println("Error code: " + errCode);
 			if (errCode == 0) {
 				success++;
 			}
 			
-			InputStream is = process.getInputStream();
+			BufferedReader tmpLogReader = new BufferedReader(new FileReader(tmpLog));
+			String buf = "";
+			while ((buf = tmpLogReader.readLine()) != null) {
+				System.out.println(buf);
+			}
+			
+			/*InputStream is = process.getInputStream();
 			InputStreamReader reader = new InputStreamReader(is);
 			BufferedReader br = new BufferedReader(reader);
 			
@@ -118,7 +140,8 @@ public class CrowdExecutor {
 			String errBuff = "";
 			while ((errBuff = errBr.readLine()) != null) {
 				System.err.println(errBuff);
-			}
+			}*/
+			System.out.println("Complete " + execClass);
 		}
 		System.out.println("Success executions: " + success);
 	}

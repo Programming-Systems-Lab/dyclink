@@ -189,7 +189,7 @@ public class GlobalRecorder {
 					
 					String rIdx = StringUtil.genIdxKey(rInst.getThreadId(), rInst.getThreadMethodIdx(), rInst.getIdx());
 					wInst.addGlobalChild(rIdx);
-					System.out.println(wInst + " " + rInst);
+					//System.out.println(wInst + " " + rInst);
 					counter++;
 				}
 			}
