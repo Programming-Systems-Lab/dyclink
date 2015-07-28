@@ -52,8 +52,6 @@
   },
   "annotGuard": false,
   "fieldTrack": true,
-  "cleanTemplate": false,
-  "cleanTest": false,
   "templateMode": false,
   "overallAnalysis": false,
   "debug": false,

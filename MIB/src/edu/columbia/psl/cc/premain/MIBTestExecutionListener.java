@@ -48,19 +48,19 @@ public class MIBTestExecutionListener extends RunListener{
 		
 		MIBConfiguration mConfig = MIBConfiguration.getInstance();
 		logger.info("MIB Configuration");
-		logger.info(MIBConfiguration.getInstance());
+		logger.info(mConfig);
 		
 		//Set inst pool, cannot set it in static initializer, or there will be infinite loop
-		InstPool.DEBUG = MIBConfiguration.getInstance().isDebug();
+		InstPool.DEBUG = mConfig.isDebug();
 		
 		MIBDriver.setupGlobalRecorder();
 		
 		//Clean directory
-		GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());
+		//GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());
 		
-		HashMap<Integer, Integer> threadMethodIdxRecord = MIBConfiguration.getInstance().getThreadMethodIdxRecord();
+		HashMap<Integer, Integer> threadMethodIdxRecord = mConfig.getThreadMethodIdxRecord();
 		if (threadMethodIdxRecord != null && threadMethodIdxRecord.size() > 0) {
-			HashMap<Integer, Integer> oldRecord = MIBConfiguration.getInstance().getThreadMethodIdxRecord();
+			HashMap<Integer, Integer> oldRecord = mConfig.getThreadMethodIdxRecord();
 			
 			for (Integer key: oldRecord.keySet()) {
 				int newIdx = oldRecord.get(key) + 1;

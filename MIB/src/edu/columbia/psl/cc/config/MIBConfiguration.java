@@ -117,8 +117,6 @@ public class MIBConfiguration {
 	
 	private double writeDataWeight;
 	
-	//private int idxExpandFactor;
-	
 	private int precisionDigit;
 	
 	//private static int parallelFactor = Runtime.getRuntime().availableProcessors();
@@ -155,10 +153,6 @@ public class MIBConfiguration {
 	
 	private boolean fieldTrack;
 	
-	private boolean cleanTemplate;
-	
-	private boolean cleanTest;
-	
 	private boolean templateMode;
 	
 	private boolean overallAnalysis;
@@ -166,9 +160,7 @@ public class MIBConfiguration {
 	private boolean debug;
 	
 	private boolean reduceGraph;
-	
-	//private boolean cacheGraph;
-	
+		
 	private boolean nativeClass;
 	
 	private String dburl;
@@ -376,14 +368,6 @@ public class MIBConfiguration {
 		this.writeDataWeight = writeDataWeight;
 	}
 	
-	/*public int getIdxExpandFactor() {
-		return this.idxExpandFactor;
-	}
-	
-	public void setIdxExpandFactor(int idxExpandFactor) {
-		this.idxExpandFactor = idxExpandFactor;
-	}*/
-
 	public int getPrecisionDigit() {
 		return precisionDigit;
 	}
@@ -567,22 +551,6 @@ public class MIBConfiguration {
 	public void setFieldTrack(boolean fieldTrack) {
 		this.fieldTrack = fieldTrack;
 	}
-
-	public boolean isCleanTemplate() {
-		return cleanTemplate;
-	}
-
-	public void setCleanTemplate(boolean cleanTemplate) {
-		this.cleanTemplate = cleanTemplate;
-	}
-
-	public boolean isCleanTest() {
-		return cleanTest;
-	}
-
-	public void setCleanTest(boolean cleanTest) {
-		this.cleanTest = cleanTest;
-	}
 	
 	public boolean isTemplateMode() {
 		return this.templateMode;
@@ -679,8 +647,6 @@ public class MIBConfiguration {
 		sb.append("dynamic threshod: " + this.simThreshold + "\n");
 		sb.append("annotation guard: " + this.annotGuard + "\n");
 		sb.append("field track: " + this.fieldTrack + "\n");
-		sb.append("clean template: " + this.cleanTemplate + "\n");
-		sb.append("clean test: " + this.cleanTest + "\n");
 		sb.append("template mode: " + this.templateMode + "\n");
 		sb.append("overall analysis: " + this.overallAnalysis + "\n");
 		sb.append("reduce graph: " + this.reduceGraph + "\n");

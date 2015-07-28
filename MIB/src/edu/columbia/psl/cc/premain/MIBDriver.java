@@ -66,7 +66,7 @@ public class MIBDriver {
 		setupGlobalRecorder();
 		
 		//Clean directory
-		GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());
+		//GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());
 		
 		//Read existing info
 		if (MIBConfiguration.getInstance().getThreadMethodIdxRecord().size() > 0) {

@@ -25,7 +25,8 @@ public class TemplateLoader {
 	private static FilenameFilter nameFilter = new FilenameFilter() {
 		@Override
 		public boolean accept(File dir, String name) {
-			return name.toLowerCase().endsWith(".json") && !name.contains(skipMethod);
+			//return name.toLowerCase().endsWith(".json") && !name.contains(skipMethod);
+			return name.toLowerCase().endsWith(".json");
 		}
 	};
 	

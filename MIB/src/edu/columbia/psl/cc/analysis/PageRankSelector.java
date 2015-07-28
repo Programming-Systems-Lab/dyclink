@@ -294,163 +294,33 @@ public class PageRankSelector {
 		}
 		return ret;
 	}
-	
-	public static void filterGraphs(HashMap<String, GraphTemplate> graphs) {
-		HashSet<String> graphHistory = new HashSet<String>();
-		for (Iterator<String> keyIT = graphs.keySet().iterator(); keyIT.hasNext();) {
-			String key = keyIT.next();
-			GraphTemplate graph = graphs.get(key);
-			String recordKey = graph.getShortMethodKey() + ":" + graph.getVertexNum() + ":" + graph.getEdgeNum();
-			double density = ((double)graph.getEdgeNum())/graph.getVertexNum();
-			if (graphHistory.contains(recordKey)) {
-				keyIT.remove();
-			} else if (graph.getVertexNum() <= MIBConfiguration.getInstance().getInstThreshold()) {
-				keyIT.remove();
-			} else if (density < 0.8) {
-				logger.info("Low density graph: " + recordKey);
-				keyIT.remove();
-			} else if (graph.isChildDominant()) {
-				logger.info("Child domiant graph: " + recordKey);
-				keyIT.remove();
-			}else {
-				graphHistory.add(recordKey);
-			}
-		}
-	}
-	
-	public static List<GraphProfile> parallelizeProfiling(HashMap<String, GraphTemplate> graphs) {
-		List<GraphProfile> profiles = new ArrayList<GraphProfile>();
-		
-		try {
-			ExecutorService profileExecutor = 
-					Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
-			List<Future<GraphProfile>> futureProfiles = new ArrayList<Future<GraphProfile>>();
-			for (String fileName: graphs.keySet()) {
-				GraphTemplate graph = graphs.get(fileName);
-				ProfileWorker worker = new ProfileWorker();
-				worker.fileName = fileName;
-				worker.graph = graph;
-				Future<GraphProfile> futureProfile = profileExecutor.submit(worker);
-				futureProfiles.add(futureProfile);
-			}
-			profileExecutor.shutdown();
-			while(!profileExecutor.isTerminated());
 			
-			for (Future<GraphProfile> futureProfile: futureProfiles) {
-				GraphProfile graphProfile = futureProfile.get();
-				if (graphProfile == null)
-					continue ;
-				
-				profiles.add(graphProfile);
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-
-		return profiles;
-	}
-	
-	public static void constructCrawlerList(List<GraphProfile> subProfiles, 
-			List<GraphProfile> targetProfiles, 
-			List<SubGraphCrawler> crawlers) {
-		for (GraphProfile subProfile: subProfiles) {
-			for (GraphProfile targetProfile: targetProfiles) {				
-				if (subProfile.graph.getMethodKey().equals(targetProfile.graph.getMethodKey())) {
-					continue ;
-				}
-				
-				SubGraphCrawler crawler = new SubGraphCrawler();
-				crawler.subGraphName = subProfile.graph.getMethodKey();
-				crawler.targetGraphName = targetProfile.graph.getMethodKey();
-				crawler.subGraphProfile = subProfile;
-				crawler.targetGraph = targetProfile.graph;
-				crawlers.add(crawler);
-			}
-		}
-	}
-	
 	public static void initiateSubGraphMining(String templateDir, 
 			String testDir, 
 			String url, 
 			String username, 
 			String password, 
-			boolean constructOnly) {
+			boolean constructOnly, 
+			String graphRepo) {
 		long startTime = System.currentTimeMillis();
 		
 		File templateLoc = new File(templateDir);
 		File testLoc = new File(testDir);
-		
-		String lib1Name = templateLoc.getName();
-		String lib2Name = testLoc.getName();
-		
-		Comparison compResult = new Comparison();
-		compResult.inst_thresh = MIBConfiguration.getInstance().getInstThreshold();
-		compResult.inst_cat = MIBConfiguration.getInstance().getSimStrategy();
-		compResult.lib1 = lib1Name;
-		compResult.lib2 = lib2Name;
-		
 		StringBuilder sb = new StringBuilder();
-		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
-		
-		HashMap<String, GraphTemplate> templates = null;
-		HashMap<String, GraphTemplate> tests = null;
-		
-		boolean probeTemplate = TemplateLoader.probeDir(templateLoc.getAbsolutePath());
-		boolean probeTest = TemplateLoader.probeDir(testLoc.getAbsolutePath());
-		if (probeTemplate && probeTest) {
-			logger.info("Comparison mode: templates vs tests");
-			templates = TemplateLoader.loadTemplate(templateLoc, graphToken);
-			tests = TemplateLoader.loadTemplate(testLoc, graphToken);
-		} else if (probeTemplate) {
-			logger.info("Exhaustive mode: templates vs. templates");
-			templates = TemplateLoader.loadTemplate(templateLoc, graphToken);
-			tests = TemplateLoader.loadTemplate(templateLoc, graphToken);
-		} else if (probeTest) {
-			logger.info("Exhaustive mode: tests vs. tests");
-			templates = TemplateLoader.loadTemplate(testLoc, graphToken);
-			tests = TemplateLoader.loadTemplate(testLoc, graphToken);
+
+		List<SubGraphCrawler> crawlers = new ArrayList<SubGraphCrawler>();		
+		Comparison compResult = null;
+		if (graphRepo != null) {
+			compResult = GraphLoadController.groupLoad(graphRepo, crawlers);
 		} else {
-			logger.info("Empty repos for both templates and tests");
+			compResult = GraphLoadController.normalLoad(templateLoc, testLoc, crawlers);
+		}
+		
+		if (constructOnly) {
 			return ;
 		}
 		
-		compResult.method1 = templates.size();
-		compResult.method2 = tests.size();
-		
-		filterGraphs(templates);
-		logger.info("Template size: " + templates.size());
-		//logger.info(templates.keySet());
-		filterGraphs(tests);
-		logger.info("Test size: " + tests.size());
-		//logger.info(tests.keySet());
-		
-		compResult.method_f_1 = templates.size();
-		compResult.method_f_2 = tests.size();
-		
-		try {
-			//Construct and profile tests (target graphs)
-			List<GraphProfile> testProfiles = parallelizeProfiling(tests);
-			
-			//Construct and profile template (sub graphs)
-			List<GraphProfile> templateProfiles = parallelizeProfiling(templates);
-			
-			logger.info("Template profiles: " + templateProfiles.size());
-			logger.info("Test profiles: " + testProfiles.size());
-			
-			List<SubGraphCrawler> crawlers = new ArrayList<SubGraphCrawler>();
-			
-			//Sub: template, Target: test
-			constructCrawlerList(templateProfiles, testProfiles, crawlers);
-			
-			//Sub: test, Target: template
-			constructCrawlerList(testProfiles, templateProfiles, crawlers);
-			logger.info("Total number of comparisons: " + crawlers.size());
-			compResult.m_compare = crawlers.size();
-			
-			if (constructOnly) {
-				return ;
-			}
-			
+		try {			
 			ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
 			List<Future<List<HotZone>>> resultRecorder = new ArrayList<Future<List<HotZone>>>();
 			
@@ -506,7 +376,7 @@ public class PageRankSelector {
 						compResult);
 			}
 			
-			String compareName = lib1Name + "-" + lib2Name;
+			String compareName = compResult.lib1 + "-" + compResult.lib2;
 			String csvName = MIBConfiguration.getInstance().getResultDir() + "/" + compareName + now.getTime() + ".csv";
 			
 			int writerCount = 0;
@@ -626,8 +496,18 @@ public class PageRankSelector {
 		System.out.println("DB URL: " + url);
 		
 		boolean constructOnly = false;
-		if (args.length == 1 && args[0].equals("t")) {
-			constructOnly = true;
+		String graphRepo = null;
+		if (args.length == 1) {
+			if (args[0].equals("t")) {
+				constructOnly = true;
+			} else {
+				graphRepo = args[0];
+			}
+		} else if (args.length == 2) {
+			if (args[0].equals("t")) {
+				constructOnly = true;
+			}
+			graphRepo = args[1];
 		}
 		
 		String password = null;
@@ -648,8 +528,6 @@ public class PageRankSelector {
 			}
 			
 		}
-		String templateDir = MIBConfiguration.getInstance().getTemplateDir();
-		String testDir = MIBConfiguration.getInstance().getTestDir();
 		
 		DBConnector connector = new DBConnector();
 		if (shouldDB && !connector.probeDB(url, username, password)) {
@@ -672,6 +550,9 @@ public class PageRankSelector {
 			MIBDriver.setupNativePackages();
 		}
 		
+		String templateDir = MIBConfiguration.getInstance().getTemplateDir();
+		String testDir = MIBConfiguration.getInstance().getTestDir();
+		
 		logger.info("Start PageRank analysis for Bytecode subgraph mining");
 		logger.info("Similarity strategy: " + MIBConfiguration.getInstance().getSimStrategy());
 		logger.info("Assignemnt threshold: " + assignmentThreshold);
@@ -683,7 +564,13 @@ public class PageRankSelector {
 		//logger.info("Max iteration: " + maxIteration);
 		//logger.info("Epsilon: " + epsilon);
 		
-		initiateSubGraphMining(templateDir, testDir, url, username, password, constructOnly);
+		initiateSubGraphMining(templateDir, 
+				testDir, 
+				url, 
+				username, 
+				password, 
+				constructOnly, 
+				graphRepo);
 		System.out.println("Process ends");
 	}
 	
@@ -774,7 +661,7 @@ public class PageRankSelector {
 		}
 	}
 	
-	private static class ProfileWorker implements Callable<GraphProfile> {
+	public static class ProfileWorker implements Callable<GraphProfile> {
 		
 		String fileName;
 		
@@ -862,7 +749,7 @@ public class PageRankSelector {
 		}
 	}
 	
-	private static class SubGraphCrawler implements Callable<List<HotZone>> {
+	public static class SubGraphCrawler implements Callable<List<HotZone>> {
 		
 		String subGraphName;
 		
