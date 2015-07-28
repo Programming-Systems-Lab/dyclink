@@ -115,7 +115,7 @@ public class PageRankSelector {
 			}
 		}
 	};
-	
+		
 	private InstPool myPool;
 	
 	private HashMap<InstNode, Double> priors;
@@ -300,27 +300,32 @@ public class PageRankSelector {
 			String url, 
 			String username, 
 			String password, 
-			boolean constructOnly, 
-			String graphRepo) {
+			boolean constructOnly) {
 		long startTime = System.currentTimeMillis();
 		
 		File templateLoc = new File(templateDir);
 		File testLoc = new File(testDir);
-		StringBuilder sb = new StringBuilder();
 
 		List<SubGraphCrawler> crawlers = new ArrayList<SubGraphCrawler>();		
-		Comparison compResult = null;
-		if (graphRepo != null) {
-			compResult = GraphLoadController.groupLoad(graphRepo, crawlers);
-		} else {
-			compResult = GraphLoadController.normalLoad(templateLoc, testLoc, crawlers);
-		}
+		Comparison compResult = GraphLoadController.normalLoad(templateLoc, testLoc, crawlers);
 		
 		if (constructOnly) {
 			return ;
 		}
 		
-		try {			
+		subGraphMiner(url, username, password, crawlers, compResult, startTime);
+	}
+	
+	public static void subGraphMiner(String url, 
+			String username, 
+			String password, 
+			List<SubGraphCrawler> crawlers, 
+			Comparison compResult, 
+			long startTime) {
+		
+		try {
+			StringBuilder sb = new StringBuilder();
+			
 			ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
 			List<Future<List<HotZone>>> resultRecorder = new ArrayList<Future<List<HotZone>>>();
 			
@@ -496,44 +501,39 @@ public class PageRankSelector {
 		System.out.println("DB URL: " + url);
 		
 		boolean constructOnly = false;
-		String graphRepo = null;
-		if (args.length == 1) {
+		List<String> graphRepos = new ArrayList<String>();
+		if (args.length == 1 && args[0].equals("t")) {
+			constructOnly = true;
+		} else if (args.length >= 1) {
 			if (args[0].equals("t")) {
 				constructOnly = true;
+				
+				for (int i = 1; i < args.length; i++) {
+					graphRepos.add(args[i]);
+				}
 			} else {
-				graphRepo = args[0];
+				for (int i = 0; i < args.length; i++) {
+					graphRepos.add(args[i]);
+				}
 			}
-		} else if (args.length == 2) {
-			if (args[0].equals("t")) {
-				constructOnly = true;
-			}
-			graphRepo = args[1];
 		}
 		
 		String password = null;
 		boolean shouldDB = true;
-		if (args.length == 3) {
-			password = args[0];
-			MIBConfiguration.getInstance().setTemplateDir(args[1]);
-			MIBConfiguration.getInstance().setTestDir(args[2]);
-		} else {
-			System.out.println("Store result into DB?");
-			Scanner scanner = new Scanner(System.in);
-			shouldDB = scanner.nextBoolean();
-			if (shouldDB) {
-				char[] passArray = console.readPassword("DB password: ");
-				password = new String(passArray);
-			} else {
-				password = null;
-			}
-			
-		}
 		
+		System.out.println("Store result into DB?");
+		Scanner scanner = new Scanner(System.in);
+		shouldDB = scanner.nextBoolean();
+		if (shouldDB) {
+			char[] passArray = console.readPassword("DB password: ");
+			password = new String(passArray);
+		} else {
+			password = null;
+		}
+				
 		DBConnector connector = new DBConnector();
 		if (shouldDB && !connector.probeDB(url, username, password)) {
-			System.out.println("No DB connection. Wanna execute experiment still?");
-			Scanner scanner = new Scanner(System.in);
-			
+			System.out.println("No DB connection. Wanna execute experiment still?");			
 			try {
 				boolean shouldExecute = scanner.nextBoolean();
 				if (!shouldExecute) {
@@ -558,19 +558,69 @@ public class PageRankSelector {
 		logger.info("Assignemnt threshold: " + assignmentThreshold);
 		logger.info("Static threshold: " + staticThreshold);
 		logger.info("Dynamic threshold: " + simThreshold);
-		logger.info("Lib1 direcotry: " + (new File(templateDir)).getAbsolutePath());
-		logger.info("Lib2 direcotry: " + (new File(testDir)).getAbsolutePath());
-		//logger.info("Alpha: " + alpha);
-		//logger.info("Max iteration: " + maxIteration);
-		//logger.info("Epsilon: " + epsilon);
 		
-		initiateSubGraphMining(templateDir, 
-				testDir, 
-				url, 
-				username, 
-				password, 
-				constructOnly, 
-				graphRepo);
+		if (graphRepos.size() == 0) {
+			logger.info("Normal load");
+			logger.info("Lib1 direcotry: " + (new File(templateDir)).getAbsolutePath());
+			logger.info("Lib2 direcotry: " + (new File(testDir)).getAbsolutePath());
+			
+			initiateSubGraphMining(templateDir, 
+					testDir, 
+					url, 
+					username, 
+					password, 
+					constructOnly);
+		} else {
+			logger.info("Group load: " + graphRepos.size());
+			
+			for (String graphRepo: graphRepos) {
+				logger.info("Repo loc: " + graphRepo);
+			}
+			
+			List<String> validRepos = Enumerater.enumerate(graphRepos);
+			logger.info("Valid usr repose: " + validRepos.size());
+			
+			//Key: usr repo, val: graph profiles under this usr repo
+			HashMap<String, Integer> unfilters = new HashMap<String, Integer>();
+			HashMap<String, List<GraphProfile>> loadedByRepo = new HashMap<String, List<GraphProfile>>();
+			
+			GraphLoadController.groupLoad(validRepos, loadedByRepo, unfilters);
+			
+			if (constructOnly)
+				return ;
+			
+			for (int i = 0; i < validRepos.size(); i++) {
+				for (int j = i + 1; j < validRepos.size(); j++) {
+					List<SubGraphCrawler> crawlers = new ArrayList<SubGraphCrawler>();
+					String lib1 = validRepos.get(i);
+					String lib2 = validRepos.get(j);
+					
+					List<GraphProfile> templateProfiles = loadedByRepo.get(lib1);
+					List<GraphProfile> testProfiles = loadedByRepo.get(lib2);
+					
+					GraphLoadController.constructCrawlerList(templateProfiles, testProfiles, crawlers);
+					GraphLoadController.constructCrawlerList(testProfiles, templateProfiles, crawlers);
+										
+					Comparison compResult = new Comparison();
+					compResult.inst_thresh = MIBConfiguration.getInstance().getInstThreshold();
+					compResult.inst_cat = MIBConfiguration.getInstance().getSimStrategy();
+					String[] lib1Sep = lib1.split("/");
+					String[] lib2Sep = lib2.split("/");
+					compResult.lib1 = lib1Sep[lib1Sep.length - 1];
+					compResult.lib2 = lib2Sep[lib2Sep.length - 1];
+					compResult.method1 = unfilters.get(lib1);
+					compResult.method2 = unfilters.get(lib2);
+					compResult.method_f_1 = templateProfiles.size();
+					compResult.method_f_2 = testProfiles.size();
+					compResult.m_compare = crawlers.size();
+					
+					long startTime = System.currentTimeMillis();
+					subGraphMiner(url, username, password, crawlers, compResult, startTime);
+				}
+			}
+			
+		}
+		
 		System.out.println("Process ends");
 	}
 	

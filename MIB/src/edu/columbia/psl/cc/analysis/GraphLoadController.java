@@ -44,7 +44,7 @@ public class GraphLoadController {
 				logger.info("Low density graph: " + recordKey);
 				keyIT.remove();
 			} else if (graph.isChildDominant()) {
-				logger.info("Child domiant graph: " + recordKey);
+				logger.info("Child dominant graph: " + recordKey);
 				keyIT.remove();
 			}else {
 				graphHistory.add(recordKey);
@@ -102,10 +102,14 @@ public class GraphLoadController {
 			}
 		}
 	}
-	
+		
 	public static Comparison normalLoad(File templateLoc, 
 			File testLoc, 
 			List<SubGraphCrawler> crawlers) {
+		Comparison compResult = new Comparison();
+		compResult.inst_thresh = MIBConfiguration.getInstance().getInstThreshold();
+		compResult.inst_cat = MIBConfiguration.getInstance().getSimStrategy();
+		
 		boolean probeTemplate = TemplateLoader.probeDir(templateLoc.getAbsolutePath());
 		boolean probeTest = TemplateLoader.probeDir(testLoc.getAbsolutePath());
 		String lib1Name = "";
@@ -118,11 +122,20 @@ public class GraphLoadController {
 			logger.info("Comparison mode: templates vs tests");
 			templates = TemplateLoader.loadTemplate(templateLoc, graphToken);
 			tests = TemplateLoader.loadTemplate(testLoc, graphToken);
+			
 			lib1Name = templateLoc.getName();
 			lib2Name = testLoc.getName();
 			
+			compResult.lib1 = lib1Name;
+			compResult.lib2 = lib2Name;
+			compResult.method1 = templates.size();
+			compResult.method2 = tests.size();
+			
 			filterGraphs(templates);
 			filterGraphs(tests);
+			
+			compResult.method_f_1 = templates.size();
+			compResult.method_f_2 = tests.size();
 			
 			logger.info("Template size: " + templates.size());
 			logger.info("Test size: " + tests.size());
@@ -134,91 +147,74 @@ public class GraphLoadController {
 			logger.info("Test profiles: " + testProfiles.size());
 			
 			constructCrawlerList(templateProfiles, testProfiles, crawlers);
+			constructCrawlerList(testProfiles, templateProfiles, crawlers);
 		} else if (probeTemplate) {
 			logger.info("Exhaustive mode: templates vs. templates");
 			templates = TemplateLoader.loadTemplate(templateLoc, graphToken);
-			tests = templates;
-			lib1Name = lib2Name = templateLoc.getName();
+			lib1Name = templateLoc.getName();
+			
+			compResult.lib1 = lib1Name;
+			compResult.lib2 = lib1Name;
+			compResult.method1 = templates.size();
+			compResult.method2 = templates.size();
 			
 			filterGraphs(templates);
-			logger.info("Template & Test size: " + templates.size());
+			compResult.method_f_1 = templates.size();
+			compResult.method_f_2 = templates.size();
+			logger.info("Template size: " + templates.size());
 			
 			List<GraphProfile> templateProfiles = parallelizeProfiling(templates);
-			logger.info("Template & Test profiles: " + templateProfiles.size());
+			logger.info("Template profiles: " + templateProfiles.size());
+			
 			constructCrawlerList(templateProfiles, templateProfiles, crawlers);
 		} else if (probeTest) {
 			logger.info("Exhaustive mode: tests vs. tests");
 			tests = TemplateLoader.loadTemplate(testLoc, graphToken);
-			templates = tests;
-			lib1Name = lib2Name = testLoc.getName();
+			lib2Name = testLoc.getName();
+			
+			compResult.lib1 = lib2Name;
+			compResult.lib2 = lib2Name;
+			compResult.method1 = tests.size();
+			compResult.method2 = tests.size();
 			
 			filterGraphs(tests);
-			logger.info("Test & Template size: " + tests.size());
+			compResult.method_f_1 = tests.size();
+			compResult.method_f_2 = tests.size();
+			logger.info("Test size: " + tests.size());
 			
 			List<GraphProfile> testProfiles = parallelizeProfiling(tests);
-			logger.info("Test & Template profiles: " + testProfiles.size());
-			constructCrawlerList(testProfiles, testProfiles, crawlers);
+			logger.info("Test profiles: " + testProfiles.size());
+			
+			constructCrawlerList(testProfiles, testProfiles,crawlers);
 		} else {
 			logger.info("Empty repos for both templates and tests");
 			System.exit(-1);
 		}
-		
-		Comparison compResult = new Comparison();
-		compResult.inst_thresh = MIBConfiguration.getInstance().getInstThreshold();
-		compResult.inst_cat = MIBConfiguration.getInstance().getSimStrategy();
-		compResult.lib1 = lib1Name;
-		compResult.lib2 = lib2Name;
-		
-		compResult.method1 = templates.size();
-		compResult.method2 = tests.size();
-		
-		compResult.method_f_1 = templates.size();
-		compResult.method_f_2 = tests.size();
-		
-		logger.info("Total number of comparisons: " + crawlers.size());
 		compResult.m_compare = crawlers.size();
+		logger.info("Total number of comparisons: " + crawlers.size());
+		
 		return compResult;
 	}
 	
-	public static Comparison groupLoad(String graphRepo, List<SubGraphCrawler> crawlers) {
-		File graphRoot = new File(graphRepo);
+	public static void groupLoad(List<String> validRepos, 
+			HashMap<String, List<GraphProfile>> loadedByRepo, 
+			HashMap<String, Integer> unfilters) {
 		
-		if (!graphRoot.exists() || graphRoot.isFile()) {
-			logger.error("Invalid graph repo");
-			System.exit(-1);
-		}
-		
-		logger.info("Group mode");
-		HashMap<String, GraphTemplate> validGraphs = new HashMap<String, GraphTemplate>();
-		for (File usrDir: graphRoot.listFiles()) {
-			if (usrDir.isFile() || usrDir.getName().startsWith("."))
-				continue ;
+		for (String validRepo: validRepos) {
+			logger.info("User repo: " + validRepo);
 			
-			validGraphs.putAll(TemplateLoader.loadTemplate(usrDir, graphToken));
+			File repoDir = new File(validRepo);
+			HashMap<String, GraphTemplate> loads = TemplateLoader.loadTemplate(repoDir, graphToken);
+			unfilters.put(validRepo, loads.size());
+			
+			filterGraphs(loads);
+			logger.info("User method size: " + loads.size());
+			
+			List<GraphProfile> profiles = parallelizeProfiling(loads);
+			logger.info("User profiles: " + profiles.size());
+			
+			loadedByRepo.put(validRepo, profiles);
 		}
-		filterGraphs(validGraphs);
-		logger.info("Graph size: " + validGraphs.size());
-		
-		List<GraphProfile> validProfiles = parallelizeProfiling(validGraphs);
-		logger.info("Graph profile size: " + validProfiles.size());
-		
-		constructCrawlerList(validProfiles, validProfiles, crawlers);
-		
-		Comparison compResult = new Comparison();
-		compResult.inst_thresh = MIBConfiguration.getInstance().getInstThreshold();
-		compResult.inst_cat = MIBConfiguration.getInstance().getSimStrategy();
-		compResult.lib1 = graphRepo;
-		compResult.lib2 = graphRepo;
-		
-		compResult.method1 = validGraphs.size();
-		compResult.method2 = validGraphs.size();
-		
-		compResult.method_f_1 = validGraphs.size();
-		compResult.method_f_2 = validGraphs.size();
-		
-		logger.info("Total number of comparisons: " + crawlers.size());
-		compResult.m_compare = crawlers.size();
-		return compResult;
 	}
 
 }
