@@ -99,21 +99,21 @@ public class CrowdExecutor {
 			String fileName = "./config/mib_config.json";
 			GsonManager.writeJsonGeneric(config, fileName, configToken, -1);
 			
-			String[] command = {"/Library/Java/JavaVirtualMachines/jdk1.7.0_07.jdk/Contents/Home/bin/java", 
+			/*String[] command = {"/Library/Java/JavaVirtualMachines/jdk1.7.0_07.jdk/Contents/Home/bin/java", 
 					"-javaagent:/Users/mikefhsu/ccws/jvm-clones/MIB/build/jar/mib.jar", 
 					"-XX:-UseSplitVerifier", 
 					"-Xmx6g", 
 					"-cp", binDir.getAbsolutePath() + "/:/Users/mikefhsu/ccws/jvm-clones/MIB/lib/*", 
 					"edu.columbia.psl.cc.premain.MIBDriver", 
-					execClass};
+					execClass};*/
 			
-			/*String[] command = {"java", 
+			String[] command = {"java", 
 					"-javaagent:../lib/mib.jar", 
 					"-XX:-UseSplitVerifier", 
 					"-Xmx8g", 
 					"-cp", binDir.getAbsolutePath() + "/:../lib/*", 
 					"edu.columbia.psl.cc.premain.MIBDriver", 
-					execClass};*/
+					execClass};
 			System.out.println("Execute " + Arrays.toString(command));
 			
 			//final File tmpLog = File.createTempFile("./tmplog", null);

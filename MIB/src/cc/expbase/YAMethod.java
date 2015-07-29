@@ -54,6 +54,8 @@ public class YAMethod {
 		secondSet.add(3);
 		secondSet.add(1);
 		System.out.println(secondSet.hashCode());
+		
+		System.out.println(Math.pow(10, -5));
 	}
 
 }

@@ -1033,14 +1033,10 @@ public class MethodStackRecorder {
 		
 		vertexNum = vertexNum + vDelta;
 		edgeNum = edgeNum + eDelta;
-		
-		int instDiff = vertexNum - maxChildVertex;
-		if (instDiff < EFFECTIVE) {
-			gt.setChildDominant(true);
-		}
-		
+				
 		gt.setEdgeNum(edgeNum);
 		gt.setVertexNum(vertexNum);
+		gt.setChildDominant(maxChildVertex);
 		gt.calleeRequired = calleeRequired;
 		
 		if (MIBConfiguration.getInstance().isFieldTrack()) {

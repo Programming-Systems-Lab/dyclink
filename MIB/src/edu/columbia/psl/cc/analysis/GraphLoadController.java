@@ -27,7 +27,9 @@ public class GraphLoadController {
 	
 	private static Logger logger = LogManager.getLogger(GraphLoadController.class);
 	
-	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
+	private final static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
+	
+	private final static int dominantDiff = 20; 
 	
 	public static void filterGraphs(HashMap<String, GraphTemplate> graphs) {
 		HashSet<String> graphHistory = new HashSet<String>();
@@ -36,6 +38,7 @@ public class GraphLoadController {
 			GraphTemplate graph = graphs.get(key);
 			String recordKey = graph.getShortMethodKey() + ":" + graph.getVertexNum() + ":" + graph.getEdgeNum();
 			double density = ((double)graph.getEdgeNum())/graph.getVertexNum();
+			int diff = graph.getVertexNum() - graph.getChildDominant();
 			if (graphHistory.contains(recordKey)) {
 				keyIT.remove();
 			} else if (graph.getVertexNum() <= MIBConfiguration.getInstance().getInstThreshold()) {
@@ -43,7 +46,7 @@ public class GraphLoadController {
 			} else if (density < 0.8) {
 				logger.info("Low density graph: " + recordKey);
 				keyIT.remove();
-			} else if (graph.isChildDominant()) {
+			} else if (diff > dominantDiff) {
 				logger.info("Child dominant graph: " + recordKey);
 				keyIT.remove();
 			}else {

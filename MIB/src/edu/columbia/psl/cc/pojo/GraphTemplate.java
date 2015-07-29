@@ -44,13 +44,15 @@ public class GraphTemplate {
 	
 	private HashSet<String> firstReadLocalVars;
 			
-	private boolean childDominant;
+	private int childDominant;
 	
 	public transient HashMap<String, GraphTemplate> calleeRequired;
 	
 	public transient MethodTrace methodTrace;
 	
 	public transient HashMap<String, HashSet<String>> fieldRelations;
+	
+	public transient boolean mustExist = false;
 		
 	public GraphTemplate() {
 		
@@ -199,11 +201,11 @@ public class GraphTemplate {
 		return this.latestWriteFields;
 	}*/
 		
-	public void setChildDominant(boolean childDominant) {
+	public void setChildDominant(int childDominant) {
 		this.childDominant = childDominant;
 	}
 	
-	public boolean isChildDominant() {
+	public int getChildDominant() {
 		return this.childDominant;
 	}
 		

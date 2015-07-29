@@ -157,6 +157,10 @@ public class GraphConstructor {
 						String calleeId = meta.calleeIdx;
 						double frac = meta.normFreq;
 						
+						double diff = frac - 0;
+						if (Math.abs(diff) < MethodNode.EPSILON)
+							continue ;
+						
 						logger.info("Callee idx: " + calleeId);
 						File f = new File(baseDir + "/" + calleeId);
 						GraphTemplate callee = GsonManager.readJsonGeneric(f, graphToken);

@@ -147,13 +147,7 @@ public class GlobalRecorder {
 			return writeFieldMap.get(field);
 		}
 	}
-	
-	public static void registerAllWriteFields(HashMap<String, InstNode> writeFields) {
-		synchronized(writeFieldLock) {
-			writeFieldMap.putAll(writeFields);
-		}
-	}
-	
+		
 	public static void removeWriteFields(Collection<String> fields) {
 		synchronized(writeFieldLock) {
 			for (String f: fields) {
@@ -349,7 +343,7 @@ public class GlobalRecorder {
 			}
 		}
 	}
-	
+		
 	public static void registerGraph(String shortKey, GraphTemplate graph, boolean registerLatest) {
 		synchronized(graphRecorderLock) {
 			String groupKey = GraphGroup.groupKey(0, graph);
@@ -360,21 +354,27 @@ public class GlobalRecorder {
 				if (checkRecursiveMethod(shortKey)) {
 					if (!subRecord.containsKey(groupKey)) {
 						subRecord.put(groupKey, graph);
+						graph.mustExist = true;
 					} else {
 						GraphTemplate inRecord = subRecord.get(groupKey);
 						if (graph.getThreadId() == inRecord.getThreadId() 
 								&& graph.getThreadMethodId() < inRecord.getThreadMethodId()) {
 							subRecord.put(groupKey, graph);
+							graph.mustExist = true;
+							inRecord.mustExist = false;
 						}
 					}
 				} else {
-					if (!subRecord.containsKey(groupKey))
+					if (!subRecord.containsKey(groupKey)) {
 						subRecord.put(groupKey, graph);
+						graph.mustExist = true;
+					}
 				}
 			} else {
 				HashMap<String, GraphTemplate> subRecord = new HashMap<String, GraphTemplate>();
 				subRecord.put(groupKey, graph);
 				graphRecorder.put(shortKey, subRecord);
+				graph.mustExist = true;
 			}
 			
 			if (registerLatest) {

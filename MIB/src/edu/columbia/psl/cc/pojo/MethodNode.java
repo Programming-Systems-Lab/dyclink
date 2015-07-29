@@ -3,6 +3,7 @@ package edu.columbia.psl.cc.pojo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -16,6 +17,8 @@ public class MethodNode extends InstNode {
 	
 	private static final double domPass = 0.8;
 	
+	public static final double EPSILON = Math.pow(10, -5);
+	
 	private CalleeInfo calleeInfo = new CalleeInfo();
 	
 	private HashMap<String, GraphWithFreq> callees = new HashMap<String, GraphWithFreq>();
@@ -23,6 +26,24 @@ public class MethodNode extends InstNode {
 	private RegularState rs = new RegularState();
 	
 	private int maxGraphFreq = 0;
+	
+	public static double roundHelper(double frac) {
+		frac = frac * 100;
+		frac = Math.round(frac);
+		frac = frac/100;
+		return frac;
+	}
+	
+	public static void globalRWRemoveHelper(GraphTemplate callee) {
+		HashMap<String, HashSet<String>> cRW = callee.fieldRelations;
+		for (String w: cRW.keySet()) {
+			HashSet<String> rs = cRW.get(w);
+			
+			for (String r: rs) {
+				GlobalRecorder.removeHistory(w, r);
+			}
+		}
+	}
 	
 	/**
 	 * Filter out graphs whose frequency < (mean - std)
@@ -50,16 +71,34 @@ public class MethodNode extends InstNode {
 		
 		HashMap<GraphTemplate, Double> ret = new HashMap<GraphTemplate, Double>();
 		if (maxGraphFreq >= domPass * totalFreq) {
+			List<GraphWithFreq> toRemove = new ArrayList<GraphWithFreq>();
+			boolean found = false ;
 			for (GraphWithFreq graF: callees.values()) {
 				if (graF.freq == maxGraphFreq) {
 					ret.put(graF.callee, 1.0);
+					found = true;
 					//logger.info("Dominant callee graph: " + graF.callee.getThreadMethodId() + " " + graF.freq);
-					return ret;
+					//return ret;
+				} else {
+					toRemove.add(graF);
 				}
 			}
 			
-			logger.error("Cannot find graph with matched freq");
-			return null;
+			for (GraphWithFreq removed: toRemove) {
+				GraphTemplate callee = removed.callee;
+				if (removed.callee.mustExist)
+					continue ;
+				
+				//System.out.println("Because of dom: " + callee.getMethodName() + " " + callee.getThreadMethodId());
+				globalRWRemoveHelper(callee);
+			}
+			
+			if (found) {
+				return ret;
+			} else {
+				logger.error("Cannot find graph with matched freq");
+				return null;
+			}
 		}
 		
 		double meanFreq = 0;
@@ -125,19 +164,18 @@ public class MethodNode extends InstNode {
 				accu += frac;
 			}
 			
-			ret.put(graF.callee, frac);
-			//logger.info(graF.callee.getVertexNum() + ":" + graF.callee.getEdgeNum() + " " + frac);
+			double diff = Math.abs(frac - 0);
+			if (diff > EPSILON) {
+				ret.put(graF.callee, frac);
+				//logger.info(graF.callee.getVertexNum() + ":" + graF.callee.getEdgeNum() + " " + frac);
+			} else if (!graF.callee.mustExist){
+				//System.out.println("Because of frac: " + graF.callee.getMethodName() + " " + graF.callee.getThreadMethodId());
+				globalRWRemoveHelper(graF.callee);
+			}
 		}
 		return ret;
 	}
-	
-	public static double roundHelper(double frac) {
-		frac = frac * 100;
-		frac = Math.round(frac);
-		frac = frac/100;
-		return frac;
-	}
-	
+		
 	public void setCalleeInfo(CalleeInfo calleeInfo) {
 		this.calleeInfo = calleeInfo;
 	}
@@ -205,14 +243,7 @@ public class MethodNode extends InstNode {
 			gf.freq++;
 			
 			//The rw history of callee has been registered, need to remove
-			HashMap<String, HashSet<String>> cRW = callee.fieldRelations;
-			for (String w: cRW.keySet()) {
-				HashSet<String> rs = cRW.get(w);
-				
-				for (String r: rs) {
-					GlobalRecorder.removeHistory(w, r);
-				}
-			}
+			globalRWRemoveHelper(callee);
 			
 			//Incre history freq
 			HashMap<String, HashSet<String>> curRW = gf.callee.fieldRelations;
