@@ -87,6 +87,8 @@ public class CodeJamCrawler {
 			System.out.println("Problem id:");
 			int problemId = s.nextInt();
 			
+			String problemKey = "R" + round + "P" + problemId + "Y" + year;
+			
 			String finalUrl = baseUrl + year + "/solutions/" + round + "/" + problemId + "/Java";
 			System.out.println("Confirm final URL: " + finalUrl);
 			
@@ -114,12 +116,12 @@ public class CodeJamCrawler {
 			/*File roundDir = new File(codeRepo + "/round" + round);
 			if (!roundDir.exists()) {
 				roundDir.mkdir();
-			}
+			}*/
 			
-			File problemDir = new File(roundDir.getAbsolutePath() + "/problem" + problemId);
+			File problemDir = new File(codeRepo + "/" + problemKey);
 			if (!problemDir.exists()) {
 				problemDir.mkdir();
-			}*/
+			}
 			
 			Document codeJamHome = Jsoup.connect(finalUrl).get();
 			
@@ -138,7 +140,7 @@ public class CodeJamCrawler {
 					URL codeUrl = new URL(link);
 					
 					//ReadableByteChannel rbc = Channels.newChannel(codeUrl.openStream());
-					File userDir = new File(codeRepo + "/" + userName);
+					File userDir = new File(problemDir.getAbsolutePath() + "/" + userName);
 					if (!userDir.exists()) {
 						userDir.mkdir();
 					}

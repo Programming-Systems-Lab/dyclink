@@ -92,6 +92,11 @@ public class InstNode {
 		}
 	}
 	
+	public void increChildForced(int rheadId, int threadMethodIdx, int childIdx, double amount) {
+		String idxKey = StringUtil.genIdxKey(threadId, threadMethodIdx, childIdx);
+		this.childFreqMap.put(idxKey, amount);
+	}
+	
 	public void resetChild(String idxKey, double amount) {
 		this.childFreqMap.put(idxKey, amount);
 	}

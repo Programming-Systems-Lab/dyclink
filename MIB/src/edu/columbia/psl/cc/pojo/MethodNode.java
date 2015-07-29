@@ -16,8 +16,6 @@ public class MethodNode extends InstNode {
 	
 	private static final double domPass = 0.8;
 	
-	private static final int maxRegistration = 500;
-	
 	private CalleeInfo calleeInfo = new CalleeInfo();
 	
 	private HashMap<String, GraphWithFreq> callees = new HashMap<String, GraphWithFreq>();
@@ -25,8 +23,6 @@ public class MethodNode extends InstNode {
 	private RegularState rs = new RegularState();
 	
 	private int maxGraphFreq = 0;
-	
-	private int regCounter = 0;
 	
 	/**
 	 * Filter out graphs whose frequency < (mean - std)
@@ -199,12 +195,6 @@ public class MethodNode extends InstNode {
 	}
 		
 	public void registerCallee(GraphTemplate callee) {
-		//Collect enough for distribution
-		if (this.regCounter > maxRegistration) {
-			return ;
-		}
-		
-		this.regCounter++;
 		//No need for linenumber actually.
 		String groupKey = GraphGroup.groupKey(this.getLinenumber(), callee);
 		GraphWithFreq gf = null;

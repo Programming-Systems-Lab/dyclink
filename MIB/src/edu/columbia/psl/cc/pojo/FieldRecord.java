@@ -33,11 +33,7 @@ public class FieldRecord {
 	public double getFreq() {
 		return this.freq;
 	}
-	
-	public void zeroFreq() {
-		this.freq = 0;
-	}
-		
+			
 	public String toString() {
 		return FieldRecorder.toIndex(this.writeInst, this.readInst);
 	}

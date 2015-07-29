@@ -31,15 +31,21 @@ public class MethodStackRecorder {
 		
 	private static TypeToken<GraphTemplate> GRAPH_TOKEN = new TypeToken<GraphTemplate>(){};
 	
-	public static int CONSTRUCTOR_DEFAULT = -5;
+	public static final int CONSTRUCTOR_DEFAULT = -5;
 	
-	public static double EPSILON = 0.0001;
+	public static final double EPSILON = 0.0001;
+	
+	private static final int EFFECTIVE = 30;
 	
 	private static String init = "<init>";
 	
 	private static String clinit = "<clinit>";
 	
 	private static String defaultPkgId = String.valueOf(NativePackages.defaultId);
+	
+	private static int secondDumpCounter = 0;
+	
+	private static Object sdcLock = new Object();
 		
 	private String className;
 	
@@ -1028,8 +1034,8 @@ public class MethodStackRecorder {
 		vertexNum = vertexNum + vDelta;
 		edgeNum = edgeNum + eDelta;
 		
-		double domChildFreq = ((double)maxChildVertex)/vertexNum;
-		if (domChildFreq > 0.9) {
+		int instDiff = vertexNum - maxChildVertex;
+		if (instDiff < EFFECTIVE) {
 			gt.setChildDominant(true);
 		}
 		
@@ -1064,31 +1070,7 @@ public class MethodStackRecorder {
 		System.out.println("Thread recorder empty: " + ObjectIdAllocater.isThreadRecorderEmpty());
 		ObjectIdAllocater.checkThreadRecorder();*/
 		if (ObjectIdAllocater.secondaryDump(this.threadId)) {
-			String curMethod = this.className + " " + this.methodName;
-			logger.info("Secondary dump..." + curMethod);
-			
-			//Dump name map
-			//logger.info("Dump nameMap: " + this.className + " " + this.methodName);
-			MIBDriver.serializeNameMap();
-			
-			boolean reInitDumpRecorder = true;
-			if (MIBConfiguration.getInstance().isFieldTrack()) {
-				//Construct relations between w and r fields
-				int counter = GlobalRecorder.constructGlobalRelations();
-				
-				//If there is no no global edge, just dump the new graphs
-				reInitDumpRecorder = (counter > 0);
-				logger.info("Global edges: " + counter);
-				
-				GlobalRecorder.zeroGlobalRelations();
-			}
-			
-			//Dump all graphs in memory
-			//logger.info("Select dominant graphs: " + this.className);
-			MIBDriver.selectDominantGraphs(reInitDumpRecorder);			
-			MIBDriver.updateConfig();
-			
-			logger.info(curMethod + " ends secondary dump");
+			GlobalRecorder.secondaryDump();
 		}
 		this.clearCurrentThreadId();
 		

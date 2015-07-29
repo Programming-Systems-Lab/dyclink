@@ -56,7 +56,6 @@ public class MIBDriver {
 	public static void main(String[] args) {
 		//BasicConfigurator.configure();
 		
-		MIBConfiguration mConfig = MIBConfiguration.getInstance();
 		logger.info("MIB Configuration");
 		logger.info(MIBConfiguration.getInstance());
 		
@@ -73,7 +72,7 @@ public class MIBDriver {
 			HashMap<Integer, Integer> oldRecord = MIBConfiguration.getInstance().getThreadMethodIdxRecord();
 			
 			for (Integer key: oldRecord.keySet()) {
-				int newIdx = oldRecord.get(key) + 1;
+				int newIdx = oldRecord.get(key);
 				ObjectIdAllocater.setThreadMethodIndex(key, newIdx);
 			}
 		}
@@ -143,7 +142,7 @@ public class MIBDriver {
 		if (MIBConfiguration.getInstance().isFieldTrack()) {
 			//Construct relations between w and r fields
 			//logger.info("Construct global edges");
-			int gEdgeNum = GlobalRecorder.constructGlobalRelations();
+			int gEdgeNum = GlobalRecorder.constructGlobalRelations(false);
 			logger.info("Global edges: " + gEdgeNum);
 		}
 		
@@ -209,7 +208,8 @@ public class MIBDriver {
 		ConcurrentHashMap<Integer, AtomicInteger> threadMethodIdxRecord = ObjectIdAllocater.getThreadMethodIdxRecord();
 		HashMap<Integer, Integer> toSerialize = new HashMap<Integer, Integer>();
 		for (Integer i: threadMethodIdxRecord.keySet()) {
-			int newIdx = threadMethodIdxRecord.get(i).get() + 1;
+			//Get thread method id is a ++, so no need to increment here
+			int newIdx = threadMethodIdxRecord.get(i).get() ;
 			toSerialize.put(i, newIdx);
 		}
 		

@@ -58,12 +58,13 @@ public class CrowdExecutor {
 		
 		String binClusterDir = args[1] + "/" + args[2];
 		File codeJamDir = new File(binClusterDir);
+		System.out.println("Bin dir: " + codeJamDir.getAbsolutePath());
 		
 		TreeMap<String, String> executableClasses = new TreeMap<String, String>();
 		for (File usrDir: codeJamDir.listFiles()) {
 			if (usrDir.isDirectory() && !usrDir.getName().startsWith(".") && !problems.contains(usrDir.getName())) {
 				String userDirName = usrDir.getName();
-				File usrRepo = new File(graphDir.getAbsolutePath() + "/" + userDirName);
+				File usrRepo = new File(graphDir.getAbsolutePath() + "/" + args[2] + "-" + userDirName);
 				if (!usrRepo.exists()) {
 					usrRepo.mkdir();
 				}
@@ -105,23 +106,73 @@ public class CrowdExecutor {
 					"-cp", binDir.getAbsolutePath() + "/:/Users/mikefhsu/ccws/jvm-clones/MIB/lib/*", 
 					"edu.columbia.psl.cc.premain.MIBDriver", 
 					execClass};
+			
+			/*String[] command = {"java", 
+					"-javaagent:../lib/mib.jar", 
+					"-XX:-UseSplitVerifier", 
+					"-Xmx8g", 
+					"-cp", binDir.getAbsolutePath() + "/:../lib/*", 
+					"edu.columbia.psl.cc.premain.MIBDriver", 
+					execClass};*/
 			System.out.println("Execute " + Arrays.toString(command));
 			
-			final File tmpLog = File.createTempFile("./tmplog", null);
-			tmpLog.deleteOnExit();
+			//final File tmpLog = File.createTempFile("./tmplog", null);
+			//tmpLog.deleteOnExit();
 			
 			ProcessBuilder pBuilder = new ProcessBuilder(command);
-			pBuilder.redirectErrorStream(true).redirectOutput(tmpLog);
-			Process process = pBuilder.start();
-			int errCode = process.waitFor();
-			if (errCode == 0) {
-				success++;
-			}
+			//pBuilder.redirectErrorStream(true).redirectOutput(tmpLog);
+			final Process process = pBuilder.start();
 			
-			BufferedReader tmpLogReader = new BufferedReader(new FileReader(tmpLog));
+			/*BufferedReader tmpLogReader = new BufferedReader(new FileReader(tmpLog));
 			String buf = "";
 			while ((buf = tmpLogReader.readLine()) != null) {
 				System.out.println(buf);
+			}*/
+			
+			
+			Thread stdOutThread = new Thread() {
+				public void run() {
+					InputStream is = process.getInputStream();
+					InputStreamReader reader = new InputStreamReader(is);
+					BufferedReader br = new BufferedReader(reader);
+					
+					try {
+						String buf = "";
+						while ((buf = br.readLine()) != null) {
+							System.out.println(buf);
+						}
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+			};
+			
+			Thread stdErrThread = new Thread() {
+				public void run() {
+					InputStream errIs = process.getErrorStream();
+					InputStreamReader reader = new InputStreamReader(errIs);
+					BufferedReader br = new BufferedReader(reader);
+					
+					try {
+						String buf = "";
+						while ((buf = br.readLine()) != null) {
+							System.out.println(buf);
+						}
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+			};
+			
+			stdOutThread.start();
+			stdErrThread.start();
+			
+			stdOutThread.join();
+			stdErrThread.join();
+			
+			int errCode = process.waitFor();
+			if (errCode == 0) {
+				success++;
 			}
 			
 			/*InputStream is = process.getInputStream();

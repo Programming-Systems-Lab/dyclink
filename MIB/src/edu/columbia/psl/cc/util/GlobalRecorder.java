@@ -28,6 +28,7 @@ import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.StaticMethodMiner;
+import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class GlobalRecorder {
 	
@@ -68,6 +69,8 @@ public class GlobalRecorder {
 	
 	private static HashMap<Integer, List<GraphTemplate>> unIdChildGraphs = new HashMap<Integer, List<GraphTemplate>>();
 	
+	private static int secondDumpCounter = 0;
+		
 	private static Object timeLock = new Object();
 	
 	private static Object loadClassLock = new Object();
@@ -84,11 +87,11 @@ public class GlobalRecorder {
 	
 	private static Object staticMethodMinerLock = new Object();
 	
-	private static Object vRecorderLock = new Object();
-	
 	private static Object graphRecorderLock = new Object();
 	
 	private static Object unIdChildLock = new Object();
+	
+	private static Object sdcLock = new Object();
 	
 	public static void registerLoadedClass(String className, String shortClinit) {
 		synchronized(loadClassLock) {
@@ -177,7 +180,12 @@ public class GlobalRecorder {
 		}
 	}
 		
-	public static int constructGlobalRelations() {
+	/**
+	 * If forced, put freq directly. Only for secondary dump.
+	 * @param forced
+	 * @return
+	 */
+	public static int constructGlobalRelations(boolean forced) {
 		synchronized(writeFieldLock) {
 			int counter = 0;
 			
@@ -198,17 +206,21 @@ public class GlobalRecorder {
 				double freq = fr.getFreq();
 				
 				if (freq > 0) {
-					wInst.increChild(rInst.getThreadId(), rInst.getThreadMethodIdx(), rInst.getIdx(), freq);
-					rInst.registerParent(wInst.getThreadId(), wInst.getThreadMethodIdx(), wInst.getIdx(), MIBConfiguration.WRITE_DATA_DEP);
-					
+					String wIdx = StringUtil.genIdxKey(wInst.getThreadId(), wInst.getThreadMethodIdx(), wInst.getIdx());
 					String rIdx = StringUtil.genIdxKey(rInst.getThreadId(), rInst.getThreadMethodIdx(), rInst.getIdx());
+					
+					if (forced) {
+						wInst.increChildForced(rInst.getThreadId(), rInst.getThreadMethodIdx(), rInst.getIdx(), freq);
+					} else {
+						wInst.increChild(rInst.getThreadId(), rInst.getThreadMethodIdx(), rInst.getIdx(), freq);
+					}
+					rInst.registerParent(wInst.getThreadId(), wInst.getThreadMethodIdx(), wInst.getIdx(), MIBConfiguration.WRITE_DATA_DEP);	
 					wInst.addGlobalChild(rIdx);
 					
-					if (div != 0 && counter % div == 0) {
-						String wIdx = StringUtil.genIdxKey(wInst.getThreadId(), wInst.getThreadMethodIdx(), wInst.getIdx());
+					if (counter % div == 0) {	
+						//logger.info(wIdx + " " + rIdx + " " + div);
 						dumpFields.append(wIdx + " " + rIdx + "\n");
 					}
-					
 					counter++;
 				}
 			}
@@ -234,13 +246,7 @@ public class GlobalRecorder {
 			return counter;
 		}
 	}
-	
-	public static void zeroGlobalRelations() {
-		synchronized(writeFieldLock) {
-			fRecorder.zeroRecorder();
-		}
-	}
-				
+					
 	public static String registerGlobalName(String className, String methodName, String fullName) {
 		String shortNameNoKey = StringUtil.cleanPunc(className, ".") + 
 				":" + StringUtil.cleanPunc(methodName);
@@ -518,5 +524,49 @@ public class GlobalRecorder {
 			curTime.set(0);
 		}
 		System.gc();
+	}
+	
+	public static void secondaryDump() {
+		synchronized(sdcLock) {
+			int div = 0;
+			if (secondDumpCounter < 10000) {
+				div = 20;
+			} else if (secondDumpCounter >= 10000 && secondDumpCounter < 20000){
+				div = 40;
+			} else if (secondDumpCounter >= 20000 && secondDumpCounter < 30000){
+				div = 100;
+			} else if (secondDumpCounter >= 30000 && secondDumpCounter < 40000){
+				div = 1000;
+			} else {
+				//Should be stable here...
+				div= 10000;
+			}
+			
+			if (secondDumpCounter % div == 0) {
+				logger.info("Secondary dump..." + secondDumpCounter);
+				
+				//Dump name map
+				//logger.info("Dump nameMap: " + this.className + " " + this.methodName);
+				MIBDriver.serializeNameMap();
+				
+				boolean reInitDumpRecorder = true;
+				if (MIBConfiguration.getInstance().isFieldTrack()) {
+					//Construct relations between w and r fields, forced to put freq
+					int counter = GlobalRecorder.constructGlobalRelations(true);
+					
+					//If there is no no global edge, just dump the new graphs
+					reInitDumpRecorder = (counter > 0);
+					logger.info("Global edges: " + counter);
+				}
+				
+				//Dump all graphs in memory
+				//logger.info("Select dominant graphs: " + this.className);
+				MIBDriver.selectDominantGraphs(reInitDumpRecorder);			
+				MIBDriver.updateConfig();
+				
+				logger.info(secondDumpCounter + " ends secondary dump");
+			}
+			secondDumpCounter++;
+		}
 	}
 }
