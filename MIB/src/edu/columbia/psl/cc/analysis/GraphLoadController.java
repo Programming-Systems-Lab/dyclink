@@ -46,7 +46,7 @@ public class GraphLoadController {
 			} else if (density < 0.8) {
 				logger.info("Low density graph: " + recordKey);
 				keyIT.remove();
-			} else if (diff > dominantDiff) {
+			} else if (graph.getChildDominant() != 0 && diff < dominantDiff) {
 				logger.info("Child dominant graph: " + recordKey);
 				keyIT.remove();
 			}else {
