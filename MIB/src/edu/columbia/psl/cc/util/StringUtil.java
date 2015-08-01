@@ -20,8 +20,9 @@ public class StringUtil {
 	public static boolean shouldIncludeClass(String name) {
 		List<String> excludeClass = MIBConfiguration.getInstance().getExcludeClass();
 		for (String exclude: excludeClass) {
-			if (name.startsWith(exclude))
+			if (name.startsWith(exclude)) {
 				return false;
+			}
 		}
 		return true;
 	}

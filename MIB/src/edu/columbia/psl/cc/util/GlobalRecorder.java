@@ -519,6 +519,10 @@ public class GlobalRecorder {
 			fRecorder.cleanRecorder();
 		}
 		
+		synchronized(unIdChildLock) {
+			unIdChildGraphs.clear();
+		}
+		
 		synchronized(timeLock) {
 			//curDigit.set(0);
 			curTime.set(0);

@@ -947,7 +947,7 @@ public class MethodStackRecorder {
 	public void dumpGraph() {
 		GlobalRecorder.removeWriteFields(this.writeFields.keySet());
 		if (this.stopRecord) {
-			this.clearCurrentThreadId();
+			//this.clearCurrentThreadId();
 			return ;
 		}
 		

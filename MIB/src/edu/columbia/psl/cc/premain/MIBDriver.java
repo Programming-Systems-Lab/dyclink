@@ -229,10 +229,10 @@ public class MIBDriver {
 		HorizontalMerger.startExtractionFast(allGraphs, reInitDumpRecord);
 	}
 		
-	public static void selectDominantGraphsWithTestMethodName(String testName, boolean reInitDumpRecord) {
+	/*public static void selectDominantGraphsWithTestMethodName(String testName, boolean reInitDumpRecord) {
 		//Dump all graphs in memory
 		//HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
 		HashMap<String, HashMap<String, GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
 		HorizontalMerger.startExtractionFast(allGraphs, reInitDumpRecord);
-	}
+	}*/
 }

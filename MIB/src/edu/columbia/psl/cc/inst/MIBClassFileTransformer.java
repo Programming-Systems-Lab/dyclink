@@ -40,7 +40,6 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 		// TODO Auto-generated method stub
 		
 		String name = className.replace("/", ".");
-		//System.out.println("Class Name: " + name);
 		
 		//Check protection domain
 		if (protectionDomain != null) {			

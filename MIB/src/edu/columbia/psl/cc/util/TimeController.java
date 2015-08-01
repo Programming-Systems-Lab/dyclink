@@ -17,7 +17,7 @@ public class TimeController {
 			enable = true;
 	}
 	
-	public static void initTestMethodBaseTime() {
+	public static void initTestMethodBaseTime() {		
 		int threadId = ObjectIdAllocater.getThreadId();
 		long baseTime = System.currentTimeMillis();
 		timeMap.put(threadId, baseTime);
