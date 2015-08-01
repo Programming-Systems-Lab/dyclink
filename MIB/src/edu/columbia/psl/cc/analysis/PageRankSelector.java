@@ -313,13 +313,10 @@ public class PageRankSelector {
 			return ;
 		}
 		
-		subGraphMiner(url, username, password, crawlers, compResult, startTime);
+		subGraphMiner(crawlers, compResult, startTime);
 	}
 	
-	public static void subGraphMiner(String url, 
-			String username, 
-			String password, 
-			List<SubGraphCrawler> crawlers, 
+	public static void subGraphMiner(List<SubGraphCrawler> crawlers, 
 			Comparison compResult, 
 			long startTime) {
 		
@@ -370,16 +367,8 @@ public class PageRankSelector {
 			
 			//Write summary to DB
 			int compResultId = -1;
-			if (url != null && username != null && password != null) {
-				DBConnector connector = new DBConnector();
-				compResultId = connector.writeCompTableResult(url, 
-						username, 
-						password, 
-						staticThreshold, 
-						simThreshold, 
-						now, 
-						compResult);
-			}
+			DBConnector connector = new DBConnector();
+			compResultId = DBConnector.writeCompTableResult(staticThreshold, simThreshold, now, compResult);
 			
 			String compareName = compResult.lib1 + "-" + compResult.lib2;
 			String csvName = MIBConfiguration.getInstance().getResultDir() + "/" + compareName + now.getTime() + ".csv";
@@ -430,9 +419,9 @@ public class PageRankSelector {
 				
 				if (buffer.size() >= 5000) {
 					ExecutorService dbExecutor = Executors.newFixedThreadPool(1);
-					DBWriter dbWriter = new DBWriter(url, username, password, compResultId, buffer);
+					DBWriter dbWriter = new DBWriter(compResultId, buffer);
 					Future<Boolean> submitFuture = dbExecutor.submit(dbWriter);
-					boolean submitResult = submitFuture.get(60, TimeUnit.SECONDS);
+					boolean submitResult = submitFuture.get(120, TimeUnit.SECONDS);
 					try {
 						if (submitResult)
 							writerCount++;
@@ -444,20 +433,18 @@ public class PageRankSelector {
 						submitFuture.cancel(true);
 						logger.error("Fail to write " + buffer.size() + " zones");
 					} finally {
+						logger.info("Buffer size: " + buffer.size());
 						buffer.clear();
 						dbExecutor.shutdown();
 						while (!dbExecutor.isTerminated());
-						logger.info("Buffer size: " + buffer.size());
 						logger.info("Current writer after dbExecutor: " + writerCount);
 					}
-					//DBConnector connector = new DBConnector();
-					//connector.writeDetailTableResult(url, username, password, compResultId, zones);
 				}
 			}
 			
 			if (buffer.size() > 0) {
 				ExecutorService dbExecutor = Executors.newFixedThreadPool(1);
-				DBWriter dbWriter = new DBWriter(url, username, password, compResultId, buffer);
+				DBWriter dbWriter = new DBWriter(compResultId, buffer);
 				Future<Boolean> submitFuture = dbExecutor.submit(dbWriter);
 				boolean submitResult = submitFuture.get(60, TimeUnit.SECONDS);
 				try {					
@@ -471,22 +458,19 @@ public class PageRankSelector {
 					submitFuture.cancel(true);
 					logger.error("Fail to write " + buffer.size() + " zones");
 				} finally {
+					logger.info("Buffer size (residue): " + buffer.size());
 					buffer.clear();
 					dbExecutor.shutdown();
 					while (!dbExecutor.isTerminated());
-					logger.info("Buffer size (residue): " + buffer.size());
 					logger.info("Current writer after dbExecutor (residue): " + writerCount);
 				}
 			}
 			
 			logger.info("Total writer: " + writerCount);
-			//dbExecutor.shutdown();
-			//while (!dbExecutor.isTerminated());
 			logger.info("Storing data ends");
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		//GsonManager.writeResult(compareName, sb);
 	}
 				
 	public static void main(String[] args) {
@@ -530,9 +514,9 @@ public class PageRankSelector {
 		} else {
 			password = null;
 		}
-				
-		DBConnector connector = new DBConnector();
-		if (shouldDB && !connector.probeDB(url, username, password)) {
+		
+		DBConnector.init(url, username, password);
+		if (shouldDB && !DBConnector.probeDB()) {
 			System.out.println("No DB connection. Wanna execute experiment still?");			
 			try {
 				boolean shouldExecute = scanner.nextBoolean();
@@ -615,12 +599,17 @@ public class PageRankSelector {
 					compResult.m_compare = crawlers.size();
 					
 					long startTime = System.currentTimeMillis();
-					subGraphMiner(url, username, password, crawlers, compResult, startTime);
+					subGraphMiner(crawlers, compResult, startTime);
 				}
 			}
 			
 		}
 		
+		try {
+			DBConnector.getConnection().close();
+		} catch (Exception ex) {
+			logger.error("Error: ", ex);
+		}
 		System.out.println("Process ends");
 	}
 	
@@ -672,20 +661,12 @@ public class PageRankSelector {
 	}
 	
 	private static class DBWriter implements Callable<Boolean>{
-		String url;
-		
-		String username;
-		
-		String password;
 		
 		int compResultId;
 		
 		List<HotZone> zones;
 		
-		public DBWriter(String url, String username, String password, int compResultId, List<HotZone> zones) {
-			this.url = url;
-			this.username = username;
-			this.password = password;
+		public DBWriter(int compResultId, List<HotZone> zones) {
 			this.compResultId = compResultId;
 			this.zones = zones;
 			
@@ -693,8 +674,7 @@ public class PageRankSelector {
 		
 		@Override
 		public Boolean call() {
-			DBConnector connector = new DBConnector();
-			return connector.writeDetailTableResult(url, username, password, compResultId, zones);
+			return DBConnector.writeDetailTableResult(compResultId, zones);
 		}
 	}
 	

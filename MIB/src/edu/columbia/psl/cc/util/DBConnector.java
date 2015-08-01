@@ -29,45 +29,60 @@ public class DBConnector {
 	
 	private static Logger logger = Logger.getLogger(DBConnector.class);
 	
-	public boolean probeDB(String baseurl, String username, String password) {
+	private static String baseurl;
+	
+	private static String username;
+	
+	private static String password;
+	
+	private static Connection connect;
+	
+	public static void init(String baseurl, String username, String password) {
+		DBConnector.baseurl = baseurl;
+		DBConnector.username = username;
+		DBConnector.password = password;
+	}
+	
+	public static Connection getConnection() {
+		if (baseurl == null || username == null || password == null)
+			return null;
+		try {
+			if (connect == null) {
+				Class.forName("com.mysql.jdbc.Driver");
+				connect = DriverManager.getConnection(baseurl, username, password);
+			}
+			return connect;
+		} catch (Exception ex) {
+			logger.error("Exception: ", ex);
+		}
+		return null;
+	}
+	
+	public static boolean probeDB() {
 		if (baseurl == null || username == null || password == null)
 			return false;
 		
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			Connection connect = DriverManager.getConnection(baseurl, username, password);
+			//Class.forName("com.mysql.jdbc.Driver");
+			//Connection connect = DriverManager.getConnection(baseurl, username, password);
+			Connection connect = DBConnector.getConnection();
 			boolean probe = connect.isValid(10);
-			connect.close();
+			//connect.close();
 			return probe;
-			//String query = "SELECT User, Password FROM User WHERE User = \'" + username + "\' and Password = \'" + password + "\';";
-			/*String query = "SELECT User, Password FROM User";
-			System.out.println("Query string: " + query);
-			Statement stmt = connect.createStatement();
-			ResultSet result = stmt.executeQuery(query);
-			
-			while (result.next()) {
-				if (result.getString("User").equals(username) && result.getString("Password").equals(password)) {
-					return true;
-				} else {
-					return false;
-				}
-			}*/
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		return false;
 	}
 	
-	public int writeCompTableResult(String url, 
-			String username, 
-			String password,
-			double sThresh,
+	public static int writeCompTableResult(double sThresh,
 			double dThresh,
 			Date now,
 			Comparison compResult) {
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			Connection connect = DriverManager.getConnection(url, username, password);
+			//Class.forName("com.mysql.jdbc.Driver");
+			//Connection connect = DriverManager.getConnection(url, username, password);
+			Connection connect = DBConnector.getConnection();
 			String query = "INSERT INTO comp_table (inst_thresh, inst_cat, lib1, lib2, " +
 					"method1, method2, " +
 					"method_f_1, method_f_2, m_compare, " +
@@ -98,18 +113,18 @@ public class DBConnector {
 			if (insertRow == 0) {
 				logger.error("Insertion fail: " + compResult.lib1 + " " + compResult.lib2);
 				pStmt.close();
-				connect.close();
+				//connect.close();
 				return -1;
 			} else {
 				ResultSet genKey = pStmt.getGeneratedKeys();
 				if (genKey.next()) {
 					int ret = genKey.getInt(1);
 					pStmt.close();
-					connect.close();
+					//connect.close();
 					return ret;
 				} else {
 					pStmt.close();
-					connect.close();
+					//connect.close();
 					return -1;
 				}
 			}
@@ -119,11 +134,7 @@ public class DBConnector {
 		return -1;
 	}
 	
-	public boolean writeDetailTableResult(String url, 
-			String username, 
-			String password, 
-			int compId,
-			List<HotZone> hotzones) {
+	public static boolean writeDetailTableResult(int compId, List<HotZone> hotzones) {
 		try {
 			
 			String writerLabel = "";
@@ -137,9 +148,9 @@ public class DBConnector {
 				return true;
 			}
 			
-			
-			Class.forName("com.mysql.jdbc.Driver");
-			Connection connect = DriverManager.getConnection(url, username, password);
+			//Class.forName("com.mysql.jdbc.Driver");
+			//Connection connect = DriverManager.getConnection(url, username, password);
+			Connection connect = DBConnector.getConnection();
 			String query = "INSERT INTO result_table2 (comp_id, sub, sid, target, tid, s_start, s_centroid, s_centroid_line, s_centroid_caller, s_end, s_trace, " +
 					"t_start, t_centroid, t_centroid_line, t_centroid_caller, t_end, t_trace, " +
 					"seg_size, static_dist, similarity) " + 
@@ -175,7 +186,7 @@ public class DBConnector {
 			pStmt.executeBatch();
 			
 			pStmt.close();
-			connect.close();
+			//connect.close();
 			
 			logger.info(writerLabel + " ends");
 			return true;
