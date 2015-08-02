@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import edu.columbia.psl.cc.analysis.InstWrapper;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
@@ -12,6 +15,8 @@ import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 
 public class SearchUtil {
+	
+	private static Logger logger = LogManager.getLogger(SearchUtil.class);
 	
 	private static int simStrat = MIBConfiguration.getInstance().getSimStrategy();
 	
@@ -145,6 +150,10 @@ public class SearchUtil {
 	
 	public static int getInstructionOp(InstNode inst) {		
 		if (nativeClass && BytecodeCategory.methodOps().contains(inst.getOp().getOpcode())) {
+			int nativePkgId = StringUtil.extractPkgId(inst.getAddInfo());
+			if (nativePkgId == -1) {
+				logger.info("Invalid info: " + inst);
+			}
 			return baseLength() + StringUtil.extractPkgId(inst.getAddInfo());
 		}
 		

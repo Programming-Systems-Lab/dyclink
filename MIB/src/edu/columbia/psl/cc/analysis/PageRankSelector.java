@@ -23,11 +23,18 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.apache.commons.collections15.Transformer;
+import org.apache.commons.lang3.text.translate.NumericEntityUnescaper.OPTION;
 import org.apache.log4j.Logger;
 
 import com.google.gson.reflect.TypeToken;
 
+import edu.columbia.psl.cc.config.ArgConfiguration;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
@@ -473,7 +480,7 @@ public class PageRankSelector {
 		}
 	}
 				
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		Console console = System.console();
 		if (console == null) {
 			System.err.println("Null console");
@@ -484,22 +491,24 @@ public class PageRankSelector {
 		String username = MIBConfiguration.getInstance().getDbusername();
 		System.out.println("DB URL: " + url);
 		
+		CommandLineParser cParser = new DefaultParser();
+		Options options = ArgConfiguration.getOptions();
+		
 		boolean constructOnly = false;
-		List<String> graphRepos = new ArrayList<String>();
-		if (args.length == 1 && args[0].equals("t")) {
+		String templateDir = null;
+		String testDir = null;
+		String[] graphrepos = null;
+		
+		CommandLine cLine = cParser.parse(options, args);
+		if (cLine.hasOption(ArgConfiguration.CONSTRUCT)) {
 			constructOnly = true;
-		} else if (args.length >= 1) {
-			if (args[0].equals("t")) {
-				constructOnly = true;
-				
-				for (int i = 1; i < args.length; i++) {
-					graphRepos.add(args[i]);
-				}
-			} else {
-				for (int i = 0; i < args.length; i++) {
-					graphRepos.add(args[i]);
-				}
-			}
+		}
+		
+		if (cLine.hasOption(ArgConfiguration.TEMPLATE) && cLine.hasOption(ArgConfiguration.TEST)) {
+			templateDir = cLine.getOptionValue(ArgConfiguration.TEMPLATE);
+			testDir = cLine.getOptionValue(ArgConfiguration.TEST);
+		} else {
+			graphrepos = cLine.getOptionValues(ArgConfiguration.GREPO);
 		}
 		
 		String password = null;
@@ -533,18 +542,19 @@ public class PageRankSelector {
 		if (MIBConfiguration.getInstance().isNativeClass()) {
 			MIBDriver.setupNativePackages();
 		}
-		
-		String templateDir = MIBConfiguration.getInstance().getTemplateDir();
-		String testDir = MIBConfiguration.getInstance().getTestDir();
-		
+				
 		logger.info("Start PageRank analysis for Bytecode subgraph mining");
 		logger.info("Similarity strategy: " + MIBConfiguration.getInstance().getSimStrategy());
 		logger.info("Assignemnt threshold: " + assignmentThreshold);
 		logger.info("Static threshold: " + staticThreshold);
 		logger.info("Dynamic threshold: " + simThreshold);
 		
-		if (graphRepos.size() == 0) {
+		if (graphrepos == null || graphrepos.length == 0) {
 			logger.info("Normal load");
+			if (templateDir == null || testDir == null) {
+				templateDir = MIBConfiguration.getInstance().getTemplateDir();
+				testDir = MIBConfiguration.getInstance().getTestDir();
+			}
 			logger.info("Lib1 direcotry: " + (new File(templateDir)).getAbsolutePath());
 			logger.info("Lib2 direcotry: " + (new File(testDir)).getAbsolutePath());
 			
@@ -555,13 +565,13 @@ public class PageRankSelector {
 					password, 
 					constructOnly);
 		} else {
-			logger.info("Group load: " + graphRepos.size());
+			logger.info("Group load: " + graphrepos.length);
 			
-			for (String graphRepo: graphRepos) {
+			for (String graphRepo: graphrepos) {
 				logger.info("Repo loc: " + graphRepo);
 			}
 			
-			List<String> validRepos = Enumerater.enumerate(graphRepos);
+			List<String> validRepos = Enumerater.enumerate(graphrepos);
 			logger.info("Valid usr repose: " + validRepos.size());
 			
 			//Key: usr repo, val: graph profiles under this usr repo
@@ -578,6 +588,9 @@ public class PageRankSelector {
 					List<SubGraphCrawler> crawlers = new ArrayList<SubGraphCrawler>();
 					String lib1 = validRepos.get(i);
 					String lib2 = validRepos.get(j);
+					
+					logger.info("Lib1 direcotry: " + (new File(lib1)).getAbsolutePath());
+					logger.info("Lib2 direcotry: " + (new File(lib2)).getAbsolutePath());
 					
 					List<GraphProfile> templateProfiles = loadedByRepo.get(lib1);
 					List<GraphProfile> testProfiles = loadedByRepo.get(lib2);
@@ -606,7 +619,8 @@ public class PageRankSelector {
 		}
 		
 		try {
-			DBConnector.getConnection().close();
+			if (DBConnector.getConnection() != null)
+				DBConnector.getConnection().close();
 		} catch (Exception ex) {
 			logger.error("Error: ", ex);
 		}
@@ -716,10 +730,7 @@ public class PageRankSelector {
 			
 			InstNode startSub = sortedSub.get(0);
 			InstNode endSub = sortedSub.get(sortedSub.size() - 1);
-			
-			//Pick the most important node from sorteSob
-			logger.info("Graph profile: " + this.graph.getMethodKey());
-			
+						
 			//If the graph is reduced, some node will be removed and we choose not to clean them, save some time
 			boolean partialPool = MIBConfiguration.getInstance().isReduceGraph();
 			PageRankSelector subSelector = new PageRankSelector(this.graph.getInstPool(), partialPool, true);

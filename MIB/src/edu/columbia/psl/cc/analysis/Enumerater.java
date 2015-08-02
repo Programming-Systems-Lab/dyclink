@@ -2,6 +2,7 @@ package edu.columbia.psl.cc.analysis;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,5 +33,10 @@ public class Enumerater {
 		Collections.sort(validDirs);
 		logger.info("# of valid usr dirs: " + validDirs.size());
 		return validDirs;
+	}
+	
+	public static List<String> enumerate(String[] graphrepos) {
+		List<String> repoStrings = Arrays.asList(graphrepos);
+		return enumerate(repoStrings);
 	}
 }

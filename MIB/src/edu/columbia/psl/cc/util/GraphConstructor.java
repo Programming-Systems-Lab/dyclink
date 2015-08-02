@@ -115,7 +115,7 @@ public class GraphConstructor {
 			InstNode lastBeforeReturn = rawGraph.getLastBeforeReturn();
 			for (InstNode inst: processQueue) {
 				if (inst instanceof MethodNode) {
-					logger.info("Method node: " + inst);
+					//logger.info("Method node: " + inst);
 					MethodNode mn = (MethodNode)inst;
 					
 					String mnId = StringUtil.genIdxKey(mn.getThreadId(), mn.getThreadMethodIdx(), mn.getIdx());
@@ -161,7 +161,7 @@ public class GraphConstructor {
 						if (Math.abs(diff) < MethodNode.EPSILON)
 							continue ;
 						
-						logger.info("Callee idx: " + calleeId);
+						//logger.info("Callee idx: " + calleeId);
 						File f = new File(baseDir + "/" + calleeId);
 						GraphTemplate callee = GsonManager.readJsonGeneric(f, graphToken);
 						reconstructGraph(callee, false);
@@ -185,6 +185,8 @@ public class GraphConstructor {
 							
 							if (cReadNode == null) {
 								logger.error("Cannot find read node: " + cString);
+								logger.error("Method node: " + inst);
+								logger.error("Callee id: " + calleeId);
 							}
 							
 							cReadNodes.add(cReadNode);

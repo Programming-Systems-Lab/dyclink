@@ -108,6 +108,14 @@ public class MIBTestExecutionListener extends RunListener{
 			
 			System.out.println("Start graph extraction: " + description);
 			//MIBDriver.selectDominantGraphsWithTestMethodName(description.getClassName() + "-" + description.getMethodName(), false);
+			
+			if (MIBConfiguration.getInstance().isFieldTrack()) {
+				//Construct relations between w and r fields
+				//logger.info("Construct global edges");
+				int gEdgeNum = GlobalRecorder.constructGlobalRelations(false);
+				logger.info("Global edges: " + gEdgeNum);
+			}
+			
 			MIBDriver.selectDominantGraphs(false);
 		} catch (Exception ex) {
 			ex.printStackTrace();

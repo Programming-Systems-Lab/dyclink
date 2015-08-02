@@ -182,9 +182,13 @@ public class StringUtil {
 	}
 	
 	public static int extractPkgId(String addInfo) {
-		String[] infoArr = addInfo.split(":");
-		String valString = infoArr[infoArr.length - 1];
-		return Integer.valueOf(valString);
+		try {
+			String[] infoArr = addInfo.split(":");
+			String valString = infoArr[infoArr.length - 1];
+			return Integer.valueOf(valString);
+		} catch (Exception ex) {
+			return -1;
+		}
 	}
 	
 	public static int[] extractIO(String addInfo) {
