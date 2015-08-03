@@ -60,6 +60,8 @@ import edu.uci.ics.jung.graph.Hypergraph;
 
 public class PageRankSelector {
 	
+	private static boolean shouldDB = true;
+	
 	private static int subCompNum = 0;
 	
 	private static int realSubCompNum = 0;
@@ -374,8 +376,8 @@ public class PageRankSelector {
 			
 			//Write summary to DB
 			int compResultId = -1;
-			DBConnector connector = new DBConnector();
-			compResultId = DBConnector.writeCompTableResult(staticThreshold, simThreshold, now, compResult);
+			if (shouldDB)
+				compResultId = DBConnector.writeCompTableResult(staticThreshold, simThreshold, now, compResult);
 			
 			String compareName = compResult.lib1 + "-" + compResult.lib2;
 			String csvName = MIBConfiguration.getInstance().getResultDir() + "/" + compareName + now.getTime() + ".csv";
@@ -512,7 +514,6 @@ public class PageRankSelector {
 		}
 		
 		String password = null;
-		boolean shouldDB = true;
 		
 		System.out.println("Store result into DB?");
 		Scanner scanner = new Scanner(System.in);
@@ -548,6 +549,7 @@ public class PageRankSelector {
 		logger.info("Assignemnt threshold: " + assignmentThreshold);
 		logger.info("Static threshold: " + staticThreshold);
 		logger.info("Dynamic threshold: " + simThreshold);
+		logger.info("Construct only: " + constructOnly);
 		
 		if (graphrepos == null || graphrepos.length == 0) {
 			logger.info("Normal load");

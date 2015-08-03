@@ -1,18 +1,28 @@
 #!/bin/bash
 
-libs=("colt_graphs" "jama_graphs" "ejml_graphs" "commonmath_graphs" "ojalgo_graphs" "jcodecs_grphs" "plexus_graphs")
+target_lib="colt_graphs"
+libs=("jama_graphs" "commonmath_graphs" "ojalgo_graphs" "jcodecs_grphs" "plexus_graphs")
 
 total=${#libs[*]}
+echo "target lib $target_lib"
 echo "total lib number $total"
 
 for (( i = 0 ; i <= $(( $total - 1 )); i++ ))
 do
-	for (( j = $(( $i + 1)) ; j <= 5; j++ ))
-	do
-		echo "${libs[$i]} ${libs[$j]}"
-		java -Xmx60g -cp "./bin:./lib/*" edu.columbia.psl.cc.analysis.PageRankSelector -template ${libs[$i]} -test ${libs[$j]}
-	done
+	echo "Start executing $target_lib ${libs[$i]}"
+	#java -Xmx60g -cp "./bin:./lib/*" edu.columbia.psl.cc.analysis.PageRankSelector -template $target_lib -test ${libs[$j]}
+	echo "$target_lib ${libs[$i]} completes"| mail -s "$target_lib ${libs[$i]} pair" standbyme946@gmail.com
 done
+
+#for (( i = 0 ; i <= $(( $total - 1 )); i++ ))
+#do
+#	for (( j = $(( $i + 1)) ; j <= $(( $total - 1 )); j++ ))
+#	do
+#		echo "Start executing ${libs[$i]} ${libs[$j]}"
+#		java -Xmx60g -cp "./bin:./lib/*" edu.columbia.psl.cc.analysis.PageRankSelector -template ${libs[$i]} -test ${libs[$j]}
+#		echo "${libs[$i]} ${libs[$j]} completes"| mail -s "${libs[$i]} ${libs[$j]} pair" standbyme946@gmail.com
+#	done
+#done
 
 #lib1="../colt_graphs"
 #lib2="../jama_graphs"

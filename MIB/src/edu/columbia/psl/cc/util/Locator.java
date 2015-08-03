@@ -120,11 +120,8 @@ public class Locator {
 			
 			int startIdx = -1;
 			int endIdx = -1;
-			boolean match = true;
+			int betterNum = 0;
 			StringBuilder lineBuilder = new StringBuilder();
-			/*int realCentroidOpcode = inst.getOp().getOpcode();
-			if (realCentroidOpcode != expCentroidOpcode)
-				match = false;*/
 			
 			for (int i = 0; i < sortedTarget.size(); i++) {
 				InstNode curNode = sortedTarget.get(i);
@@ -145,8 +142,8 @@ public class Locator {
 						//Search around little bit
 						int oriStart = startIdx;
 						startIdx = searchBetter(startIdx, subStartNode, i, true, sortedTarget);
-						if (oriStart == startIdx) {
-							match = false;
+						if (oriStart != startIdx) {
+							betterNum++;
 						}
 					} 
 					InstNode finalStartNode = sortedTarget.get(startIdx);
@@ -156,8 +153,8 @@ public class Locator {
 					if (!equalInst(subEndNode, endNode)) {
 						int oriEnd = endIdx;
 						endIdx = searchBetter(endIdx, subEndNode, i, false, sortedTarget);
-						if (oriEnd == endIdx) {
-							match = false;
+						if (oriEnd != endIdx) {
+							betterNum++;
 						}
 					}
 					InstNode finalEndNode = sortedTarget.get(endIdx);
@@ -191,7 +188,7 @@ public class Locator {
 					si.normInstDistribution = segDist;
 					si.instDistWithSub = segDistance;
 					si.lineTrace = lineBuilder.toString();
-					si.match = match;
+					si.match = (betterNum > 0);
 					
 					candSegs.put(inst, si);
 					staticScoreRecorder.add(si.instDistWithSub);

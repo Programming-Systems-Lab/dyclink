@@ -133,8 +133,8 @@ public class JaroWinklerDistance {
 		//System.out.println("Check pos: " + pos);
 		if (pos == 0)
 			return weight;
-		//return weight + 0.1 * pos * (1.0 - weight);
-		return weight + 0.05 * pos * (1.0 - weight);
+		return weight + 0.1 * pos * (1.0 - weight);
+		//return weight + 0.05 * pos * (1.0 - weight);
 
 	}
 
@@ -169,8 +169,10 @@ public class JaroWinklerDistance {
 		System.out.println(LevenshteinDistance.levenSimilarity(dist, base));*/
 		//int[] v1 = {25, 15, 19, 25, 6, 25, 25, 25, 6, 15, 6, 12, 14, 24, 38, 38, 5, 14, 38, 5, 12, 12, 14, 24, 5, 12, 5, 28, 28, 5, 5, 5, 5, 5, 14, 15, 5, 14, 27, 28, 28, 14, 28, 5, 5, 5, 7, 7, 42, 7, 7, 42, 2, 5, 5, 5, 42, 5, 6, 5};
 		//int[] v2 = {25, 15, 19, 25, 6, 25, 25, 15, 6, 25, 38, 27, 6, 38, 38, 40, 12, 14, 37, 5, 24, 12, 12, 5, 5, 5, 12, 12, 14, 15, 5, 12, 28, 28, 14, 5, 5, 40, 28, 2, 5, 1, 5, 5, 5, 5, 7, 7, 42, 5, 7, 7, 42, 2, 5, 7, 5, 5, 7, 42, 5};
-		int[] v1 = {'m', 'a', 'r', 't', 'h', 'a'};
-		int[] v2 = {'m', 'a', 'r', 'h', 't', 'a'};	
+		//int[] v1 = {'m', 'a', 'r', 't', 'h', 'a'};
+		//int[] v2 = {'m', 'a', 'r', 'h', 't', 'a'};
+		int[] v1 = {14, 9, 7, 14, 9};
+		int[] v2 = {14, 7, 3, 9, 14};
 		System.out.println(JARO_DISTANCE.proximity(v1, v2));
 		System.out.println(JARO_WINKLER_DISTANCE.proximity(v1, v2));
 	}
