@@ -24,6 +24,10 @@ public class ArgConfiguration {
 	
 	public final static String GREPO_DES = "The dir of all graph repos";
 	
+	public final static String DB_PW = "dbpw";
+	
+	public final static String DB_PW_DES = "database password";
+	
 	private final static Options options = new Options();
 	
 	static {
@@ -43,6 +47,11 @@ public class ArgConfiguration {
 		graphrepo.setRequired(false);
 		graphrepo.setArgs(Option.UNLIMITED_VALUES);
 		options.addOption(graphrepo);
+		
+		Option dbpw = new Option(DB_PW, DB_PW_DES);
+		dbpw.setRequired(false);
+		dbpw.setArgs(1);
+		options.addOption(dbpw);
 	}
 	
 	public static Options getOptions() {

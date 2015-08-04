@@ -515,20 +515,26 @@ public class PageRankSelector {
 		
 		String password = null;
 		
-		System.out.println("Store result into DB?");
-		Scanner scanner = new Scanner(System.in);
-		shouldDB = scanner.nextBoolean();
-		if (shouldDB) {
-			char[] passArray = console.readPassword("DB password: ");
-			password = new String(passArray);
+		if (cLine.hasOption(ArgConfiguration.DB_PW)) {
+			System.out.println("Try connect to DB...");
+			password = cLine.getOptionValue(ArgConfiguration.DB_PW);
 		} else {
-			password = null;
+			System.out.println("Store result into DB?");
+			Scanner scanner = new Scanner(System.in);
+			shouldDB = scanner.nextBoolean();
+			if (shouldDB) {
+				char[] passArray = console.readPassword("DB password: ");
+				password = new String(passArray);
+			} else {
+				password = null;
+			}
 		}
-		
+				
 		DBConnector.init(url, username, password);
 		if (shouldDB && !DBConnector.probeDB()) {
 			System.out.println("No DB connection. Wanna execute experiment still?");			
 			try {
+				Scanner scanner = new Scanner(System.in);
 				boolean shouldExecute = scanner.nextBoolean();
 				if (!shouldExecute) {
 					System.out.println("Bye bye~~~");
