@@ -47,13 +47,21 @@ public class DBConnector {
 		if (baseurl == null || username == null || password == null)
 			return null;
 		try {
-			if (connect == null) {
+			if (connect == null || !connect.isValid(5)) {
 				Class.forName("com.mysql.jdbc.Driver");
 				connect = DriverManager.getConnection(baseurl, username, password);
 			}
+						
 			return connect;
 		} catch (Exception ex) {
 			logger.error("Exception: ", ex);
+			logger.info("Try reconnect to DB...");
+			try {
+				connect = DriverManager.getConnection(baseurl, username, password);
+				return connect;
+			} catch (Exception ex2) {
+				logger.error("Second time fails to connect: ", ex2);
+			}
 		}
 		return null;
 	}

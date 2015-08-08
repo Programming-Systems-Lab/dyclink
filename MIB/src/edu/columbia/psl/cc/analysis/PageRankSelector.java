@@ -280,11 +280,11 @@ public class PageRankSelector {
 		for (InstNode inst: jungGraph.getVertices()) {
 			double ranking = ranker.getVertexScore(inst);
 			if (Double.isNaN(ranking)) {
-				System.out.println("Suspect inst: " + inst);
-				System.out.println("Inst data parents: " + inst.getInstDataParentList());
-				System.out.println("Write data parents: " + inst.getWriteDataParentList());
-				System.out.println("Child map: " + inst.getChildFreqMap());
-				System.out.println("Page rank: " + ranking);
+				logger.error("Suspect inst: " + inst);
+				logger.error("Inst data parents: " + inst.getInstDataParentList());
+				logger.error("Write data parents: " + inst.getWriteDataParentList());
+				logger.error("Child map: " + inst.getChildFreqMap());
+				logger.error("Page rank: " + ranking);
 				System.exit(-1);
 			}
 			InstWrapper iw = new InstWrapper(inst, ranking);
@@ -575,15 +575,58 @@ public class PageRankSelector {
 		} else {
 			logger.info("Group load: " + graphrepos.length);
 			
+			HashMap<String, List<GraphProfile>> graphRepoWithInstances = new HashMap<String, List<GraphProfile>>();
+			HashMap<String, Integer> unfilterRecord = new HashMap<String, Integer>();
+			String graphRepoNames = "";
+			int totalUnfilters = 0;
 			for (String graphRepo: graphrepos) {
 				logger.info("Repo loc: " + graphRepo);
+				int lastIdx = graphRepo.lastIndexOf("/");
+				String simpleName = graphRepo.substring(lastIdx + 1);
+				graphRepoNames = graphRepoNames + simpleName + "-";
+				GraphLoadController.groupLoad(graphRepo, graphRepoWithInstances, unfilterRecord);
+				totalUnfilters += unfilterRecord.get(graphRepo);
+				
+				logger.info("# of graphs: " + unfilterRecord.get(graphRepo));
+				logger.info("# of graphs after filter: " + graphRepoWithInstances.get(graphRepo).size());
 			}
 			
-			List<String> validRepos = Enumerater.enumerate(graphrepos);
-			logger.info("Valid usr repose: " + validRepos.size());
+			if (constructOnly)
+				return ;
+			
+			graphRepoNames = graphRepoNames.substring(0, graphRepoNames.length() - 1);
+			//Combine all graphs from all repos together;
+			List<GraphProfile> allGraphs = new ArrayList<GraphProfile>();
+			for (List<GraphProfile> repoGraphs: graphRepoWithInstances.values()) {
+				allGraphs.addAll(repoGraphs);
+			}
+			
+			logger.info("Total graph number in all repos: " + totalUnfilters);
+			logger.info("Total graph number in all repos after filter: " + allGraphs.size());
+			
+			List<SubGraphCrawler> crawlers = new ArrayList<SubGraphCrawler>();
+			GraphLoadController.constructCrawlerListExcludePkg(allGraphs, allGraphs, crawlers);
+			
+			Comparison compResult = new Comparison();
+			compResult.inst_thresh = MIBConfiguration.getInstance().getInstThreshold();
+			compResult.inst_cat = MIBConfiguration.getInstance().getSimStrategy();
+			compResult.lib1 = graphRepoNames;
+			compResult.lib2 = graphRepoNames;
+			compResult.method1 = totalUnfilters;
+			compResult.method2 = totalUnfilters;
+			compResult.method_f_1 = allGraphs.size();
+			compResult.method_f_2 = allGraphs.size();
+			compResult.m_compare = crawlers.size();
+			
+			long startTime = System.currentTimeMillis();
+			subGraphMiner(crawlers, compResult, startTime);
+			
+			
+			//List<String> validRepos = Enumerater.enumerate(graphrepos);
+			//logger.info("Valid usr repose: " + validRepos.size());
 			
 			//Key: usr repo, val: graph profiles under this usr repo
-			HashMap<String, Integer> unfilters = new HashMap<String, Integer>();
+			/*HashMap<String, Integer> unfilters = new HashMap<String, Integer>();
 			HashMap<String, List<GraphProfile>> loadedByRepo = new HashMap<String, List<GraphProfile>>();
 			
 			GraphLoadController.groupLoad(validRepos, loadedByRepo, unfilters);
@@ -622,7 +665,7 @@ public class PageRankSelector {
 					long startTime = System.currentTimeMillis();
 					subGraphMiner(crawlers, compResult, startTime);
 				}
-			}
+			}*/
 			
 		}
 		

@@ -56,14 +56,18 @@ public class CrowdExecutor {
 		method.setAccessible(true);
 		method.invoke(sysloader, new Object[]{binDir.toURI().toURL()});
 		
+		System.out.println("Bin dir: " + args[1]);
+		System.out.println("Problem pkg: " + args[2]);
+		
 		String binClusterDir = args[1] + "/" + args[2];
 		File codeJamDir = new File(binClusterDir);
-		System.out.println("Bin dir: " + codeJamDir.getAbsolutePath());
+		System.out.println("Bin cluster dir: " + codeJamDir.getAbsolutePath());
 		
 		TreeMap<String, String> executableClasses = new TreeMap<String, String>();
 		for (File usrDir: codeJamDir.listFiles()) {
 			if (usrDir.isDirectory() && !usrDir.getName().startsWith(".") && !problems.contains(usrDir.getName())) {
 				String userDirName = usrDir.getName();
+				//System.out.println("User dir name: " + userDirName);
 				File usrRepo = new File(graphDir.getAbsolutePath() + "/" + args[2] + "-" + userDirName);
 				if (!usrRepo.exists()) {
 					usrRepo.mkdir();
@@ -72,6 +76,7 @@ public class CrowdExecutor {
 				for (File classFile: usrDir.listFiles()) {
 					String className = classFile.getName();
 					String fullName = args[2] + "." + userDirName + "." + className.substring(0, className.length() - 6);
+					//System.out.println("Class fullname: " + fullName);
 					
 					Class checkClass = Class.forName(fullName);
 					try {

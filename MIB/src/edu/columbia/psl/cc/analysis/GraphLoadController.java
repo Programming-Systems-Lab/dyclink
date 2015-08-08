@@ -20,6 +20,7 @@ import edu.columbia.psl.cc.analysis.PageRankSelector.ProfileWorker;
 import edu.columbia.psl.cc.analysis.PageRankSelector.SubGraphCrawler;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
+import edu.columbia.psl.cc.util.StringUtil;
 import edu.columbia.psl.cc.util.TemplateLoader;
 import edu.columbia.psl.cc.util.DBConnector.Comparison;
 
@@ -85,6 +86,32 @@ public class GraphLoadController {
 		}
 
 		return profiles;
+	}
+	
+	public static void constructCrawlerListExcludePkg(List<GraphProfile> subProfiles, 
+			List<GraphProfile> targetProfiles, 
+			List<SubGraphCrawler> crawlers) {
+		for (GraphProfile subProfile: subProfiles) {
+			String[] subParsed = subProfile.graph.getMethodKey().split(":");
+			String subPkgWithClass = subParsed[0];
+			String subPkg = StringUtil.extractPkg(subPkgWithClass);
+			for (GraphProfile targetProfile: targetProfiles) {
+				String[] targetParsed = targetProfile.graph.getMethodKey().split(":");
+				String targetPkgWithClass = targetParsed[0];
+				String targetPkg = StringUtil.extractPkg(targetPkgWithClass);
+				
+				if (subPkg.equals(targetPkg)) {
+					continue ;
+				}
+				
+				SubGraphCrawler crawler = new SubGraphCrawler();
+				crawler.subGraphName = subProfile.graph.getMethodKey();
+				crawler.targetGraphName = targetProfile.graph.getMethodKey();
+				crawler.subGraphProfile = subProfile;
+				crawler.targetGraph = targetProfile.graph;
+				crawlers.add(crawler);
+			}
+		}
 	}
 	
 	public static void constructCrawlerList(List<GraphProfile> subProfiles, 
@@ -199,11 +226,35 @@ public class GraphLoadController {
 		return compResult;
 	}
 	
-	public static void groupLoad(List<String> validRepos, 
+	public static void groupLoad(String graphRepoFileName, 
 			HashMap<String, List<GraphProfile>> loadedByRepo, 
 			HashMap<String, Integer> unfilters) {
 		
-		for (String validRepo: validRepos) {
+		File graphRepo = new File(graphRepoFileName);
+		if (!graphRepo.exists() || graphRepo.isFile()) {
+			logger.error("Invalid graph repo: " + graphRepoFileName);
+			return ;
+		}
+		
+		List<GraphProfile> allProfiles = new ArrayList<GraphProfile>();
+		int totalCount = 0;
+		for (File usrDir: graphRepo.listFiles()) {
+			if (usrDir.getName().startsWith(".") || usrDir.isFile()) {
+				continue ;
+			}
+			
+			HashMap<String, GraphTemplate> usrLoads = TemplateLoader.loadTemplate(usrDir, graphToken);
+			totalCount += usrLoads.size();
+			
+			filterGraphs(usrLoads);
+			
+			List<GraphProfile> profiles = parallelizeProfiling(usrLoads);
+			allProfiles.addAll(profiles);
+		}
+		loadedByRepo.put(graphRepoFileName, allProfiles);
+		unfilters.put(graphRepoFileName, totalCount);
+		
+		/*for (String validRepo: validRepos) {
 			logger.info("User repo: " + validRepo);
 			
 			File repoDir = new File(validRepo);
@@ -217,6 +268,32 @@ public class GraphLoadController {
 			logger.info("User profiles: " + profiles.size());
 			
 			loadedByRepo.put(validRepo, profiles);
+		}*/
+	}
+		
+	public static void groupLoadWihtStruct(HashMap<String, HashMap<String, List<String>>> graphRepos, 
+			HashMap<String, HashMap<String, List<GraphProfile>>> structLoads, 
+			HashMap<String, HashMap<String, Integer>> unfilters) {
+		for (String graphRepo: graphRepos.keySet()) {
+			logger.info("Processing graph repo: " + graphRepo);
+			HashMap<String, List<String>> usrDirs = graphRepos.get(graphRepo);
+			HashMap<String, List<GraphProfile>> usrDirsWGraphs = new HashMap<String, List<GraphProfile>>();
+			
+			for (String usrDirString: usrDirs.keySet()) {
+				File usrDir = new File(usrDirString);
+				HashMap<String, GraphTemplate> usrLoads = TemplateLoader.loadTemplate(usrDir, graphToken);
+				HashMap<String, Integer> usrLoadsCount = new HashMap<String, Integer>();
+				usrLoadsCount.put(usrDirString, usrLoads.size());
+				
+				filterGraphs(usrLoads);
+				logger.info("User method size: " + usrLoads.size());
+				
+				List<GraphProfile> profiles = parallelizeProfiling(usrLoads);
+				logger.info("User profiles: " + profiles.size());
+				
+				usrDirsWGraphs.put(usrDirString, profiles);
+			}
+			structLoads.put(graphRepo, usrDirsWGraphs);
 		}
 	}
 

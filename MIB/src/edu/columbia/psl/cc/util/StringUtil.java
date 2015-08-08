@@ -257,22 +257,6 @@ public class StringUtil {
 		}
 	}
 	
-	public String aggregateLoad(Object...info) {
-		StringBuilder sb = new StringBuilder();
-		for (Object i: info) {
-			sb.append(i + ":");
-		}
-		return sb.substring(0, sb.length() - 1);
-	}
-	
-	public String separateLoad(String[] infoArray) {
-		StringBuilder sb = new StringBuilder();
-		for (String s: infoArray) {
-			sb.append(s + " ");
-		}
-		return sb.substring(0, sb.length() - 1);
-	}
-	
 	public static void main (String[] args) {
 		//String name = "1234:6.json";
 		//System.out.println("Remove 6: " + removeUUID(name));
@@ -280,7 +264,7 @@ public class StringUtil {
 		//System.out.println(cleanPunc(name, "."));
 		//String name = "sun/util/PreHashedMap";
 		//System.out.println("Include: " + StringUtil.shouldIncludeClass(name.replace("/", ".")));
-		String name = "sun.util.PreHashedMap";
+		String name = "R5P1Y14.HellFalcon.Tour";
 		System.out.println("Pkg name: " + extractPkg(name));
 	}
 

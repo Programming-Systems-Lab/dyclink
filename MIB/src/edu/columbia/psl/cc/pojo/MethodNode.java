@@ -17,7 +17,7 @@ public class MethodNode extends InstNode {
 	
 	private static final double domPass = 0.8;
 	
-	public static final double EPSILON = Math.pow(10, -5);
+	public static final double EPSILON = Math.pow(10, -4);
 	
 	private CalleeInfo calleeInfo = new CalleeInfo();
 	
@@ -150,19 +150,11 @@ public class MethodNode extends InstNode {
 		}
 		
 		//logger.info("Callee graph filtering: " + mn.getFromMethod());
-		double accu = 0;
 		for (int i = 0; i < cache.size(); i++) {
 			GraphWithFreq graF = cache.get(i);
 			
-			double frac = 0;
-			if (i == cache.size() - 1) {
-				frac = 1 - accu;
-				frac = roundHelper(frac);
-			} else {
-				frac = ((double)graF.freq)/newTotal;
-				frac = roundHelper(frac);
-				accu += frac;
-			}
+			double frac = ((double)graF.freq)/newTotal;;
+			frac = roundHelper(frac);
 			
 			double diff = Math.abs(frac - 0);
 			if (diff > EPSILON) {
