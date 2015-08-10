@@ -152,7 +152,7 @@ public class SearchUtil {
 		if (nativeClass && BytecodeCategory.methodOps().contains(inst.getOp().getOpcode())) {
 			int nativePkgId = StringUtil.extractPkgId(inst.getAddInfo());
 			if (nativePkgId == -1) {
-				logger.info("Invalid info: " + inst);
+				logger.error("Invalid info: " + inst);
 			}
 			return baseLength() + StringUtil.extractPkgId(inst.getAddInfo());
 		}

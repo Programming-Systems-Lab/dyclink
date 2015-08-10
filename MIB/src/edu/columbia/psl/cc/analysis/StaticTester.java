@@ -46,6 +46,9 @@ public class StaticTester {
 	
 	public static double[] normalizeDist(double[] d1, int v1) {
 		double[] ret = new double[d1.length];
+		if (v1 == 0)
+			return ret;
+		
 		for (int i = 0; i < d1.length; i++) {
 			ret[i] = d1[i]/v1;
 		}

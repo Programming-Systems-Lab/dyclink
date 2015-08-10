@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -100,7 +101,7 @@ public class PageRankSelector {
 	
 	private static String header = "sub,sid,target,tid,s_start,s_centroid,s_centroid_line,s_centroid_caller,s_end,s_trace,t_start,t_centroid,t_centroid_line,t_centroid_caller,t_end,t_trace,seg_size,inst_dist,similarity\n";
 	
-	private static Comparator<InstWrapper> pageRankSorter = new Comparator<InstWrapper>() {
+	public static Comparator<InstWrapper> pageRankSorter = new Comparator<InstWrapper>() {
 		public int compare(InstWrapper i1, InstWrapper i2) {
 			if (i1.pageRank < i2.pageRank) {
 				return 1;
@@ -191,6 +192,11 @@ public class PageRankSelector {
 				}
 			}
 		}
+		
+		/*for (InstNode i: retGraph.getVertices()) {
+			System.out.println("Instruction: " + i);
+			System.out.println(retGraph.degree(i));
+		}*/
 		
 		return retGraph;
 	}
@@ -710,16 +716,22 @@ public class PageRankSelector {
 		
 		public int after; 
 		
-		public int[] pgRep;
+		public int coreBack;
 		
-		public double[] selectedDist;
+		public int coreForward;
+		
+		public double[] coreBackNormDist;
+		
+		public double[] coreForwardNormDist;
+		
+		public int[] pgRep;
 		
 		public double[] normDist;
 		
 		public String lineTrace;
 	}
 	
-	private static class WeightedEdge {
+	public static class WeightedEdge {
 		int edgeId;
 		
 		double edgeWeight;
@@ -821,6 +833,8 @@ public class PageRankSelector {
 			}
 			
 			String lineTrace = startSub.callerLine + ":" + subCentroid.callerLine + ":" + endSub.callerLine;
+			List<Set<InstNode>> neighbors = Locator.coreTracer(subCentroid, this.graph.getInstPool());
+			
 			GraphProfile gp = new GraphProfile();
 			gp.fileName = this.fileName;
 			gp.graph = this.graph;
@@ -829,14 +843,17 @@ public class PageRankSelector {
 			gp.endInst = endSub;
 			gp.before = before;
 			gp.after = after;
+			gp.coreBack = neighbors.get(0).size();
+			gp.coreForward = neighbors.get(1).size();
+			double[] bCoreDist = StaticTester.genDistribution(neighbors.get(0));
+			gp.coreBackNormDist = StaticTester.normalizeDist(bCoreDist, gp.coreBack);
+			double[] fCoreDist = StaticTester.genDistribution(neighbors.get(1));
+			gp.coreForwardNormDist = StaticTester.normalizeDist(fCoreDist, gp.coreForward);
 			gp.pgRep = subPGRep;
-			//gp.instDist = subGraph.getDist();
-			//gp.instDist = StaticTester.genDistribution(this.graph.getDist());
 			double[] instDist = StaticTester.genDistribution(this.graph.getInstPool());
 			gp.normDist = StaticTester.normalizeDist(instDist, subRank.size());
-			//gp.selectedDist = PercentageSelector.selectImportantInsts(subRank);
 			gp.lineTrace = lineTrace;
-			
+						
 			return gp;
 		}
 	}
@@ -865,9 +882,9 @@ public class PageRankSelector {
 				String targetGraphName) {
 			List<InstNode> sortedTarget = GraphUtil.sortInstPool(targetGraph.getInstPool(), true);
 			
-			//double geoPercent = ((double)(subProfile.before + 1))/ (subProfile.before + 1 + subProfile.after);
-			HashSet<InstNode> miAssignments = 
-					Locator.possibleSingleAssignment(subProfile.centroidWrapper.inst, sortedTarget);
+			/*HashSet<InstNode> miAssignments = 
+					Locator.possibleSingleAssignment(subProfile.centroidWrapper.inst, sortedTarget);*/
+			HashSet<InstNode> miAssignments = Locator.advSingleAssignment(subProfile, targetGraph.getInstPool());
 			logger.info("Target graph vs Sub graph: " + targetGraphName + " " + subGraphName);
 			logger.info("Thread index: " + crawlerId);
 			logger.info("Possible assignments: " + miAssignments.size());

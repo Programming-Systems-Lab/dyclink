@@ -1,21 +1,29 @@
 package edu.columbia.psl.cc.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
+import edu.columbia.psl.cc.analysis.InstWrapper;
+import edu.columbia.psl.cc.analysis.PageRankSelector;
 import edu.columbia.psl.cc.analysis.StaticTester;
 import edu.columbia.psl.cc.analysis.PageRankSelector.GraphProfile;
 import edu.columbia.psl.cc.analysis.PageRankSelector.SegInfo;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
+import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.uci.ics.jung.algorithms.scoring.PageRank;
+import edu.uci.ics.jung.graph.DirectedSparseGraph;
 
 public class Locator {
 	
@@ -39,7 +47,7 @@ public class Locator {
 		//Search around little bit
 		if (isHead) {
 			int curExpand = 1;
-			while (curExpand <= 3) {
+			while (curExpand <= 5) {
 				int backward = oriIdx - curExpand;
 				if (backward >= 0) {
 					InstNode check = sortedTarget.get(backward);
@@ -61,7 +69,7 @@ public class Locator {
 			}
 		} else {
 			int curExpand = 1;
-			while (curExpand <= 3) {
+			while (curExpand <= 5) {
 				int forward = oriIdx + curExpand;
 				if (forward <= sortedTarget.size() - 1 && forward <= centroid - 1) {
 					InstNode check = sortedTarget.get(forward);
@@ -93,11 +101,65 @@ public class Locator {
 			if (equalInst(subNode, targetNode)) {
 				ret.add(targetNode);
 			}
-			
-			/*int targetId = SearchUtil.getInstructionOp(targetNode);
-			if (targetId == subId) {
-				ret.add(targetNode);
-			}*/
+		}
+		
+		return ret;
+	}
+	
+	public static HashSet<InstNode> advSingleAssignment(GraphProfile subProfile, InstPool targetPool) {
+		HashSet<InstNode> ret = new HashSet<InstNode>();
+		InstNode subNode = subProfile.centroidWrapper.inst;
+		
+		for (InstNode targetNode: targetPool) {
+			if (equalInst(subNode, targetNode)) {
+				//Check backward/forward neighbors
+				List<Set<InstNode>> tNeighbors = coreTracer(targetNode, targetPool);
+				double[] backDist = StaticTester.genDistribution(tNeighbors.get(0));
+				double[] backNorm = StaticTester.normalizeDist(backDist, tNeighbors.get(0).size());
+				
+				double[] forwardDist = StaticTester.genDistribution(tNeighbors.get(1));
+				double[] forwardNorm = StaticTester.normalizeDist(forwardDist, tNeighbors.get(1).size());
+				
+				double bDistance = StaticTester.normalizeEucDistance(backNorm, subProfile.coreBackNormDist);
+				double fDistance = StaticTester.normalizeEucDistance(forwardNorm, subProfile.coreForwardNormDist);
+				
+				if (bDistance >= 0.4 || fDistance >= 0.4)
+					continue ;
+				
+				double totalSub = subProfile.coreBack + subProfile.coreForward;
+				double coreBackPercent = 0;
+				double coreForwardPercent = 0;
+				if (totalSub != 0) {
+					coreBackPercent = (double)subProfile.coreBack/totalSub;
+					coreForwardPercent = (double)subProfile.coreForward/totalSub;
+				}
+				
+				double totalDistance = bDistance * coreBackPercent + fDistance * coreForwardPercent;
+				
+				//logger.info("Back norm: " + Arrays.toString(backNorm));
+				//logger.info("Forward norm: " + Arrays.toString(forwardNorm));
+				//logger.info("Sub back norm: " + Arrays.toString(subProfile.coreBackNormDist));
+				//logger.info("Sub forward norm: " + Arrays.toString(subProfile.coreForwardNormDist));
+				//logger.info("bdist: " + bDistance + " " + coreBackPercent);
+				/*if (bDistance == 0 || fDistance == 0) {
+					logger.info("Sub inst: " + subNode);
+					logger.info("Test target inst: " + targetNode);
+					logger.info("Sub back norm: " + Arrays.toString(subProfile.coreBackNormDist));
+					logger.info("Sub forward norm: " + Arrays.toString(subProfile.coreForwardNormDist));
+					logger.info("Target Back norm: " + Arrays.toString(backNorm));
+					logger.info("Target forward norm: " + Arrays.toString(forwardNorm));
+				}*/
+				//logger.info("fdist: " + fDistance + " " + coreForwardPercent);
+				//logger.info("Total sim: " + totalDistance);
+				
+				if (totalDistance < 0.3) {
+					logger.info("Sub inst: " + subNode);
+					logger.info("Target inst: " + targetNode);
+					logger.info("bdist: " + bDistance + " " + coreBackPercent);
+					logger.info("fdist: " + fDistance + " " + coreForwardPercent);
+					ret.add(targetNode);
+				}
+			}
 		}
 		
 		return ret;
@@ -218,6 +280,115 @@ public class Locator {
 			//logger.info("candSeg after removal: " + candSegs.size());
 			return candSegs;
 		}
+	}
+	
+	public static List<Set<InstNode>> coreTracer(InstNode inst, InstPool pool) {
+		List<InstLevel> bqueue = new LinkedList<InstLevel>();
+		Set<InstNode> backward = new HashSet<InstNode>();
+		InstLevel il = new InstLevel();
+		il.inst = inst;
+		il.level = 0;
+		bqueue.add(il);
+		
+		int edgeCount = 0;
+		DirectedSparseGraph<InstNode, Integer> coregraph = new DirectedSparseGraph<InstNode, Integer>();
+		
+		while (!bqueue.isEmpty()) {			
+			InstLevel curLevel = bqueue.remove(0);
+			if (curLevel.level == 3)
+				break ;
+			
+			InstNode curNode = curLevel.inst;
+			backward.add(curLevel.inst);
+			
+			//backward
+			for (String p: curNode.getInstDataParentList()) {
+				InstNode pInst = pool.searchAndGet(p);
+				if (pInst != null) {
+					InstLevel pil = new InstLevel();
+					pil.inst = pInst;
+					pil.level = curLevel.level + 1;
+					bqueue.add(pil);
+					coregraph.addEdge(edgeCount++, pInst, curNode);
+				}
+			}
+			
+			for (String p: curNode.getWriteDataParentList()) {
+				InstNode pInst = pool.searchAndGet(p);
+				if (pInst != null) {
+					InstLevel pil = new InstLevel();
+					pil.inst = pInst;
+					pil.level = curLevel.level + 1;
+					bqueue.add(pil);
+					coregraph.addEdge(edgeCount++, pInst, curNode);
+				}
+			}
+			
+			for (String p: curNode.getControlParentList()) {
+				InstNode pInst = pool.searchAndGet(p);
+				if (pInst != null) {
+					InstLevel pil = new InstLevel();
+					pil.inst = pInst;
+					pil.level = curLevel.level + 1;
+					bqueue.add(pil);
+					coregraph.addEdge(edgeCount++, pInst, curNode);
+				}
+			}
+ 		}
+		
+		List<InstLevel> fqueue = new LinkedList<InstLevel>();
+		Set<InstNode> forward = new HashSet<InstNode>();
+		fqueue.add(il);
+		
+		while (!fqueue.isEmpty()) {
+			InstLevel curLevel = fqueue.remove(0);
+			if (curLevel.level == 3)
+				break ;
+			
+			InstNode curInst = curLevel.inst;
+			forward.add(curInst);
+			
+			for (String c: curInst.getChildFreqMap().keySet()) {
+				InstNode cInst = pool.searchAndGet(c);
+				if (cInst != null) {
+					InstLevel cil = new InstLevel();
+					cil.inst = cInst;
+					cil.level = curLevel.level + 1;
+					fqueue.add(cil);
+					coregraph.addEdge(edgeCount++, curInst, cInst);
+				}
+			}
+		}
+		forward.remove(inst);
+		
+		List<Set<InstNode>> ret = new ArrayList<Set<InstNode>>();
+		ret.add(backward);
+		ret.add(forward);
+		
+		PageRank<InstNode, Integer> coreranker = new PageRank<InstNode, Integer>(coregraph, MIBConfiguration.getInstance().getPgAlpha());
+		coreranker.setMaxIterations(MIBConfiguration.getInstance().getPgMaxIter());
+		coreranker.evaluate();
+		
+		List<InstWrapper> coreRecord = new ArrayList<InstWrapper>();
+		for (InstNode i: coregraph.getVertices()) {
+			double rnk = coreranker.getVertexScore(i);
+			InstWrapper iw = new InstWrapper(i, rnk);
+			coreRecord.add(iw);
+		}
+		Collections.sort(coreRecord, PageRankSelector.pageRankSorter);
+		int[] genRep = SearchUtil.generatePageRankRep(coreRecord);
+		
+		/*logger.info("Core inst: " + inst);
+		logger.info("Backward: " + backward);
+		logger.info("Forward: " + forward);*/
+		return ret;
+	}
+	
+	public static class InstLevel {
+		
+		public InstNode inst;
+		
+		int level;
 	}
 
 }
