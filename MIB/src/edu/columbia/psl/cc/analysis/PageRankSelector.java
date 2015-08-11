@@ -714,15 +714,9 @@ public class PageRankSelector {
 		
 		public int before;
 		
-		public int after; 
+		public int after;
 		
-		public int coreBack;
-		
-		public int coreForward;
-		
-		public double[] coreBackNormDist;
-		
-		public double[] coreForwardNormDist;
+		public int[] coreRep;
 		
 		public int[] pgRep;
 		
@@ -833,7 +827,8 @@ public class PageRankSelector {
 			}
 			
 			String lineTrace = startSub.callerLine + ":" + subCentroid.callerLine + ":" + endSub.callerLine;
-			List<Set<InstNode>> neighbors = Locator.coreTracer(subCentroid, this.graph.getInstPool());
+			//List<Set<InstNode>> neighbors = Locator.coreTracer(subCentroid, this.graph.getInstPool());
+			int[] coreRep = Locator.coreTracer(subCentroid, this.graph.getInstPool());
 			
 			GraphProfile gp = new GraphProfile();
 			gp.fileName = this.fileName;
@@ -843,12 +838,7 @@ public class PageRankSelector {
 			gp.endInst = endSub;
 			gp.before = before;
 			gp.after = after;
-			gp.coreBack = neighbors.get(0).size();
-			gp.coreForward = neighbors.get(1).size();
-			double[] bCoreDist = StaticTester.genDistribution(neighbors.get(0));
-			gp.coreBackNormDist = StaticTester.normalizeDist(bCoreDist, gp.coreBack);
-			double[] fCoreDist = StaticTester.genDistribution(neighbors.get(1));
-			gp.coreForwardNormDist = StaticTester.normalizeDist(fCoreDist, gp.coreForward);
+			gp.coreRep = coreRep;
 			gp.pgRep = subPGRep;
 			double[] instDist = StaticTester.genDistribution(this.graph.getInstPool());
 			gp.normDist = StaticTester.normalizeDist(instDist, subRank.size());
@@ -882,9 +872,9 @@ public class PageRankSelector {
 				String targetGraphName) {
 			List<InstNode> sortedTarget = GraphUtil.sortInstPool(targetGraph.getInstPool(), true);
 			
-			/*HashSet<InstNode> miAssignments = 
-					Locator.possibleSingleAssignment(subProfile.centroidWrapper.inst, sortedTarget);*/
-			HashSet<InstNode> miAssignments = Locator.advSingleAssignment(subProfile, targetGraph.getInstPool());
+			HashSet<InstNode> miAssignments = 
+					Locator.possibleSingleAssignment(subProfile.centroidWrapper.inst, sortedTarget);
+			//HashSet<InstNode> miAssignments = Locator.advSingleAssignment(subProfile, targetGraph.getInstPool());
 			logger.info("Target graph vs Sub graph: " + targetGraphName + " " + subGraphName);
 			logger.info("Thread index: " + crawlerId);
 			logger.info("Possible assignments: " + miAssignments.size());
@@ -926,7 +916,7 @@ public class PageRankSelector {
 					dist = LevenshteinDistance.calculateDistance(subProfile.pgRep, candPGRep);
 				}
 				double sim = LevenshteinDistance.levenSimilarity(dist, subProfile.pgRep.length);*/
-				
+								
 				double sim = -1;
 				if (candPGRep.length == 0) {
 					sim = 0;
@@ -939,8 +929,9 @@ public class PageRankSelector {
 					}
 					sim = measurer.proximity(subProfile.pgRep, candPGRep);
 				}
-				
-				if (sim >= simThreshold) {
+								
+				//Don't compare double directly, give 0.5% threshold
+				if (sim > simThreshold) {
 					/*System.out.println("Check target ranks");
 					for (int i = 0; i < 20; i++) {
 						InstWrapper iw = ranks.get(i);

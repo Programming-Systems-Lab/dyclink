@@ -14,6 +14,7 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 
 import edu.columbia.psl.cc.analysis.InstWrapper;
+import edu.columbia.psl.cc.analysis.JaroWinklerDistance;
 import edu.columbia.psl.cc.analysis.PageRankSelector;
 import edu.columbia.psl.cc.analysis.StaticTester;
 import edu.columbia.psl.cc.analysis.PageRankSelector.GraphProfile;
@@ -113,50 +114,15 @@ public class Locator {
 		for (InstNode targetNode: targetPool) {
 			if (equalInst(subNode, targetNode)) {
 				//Check backward/forward neighbors
-				List<Set<InstNode>> tNeighbors = coreTracer(targetNode, targetPool);
-				double[] backDist = StaticTester.genDistribution(tNeighbors.get(0));
-				double[] backNorm = StaticTester.normalizeDist(backDist, tNeighbors.get(0).size());
+				int[] targetCore = coreTracer(targetNode, targetPool);
+				//double coreSim = JaroWinklerDistance.JARO_DISTANCE.proximity(subProfile.coreRep, targetCore);
+				double coreSim = JaroWinklerDistance.JARO_WINKLER_DISTANCE.proximity(subProfile.coreRep, targetCore);
 				
-				double[] forwardDist = StaticTester.genDistribution(tNeighbors.get(1));
-				double[] forwardNorm = StaticTester.normalizeDist(forwardDist, tNeighbors.get(1).size());
+				System.out.println("Sub: " + subProfile.centroidWrapper.inst);
+				System.out.println("Target: " + targetNode);
+				System.out.println("Core sim: " + coreSim);
 				
-				double bDistance = StaticTester.normalizeEucDistance(backNorm, subProfile.coreBackNormDist);
-				double fDistance = StaticTester.normalizeEucDistance(forwardNorm, subProfile.coreForwardNormDist);
-				
-				if (bDistance >= 0.4 || fDistance >= 0.4)
-					continue ;
-				
-				double totalSub = subProfile.coreBack + subProfile.coreForward;
-				double coreBackPercent = 0;
-				double coreForwardPercent = 0;
-				if (totalSub != 0) {
-					coreBackPercent = (double)subProfile.coreBack/totalSub;
-					coreForwardPercent = (double)subProfile.coreForward/totalSub;
-				}
-				
-				double totalDistance = bDistance * coreBackPercent + fDistance * coreForwardPercent;
-				
-				//logger.info("Back norm: " + Arrays.toString(backNorm));
-				//logger.info("Forward norm: " + Arrays.toString(forwardNorm));
-				//logger.info("Sub back norm: " + Arrays.toString(subProfile.coreBackNormDist));
-				//logger.info("Sub forward norm: " + Arrays.toString(subProfile.coreForwardNormDist));
-				//logger.info("bdist: " + bDistance + " " + coreBackPercent);
-				/*if (bDistance == 0 || fDistance == 0) {
-					logger.info("Sub inst: " + subNode);
-					logger.info("Test target inst: " + targetNode);
-					logger.info("Sub back norm: " + Arrays.toString(subProfile.coreBackNormDist));
-					logger.info("Sub forward norm: " + Arrays.toString(subProfile.coreForwardNormDist));
-					logger.info("Target Back norm: " + Arrays.toString(backNorm));
-					logger.info("Target forward norm: " + Arrays.toString(forwardNorm));
-				}*/
-				//logger.info("fdist: " + fDistance + " " + coreForwardPercent);
-				//logger.info("Total sim: " + totalDistance);
-				
-				if (totalDistance < 0.3) {
-					logger.info("Sub inst: " + subNode);
-					logger.info("Target inst: " + targetNode);
-					logger.info("bdist: " + bDistance + " " + coreBackPercent);
-					logger.info("fdist: " + fDistance + " " + coreForwardPercent);
+				if (coreSim > 0.75) {
 					ret.add(targetNode);
 				}
 			}
@@ -207,7 +173,9 @@ public class Locator {
 						if (oriStart != startIdx) {
 							betterNum++;
 						}
-					} 
+					} else {
+						betterNum++;
+					}
 					InstNode finalStartNode = sortedTarget.get(startIdx);
 					lineBuilder.append(finalStartNode.callerLine + ":");
 					lineBuilder.append(inst.callerLine + ":");
@@ -218,6 +186,8 @@ public class Locator {
 						if (oriEnd != endIdx) {
 							betterNum++;
 						}
+					} else {
+						betterNum++;
 					}
 					InstNode finalEndNode = sortedTarget.get(endIdx);
 					lineBuilder.append(finalEndNode.callerLine);
@@ -243,7 +213,7 @@ public class Locator {
 				for (InstNode s: seg) {
 					lineTrace.add(s.callerLine);
 				}
-				
+								
 				if (segDistance < staticThreshold) {
 					SegInfo si = new SegInfo();
 					si.seg = seg;
@@ -282,7 +252,7 @@ public class Locator {
 		}
 	}
 	
-	public static List<Set<InstNode>> coreTracer(InstNode inst, InstPool pool) {
+	public static int[] coreTracer(InstNode inst, InstPool pool) {
 		List<InstLevel> bqueue = new LinkedList<InstLevel>();
 		Set<InstNode> backward = new HashSet<InstNode>();
 		InstLevel il = new InstLevel();
@@ -345,17 +315,17 @@ public class Locator {
 			if (curLevel.level == 3)
 				break ;
 			
-			InstNode curInst = curLevel.inst;
-			forward.add(curInst);
+			InstNode curNode = curLevel.inst;
+			forward.add(curNode);
 			
-			for (String c: curInst.getChildFreqMap().keySet()) {
+			for (String c: curNode.getChildFreqMap().keySet()) {
 				InstNode cInst = pool.searchAndGet(c);
 				if (cInst != null) {
 					InstLevel cil = new InstLevel();
 					cil.inst = cInst;
 					cil.level = curLevel.level + 1;
 					fqueue.add(cil);
-					coregraph.addEdge(edgeCount++, curInst, cInst);
+					coregraph.addEdge(edgeCount++, curNode, cInst);
 				}
 			}
 		}
@@ -381,7 +351,8 @@ public class Locator {
 		/*logger.info("Core inst: " + inst);
 		logger.info("Backward: " + backward);
 		logger.info("Forward: " + forward);*/
-		return ret;
+		//return ret;
+		return genRep;
 	}
 	
 	public static class InstLevel {
