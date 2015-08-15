@@ -4,6 +4,8 @@ public abstract class PClass {
 	
 	protected int pInt = 18;
 	
+	public int cInt = 15;
+	
 	public PClass() {
 		this.myMethod();
 	}

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-target_lib="colt_graphs"
-#libs=("jama_graphs" "commonmath_graphs" "ojalgo_graphs" "jcodecs_grphs" "plexus_graphs" "ejml_graphs")
-libs=("commonmath_graphs" "ojalgo_graphs" "jcodecs_grphs" "plexus_graphs")
+target_lib="../ejml_graphs"
+#libs=("jama_graphs" "commonmath_graphs" "ojalgo_graphs" "jcodecs_graphs" "plexus_graphs" "ejml_graphs")
+libs=("../colt_graphs" "../jama_graphs" "../commonmath_graphs" "../jcodecs_graphs" "../plexus_graphs")
 
 total=${#libs[*]}
 echo "target lib $target_lib"
@@ -11,9 +11,9 @@ echo "total lib number $total"
 read -s -p "DB password: " dbpw
 for (( i = 0 ; i <= $(( $total - 1 )); i++ ))
 do
-	echo "Start executing $target_lib ${libs[$i]}"
-	java -Xmx60g -cp "./bin:./lib/*" edu.columbia.psl.cc.analysis.PageRankSelector -template $target_lib -test ${libs[$i] -dbpw $dbpw}
-	echo "$target_lib ${libs[$i]} completes"| mail -s "$target_lib ${libs[$i]} pair" standbyme946@gmail.com
+        echo "Start executing $target_lib ${libs[$i]}"
+        java -Xmx60g -cp "./bin:./lib/*" edu.columbia.psl.cc.analysis.PageRankSelector -template $target_lib -test ${libs[$i]} -dbpw $dbpw
+        echo "$target_lib ${libs[$i]} completes"| mail -s "$target_lib ${libs[$i]} pair" standbyme946@gmail.com
 done
 
 #for (( i = 0 ; i <= $(( $total - 1 )); i++ ))

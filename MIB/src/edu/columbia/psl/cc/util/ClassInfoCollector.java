@@ -147,7 +147,7 @@ public class ClassInfoCollector {
 							count++;
 						}
 						
-						if (count == targetArgs.length) {
+						if (count == targetArgs.length && mReturn.equals(targetReturn)) {
 							methodToClass.put(classMethodCacheKey, calledClass);
 							return calledClass;
 						}

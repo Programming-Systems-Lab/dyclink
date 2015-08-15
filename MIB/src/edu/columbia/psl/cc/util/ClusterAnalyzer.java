@@ -108,7 +108,7 @@ public class ClusterAnalyzer {
 										"FROM result_table2 " +
 										"WHERE comp_id=? and seg_size >= ? and similarity >= ? and (sub = ? or target = ?) " +    
 										"GROUP BY sub, target) max_rec " +
-										"ON rt.sub = max_rec.sub and rt.target = max_rec.target and rt.similarity = max_rec.sim and rt.seg_size >= 45 " +
+										"ON rt.sub = max_rec.sub and rt.target = max_rec.target and rt.similarity = max_rec.sim and rt.seg_size >= ? " +
 									"WHERE comp_id=? ORDER BY similarity desc;";
 				PreparedStatement knnStatement = connect.prepareStatement(knnQuery);
 				knnStatement.setInt(1, compId);
@@ -116,7 +116,8 @@ public class ClusterAnalyzer {
 				knnStatement.setDouble(3, simThresh);
 				knnStatement.setString(4, method);
 				knnStatement.setString(5, method);
-				knnStatement.setInt(6, compId);
+				knnStatement.setString(6, method);
+				knnStatement.setInt(7, compId);
 				
 				ResultSet knnResult = knnStatement.executeQuery();
 				

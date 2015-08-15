@@ -24,13 +24,13 @@
   "opCodeCatId": "opcodes/opcode_ids.csv",
   "costTableDir": "./cost_tables/",
   "costLimit": 100,
-  "templateDir": "/Users/mikefhsu/Mike/Research/ec2/codejam_mining/graphrepo/template",
-  "testDir": "/Users/mikefhsu/Mike/Research/ec2/codejam_mining/graphrepo/test",
+  "templateDir": "./template",
+  "testDir": "./test",
   "pathDir": "./path",
-  "labelmapDir": "/Users/mikefhsu/Mike/Research/ec2/codejam_mining/labelmap",
+  "labelmapDir": "./labelmap",
   "resultDir": "./results",
   "debugDir": "./debug",
-  "cacheDir": "/Users/mikefhsu/Mike/Research/ec2/codejam_mining/cache",
+  "cacheDir": "./cache",
   "controlWeight": 1.0,
   "instDataWeight": 1.0,
   "writeDataWeight": 1.0,
@@ -48,7 +48,7 @@
   "testMethodThresh": -1,
   "threadInit": 0,
   "threadMethodIdxRecord": {
-    "0": 19030
+    "0": 22
   },
   "annotGuard": false,
   "fieldTrack": true,
@@ -57,6 +57,6 @@
   "debug": false,
   "reduceGraph": true,
   "nativeClass": true,
-  "dburl": "jdbc:mysql://liberty.cs.columbia.edu:3306/dyclink?useServerPrepStmts=false&rewriteBatchedStatements=true&autoReconnect=true",
+  "dburl": "jdbc:mysql://liberty.cs.columbia.edu:3306/dyclink?useServerPrepStmts\u003dfalse\u0026rewriteBatchedStatements\u003dtrue\u0026autoReconnect\u003dtrue",
   "dbusername": "root"
 }

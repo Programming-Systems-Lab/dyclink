@@ -828,7 +828,7 @@ public class PageRankSelector {
 			
 			String lineTrace = startSub.callerLine + ":" + subCentroid.callerLine + ":" + endSub.callerLine;
 			//List<Set<InstNode>> neighbors = Locator.coreTracer(subCentroid, this.graph.getInstPool());
-			int[] coreRep = Locator.coreTracer(subCentroid, this.graph.getInstPool());
+			//int[] coreRep = Locator.coreTracer(subCentroid, this.graph.getInstPool());
 			
 			GraphProfile gp = new GraphProfile();
 			gp.fileName = this.fileName;
@@ -838,7 +838,7 @@ public class PageRankSelector {
 			gp.endInst = endSub;
 			gp.before = before;
 			gp.after = after;
-			gp.coreRep = coreRep;
+			//gp.coreRep = coreRep;
 			gp.pgRep = subPGRep;
 			double[] instDist = StaticTester.genDistribution(this.graph.getInstPool());
 			gp.normDist = StaticTester.normalizeDist(instDist, subRank.size());

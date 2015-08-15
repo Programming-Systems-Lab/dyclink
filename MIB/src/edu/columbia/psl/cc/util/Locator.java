@@ -48,7 +48,7 @@ public class Locator {
 		//Search around little bit
 		if (isHead) {
 			int curExpand = 1;
-			while (curExpand <= 5) {
+			while (curExpand <= 3) {
 				int backward = oriIdx - curExpand;
 				if (backward >= 0) {
 					InstNode check = sortedTarget.get(backward);
@@ -70,7 +70,7 @@ public class Locator {
 			}
 		} else {
 			int curExpand = 1;
-			while (curExpand <= 5) {
+			while (curExpand <= 3) {
 				int forward = oriIdx + curExpand;
 				if (forward <= sortedTarget.size() - 1 && forward <= centroid - 1) {
 					InstNode check = sortedTarget.get(forward);
