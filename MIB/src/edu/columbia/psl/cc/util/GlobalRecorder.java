@@ -530,7 +530,7 @@ public class GlobalRecorder {
 		System.gc();
 	}
 	
-	public static void secondaryDump() {
+	public static void secondaryDump(boolean must) {
 		synchronized(sdcLock) {
 			int div = 0;
 			if (secondDumpCounter < 10000) {
@@ -546,7 +546,7 @@ public class GlobalRecorder {
 				div= 10000;
 			}
 			
-			if (secondDumpCounter % div == 0) {
+			if (secondDumpCounter % div == 0 || must) {
 				logger.info("Secondary dump..." + secondDumpCounter);
 				
 				//Dump name map

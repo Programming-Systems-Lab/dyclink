@@ -1066,7 +1066,10 @@ public class MethodStackRecorder {
 		System.out.println("Thread recorder empty: " + ObjectIdAllocater.isThreadRecorderEmpty());
 		ObjectIdAllocater.checkThreadRecorder();*/
 		if (ObjectIdAllocater.secondaryDump(this.threadId)) {
-			GlobalRecorder.secondaryDump();
+			if (vertexNum >= 100)
+				GlobalRecorder.secondaryDump(true);
+			else
+				GlobalRecorder.secondaryDump(false);
 		}
 		this.clearCurrentThreadId();
 		

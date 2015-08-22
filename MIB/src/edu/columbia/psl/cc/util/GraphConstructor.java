@@ -368,7 +368,7 @@ public class GraphConstructor {
 		//File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64:decompose:0:0:14.json");
 		//File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/cc.expbase.TemplateMethod:forMethod:0:0:8.json");
 		//File testFile = new File("/Users/mikefhsu/MiKe/Research/ec2/mib_sandbox_v3/jama_graphs/Jama.Matrix:solve:0:1:3811439.json");
-		File testFile = new File("/Users/mikefhsu/Mike/Research/ec2/codejam_mining/graphrepo/R5P1Y13-mikhailOK/R5P1Y13.mikhailOK.A:solveOneTest:0:100:23246772.json");
+		File testFile = new File("/Users/mikefhsu/Mike/Research/ec2/matrix_graphs_benchmark/matrix_graphs_ready/ejml_graphs/org.ejml.alg.dense.decomposition.bidiagonal.BidiagonalDecompositionRow:getU:0:4000:36048549.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
 		GraphConstructor constructor = new GraphConstructor();
 		constructor.reconstructGraph(testGraph, true);

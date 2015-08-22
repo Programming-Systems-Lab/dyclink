@@ -36,6 +36,9 @@ public class ClusterAnalyzer {
 			System.out.println("Comp id");
 			int compId = Integer.valueOf(console.readLine());
 			
+			System.out.println("Neighbor number: ");
+			int kNum = Integer.valueOf(console.readLine());
+			
 			System.out.println("Instruction size: ");
 			int segSize = Integer.valueOf(console.readLine());
 			
@@ -133,7 +136,7 @@ public class ClusterAnalyzer {
 					double similarity = knnResult.getDouble("similarity");
 					
 					//Don't break tie;
-					if (count >= 5 && similarity < lastSimilarity) {
+					if (count >= kNum && similarity < lastSimilarity) {
 						break ;
 					}
 					
@@ -271,7 +274,7 @@ public class ClusterAnalyzer {
 			
 			String simString = String.valueOf(simThresh).split("\\.")[1];
 			String filterString = (filter==true?"f":"u");
-			String fileName = resultDir.getAbsolutePath() + "/knn_result_" + segSize + "_" + simString + "_" + filterString + ".csv";
+			String fileName = resultDir.getAbsolutePath() + "/knn_result_" + kNum + "_" + segSize + "_" + simString + "_" + filterString + ".csv";
 			BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
 			bw.write(result.toString());
 			bw.close();

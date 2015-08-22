@@ -220,7 +220,7 @@ public class Locator {
 					si.normInstDistribution = segDist;
 					si.instDistWithSub = segDistance;
 					si.lineTrace = lineBuilder.toString();
-					si.match = (betterNum > 0);
+					si.match = (betterNum == 2);
 					
 					candSegs.put(inst, si);
 					staticScoreRecorder.add(si.instDistWithSub);
