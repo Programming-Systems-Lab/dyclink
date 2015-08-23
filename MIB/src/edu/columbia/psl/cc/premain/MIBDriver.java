@@ -114,6 +114,7 @@ public class MIBDriver {
 			//logger.info("Class loader: " + targetClass.getClassLoader().getClass().getName() + " " + System.identityHashCode(targetClass.getClassLoader()));
 			
 			Method mainMethod = targetClass.getMethod("main", String[].class);
+			mainMethod.setAccessible(true);
 			mainMethod.invoke(null, (Object)newArgs);
 			
 			ObjectIdAllocater.clearMainThread();

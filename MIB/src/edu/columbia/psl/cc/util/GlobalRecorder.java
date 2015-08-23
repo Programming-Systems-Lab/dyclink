@@ -569,11 +569,31 @@ public class GlobalRecorder {
 				//The last in current thread: 
 				//getStackTrace()<-secondaryGraphing<-dumpGraph<-the method<-Thread.run
 				int stackLen = curThread.getStackTrace().length;
-				StackTraceElement nextSte = curThread.getStackTrace()[4];
-				if (nextSte == null 
-						|| nextSte.getClassName().startsWith("java.util.concurrent.Executors") 
-						|| nextSte.getClassName().startsWith("java.lang.Thread")
-						|| (stackLen - 3 == 2)) {
+				//StackTraceElement nextSte = curThread.getStackTrace()[4];
+				StackTraceElement me = curThread.getStackTrace()[3];
+				String myClassName = me.getClassName();
+				Class myClass = Class.forName(myClassName);
+				String myMethodName = me.getMethodName();
+				
+				StackTraceElement lastSte = curThread.getStackTrace()[stackLen - 1];
+				String lastClassName = lastSte.getClassName();
+				String lastMethodName = lastSte.getMethodName();
+				Class lastClass = Class.forName(lastClassName);
+				
+				boolean shouldGraph = false;
+				//No way to check params...
+				if (myClassName.equals(lastClassName) && myMethodName.equals(lastMethodName)) {
+					shouldGraph = true;
+				} else {
+					//The stack len here should "DEFINITELY" >= 4
+					StackTraceElement nextSte = curThread.getStackTrace()[4];
+					if (nextSte.getClassName().startsWith("java.util.concurrent.Executors") 
+							|| nextSte.getClassName().startsWith("java.lang.Thread")) {
+						shouldGraph = true;
+					}
+				}
+				
+				if (shouldGraph) {
 					logger.info("Secondary graphing..." + secondDumpCounter);
 					logger.info("Stack trace: ");
 					for (StackTraceElement stc: curThread.getStackTrace()) {

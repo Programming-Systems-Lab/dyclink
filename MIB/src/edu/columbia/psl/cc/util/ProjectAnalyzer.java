@@ -93,10 +93,20 @@ public class ProjectAnalyzer {
 			
 			List<String> allPkgs = new ArrayList<String>(record.keySet());
 			Collections.sort(allPkgs);
+			
+			StringBuilder headerBuilder = new StringBuilder();
+			headerBuilder.append(" ,");
+			for (String ap: allPkgs) {
+				headerBuilder.append(ap + ",");
+			}
+			String header = headerBuilder.substring(0, headerBuilder.length() - 1) + "\n";
+			
 			StringBuilder allRecord = new StringBuilder();
+			allRecord.append(header);
 			for (String curPkg: allPkgs) {
 				HashSet<PkgFreq> nPkgs = record.get(curPkg);
 				StringBuilder sb = new StringBuilder();
+				sb.append(curPkg + ",");
 				for (String nPkg: allPkgs) {
 					boolean found = false;
 					for (PkgFreq pf: nPkgs) {
