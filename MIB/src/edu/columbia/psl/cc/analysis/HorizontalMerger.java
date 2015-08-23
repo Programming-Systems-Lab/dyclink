@@ -133,9 +133,7 @@ public class HorizontalMerger {
 		}
 	}
 	
-	public static void startExtractionFast(HashMap<String, HashMap<String, GraphTemplate>> graphs, boolean initDumpRecord) {
-		if (initDumpRecord)
-			dumpRecord = new HashMap<String, HashSet<String>>();
+	public static void startExtractionFast(HashMap<String, HashMap<String, GraphTemplate>> graphs) {
 		
 		for (String key: graphs.keySet()) {
 			HashMap<String, GraphTemplate> graphGroups = graphs.get(key);
@@ -148,7 +146,9 @@ public class HorizontalMerger {
 			HashSet<String> dumpedGroups = dumpRecord.get(key);
 			
 			//Each map only has one graph
+			//logger.info("Check: " + dumpedGroups);
 			for (String groupKey: graphGroups.keySet()) {
+				//logger.info(groupKey);
 				if (dumpedGroups.contains(groupKey)) {
 					continue ;
 				}

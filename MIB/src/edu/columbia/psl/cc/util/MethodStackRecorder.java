@@ -416,8 +416,8 @@ public class MethodStackRecorder {
 				//Only happens for synthetic fields? No other inst has relation to it, so do nothing
 				//logger.info("Pre-access fields: " + fullInst);
 			} else {
-				logger.error("Current method with incorrect obj id: " + this.methodName + " " + objId);
-				logger.error("Error: fail to retrieve object ID " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+				logger.warn("Current method retrieves non-instrumented obj id: " + this.methodName + " " + objId);
+				logger.warn("Fail to retrieve object ID " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
 			}
 		}
 		
@@ -956,7 +956,7 @@ public class MethodStackRecorder {
 					" " + this.methodKey + 
 					" " + this.threadId + 
 					" " + this.threadMethodId);*/
-			this.clearCurrentThreadId();
+			//this.clearCurrentThreadId();
 			return ;
 		}
 		
@@ -1065,13 +1065,14 @@ public class MethodStackRecorder {
 		/*System.out.println("Main thread alive: " + ObjectIdAllocater.isMainThreadAlive());
 		System.out.println("Thread recorder empty: " + ObjectIdAllocater.isThreadRecorderEmpty());
 		ObjectIdAllocater.checkThreadRecorder();*/
-		if (ObjectIdAllocater.secondaryDump(this.threadId)) {
-			if (vertexNum >= 100)
-				GlobalRecorder.secondaryDump(true);
-			else
-				GlobalRecorder.secondaryDump(false);
+		/*if (ObjectIdAllocater.secondaryDump(this.threadId)) {
+			GlobalRecorder.secondaryDump();
+		}*/
+		if (this.threadId != ObjectIdAllocater.getMainThreadId() 
+				&& !ObjectIdAllocater.isMainThreadAlive()) {
+			GlobalRecorder.secondaryGraphing();
 		}
-		this.clearCurrentThreadId();
+		//this.clearCurrentThreadId();
 		
 		//gt.calleeCache = this.calleeCache;
 		//this.showStackSimulator();

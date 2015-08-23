@@ -38,7 +38,7 @@ public class MIBDriver {
 	private static TypeToken<MIBConfiguration> configToken = new TypeToken<MIBConfiguration>(){};
 	
 	private static Class memorizedTargetClass;
-	
+		
 	public static String extractMainClassName(String jarFile) {
 		try {
 			JarFile jFile = new JarFile(new File(jarFile));
@@ -118,8 +118,15 @@ public class MIBDriver {
 			
 			ObjectIdAllocater.clearMainThread();
 			
-			if (ObjectIdAllocater.isThreadRecorderEmpty()) {
-				graphing(false);
+			ObjectIdAllocater.checkThreadRecorder();
+			int nbRunning = GlobalRecorder.currentRunningThread();
+			logger.info("Running thread number: " + nbRunning);
+			logger.info("Current stack:");
+			for (StackTraceElement ste: Thread.currentThread().getStackTrace()) {
+				logger.info(ste);
+			}
+			if (nbRunning == 1) {
+				graphing();
 				logger.info("Class ends: " + targetClass);
 			} else {
 				logger.info("Main thread ends without dumping graphs: " + targetClass);
@@ -129,10 +136,7 @@ public class MIBDriver {
 		}
 	}
 	
-	public static void graphing(boolean emergentDump) {
-		if (emergentDump) {
-			logger.info("Emergent dump");
-		}
+	public static void graphing() {		
 		logger.info("Graphing: " + memorizedTargetClass);
 		
 		//Dump name map
@@ -148,7 +152,7 @@ public class MIBDriver {
 		
 		//Dump all graphs in memory
 		//logger.info("Select dominant graphs: " + memorizedTargetClass);
-		selectDominantGraphs(false);
+		selectDominantGraphs();
 		
 		//Update configuration
 		//logger.info("Update configuration");
@@ -204,7 +208,7 @@ public class MIBDriver {
 		}
 	}
 	
-	public static void updateConfig() {
+	public synchronized static void updateConfig() {
 		ConcurrentHashMap<Integer, AtomicInteger> threadMethodIdxRecord = ObjectIdAllocater.getThreadMethodIdxRecord();
 		HashMap<Integer, Integer> toSerialize = new HashMap<Integer, Integer>();
 		for (Integer i: threadMethodIdxRecord.keySet()) {
@@ -222,11 +226,11 @@ public class MIBDriver {
 		}
 	}
 	
-	public static void selectDominantGraphs(boolean reInitDumpRecord) {
+	public synchronized static void selectDominantGraphs() {
 		//Dump all graphs in memory
 		//HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
 		HashMap<String, HashMap<String, GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
-		HorizontalMerger.startExtractionFast(allGraphs, reInitDumpRecord);
+		HorizontalMerger.startExtractionFast(allGraphs);
 	}
 		
 	/*public static void selectDominantGraphsWithTestMethodName(String testName, boolean reInitDumpRecord) {

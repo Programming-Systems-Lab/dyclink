@@ -89,13 +89,14 @@ public class ObjectIdAllocater {
 		test.xor(threadRecorder);
 		return test.isEmpty();
 	}
-	
+		
 	public static boolean isThreadRecorderEmpty() {
+		logger.info("Check if thread recorder empty: " + threadRecorder);
 		return threadRecorder.isEmpty();
 	}
 	
 	public static void checkThreadRecorder() {
-		System.out.println("Check threadRecorder: " + threadRecorder);
+		logger.info("Check threadRecorder: " + threadRecorder);
 	}
 		
 	public static int getIndex() {

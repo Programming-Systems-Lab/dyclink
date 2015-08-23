@@ -530,9 +530,82 @@ public class GlobalRecorder {
 		System.gc();
 	}
 	
-	public static void secondaryDump(boolean must) {
+	public static int currentRunningThread() {
 		synchronized(sdcLock) {
-			int div = 0;
+			int nbRunning = 0;
+			for (Thread t : Thread.getAllStackTraces().keySet()) {
+			    if (t.getState()==Thread.State.RUNNABLE 
+			    		&& !t.isDaemon() 
+			    		&& !t.getName().startsWith("DestroyJavaVM")) {
+			    	nbRunning++;
+			    	/*logger.info("Running thread: " + t.getName() + " " + t.getId() + " " + t.isDaemon());
+			    	for (StackTraceElement ste: t.getStackTrace()) {
+			    		logger.info(ste);
+			    	}
+			    	logger.info(" ");*/
+			    }
+			}
+			//logger.info("Running thread #: " + nbRunning);
+			return nbRunning;
+		}
+	}
+	
+	public static void secondaryGraphing() {
+		synchronized(sdcLock) {
+			int nbRunning = currentRunningThread();
+			
+			//Check if this is the last running thread
+			if (nbRunning > 1) {
+				return ;
+			}
+			
+			try {
+				Thread curThread = Thread.currentThread();
+				/*logger.info("Current stackTrace");
+				for (StackTraceElement stc: curThread.getStackTrace()) {
+					logger.info(stc.toString());
+				}*/
+				
+				//The last in current thread: 
+				//getStackTrace()<-secondaryGraphing<-dumpGraph<-the method<-Thread.run
+				int stackLen = curThread.getStackTrace().length;
+				StackTraceElement nextSte = curThread.getStackTrace()[4];
+				if (nextSte == null 
+						|| nextSte.getClassName().startsWith("java.util.concurrent.Executors") 
+						|| nextSte.getClassName().startsWith("java.lang.Thread")
+						|| (stackLen - 3 == 2)) {
+					logger.info("Secondary graphing..." + secondDumpCounter);
+					logger.info("Stack trace: ");
+					for (StackTraceElement stc: curThread.getStackTrace()) {
+						logger.info(stc.toString());
+					}
+					
+					//Dump name map
+					//logger.info("Dump nameMap: " + this.className + " " + this.methodName);
+					MIBDriver.serializeNameMap();
+					
+					if (MIBConfiguration.getInstance().isFieldTrack()) {
+						//Construct relations between w and r fields, forced to put freq
+						int counter = GlobalRecorder.constructGlobalRelations(false);
+						logger.info("Global edges: " + counter);
+					}
+					
+					//Dump all graphs in memory
+					//logger.info("Select dominant graphs: " + this.className);
+					MIBDriver.selectDominantGraphs();			
+					MIBDriver.updateConfig();
+					
+					logger.info(secondDumpCounter + " ends secondary graphing");
+					
+					int curThreadId = ObjectIdAllocater.getThreadId();
+					ObjectIdAllocater.clearThreadId(curThreadId);
+				}
+				secondDumpCounter++;
+			} catch (Exception ex) {
+				logger.error("Error: ", ex);
+			}
+			
+			/*int div = 0;
 			if (secondDumpCounter < 10000) {
 				div = 20;
 			} else if (secondDumpCounter >= 10000 && secondDumpCounter < 20000){
@@ -570,7 +643,7 @@ public class GlobalRecorder {
 				
 				logger.info(secondDumpCounter + " ends secondary dump");
 			}
-			secondDumpCounter++;
+			secondDumpCounter++;*/
 		}
 	}
 }
