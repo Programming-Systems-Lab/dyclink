@@ -581,11 +581,11 @@ public class DynamicMethodMiner extends MethodVisitor {
 			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 			this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srGraphDump, srGraphDumpDesc);
 			
-			this.mv.visitInsn(Opcodes.ICONST_1);
+			//this.mv.visitInsn(Opcodes.ICONST_1);
 			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
 					"edu/columbia/psl/cc/premain/MIBDriver", 
 					"graphing", 
-					"(Z)V");
+					"()V");
 		}
 		
 		//For merging the graph on the fly, need to visit method before recording them

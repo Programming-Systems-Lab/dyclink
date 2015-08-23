@@ -47,7 +47,7 @@ public class ClusterAnalyzer {
 			
 			System.out.println("Filter out read, next: ");
 			boolean filter = Boolean.valueOf(console.readLine());
-			
+						
 			String username = MIBConfiguration.getInstance().getDbusername();
 			String dburl = MIBConfiguration.getInstance().getDburl();
 			
