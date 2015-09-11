@@ -14,6 +14,25 @@ import java.util.List;
 
 public class ProjectAnalyzer {
 	
+	public static HashMap<String, String> problemNameMap = new HashMap<String, String>();
+	
+	static {
+		problemNameMap.put("R5P1Y11", "IC");
+		problemNameMap.put("R5P1Y12", "PG");
+		problemNameMap.put("R5P1Y13", "CH");
+		problemNameMap.put("R5P1Y14", "MT");
+	}
+	
+	public static String getProblemId(String method) {
+		String year = extractYear(method);
+		return problemNameMap.get(year);
+	}
+	
+	public static String extractYear(String method) {
+		String[] split = method.split("\\.");
+		return split[0];
+	}
+	
 	public static String extractPkg(String method) {
 		String[] split = method.split("\\.");
 		String pkg = split[0] + "." + split[1];
@@ -96,7 +115,7 @@ public class ProjectAnalyzer {
 			
 			StringBuilder headerBuilder = new StringBuilder();
 			headerBuilder.append(" ,");
-			for (String ap: allPkgs) {
+			for (String ap: allPkgs) {				
 				headerBuilder.append(ap + ",");
 			}
 			String header = headerBuilder.substring(0, headerBuilder.length() - 1) + "\n";

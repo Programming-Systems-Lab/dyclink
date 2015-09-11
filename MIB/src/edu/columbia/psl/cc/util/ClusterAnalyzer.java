@@ -33,8 +33,11 @@ public class ClusterAnalyzer {
 			char[] passArray = console.readPassword();
 			final String password = new String(passArray);
 			
-			System.out.println("Comp id");
-			int compId = Integer.valueOf(console.readLine());
+			System.out.println("Comp id (start)");
+			int compIdStart = Integer.valueOf(console.readLine());
+			
+			System.out.println("Comp id (end)");
+			int compIdEnd = Integer.valueOf(console.readLine());
 			
 			System.out.println("Neighbor number: ");
 			int kNum = Integer.valueOf(console.readLine());
@@ -53,7 +56,8 @@ public class ClusterAnalyzer {
 			
 			System.out.println("Confirm query settings:");
 			System.out.println("DB url: " + dburl);
-			System.out.println("Comp id: " + compId);
+			System.out.println("Comp id (start): " + compIdStart);
+			System.out.println("Comp id (end): " + compIdEnd); 
 			System.out.println("Instruction size: " + segSize);
 			System.out.println("Similarity threshold: " + simThresh);
 			
@@ -61,7 +65,7 @@ public class ClusterAnalyzer {
 			Connection connect = DriverManager.getConnection(dburl, username, password);
 			
 			Set<String> allMethods = new HashSet<String>();
-			String subQuery = "SELECT distinct sub FROM result_table2 WHERE comp_id=" + compId;
+			String subQuery = "SELECT distinct sub FROM result_table2 WHERE comp_id between " + compIdStart + " and " + compIdEnd;
 			PreparedStatement subStatement = connect.prepareStatement(subQuery);
 			ResultSet subResult = subStatement.executeQuery();
 			int subCount = 0;
@@ -72,7 +76,7 @@ public class ClusterAnalyzer {
 			}
 			System.out.println("# of sub methods: " + subCount);
 			
-			String targetQuery = "SELECT distinct target FROM result_table2 WHERE comp_id=" + compId;
+			String targetQuery = "SELECT distinct target FROM result_table2 WHERE comp_id between " + compIdStart + " and " + compIdEnd;
 			PreparedStatement targetStatement = connect.prepareStatement(targetQuery);
 			ResultSet targetResult = targetStatement.executeQuery();
 			int targetCount = 0;
@@ -109,18 +113,20 @@ public class ClusterAnalyzer {
 				String knnQuery = "SELECT rt.* FROM result_table2 rt " +
 									"INNER JOIN (SELECT sub, target, MAX(similarity) as sim " +
 										"FROM result_table2 " +
-										"WHERE comp_id=? and seg_size >= ? and similarity >= ? and (sub = ? or target = ?) " +    
+										"WHERE (comp_id between ? and ?) and seg_size >= ? and similarity >= ? and (sub = ? or target = ?) " +    
 										"GROUP BY sub, target) max_rec " +
 										"ON rt.sub = max_rec.sub and rt.target = max_rec.target and rt.similarity = max_rec.sim and rt.seg_size >= ? " +
-									"WHERE comp_id=? ORDER BY similarity desc;";
+									"WHERE (comp_id between ? and ?) ORDER BY similarity desc;";
 				PreparedStatement knnStatement = connect.prepareStatement(knnQuery);
-				knnStatement.setInt(1, compId);
-				knnStatement.setInt(2, segSize);
-				knnStatement.setDouble(3, simThresh);
-				knnStatement.setString(4, method);
+				knnStatement.setInt(1, compIdStart);
+				knnStatement.setInt(2, compIdEnd);
+				knnStatement.setInt(3, segSize);
+				knnStatement.setDouble(4, simThresh);
 				knnStatement.setString(5, method);
 				knnStatement.setString(6, method);
-				knnStatement.setInt(7, compId);
+				knnStatement.setInt(7, segSize);
+				knnStatement.setInt(8, compIdStart);
+				knnStatement.setInt(9, compIdEnd);
 				
 				ResultSet knnResult = knnStatement.executeQuery();
 				
@@ -178,8 +184,9 @@ public class ClusterAnalyzer {
 						trace = targetStart + "-" + targetCentroid + "-" + targetEnd;
 					}
 					
-					if (neighborCache.contains(neighbor))
+					if (neighborCache.contains(neighbor)) {
 						continue ;
+					}
 					neighborCache.add(neighbor);
 					
 					if (neighborTraceCache.contains(trace)) {
@@ -278,6 +285,7 @@ public class ClusterAnalyzer {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
 			bw.write(result.toString());
 			bw.close();
+			System.out.println("Result path: " + fileName);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
