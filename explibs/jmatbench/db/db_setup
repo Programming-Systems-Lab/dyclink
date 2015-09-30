@@ -1,0 +1,57 @@
+CREATE TABLE `comp_table` (
+  `comp_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `inst_thresh` double unsigned NOT NULL,
+  `inst_cat` int(11) unsigned NOT NULL,
+  `lib1` varchar(100) NOT NULL DEFAULT '',
+  `lib2` varchar(100) NOT NULL DEFAULT '',
+  `method1` int(11) unsigned NOT NULL,
+  `method2` int(11) unsigned NOT NULL,
+  `method_f_1` int(11) unsigned NOT NULL,
+  `method_f_2` int(11) unsigned NOT NULL,
+  `m_compare` int(20) unsigned NOT NULL,
+  `sub_crawl` int(22) unsigned NOT NULL,
+  `sub_crawl_filter` int(22) unsigned NOT NULL,
+  `s_threshold` double unsigned NOT NULL,
+  `d_threshold` double unsigned NOT NULL,
+  `time` double unsigned NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`comp_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `result_table` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `comp_id` int(11) unsigned NOT NULL,
+  `sub` varchar(500) NOT NULL DEFAULT '',
+  `sid` varchar(35) NOT NULL DEFAULT '',
+  `target` varchar(500) NOT NULL DEFAULT '',
+  `tid` varchar(35) NOT NULL DEFAULT '',
+  `s_centroid` varchar(500) NOT NULL DEFAULT '',
+  `s_centroid_line` int(11) NOT NULL,
+  `t_start` varchar(500) NOT NULL DEFAULT '',
+  `t_start_line` int(11) NOT NULL,
+  `t_start_caller` int(11) NOT NULL,
+  `t_centroid` varchar(500) NOT NULL DEFAULT '',
+  `t_centroid_line` int(11) NOT NULL,
+  `t_centroid_caller` int(11) NOT NULL,
+  `t_end` varchar(500) NOT NULL DEFAULT '',
+  `t_end_line` int(11) NOT NULL,
+  `t_end_caller` int(11) NOT NULL,
+  `seg_size` int(11) unsigned NOT NULL,
+  `static_dist` double unsigned NOT NULL,
+  `dyn_dist` int(11) unsigned NOT NULL,
+  `similarity` double NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `result_comp` (`comp_id`),
+  CONSTRAINT `result_comp` FOREIGN KEY (`comp_id`) REFERENCES `comp_table` (`comp_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=820 DEFAULT CHARSET=utf8;
+
+SELECT ori.*
+FROM result_table ori 
+inner join (SELECT comp_id, sub, target, MAX(similarity) sim FROM result_table GROUP BY comp_id, sub, target) as max_t
+on ori.comp_id = max_t.comp_id and ori.sub = max_t.sub and ori.target = max_t.target and ori.similarity = max_t.sim;
+
+SELECT ori.*
+FROM result_table ori 
+INNER JOIN (SELECT comp_id, sub, sid, target, tid, t_start_caller, t_centroid_caller, t_end_caller, MAX(similarity) sim FROM result_table GROUP BY comp_id, target, tid, t_start_caller, t_centroid_caller, t_end_caller) as max_t
+ON ori.comp_id = max_t.comp_id and ori.target = max_t.target and ori.tid = max_t.tid and ori.t_start_caller = max_t.t_start_caller and ori.t_centroid_caller = max_t.t_centroid_caller and ori.t_end_caller = max_t.t_end_caller and ori.similarity = max_t.sim
+ORDER by sub, target, similarity, sid, tid desc;

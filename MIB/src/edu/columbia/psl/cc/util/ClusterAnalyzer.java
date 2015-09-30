@@ -50,6 +50,9 @@ public class ClusterAnalyzer {
 			
 			System.out.println("Filter out read, next: ");
 			boolean filter = Boolean.valueOf(console.readLine());
+			
+			System.out.println("Break tie: ");
+			boolean breakTie = Boolean.valueOf(console.readLine());
 						
 			String username = MIBConfiguration.getInstance().getDbusername();
 			String dburl = MIBConfiguration.getInstance().getDburl();
@@ -141,9 +144,14 @@ public class ClusterAnalyzer {
 					String knnTarget = knnResult.getString("target");
 					double similarity = knnResult.getDouble("similarity");
 					
-					//Don't break tie;
-					if (count >= kNum && similarity < lastSimilarity) {
-						break ;
+					if (count >= kNum) {
+						if (breakTie) {
+							break ;
+						} else {
+							if (similarity < lastSimilarity) {
+								break ;
+							}
+						}
 					}
 					
 					String neighbor = "";
