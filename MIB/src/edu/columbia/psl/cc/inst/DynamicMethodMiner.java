@@ -28,9 +28,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 	private static String methodStackRecorder = Type.getInternalName(MethodStackRecorder.class);
 	
 	private static String globalRecorder = Type.getInternalName(GlobalRecorder.class);
-	
-	//private static String virtualRecorder = Type.getInternalName(ReplayMethodStackRecorder.class);
-	
+		
 	private static String srHandleCommon = MIBConfiguration.getSrHandleCommon();
 	
 	private static String srHCDesc = MIBConfiguration.getSrHCDesc();
@@ -123,9 +121,9 @@ public class DynamicMethodMiner extends MethodVisitor {
 	//Control if the constructor should start passing object to recorder
 	private boolean aload0Lock = false;
 	
-	//private BlockAnalyzer blockAnalyzer = new BlockAnalyzer();
-	
 	private boolean visitMethod = false;
+	
+	private BasicBlockAnalyzer bbAnalyzer;
 	 
 	public DynamicMethodMiner(MethodVisitor mv, 
 			String className, 
@@ -151,6 +149,8 @@ public class DynamicMethodMiner extends MethodVisitor {
 		this.constructor = myName.equals("<init>");
 		if (this.constructor)
 			this.aload0Lock = true;
+		
+		this.bbAnalyzer = new BasicBlockAnalyzer(this.className, this.myName);
 	}
 	
 	public synchronized int getIndex() {
@@ -453,6 +453,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		
 		if (this.shouldInstrument()) {
 			this.handleLabel(label);
+			this.bbAnalyzer.signalLabel(label);
 		}
 		//this.blockAnalyzer.setCurLabel(label);
 	}
@@ -496,7 +497,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 			
 			//For static analysis
 			this.updateMethodRep(opcode);
-			//this.blockAnalyzer.registerInst(instIdx, opcode);
+			this.bbAnalyzer.signalInst(opcode);
 		} else {
 			this.mv.visitInsn(opcode);
 		}
@@ -507,7 +508,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		if (this.shouldInstrument()) {
 			int instIdx = this.handleOpcode(opcode, operand);
 			this.updateMethodRep(opcode);
-			//this.blockAnalyzer.registerInst(instIdx, opcode);
+			this.bbAnalyzer.signalInst(opcode, String.valueOf(operand));
 		}
 		this.mv.visitIntInsn(opcode, operand);
 		
@@ -521,7 +522,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		if (this.shouldInstrument()) {
 			int instIdx = this.handleOpcode(opcode, var);
 			this.updateMethodRep(opcode);
-			//this.blockAnalyzer.registerInst(instIdx, opcode);
+			this.bbAnalyzer.signalInst(opcode, String.valueOf(var));
 		}
 		this.mv.visitVarInsn(opcode, var);
 		
@@ -539,7 +540,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		if (this.shouldInstrument()) {
 			int instIdx = this.handleOpcode(opcode, type);
 			this.updateMethodRep(opcode);
-			//this.blockAnalyzer.registerInst(instIdx, opcode);
+			this.bbAnalyzer.signalInst(opcode, type);
 		}
 		this.mv.visitTypeInsn(opcode, type);
 		
@@ -558,7 +559,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		if (this.shouldInstrument()) {
 			int instIdx = this.handleField(opcode, owner, name, desc);
 			this.updateMethodRep(opcode);
-			//this.blockAnalyzer.registerInst(instIdx, opcode);
+			this.bbAnalyzer.signalInst(opcode, owner + " " + name + " " + desc);
 		}
 		this.mv.visitFieldInsn(opcode, owner, name, desc);
 		
@@ -618,7 +619,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 			
 			int instIdx = this.handleMethod(opcode, owner, name, desc);
 			this.updateMethodRep(opcode);
-			//this.blockAnalyzer.registerInst(instIdx, opcode);
+			this.bbAnalyzer.signalInst(opcode, owner + " " + name + " " + desc);
 			
 			int returnSort = Type.getMethodType(desc).getReturnType().getSort();
 			if (returnSort == Type.OBJECT || returnSort == Type.ARRAY)
@@ -657,7 +658,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		if (this.shouldInstrument()) {
 			int instIdx = this.handleOpcode(opcode, labelString);
 			this.updateMethodRep(opcode);
-			//this.blockAnalyzer.registerInst(instIdx, opcode, label);
+			this.bbAnalyzer.signalJump(opcode, label);
 		}
 		this.mv.visitJumpInsn(opcode, label);
 		
@@ -683,7 +684,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 			}
 			
 			this.updateMethodRep(Opcodes.LDC);
-			//this.blockAnalyzer.registerInst(instIdx, Opcodes.LDC);
+			this.bbAnalyzer.signalInst(Opcodes.LDC, cst.toString());
 		}
 		this.mv.visitLdcInsn(cst);
 		
@@ -704,7 +705,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		if (this.shouldInstrument()) {
 			int instIdx = this.handleOpcode(Opcodes.IINC, var);
 			this.updateMethodRep(Opcodes.IINC);
-			//this.blockAnalyzer.registerInst(instIdx, Opcodes.IINC);
+			this.bbAnalyzer.signalInst(Opcodes.IINC, var + " " + increment);
 		}
 		this.mv.visitIincInsn(var, increment);
 	}
@@ -724,7 +725,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 			//System.out.println("all labels: " + sb.toString());
 			int instIdx = this.handleOpcode(Opcodes.TABLESWITCH, sb.substring(0, sb.length() - 1));
 			this.updateMethodRep(Opcodes.TABLESWITCH);
-			//this.blockAnalyzer.registerInst(instIdx, Opcodes.TABLESWITCH, labels);
+			this.bbAnalyzer.signalTableSwitch(Opcodes.TABLESWITCH, dflt, labels);
 		}
 		this.mv.visitTableSwitchInsn(min, max, dflt, labels);
 	}
@@ -739,7 +740,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 			}
 			int instIdx = this.handleOpcode(Opcodes.LOOKUPSWITCH, sb.substring(0, sb.length() - 1));
 			this.updateMethodRep(Opcodes.LOOKUPSWITCH);
-			//this.blockAnalyzer.registerInst(instIdx, Opcodes.LOOKUPSWITCH, labels);
+			this.bbAnalyzer.signalLookupSwitch(Opcodes.LOOKUPSWITCH, labels);
 		}
 		this.mv.visitLookupSwitchInsn(dflt, keys, labels);
 	}
@@ -749,7 +750,7 @@ public class DynamicMethodMiner extends MethodVisitor {
 		if (this.shouldInstrument()) {
 			int instIdx = this.handleMultiNewArray(desc, dims);
 			this.updateMethodRep(Opcodes.MULTIANEWARRAY);
-			//this.blockAnalyzer.registerInst(instIdx, Opcodes.MULTIANEWARRAY);
+			this.bbAnalyzer.signalInst(Opcodes.MULTIANEWARRAY, desc + " " + dims);
 		}
 		this.mv.visitMultiANewArrayInsn(desc, dims);
 		
@@ -780,56 +781,12 @@ public class DynamicMethodMiner extends MethodVisitor {
 	}*/
 	
 	@Override
-	public void visitEnd() {
-		/*if (this.shouldInstrument()) {
-			StringBuilder sb = new StringBuilder();
-			for (OpcodeObj oo: this.sequence) {
-				sb.append((char)(oo.getCatId() + 97));
-			}
-			
-			HashMap<String, Integer> labelMap = new HashMap<String, Integer>();
-			for (Label l: this.allLabels) {
-				labelMap.put(l.toString(), l.getOffset());
-			}
-			
-			StaticMethodMiner sr = new StaticMethodMiner();
-			sr.setOpCatString(sb.toString());
-			sr.setOpCatFreq(this.repVector);
-			sr.setLabelMap(labelMap);
-			
-			String key = StringUtil.appendMap(shortKey);
-			
-			logger.info("Start block analysis: " + key);
-			this.blockAnalyzer.analyzeBlocks();
-			List<Block> blockList = this.blockAnalyzer.getBlockList();
-			HashMap<String, Block> blockMap = new HashMap<String, Block>();
-			sr.setBlockMap(blockMap);
-			for (Block b: blockList) {
-				logger.info("Block " + b.startLabel);
-				logger.info("Child block: " + b.childBlocks);
-				logger.info("Cond map: " + b.condMap.keySet());
-				
-				for (String labelKey: b.condMap.keySet()) {
-					logger.info("Cond label: " + labelKey);
-					logger.info("Tag: " + Arrays.toString(b.condMap.get(labelKey)));
-				}
-				
-				for (InstTuple it: b.instList) {
-					System.out.println(it.instIdx + " " + it.opcode + BytecodeCategory.getOpcodeObj(it.opcode).getInstruction());
-				}
-				
-				for (String label: b.labels) {
-					blockMap.put(label, b);
-				}
-			}
-			
-			TypeToken<StaticMethodMiner> typeToken  = new TypeToken<StaticMethodMiner>(){};
-			GsonManager.writeJsonGeneric(sr, key, typeToken, 2);
-		}*/
-		
+	public void visitEnd() {		
 		if (this.indexer.get() < MIBConfiguration.getInstance().getInstThreshold() && !this.visitMethod) {
 			GlobalRecorder.registerUndersizedMethod(this.shortKey);
 		}
+		this.bbAnalyzer.summarizeDanglings();
+		this.bbAnalyzer.printBlockInfo();
 		
 		this.mv.visitEnd();
 	}

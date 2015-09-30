@@ -109,14 +109,8 @@ public class ClassMiner extends ClassVisitor{
 				//System.out.println("Constructor visit code");
 			} else if (!StringUtil.shouldIncludeMethod(name, desc)) {
 				return mv;
-			} /*else if (name.equals("toString") && Type.getReturnType(desc).equals(Type.getType(String.class))) {
-				return mv;
-			} else if (name.equals("equals") && Type.getReturnType(desc).equals(Type.BOOLEAN_TYPE)) {
-				return mv;
-			} else if (name.equals("hashCode") && Type.getReturnType(desc).equals(Type.INT_TYPE)) {
-				return mv;
-			}*/
-			
+			}
+			System.out.println("Dynamic method miner: ");
 			DynamicMethodMiner dmm =  new DynamicMethodMiner(mv, 
 					this.owner, 
 					this.superName, 
