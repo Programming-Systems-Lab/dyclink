@@ -345,7 +345,7 @@ public class Locator {
 			InstWrapper iw = new InstWrapper(i, rnk);
 			coreRecord.add(iw);
 		}
-		Collections.sort(coreRecord, PageRankSelector.pageRankSorter);
+		Collections.sort(coreRecord, PageRankSelector.pageRankSorter());
 		int[] genRep = SearchUtil.generatePageRankRep(coreRecord);
 		
 		/*logger.info("Core inst: " + inst);

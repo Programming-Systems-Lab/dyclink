@@ -2,6 +2,7 @@ package edu.columbia.psl.cc.analysis;
 
 import java.io.Console;
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -100,31 +101,34 @@ public class PageRankSelector {
 	private static String sumHeader = "lib1,lib2,inst_thresh,inst_cat,method1,method2,method_f_1,method_f_2,m_compare,sub_crawl,sub_crawl_filter,s_threshold,t_threshold,time,timestamp\n";
 	
 	private static String header = "sub,sid,target,tid,s_start,s_centroid,s_centroid_line,s_centroid_caller,s_end,s_trace,t_start,t_centroid,t_centroid_line,t_centroid_caller,t_end,t_trace,seg_size,inst_dist,similarity\n";
-	
-	public static Comparator<InstWrapper> pageRankSorter = new Comparator<InstWrapper>() {
-		public int compare(InstWrapper i1, InstWrapper i2) {
-			if (i1.pageRank < i2.pageRank) {
-				return 1;
-			} else if (i1.pageRank > i2.pageRank) {
-				return -1;
-			} else {				
-				//int i1Number = SearchUtil.getInstructionOp(i1.inst);
-				//int i2Number = SearchUtil.getInstructionOp(i2.inst);
-				int i1Number = i1.inst.repOp;
-				int i2Number = i2.inst.repOp;
+		
+	public static Comparator<InstWrapper> pageRankSorter() {
+		Comparator<InstWrapper> ret = new Comparator<InstWrapper>() {
+			public int compare(InstWrapper i1, InstWrapper i2) {
+				BigDecimal bd1 = new BigDecimal(i1.pageRank).setScale(8, BigDecimal.ROUND_HALF_UP);
+				BigDecimal bd2 = new BigDecimal(i2.pageRank).setScale(8, BigDecimal.ROUND_HALF_UP);
 				
-				//System.out.println("i1 pg repOp: " + i1.inst + " " + i1.pageRank + " " + i1Number);
-				//System.out.println("i2 pg repOp: " + i2.inst + " " + i2.pageRank + " " + i2Number);
-				if (i1Number > i2Number) {
+				int res = bd1.compareTo(bd2);
+				if (res == -1) {
 					return 1;
-				} else if (i1Number < i2Number) {
+				} else if (res == 1) {
 					return -1;
-				} else {
-					return 0;
+				} else {				
+					int i1Number = i1.inst.repOp;
+					int i2Number = i2.inst.repOp;
+					
+					if (i1Number > i2Number) {
+						return 1;
+					} else if (i1Number < i2Number) {
+						return -1;
+					} else {
+						return 0;
+					}
 				}
 			}
-		}
-	};
+		};
+		return ret;
+	}
 		
 	private InstPool myPool;
 	
@@ -297,7 +301,7 @@ public class PageRankSelector {
 			rankList.add(iw);
 		}
 		
-		Collections.sort(rankList, pageRankSorter);
+		Collections.sort(rankList, pageRankSorter());
 		return rankList;
 	}
 	

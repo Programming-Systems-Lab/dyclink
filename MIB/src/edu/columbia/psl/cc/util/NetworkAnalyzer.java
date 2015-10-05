@@ -82,10 +82,11 @@ public class NetworkAnalyzer {
 		
 		List<InstWrapper> selectedSub = PercentageSelector.selectImportantInstWrappers(subRank, printPercent);
 		System.out.println("Sub: Top " + printPercent + " instruction info");
+		int sCounter = 0;
 		for (InstWrapper iw: selectedSub) {
-			System.out.println("Instruction: " + iw.inst);
+			System.out.println(sCounter++ + " Instruction: " + iw.inst);
 			System.out.println("Linenumber: " + iw.inst.getLinenumber());
-			System.out.println("Page rank: " + iw.pageRank);
+			System.out.println("Page rank: " + iw.pageRank + "\n");
 		}
 		
 		int[] subAllRep = SearchUtil.generatePageRankRep(subRank);
@@ -133,10 +134,11 @@ public class NetworkAnalyzer {
 		List<InstWrapper> selectedTarget = PercentageSelector.selectImportantInstWrappers(targetRank, printPercent);
 		
 		System.out.println("Target seg: Top " + printPercent + " instruction info");
+		int tCounter = 0;
 		for (InstWrapper iw: selectedTarget) {
-			System.out.println("Instruction: " + iw.inst);
+			System.out.println(tCounter++ + " Instruction: " + iw.inst);
 			System.out.println("Linenumber: " + iw.inst.getLinenumber());
-			System.out.println("Page rank: " + iw.pageRank);
+			System.out.println("Page rank: " + iw.pageRank + "\n");
 		}
 		
 		JaroWinklerDistance measurer = new JaroWinklerDistance();
