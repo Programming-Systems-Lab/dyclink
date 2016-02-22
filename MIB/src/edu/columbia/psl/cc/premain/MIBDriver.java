@@ -9,7 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.JarFile;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -29,7 +30,7 @@ import edu.columbia.psl.cc.util.StringUtil;
 
 public class MIBDriver {
 	
-	private static Logger logger = Logger.getLogger(MIBDriver.class);
+	private static Logger logger = LogManager.getLogger(MIBDriver.class);
 	
 	private static TypeToken<NameMap> nameMapToken = new TypeToken<NameMap>(){};
 	

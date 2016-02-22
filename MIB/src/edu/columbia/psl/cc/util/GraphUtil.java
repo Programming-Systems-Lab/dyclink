@@ -21,7 +21,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.math3.util.MathUtils;
 import org.apache.commons.math3.util.Precision;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.objectweb.asm.Opcodes;
 
 import com.google.gson.reflect.TypeToken;
@@ -43,7 +46,7 @@ import edu.columbia.psl.cc.pojo.VarPair;
 
 public class GraphUtil {
 	
-	private static Logger logger = Logger.getLogger(GraphUtil.class);
+	private static Logger logger = LogManager.getLogger(GraphUtil.class);
 	
 	/*public static ArrayList<String> replaceMethodKeyInParentList(ArrayList<String> parents, String methodKey, int cMethodInvokeId) {
 		ArrayList<String> ret = new ArrayList<String>();

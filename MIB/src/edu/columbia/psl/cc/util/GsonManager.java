@@ -18,7 +18,8 @@ import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -35,7 +36,7 @@ import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class GsonManager {
 	
-	private static Logger logger = Logger.getLogger(GsonManager.class);
+	private static Logger logger = LogManager.getLogger(GsonManager.class);
 	
 	public static void writePath(String fileName, List<InstNode> path) {
 		StringBuilder sb = new StringBuilder();

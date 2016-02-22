@@ -10,7 +10,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.objectweb.asm.Opcodes;
 
 import com.google.gson.reflect.TypeToken;
@@ -23,11 +25,10 @@ import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.MethodNode.MetaGraph;
-import edu.columbia.psl.cc.pojo.MethodNode.RegularState;
 
 public class GraphConstructor {
 	
-	private static Logger logger = Logger.getLogger(GraphConstructor.class);
+	private static Logger logger = LogManager.getLogger(GraphConstructor.class);
 	
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 	
@@ -368,7 +369,7 @@ public class GraphConstructor {
 		//File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64:decompose:0:0:14.json");
 		//File testFile = new File("/Users/mikefhsu/ccws/jvm-clones/MIB/test/cc.expbase.TemplateMethod:forMethod:0:0:8.json");
 		//File testFile = new File("/Users/mikefhsu/MiKe/Research/ec2/mib_sandbox_v3/jama_graphs/Jama.Matrix:solve:0:1:3811439.json");
-		File testFile = new File("/Users/mikefhsu/Mike/Research/ec2/matrix_graphs_benchmark/matrix_graphs_ready/ejml_graphs/org.ejml.alg.dense.decomposition.bidiagonal.BidiagonalDecompositionRow:getU:0:4000:36048549.json");
+		File testFile = new File("/Users/mikefhsu/Mike/Research/ec2/codejam_mining/graphrepo11flat/R5P1Y11.vot.a:getArea:1:100:4426038.json");
 		GraphTemplate testGraph = GsonManager.readJsonGeneric(testFile, graphToken);
 		GraphConstructor constructor = new GraphConstructor();
 		constructor.reconstructGraph(testGraph, true);
@@ -396,8 +397,9 @@ public class GraphConstructor {
 		
 		System.out.println("Clean obj ref");
 		constructor.cleanObjInit(testGraph);
-		String fileName = "/Users/mikefhsu/Desktop/" + testGraph.getShortMethodKey() + "_re.json";
-		GsonManager.writeJsonGeneric(testGraph, fileName, graphToken, 8);
+		System.out.println("Reduced size: " + testGraph.getInstPool().size());
+		//String fileName = "/Users/mikefhsu/Desktop/" + testGraph.getShortMethodKey() + "_re.json";
+		//GsonManager.writeJsonGeneric(testGraph, fileName, graphToken, 8);
 		
 		/*System.out.println("Clean object init");
 		constructor.cleanObjInit(testGraph);

@@ -15,7 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.objectweb.asm.Opcodes;
 
 import com.google.gson.reflect.TypeToken;
@@ -32,7 +34,7 @@ import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class GlobalRecorder {
 	
-	private static Logger logger = Logger.getLogger(GlobalRecorder.class);
+	private static Logger logger = LogManager.getLogger(GlobalRecorder.class);
 	
 	private static TypeToken<StaticMethodMiner> smmToken = new TypeToken<StaticMethodMiner>(){};
 	

@@ -10,7 +10,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -18,7 +19,7 @@ import edu.columbia.psl.cc.config.MIBConfiguration;
 
 public class TemplateLoader {
 	
-	private static Logger logger = Logger.getLogger(TemplateLoader.class);
+	private static Logger logger = LogManager.getLogger(TemplateLoader.class);
 	
 	private static String skipMethod = "main:([Ljava.lang.String)";
 	

@@ -17,6 +17,7 @@ import org.gephi.data.attributes.api.AttributeController;
 import org.gephi.data.attributes.api.AttributeModel;
 import org.gephi.data.attributes.api.AttributeType;
 import org.gephi.graph.api.DirectedGraph;
+import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.GraphController;
 import org.gephi.graph.api.GraphModel;
 import org.gephi.graph.api.Node;
@@ -98,6 +99,10 @@ public class GephiDataCoverter {
 			tmp.getNodeData().setLabel(label);
 			tmp.getNodeData().getAttributes().setValue(attrColumn.getIndex(), attribute);
 			tmp.getNodeData().getAttributes().setValue(weightColumn.getIndex(), weight);
+			
+			//tmp.setLabel(label);
+			//tmp.setAttribute("Attribute", attribute);
+			//tmp.setAttribute("Weight", weight);
 			nodeHistory.put(id, tmp);
 		}
 		
@@ -113,6 +118,8 @@ public class GephiDataCoverter {
 				Node childNode = nodeHistory.get(cId);
 				float freq = curInst.getChildFreqMap().get(cId).floatValue();
 				graphModel.factory().newEdge(curNode, childNode, freq, true);
+				//Edge newEdge = graphModel.factory().newEdge(curNode, childNode);
+				//newEdge.setWeight(freq);
 			}	
 		}
 		
@@ -166,8 +173,8 @@ public class GephiDataCoverter {
 	}
 	
 	public static void main(String[] args) {
-		visualizeGraph(null, null);
-		/*String graphFile = null;
+		//visualizeGraph(null, null);
+		String graphFile = null;
 		
 		System.out.println("Input graph file: ");
 		Scanner s = new Scanner(System.in);
@@ -266,7 +273,7 @@ public class GephiDataCoverter {
 			System.out.println("Data output completes");
 		} catch (Exception ex) {
 			ex.printStackTrace();
-		}*/
+		}
 	}
 
 }

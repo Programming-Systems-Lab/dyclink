@@ -8,7 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -20,14 +21,12 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
 
-import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.FieldNode;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.MethodNode.CalleeInfo;
 import edu.columbia.psl.cc.pojo.MethodNode.RegularState;
-import edu.columbia.psl.cc.pojo.OpcodeObj;
 
 public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializer<InstNode>{
 	

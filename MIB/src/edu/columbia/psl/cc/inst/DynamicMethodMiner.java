@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -23,7 +25,7 @@ import edu.columbia.psl.cc.util.StringUtil;
 
 public class DynamicMethodMiner extends MethodVisitor {
 	
-	private static Logger logger = Logger.getLogger(DynamicMethodMiner.class);
+	private static Logger logger = LogManager.getLogger(DynamicMethodMiner.class);
 	
 	private static String methodStackRecorder = Type.getInternalName(MethodStackRecorder.class);
 	

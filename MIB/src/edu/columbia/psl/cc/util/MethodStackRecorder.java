@@ -6,7 +6,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -18,16 +20,14 @@ import edu.columbia.psl.cc.crawler.NativePackages;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.ClassMethodInfo;
-import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
-import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class MethodStackRecorder {
 	
-	private static Logger logger = Logger.getLogger(MethodStackRecorder.class);
+	private static Logger logger = LogManager.getLogger(MethodStackRecorder.class);
 		
 	private static TypeToken<GraphTemplate> GRAPH_TOKEN = new TypeToken<GraphTemplate>(){};
 	

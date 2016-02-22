@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -22,7 +24,7 @@ import edu.columbia.psl.cc.util.StringUtil;
 
 public class GraphReducer {
 	
-	private static Logger logger = Logger.getLogger(GraphReducer.class);
+	private static Logger logger = LogManager.getLogger(GraphReducer.class);
 	
 	private static HashSet<Integer> replacedOps = BytecodeCategory.replacedOps();
 	

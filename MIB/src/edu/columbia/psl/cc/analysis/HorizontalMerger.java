@@ -11,7 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -28,7 +29,7 @@ import edu.columbia.psl.cc.util.TemplateLoader;
 
 public class HorizontalMerger {
 	
-	private static Logger logger = Logger.getLogger(HorizontalMerger.class);
+	private static Logger logger = LogManager.getLogger(HorizontalMerger.class);
 	
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 	

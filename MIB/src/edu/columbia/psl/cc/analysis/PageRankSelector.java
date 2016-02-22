@@ -32,7 +32,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang3.text.translate.NumericEntityUnescaper.OPTION;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -78,7 +80,7 @@ public class PageRankSelector {
 	
 	private static AtomicInteger threadIndex = new AtomicInteger();
 	
-	private static Logger logger = Logger.getLogger(PageRankSelector.class);
+	private static Logger logger = LogManager.getLogger(PageRankSelector.class);
 	
 	private static double alpha = MIBConfiguration.getInstance().getPgAlpha();
 	

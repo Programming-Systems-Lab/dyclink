@@ -4,7 +4,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import edu.columbia.psl.cc.pojo.FieldNode;
 import edu.columbia.psl.cc.pojo.InstNode;
@@ -20,7 +21,7 @@ public class InstPool extends TreeSet<InstNode> {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private static Logger logger = Logger.getLogger(InstPool.class);
+	private static Logger logger = LogManager.getLogger(InstPool.class);
 	
 	public static boolean DEBUG;
 	

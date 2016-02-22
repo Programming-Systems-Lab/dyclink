@@ -9,7 +9,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 
@@ -18,7 +20,7 @@ import edu.columbia.psl.cc.pojo.OpcodeObj;
 
 public class BlockAnalyzer {
 	
-	private static Logger logger = Logger.getLogger(BlockAnalyzer.class);
+	private static Logger logger = LogManager.getLogger(BlockAnalyzer.class);
 	
 	private List<LabelBlock> labelList = new ArrayList<LabelBlock>();
 	

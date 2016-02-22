@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import edu.columbia.psl.cc.analysis.InstWrapper;
 import edu.columbia.psl.cc.analysis.JaroWinklerDistance;
@@ -20,7 +21,6 @@ import edu.columbia.psl.cc.analysis.StaticTester;
 import edu.columbia.psl.cc.analysis.PageRankSelector.GraphProfile;
 import edu.columbia.psl.cc.analysis.PageRankSelector.SegInfo;
 import edu.columbia.psl.cc.config.MIBConfiguration;
-import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.uci.ics.jung.algorithms.scoring.PageRank;
@@ -34,7 +34,7 @@ public class Locator {
 	
 	private static int simStrat = MIBConfiguration.getInstance().getSimStrategy();
 	
-	private static Logger logger = Logger.getLogger(Locator.class);
+	private static Logger logger = LogManager.getLogger(Locator.class);
 		
 	public static boolean equalInst(InstNode i1, InstNode i2) {
 		return (i1.repOp == i2.repOp);

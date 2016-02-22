@@ -5,11 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.RollingFileAppender;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.RunListener;
@@ -26,7 +24,7 @@ import edu.columbia.psl.cc.util.TimeController;
 
 public class MIBTestExecutionListener extends RunListener{
 	
-	private static Logger logger = Logger.getLogger(MIBTestExecutionListener.class);
+	private static Logger logger = LogManager.getLogger(MIBTestExecutionListener.class);
 	
 	private static long mb = 1024 * 1024;
 	
@@ -35,7 +33,7 @@ public class MIBTestExecutionListener extends RunListener{
 	static {
 		System.out.println("Initialize logger");
 		//BasicConfigurator.configure();
-		PropertyConfigurator.configure("./target/log4j.properties");
+		//PropertyConfigurator.configure("./target/log4j.properties");
 	}
 	
 	public MIBTestExecutionListener() {

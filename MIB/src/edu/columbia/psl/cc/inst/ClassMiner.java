@@ -7,7 +7,9 @@ import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.util.StringUtil;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -19,7 +21,7 @@ import org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class ClassMiner extends ClassVisitor{
 	
-	private static Logger logger = Logger.getLogger(ClassMiner.class);
+	private static Logger logger = LogManager.getLogger(ClassMiner.class);
 	
 	private String classAnnot;
 	

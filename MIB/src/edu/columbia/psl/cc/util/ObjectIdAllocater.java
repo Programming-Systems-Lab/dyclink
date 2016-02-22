@@ -7,13 +7,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 
 public class ObjectIdAllocater {
 	
-	private static Logger logger = Logger.getLogger(ObjectIdAllocater.class);
+	private static Logger logger = LogManager.getLogger(ObjectIdAllocater.class);
 
 	//Save 0 for method stack recorder to identify static method
 	private static AtomicInteger indexer = new AtomicInteger(1);

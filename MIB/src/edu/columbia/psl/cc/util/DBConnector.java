@@ -1,33 +1,22 @@
 package edu.columbia.psl.cc.util;
 
-import java.io.Console;
-import java.io.File;
-import java.io.FilenameFilter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
-import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import com.google.gson.reflect.TypeToken;
-
-import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.HotZone;
-import edu.columbia.psl.cc.pojo.GraphTemplate;
-import edu.columbia.psl.cc.pojo.InstNode;
 
 public class DBConnector {
 	
-	private static Logger logger = Logger.getLogger(DBConnector.class);
+	private static Logger logger = LogManager.getLogger(DBConnector.class);
 	
 	private static String baseurl;
 	
