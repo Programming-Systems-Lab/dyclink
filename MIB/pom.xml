@@ -58,10 +58,10 @@
           			<archive>
             			<manifest>
               				<addClasspath>true</addClasspath>
-              				<mainClass>edu.columbia.cs.psl.ioclones.Main</mainClass>
+              				<mainClass>edu.columbia.cs.psl.cc.permain.MIBDriver</mainClass>
             			</manifest>
             			<manifestEntries>
-            				<Premain-Class>edu.columbia.cs.psl.ioclones.premain.PreMain</Premain-Class>
+            				<Premain-Class>edu.columbia.cs.psl.cc.premain.PreMain</Premain-Class>
             			</manifestEntries>
           			</archive>
         		</configuration>
