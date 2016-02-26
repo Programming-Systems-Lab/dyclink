@@ -1,12 +1,19 @@
 package edu.columbia.psl.bc;
 
+import java.io.BufferedWriter;
 import java.io.Console;
+import java.io.File;
+import java.io.FileWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -16,6 +23,10 @@ import org.apache.commons.cli.Options;
 public class CodebaseCollector {
 	
 	public static Options options = new Options();
+	
+	public static String funcHeader = "name,start,end,id,size,toks,proj,path,func_id,is_clone\n";
+	
+	public static String cloneHeader = "func1,func2,func_id,syn_type,sim_line,sim_toks";
 	
 	private static Connection conn = null;
 	
@@ -53,6 +64,37 @@ public class CodebaseCollector {
 		}
 		
 		return null;
+	}
+	
+	public static String genFuncIds(Set<Integer> ids) {
+		StringBuilder sb = new StringBuilder();
+		for (Integer id: ids) {
+			sb.append(id + ",");
+		}
+		
+		return "(" + sb.substring(0, sb.length() - 1) + ")";
+	}
+	
+	public static void exportSelectedMethods(Collection<FuncInfo> funcs, int funCat, int toks, String tF) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(funcHeader);
+		funcs.forEach(fi->{
+			sb.append(fi.toString() + "\n");
+		});
+		
+		File resultDir = new File("results");
+		if (!resultDir.exists()) {
+			resultDir.mkdir();
+		}
+		
+		String path = resultDir.getAbsolutePath() + "/funcs_" + tF + "_cat" + funCat + "_toks" + toks + ".csv";
+		try {
+			BufferedWriter bw = new BufferedWriter(new FileWriter(path));
+			bw.write(sb.toString());
+			bw.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -109,10 +151,13 @@ public class CodebaseCollector {
 			if (toks != -1) {
 				sqlString += (" WHERE tokens>=" + toks);
 			}
-			System.out.println("Confirm sqlString: " + sqlString);
+			//System.out.println("Confirm sqlString: " + sqlString);
 			
 			PreparedStatement stmt = conn.prepareStatement(sqlString);
 			ResultSet rs = stmt.executeQuery();
+			Map<Integer, FuncInfo> tps = new HashMap<Integer, FuncInfo>();
+			Map<Integer, FuncInfo> fps = new HashMap<Integer, FuncInfo>();
+			
 			while (rs.next()) {
 				String name = rs.getString("name");
 				int start = rs.getInt("startline");
@@ -137,8 +182,108 @@ public class CodebaseCollector {
 				fi.func_id= func_id;
 				fi.is_clone = is_clone;
 				
-				System.out.println(fi);
+				if (is_clone) {
+					tps.put(fi.id, fi);
+				} else {
+					fps.put(fi.id, fi);
+				}
 			}
+			System.out.println("Confirm true functions size: " + tps.size());
+			System.out.println("Confirm false functions size: " + fps.size());
+			
+			String tIdString = genFuncIds(tps.keySet());
+			String fIdString = genFuncIds(fps.keySet());
+			
+			String cloneSql = "SELECT * FROM clones WHERE functionality_id=" + funcat 
+					+ " and function_id_one in " + tIdString 
+					+ " and function_id_two in " + tIdString;
+			//System.out.println("Confirm true clone sql: " + cloneSql);
+			
+			PreparedStatement cloneStmt = conn.prepareStatement(cloneSql);
+			ResultSet cloneRs = cloneStmt.executeQuery();
+			List<CloneInfo> tClones = new ArrayList<CloneInfo>();
+			while (cloneRs.next()) {
+				int cFunc1 = cloneRs.getInt(1);
+				FuncInfo func1 = tps.get(cFunc1);
+				int cFunc2 = cloneRs.getInt(2);
+				FuncInfo func2 = tps.get(cFunc2);
+				
+				int cFuncId = cloneRs.getInt(3);
+				int syncType = cloneRs.getInt(5);
+				double sim_line = cloneRs.getDouble(6);
+				double sim_toks = cloneRs.getDouble(7);
+				
+				CloneInfo ci = new CloneInfo();
+				ci.fi1 = func1;
+				ci.fi2 = func2;
+				ci.func_id = cFuncId;
+				ci.syn_type = syncType;
+				ci.sim_line = sim_line;
+				ci.sim_toks = sim_toks;
+				tClones.add(ci);
+			}
+			System.out.println("Tota tp size: " + tClones.size());
+			
+			String fCloneSql = "SELECT * FROM false_positives WHERE functionality_id=" + funcat 
+					+ " and function_id_one in " + tIdString  
+					+ " and function_id_two in " + fIdString;
+			//System.out.println("Confirm false clone sql: " + fCloneSql);
+			PreparedStatement fCloneStmt1 = conn.prepareStatement(fCloneSql);
+			
+			String fCloneSql2 = "SELECT * FROM false_positives WHERE functionality_id=" + funcat 
+					+ " and function_id_one in " + fIdString  
+					+ " and function_id_two in " + tIdString;
+			//System.out.println("Confirm false clone sql: " + fCloneSql2);
+			PreparedStatement fCloneStmt2 = conn.prepareStatement(fCloneSql2);
+			
+			List<CloneInfo> fClones = new ArrayList<CloneInfo>();
+			ResultSet fCloneRs1 = fCloneStmt1.executeQuery();
+			ResultSet fCloneRs2 = fCloneStmt2.executeQuery();
+			while (fCloneRs1.next()) {
+				int fcFunc1 = fCloneRs1.getInt(1);
+				FuncInfo func1 = tps.get(fcFunc1);
+				int fcFunc2 = fCloneRs1.getInt(2);
+				FuncInfo func2 = fps.get(fcFunc2);
+				
+				int fcFuncId = fCloneRs1.getInt(3);
+				double sim_line = fCloneRs1.getDouble(5);
+				double sim_toks = fCloneRs1.getDouble(6);
+				int syncType = fCloneRs1.getInt(7);
+				
+				CloneInfo fci = new CloneInfo();
+				fci.fi1 = func1;
+				fci.fi2 = func2;
+				fci.func_id = fcFuncId;
+				fci.sim_line = sim_line;
+				fci.sim_toks = sim_toks;
+				fci.syn_type = syncType;
+				
+				fClones.add(fci);
+			}
+			System.out.println("First fp size: " + fClones.size());
+			
+			while (fCloneRs2.next()) {
+				int fcFunc1 = fCloneRs2.getInt(1);
+				FuncInfo func1 = fps.get(fcFunc1);
+				int fcFunc2 = fCloneRs2.getInt(2);
+				FuncInfo func2 = tps.get(fcFunc2);
+				
+				int fcFuncId = fCloneRs2.getInt(3);
+				double sim_line = fCloneRs2.getDouble(5);
+				double sim_toks = fCloneRs2.getDouble(6);
+				int syncType = fCloneRs2.getInt(7);
+				
+				CloneInfo fci = new CloneInfo();
+				fci.fi1 = func1;
+				fci.fi2 = func2;
+				fci.func_id = fcFuncId;
+				fci.sim_line = sim_line;
+				fci.sim_toks = sim_toks;
+				fci.syn_type = syncType;
+				
+				fClones.add(fci);
+			}
+			System.out.println("Total fp size: " + fps.size());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -162,6 +307,7 @@ public class CodebaseCollector {
 			sb.append(name + ",");
 			sb.append(start + ",");
 			sb.append(end + ",");
+			sb.append(id + ",");
 			sb.append(size + ",");
 			sb.append(tokens + ",");
 			sb.append(proj + ",");
@@ -170,6 +316,15 @@ public class CodebaseCollector {
 			sb.append(is_clone);
 			return sb.toString();
 		}
+	}
+	
+	public static class CloneInfo {
+		FuncInfo fi1;
+		FuncInfo fi2;
+		int func_id;
+		int syn_type;
+		double sim_line;
+		double sim_toks;
 	}
 
 }
