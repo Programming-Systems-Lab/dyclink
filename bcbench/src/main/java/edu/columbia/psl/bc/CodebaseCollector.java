@@ -20,13 +20,15 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 
+import net.schmizz.sshj.SSHClient;
+
 public class CodebaseCollector {
 	
 	public static Options options = new Options();
 	
-	public static String funcHeader = "name,start,end,id,size,toks,proj,path,func_id,is_clone\n";
+	public static String funcHeader = "name,start,end,id,size,toks,proj,path,func_cat,is_clone\n";
 	
-	public static String cloneHeader = "func1,func2,func_id,syn_type,sim_line,sim_toks";
+	public static String cloneHeader = "func1_id,func1,func2,func2_id,func_cat,syn_type,sim_line,sim_toks\n";
 	
 	private static Connection conn = null;
 	
@@ -35,9 +37,13 @@ public class CodebaseCollector {
 		options.addOption("username", true, "DB username");
 		options.addOption("funcat", true, "Functionality category");
 		options.addOption("toks", true, "Token threshold");
+		options.addOption("rName", true, "SCP username");
+		options.addOption("rDir", true, "SCP directory");
 		
 		options.getOption("db").setRequired(true);
 		options.getOption("username").setRequired(true);
+		options.getOption("rName").setRequired(true);
+		options.getOption("rDir").setRequired(true);
 	}
 	
 	public static Connection getConnection(String db, String username, String pw) {
@@ -88,6 +94,28 @@ public class CodebaseCollector {
 		}
 		
 		String path = resultDir.getAbsolutePath() + "/funcs_" + tF + "_cat" + funCat + "_toks" + toks + ".csv";
+		try {
+			BufferedWriter bw = new BufferedWriter(new FileWriter(path));
+			bw.write(sb.toString());
+			bw.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	public static void exportSelectedClones(Collection<CloneInfo> clones, int funCat, int toks, String tf) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(cloneHeader);
+		clones.forEach(ci->{
+			sb.append(ci.toString() + "\n");
+		});
+		
+		File resultDir = new File("results");
+		if (!resultDir.exists()) {
+			resultDir.mkdir();
+		}
+		
+		String path = resultDir.getAbsolutePath() + "/clones_" + tf + "_cat" + funCat + "_toks" + toks + ".csv";
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(path));
 			bw.write(sb.toString());
@@ -157,6 +185,7 @@ public class CodebaseCollector {
 			ResultSet rs = stmt.executeQuery();
 			Map<Integer, FuncInfo> tps = new HashMap<Integer, FuncInfo>();
 			Map<Integer, FuncInfo> fps = new HashMap<Integer, FuncInfo>();
+			Map<Integer, FuncInfo> samples = new HashMap<Integer, FuncInfo>();
 			
 			while (rs.next()) {
 				String name = rs.getString("name");
@@ -188,10 +217,48 @@ public class CodebaseCollector {
 					fps.put(fi.id, fi);
 				}
 			}
+			
+			//Collect the true sample
+			String innerSample = "SELECT function_id FROM samples WHERE functionality_id=" + funcat;
+			String sampleSql = "SELECT * FROM functions WHERE id in (" + innerSample + ")";
+			PreparedStatement sampleStmt = conn.prepareStatement(sampleSql);
+			ResultSet sampleResult = sampleStmt.executeQuery();
+			while (sampleResult.next()) {
+				String name = sampleResult.getString("name");
+				int start = sampleResult.getInt("startline");
+				int end = sampleResult.getInt("endline");
+				int id = sampleResult.getInt("id");
+				int size = sampleResult.getInt("normalized_size");
+				int tokens = sampleResult.getInt("tokens");
+				String proj = sampleResult.getString("project");
+				String path = sampleResult.getString("path");
+				
+				FuncInfo fi = new FuncInfo();
+				fi.name = name;
+				fi.start = start;
+				fi.end = end;
+				fi.id = id;
+				fi.size = size;
+				fi.tokens = tokens;
+				fi.proj = proj;
+				fi.path = path;
+				fi.func_id= funcat;
+				fi.is_clone = true;
+				fi.isSample = true;
+				
+				//Samples is for constructing fp pairs
+				samples.put(fi.id, fi);
+				tps.put(fi.id, fi);
+			}
+			
 			System.out.println("Confirm true functions size: " + tps.size());
+			System.out.println("Confirm sample size: " + samples.size());
 			System.out.println("Confirm false functions size: " + fps.size());
+			exportSelectedMethods(tps.values(), funcat, toks, "tp");
+			exportSelectedMethods(fps.values(), funcat, toks, "fp");
 			
 			String tIdString = genFuncIds(tps.keySet());
+			String sampleString = genFuncIds(samples.keySet());
 			String fIdString = genFuncIds(fps.keySet());
 			
 			String cloneSql = "SELECT * FROM clones WHERE functionality_id=" + funcat 
@@ -225,14 +292,14 @@ public class CodebaseCollector {
 			System.out.println("Tota tp size: " + tClones.size());
 			
 			String fCloneSql = "SELECT * FROM false_positives WHERE functionality_id=" + funcat 
-					+ " and function_id_one in " + tIdString  
+					+ " and function_id_one in " + sampleString  
 					+ " and function_id_two in " + fIdString;
 			//System.out.println("Confirm false clone sql: " + fCloneSql);
 			PreparedStatement fCloneStmt1 = conn.prepareStatement(fCloneSql);
 			
 			String fCloneSql2 = "SELECT * FROM false_positives WHERE functionality_id=" + funcat 
 					+ " and function_id_one in " + fIdString  
-					+ " and function_id_two in " + tIdString;
+					+ " and function_id_two in " + sampleString;
 			//System.out.println("Confirm false clone sql: " + fCloneSql2);
 			PreparedStatement fCloneStmt2 = conn.prepareStatement(fCloneSql2);
 			
@@ -283,7 +350,53 @@ public class CodebaseCollector {
 				
 				fClones.add(fci);
 			}
-			System.out.println("Total fp size: " + fps.size());
+			
+			System.out.println("Total fp size: " + fClones.size());
+			exportSelectedClones(tClones, funcat, toks, "tp");
+			exportSelectedClones(fClones, funcat, toks, "fp");
+			System.out.println("Complete dumping clone info");
+			
+			//Start to retrieve files
+			String remoteUsername = cmd.getOptionValue("rName");
+			String remoteDir = cmd.getOptionValue("rDir");
+			char[] scpChars = console.readPassword("SCP password");
+			String scpPw = new String(scpChars);
+			
+			SSHClient ssh = new SSHClient();
+			ssh.useCompression();
+			ssh.loadKnownHosts();
+			ssh.connect(db);
+			
+			ssh.authPassword(remoteUsername, scpPw);
+			System.out.println("Retrieving true functions");
+			tps.forEach((id, func)->{
+				String remotePath = "";
+				if (func.isSample) {
+					remotePath = remoteDir + "/sample/" + func.name;
+				} else {
+					remotePath = remoteDir + "/selected/" + func.name;
+				}
+				String localPath = "codebase/" + func.name;
+				try {
+					System.out.println("Retrieving " + func.name);
+					ssh.newSCPFileTransfer().download(remotePath, localPath);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			});
+			
+			System.out.println("Retrieving false functions");
+			fps.forEach((id, func)->{
+				String remotePath = remoteDir + "/selected/" + func.name;
+				String localPath = "codebase/" + func.name;
+				try {
+					System.out.println("Retrieving " + func.name);
+					ssh.newSCPFileTransfer().download(remotePath, localPath);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			});
+			ssh.disconnect();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -300,6 +413,7 @@ public class CodebaseCollector {
 		String path;
 		int func_id;
 		boolean is_clone;
+		transient boolean isSample;
 		
 		@Override
 		public String toString() {
@@ -325,6 +439,21 @@ public class CodebaseCollector {
 		int syn_type;
 		double sim_line;
 		double sim_toks;
+		
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb.append(this.fi1.id + ",");
+			sb.append(this.fi1.name + ",");
+			sb.append(this.fi2.id + ",");
+			sb.append(this.fi2.name + ",");
+			sb.append(this.func_id + ",");
+			sb.append(this.syn_type + ",");
+			sb.append(this.sim_line + ",");
+			sb.append(this.sim_toks);
+			return sb.toString();
+			
+		}
 	}
 
 }
