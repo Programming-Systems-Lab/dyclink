@@ -7,6 +7,7 @@ import shlex
 import shutil
 
 ANDROID = 'android'
+HEADER = 'name,url,stars,size,download,compiled\n'
 
 class Repo:
     """Repo contains git url, stars and size"""
@@ -74,15 +75,16 @@ if __name__ == "__main__":
         repoLimit = len(repos)
             
         print 'Repo limit: ' + str(repoLimit)
-        reportPath = './repos.txt'
+        '''reportPath = './repos_' + term + '.csv'
         if os.path.exists(reportPath):
             os.remove(reportPath)
-        report = open(reportPath, 'w')
+        report = open(reportPath, 'w')'''
         
-        compileReportPath = "./compiled.txt"
+        compileReportPath = "./repos_" + term + '.csv'
         if os.path.exists(compileReportPath):
             os.remove(compileReportPath)
         compileReport = open(compileReportPath, 'w')
+        compileReport.write(HEADER)
         
         for i in xrange(repoLimit):
             curItem = repos[i]
@@ -98,7 +100,9 @@ if __name__ == "__main__":
         curPath = os.getcwd()
         os.environ['JAVA_HOME'] = '/Library/Java/JavaVirtualMachines/jdk1.8.0_65.jdk/Contents/Home/jre'
         for g in gitList:
-            print g.name + ' ' + g.url + ' ' + str(g.stars) + ' ' + str(g.size)
+            '''print g.name + ' ' + g.url + ' ' + str(g.stars) + ' ' + str(g.size)'''
+            datarow = g.name + ',' + g.url + ',' + str(g.stars) + ',' + str(g.size)
+            print 'Processing ' + datarow
             
             repoLoc = localbase + g.name
             command = 'git clone ' + g.url + ' ' + repoLoc
@@ -106,26 +110,31 @@ if __name__ == "__main__":
             retval = execCommand(command)
             
             if retval == 0:
-                report.write("S: " + g.name + " " + g.url + "\n")
+                '''report.write("S: " + g.name + " " + g.url + "\n")'''
+                datarow += ',T'
             else:
-                report.write("F: " + g.name + " " + g.url + "\n")
+                '''report.write("F: " + g.name + " " + g.url + "\n")'''
+                datarow += ',F'
             
-            mvnCommand = '/usr/local/Cellar/maven/3.1.1/libexec/bin/mvn clean compile'
+            mvnCommand = '/usr/local/Cellar/maven/3.1.1/libexec/bin/mvn clean package'
             os.chdir(repoLoc)
             subprocess.call(mvnCommand, shell=True)
             retval = execCommand(mvnCommand)
             os.chdir(curPath)
             
             if retval == 0:
-                compileReport.write('S: ' + g.name + " " + g.url + "\n")
-                print 'Successful compilation: ' + g.name + ' ' + g.url
+                '''compileReport.write('S: ' + g.name + " " + g.url + "\n")'''
+                datarow += ',T\n' 
+                compileReport.write(datarow)
+                print 'Successful compilation: ' + datarow
             else:
-                compileReport.write('F: ' + g.name + " " + g.url + "\n")
-                print 'Fail compilation, remove repo: ' + g.name + ' ' + g.url
+                '''compileReport.write('F: ' + g.name + " " + g.url + "\n")'''
+                datarow += ',F\n'
+                compileReport.write(datarow)
+                print 'Fail compilation, remove repo: ' + datarow
                 shutil.rmtree(repoLoc)
-                
                         
-        report.close()
+        '''report.close()'''
         compileReport.close()
     else:
         print "Fail to retrieve repo info from " + query
