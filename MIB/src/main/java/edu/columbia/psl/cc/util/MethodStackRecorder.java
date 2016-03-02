@@ -1060,31 +1060,11 @@ public class MethodStackRecorder {
 		boolean registerLatest = (!this.methodName.equals("<clinit>"));
 		GlobalRecorder.registerGraph(dumpKey, gt, registerLatest);
 		
-		//Under multi-thread without joining, the methds in last thread need to dump
-		//Slow but rarely happens
-		/*System.out.println("Main thread alive: " + ObjectIdAllocater.isMainThreadAlive());
-		System.out.println("Thread recorder empty: " + ObjectIdAllocater.isThreadRecorderEmpty());
-		ObjectIdAllocater.checkThreadRecorder();*/
-		/*if (ObjectIdAllocater.secondaryDump(this.threadId)) {
-			GlobalRecorder.secondaryDump();
-		}*/
-		if (this.threadId != ObjectIdAllocater.getMainThreadId() 
-				&& !ObjectIdAllocater.isMainThreadAlive()) {
-			GlobalRecorder.secondaryGraphing();
-		}
-		//this.clearCurrentThreadId();
-		
 		//gt.calleeCache = this.calleeCache;
 		//this.showStackSimulator();
 		/*logger.info("Leave " + 
 				" " + this.methodKey + 
 				" " + this.threadId + 
 				" " + this.threadMethodId);*/
-	}
-	
-	private void clearCurrentThreadId() {
-		if (this.threadId != ObjectIdAllocater.getMainThreadId()) {
-			ObjectIdAllocater.clearThreadId(this.threadId);
-		}
 	}
 }

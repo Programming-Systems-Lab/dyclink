@@ -26,6 +26,7 @@ import edu.columbia.psl.cc.pojo.NameMap;
 import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.ObjectIdAllocater;
+import edu.columbia.psl.cc.util.ShutdownLogger;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class MIBDriver {
@@ -78,11 +79,14 @@ public class MIBDriver {
 			}
 		}
 		
-		//Set up main thread id
-		int mainThreadId = ObjectIdAllocater.getThreadId();
-		ObjectIdAllocater.setMainThreadId(mainThreadId);
-		logger.info("Main thread id: " + mainThreadId);
-		
+		//Add shutdown hook to serialize graphs
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				graphing();
+			}
+		});
+				
 		String className = null;
 		String[] newArgs;
 		if (args[0].equals("-jar")) {
@@ -117,29 +121,13 @@ public class MIBDriver {
 			Method mainMethod = targetClass.getMethod("main", String[].class);
 			mainMethod.setAccessible(true);
 			mainMethod.invoke(null, (Object)newArgs);
-			
-			ObjectIdAllocater.clearMainThread();
-			
-			ObjectIdAllocater.checkThreadRecorder();
-			int nbRunning = GlobalRecorder.currentRunningThread();
-			logger.info("Running thread number: " + nbRunning);
-			logger.info("Current stack:");
-			for (StackTraceElement ste: Thread.currentThread().getStackTrace()) {
-				logger.info(ste);
-			}
-			if (nbRunning == 1) {
-				graphing();
-				logger.info("Class ends: " + targetClass);
-			} else {
-				logger.info("Main thread ends without dumping graphs: " + targetClass);
-			}
 		} catch (Exception ex) {
 			logger.error("Exception: ", ex);
 		}
 	}
 	
-	public static void graphing() {		
-		logger.info("Graphing: " + memorizedTargetClass);
+	private static void graphing() {		
+		ShutdownLogger.appendMessage("Graphing: " + memorizedTargetClass.getName());
 		
 		//Dump name map
 		//logger.info("Dump nameMap: " + memorizedTargetClass);
@@ -149,7 +137,6 @@ public class MIBDriver {
 			//Construct relations between w and r fields
 			//logger.info("Construct global edges");
 			int gEdgeNum = GlobalRecorder.constructGlobalRelations(false);
-			logger.info("Global edges: " + gEdgeNum);
 		}
 		
 		//Dump all graphs in memory
@@ -234,11 +221,4 @@ public class MIBDriver {
 		HashMap<String, HashMap<String, GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
 		HorizontalMerger.startExtractionFast(allGraphs);
 	}
-		
-	/*public static void selectDominantGraphsWithTestMethodName(String testName, boolean reInitDumpRecord) {
-		//Dump all graphs in memory
-		//HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
-		HashMap<String, HashMap<String, GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
-		HorizontalMerger.startExtractionFast(allGraphs, reInitDumpRecord);
-	}*/
 }

@@ -86,11 +86,6 @@ public class MIBTestExecutionListener extends RunListener{
 		logger.info("Start test method: " + description);
 		System.out.println("Start test method: " + description);
 		
-		//Set up main method id
-		int mainThreadId = ObjectIdAllocater.getThreadId();
-		ObjectIdAllocater.setMainThreadId(mainThreadId);
-		logger.info("Main thread id: " + mainThreadId);
-		
 		TimeController.initTestMethodBaseTime();
 	}
 	
@@ -119,7 +114,6 @@ public class MIBTestExecutionListener extends RunListener{
 			ex.printStackTrace();
 		} finally {
 			GlobalRecorder.clearContext();
-			ObjectIdAllocater.clearMainThread();
 			long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 			System.out.println("Used memory: " + ((double)usedMemory/mb));
 			System.out.println("Execution time: " + ((double)TimeController.testMethodExecutionTime())/1000);
