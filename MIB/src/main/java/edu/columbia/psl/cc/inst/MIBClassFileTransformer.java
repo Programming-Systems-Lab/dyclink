@@ -12,8 +12,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.util.CheckClassAdapter;
 
 import edu.columbia.psl.cc.annot.analyzeClass;
@@ -54,24 +58,41 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 				return classfileBuffer;
 			}
 			
-			/*if (protectionDomain.getCodeSource().getLocation().getPath().contains("test")) {
+			if (codeLocation.matches(".*dyclink.*.jar")) {
 				return classfileBuffer;
-			}*/
+			}
 		}
 		
 		if (StringUtil.shouldIncludeClass(name)) {
 			//Start the instrumentation here;
-			try {				
-				//byte[] copyBytes = new byte[classfileBuffer.length];
-				//System.arraycopy(classfileBuffer, 0, copyBytes, 0, classfileBuffer.length);
-				//ClassReader cr = new ClassReader(name);
+			try {
 				ClassReader cr = new ClassReader(classfileBuffer);
-				ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
+				ClassWriter preWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
+					@Override
+					protected String getCommonSuperClass(String type1, String type2) {
+						try {
+							return super.getCommonSuperClass(type1, type2);
+						} catch (Exception ex) {
+							return "java/lang/Unknown";
+						}
+					}
+				};
+				cr.accept(new ClassVisitor(Opcodes.ASM5, preWriter) {
+					@Override
+					public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+						// TODO Auto-generated method stub
+						return new JSRInlinerAdapter(super.visitMethod(access, name, desc, signature, exceptions), access, name, desc, signature, exceptions);
+					}
+				}, ClassReader.EXPAND_FRAMES);
+				
+				
+				ClassReader analysisReader = new ClassReader(preWriter.toByteArray());
+				ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 				//ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES);
 				ClassMiner cm = new ClassMiner(new CheckClassAdapter(cw, false), 
 						name.replace(".", "/"), classAnnot, templateAnnot, testAnnot);
 				cm.setAnnotGuard(MIBConfiguration.getInstance().isAnnotGuard());
-				cr.accept(cm, ClassReader.EXPAND_FRAMES);
+				analysisReader.accept(cm, ClassReader.EXPAND_FRAMES);
 				
 				if (MIBConfiguration.getInstance().isDebug()) {
 					String debugDir = MIBConfiguration.getInstance().getDebugDir();

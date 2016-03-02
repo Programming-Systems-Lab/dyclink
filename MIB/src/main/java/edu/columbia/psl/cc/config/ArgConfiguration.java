@@ -1,8 +1,5 @@
 package edu.columbia.psl.cc.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 

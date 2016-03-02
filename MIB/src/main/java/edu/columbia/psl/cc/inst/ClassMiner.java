@@ -3,6 +3,7 @@ package edu.columbia.psl.cc.inst;
 import java.util.HashMap;
 import java.util.ArrayList;
 
+import edu.columbia.psl.cc.config.IInstrumentInfo;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.util.StringUtil;
@@ -19,7 +20,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
 
-public class ClassMiner extends ClassVisitor{
+public class ClassMiner extends ClassVisitor implements IInstrumentInfo{
 	
 	private static Logger logger = LogManager.getLogger(ClassMiner.class);
 	
@@ -48,7 +49,7 @@ public class ClassMiner extends ClassVisitor{
 	private boolean annotGuard = true;
 		
 	public ClassMiner(ClassVisitor cv, String owner, String classAnnot, String templateAnnot, String testAnnot) {
-		super(Opcodes.ASM4, cv);
+		super(Opcodes.ASM5, cv);
 		this.owner = owner;
 		this.classAnnot = classAnnot;
 		this.templateAnnot = templateAnnot;
@@ -72,15 +73,12 @@ public class ClassMiner extends ClassVisitor{
 		this.cv.visit(version, access, name, signature, superName, interfaces);
 		this.isInterface = (access & Opcodes.ACC_INTERFACE) != 0;
 		if (!isInterface) {
-			logger.info("Instrumenting class " + name + " extends " + superName);
-			this.cv.visitField(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, 
-					MIBConfiguration.getMibIdGen(), "I", null, 1);
-			
+			logger.info("Instrumenting class " + name + " extends " + superName);			
 			//this.cv.visitField(Opcodes.ACC_PUBLIC, MIBConfiguration.getMibId(), "I", null, null);
 			//Only the object before Object has this objId, all children/grandchildren inherit its value
 			String superReplace = this.superName.replace("/", ".");
 			if (!StringUtil.shouldIncludeClass(superReplace))
-				this.cv.visitField(Opcodes.ACC_PUBLIC, MIBConfiguration.getMibId(), "I", null, null);
+				this.cv.visitField(Opcodes.ACC_PUBLIC, __mib_id, "I", null, null);
 		} else {
 			logger.info("Not instrument interface: " + name);
 		}
@@ -95,24 +93,16 @@ public class ClassMiner extends ClassVisitor{
 	}
 		
 	@Override
-	public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-		return this.cv.visitField(access, name, desc, signature, value);
-	}
-	
-	@Override
 	public MethodVisitor visitMethod(int access, final String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = this.cv.visitMethod(access, name, desc, signature, exceptions);
 		//boolean isSynthetic = ((access & Opcodes.ACC_SYNTHETIC) != 0);
 		//boolean isBridge = ((access & Opcodes.ACC_BRIDGE) != 0);
 		//if (this.shouldInstrument() && isSynthetic && !isBridge)
 		if (this.shouldInstrument()) {
-			if (name.equals("<init>")) {
-				constructVisit = true;
-				//System.out.println("Constructor visit code");
-			} else if (!StringUtil.shouldIncludeMethod(name, desc)) {
+			if (!StringUtil.shouldIncludeMethod(name, desc)) {
 				return mv;
 			}
-			System.out.println("Dynamic method miner: ");
+			
 			DynamicMethodMiner dmm =  new DynamicMethodMiner(mv, 
 					this.owner, 
 					this.superName, 
@@ -138,32 +128,7 @@ public class ClassMiner extends ClassVisitor{
 		}
 		return mv;
 	}
-	
-	@Override
-	public void visitEnd() {
-		if (this.shouldInstrument()) {
-			//Create the static id generator
-			MethodVisitor mv = this.cv.visitMethod(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC + Opcodes.ACC_SYNCHRONIZED, 
-					MIBConfiguration.getMibIdGenMethod(), "()I", null, null);
-			mv = new MIBIDGenVisitor(mv, this.owner);
-			mv.visitCode();
-			mv.visitMaxs(0, 0);
-			mv.visitEnd();
-			
-			//Create constructor if there is no constructor
-			if (!constructVisit) {
-				logger.info("Create new constructor: " + this.owner);
-				MethodVisitor constMV = this.cv.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
-				constMV = new MIBConstructVisitor(constMV, this.owner);
-				constMV.visitCode();
-				constMV.visitMaxs(0, 0);
-				constMV.visitEnd();
-			}
-		}
 		
-		this.cv.visitEnd();
-	}
-	
 	/*public void updateVectorRecord(String key, int[] repVector, HashMap<Integer, ArrayList<OpcodeObj>> records, ArrayList<OpcodeObj> sequence) {
 		this.totalRepVectors.put(key, repVector);
 		this.totalRecords.put(key, records);

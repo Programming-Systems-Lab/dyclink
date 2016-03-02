@@ -42,10 +42,6 @@ public class MethodStackRecorder {
 	private static String clinit = "<clinit>";
 	
 	private static String defaultPkgId = String.valueOf(NativePackages.defaultId);
-	
-	private static int secondDumpCounter = 0;
-	
-	private static Object sdcLock = new Object();
 		
 	private String className;
 	
@@ -196,7 +192,6 @@ public class MethodStackRecorder {
 			parent.increChild(child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getInstDataWeight());
 			child.registerParent(parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
 		} else if (depType == MIBConfiguration.WRITE_DATA_DEP) {
-			//write data dep only needs to be recorded once
 			parent.increChild(child.getThreadId(), child.getThreadMethodIdx(), child.getIdx(), MIBConfiguration.getInstance().getWriteDataWeight());
 			child.registerParent(parent.getThreadId(), parent.getThreadMethodIdx(), parent.getIdx(), depType);
 		} else if (depType == MIBConfiguration.CONTR_DEP) {
@@ -243,59 +238,6 @@ public class MethodStackRecorder {
 	private void updateControlRelation(InstNode fullInst) {
 		if (this.curControlInst != null)
 			this.updateCachedMap(this.curControlInst, fullInst, MIBConfiguration.CONTR_DEP);
-	}
-	
-	public void checkNGetClInit(String targetClass) {
-		/*String cleanClass = StringUtil.cleanPunc(targetClass, ".");
-		String targetDumpKey = GlobalRecorder.getLoadedClass(cleanClass);
-		if (targetDumpKey == null) {
-			logger.info("Current method: " + this.methodKey);
-			logger.info("No record for: " + cleanClass);
-			logger.info("Current map: " + GlobalRecorder.getLoadedClasses());
-			return ;
-		}
-		
-		logger.info(this.methodKey + " is loading " + cleanClass + " clinit");
-		this.doLoadParent(targetDumpKey);*/
-	}
-		
-	public void loadParent(String owner, String name, String desc) {
-		if (this.stopRecord)
-			return ;
-		
-		String methodKey = StringUtil.genKey(owner, name, desc);
-		logger.info("Attempt to load parent/self constructor: " + methodKey);
-		
-		//String searchKey = StringUtil.genKeyWithId(methodKey, String.valueOf(this.threadId));
-		String shortName = GlobalRecorder.getGlobalName(methodKey);
-		if (shortName != null) {
-			String searchKey = StringUtil.genKeyWithId(GlobalRecorder.getGlobalName(methodKey), String.valueOf(this.threadId));
-			logger.info("Search key: " + searchKey);
-			this.doLoadParent(searchKey);
-		} else {
-			logger.info("Null short name in record: " + methodKey);
-		}
-		
-	}
-	
-	private void doLoadParent(String searchKey) {
-		String filePath = "";
-		if (MIBConfiguration.getInstance().isTemplateMode()) {
-			filePath = MIBConfiguration.getInstance().getTemplateDir() + "/" + searchKey + ".json";
-		} else {
-			filePath = MIBConfiguration.getInstance().getTestDir() + "/" + searchKey + ".json";
-		}
-		GraphTemplate parentGraph = TemplateLoader.loadTemplateFile(filePath, GRAPH_TOKEN);
-		
-		if (parentGraph == null) {
-			logger.warn("Load no parent/clinit graph: " + searchKey);
-			return ;
-		}
-		
-		InstPool parentPool = parentGraph.getInstPool();
-		
-		GraphUtil.removeReturnInst(parentGraph.getInstPool());
-		GraphUtil.unionInstPools(this.pool, parentPool);
 	}
 	
 	private synchronized InstNode safePop() {
@@ -759,7 +701,8 @@ public class MethodStackRecorder {
 							InstPool.REGULAR);
 					this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 					return ;
-				} else if (!childGraph.getMethodName().equals(name) || !childGraph.getMethodDesc().equals(desc)) {
+				} else if (!childGraph.getMethodName().equals(name) 
+						|| !childGraph.getMethodDesc().equals(desc)) {
 					logger.error("Incompatible graph: " + childGraph.getMethodKey());
 					logger.error("Wanted: " + correctClass.getName() + " " + name + " " + desc);
 					//Add default np ID
@@ -791,7 +734,7 @@ public class MethodStackRecorder {
 					this.updateControlRelation(fullInst);
 					
 					int objId = -1;
-					if (BytecodeCategory.staticMethodOps().contains(opcode)) {
+					if (opcode == Opcodes.INVOKESTATIC) {
 						objId = 0;
 					} else {
 						InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
@@ -834,14 +777,13 @@ public class MethodStackRecorder {
 						}
 					}
 					
-					if (!BytecodeCategory.staticMethodOps().contains(opcode)) {
+					if (opcode != Opcodes.INVOKESTATIC) {
 						//loadNode can be anyload that load an object
 						InstNode loadNode = this.safePop();
 						//parentFromCaller.put(0, loadNode);
 						this.updateCachedMap(loadNode, fullInst, MIBConfiguration.INST_DATA_DEP);
 						fullInst.registerParentReplay(0, loadNode);
 					}
-					
 					
 					String returnType = rType.getDescriptor();
 					if (!returnType.equals("V")) {

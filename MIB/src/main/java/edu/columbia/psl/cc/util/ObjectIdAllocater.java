@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.columbia.psl.cc.config.IInstrumentInfo;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 
 public class ObjectIdAllocater {
@@ -102,7 +103,7 @@ public class ObjectIdAllocater {
 		
 		Class<?> valueClass = value.getClass();
 		try {
-			Field idField = valueClass.getField(MIBConfiguration.getMibId());
+			Field idField = valueClass.getField(IInstrumentInfo.__mib_id);
 			idField.setAccessible(true);
 			/*System.out.println("Traverse fields of " + valueClass);
 			for (Field f: valueClass.getFields()) {
