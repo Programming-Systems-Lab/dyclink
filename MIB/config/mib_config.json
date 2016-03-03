@@ -47,12 +47,14 @@
   "simStrategy": 1,
   "testMethodThresh": -1,
   "threadInit": 0,
-  "threadMethodIdxRecord": {},
+  "threadMethodIdxRecord": {
+    "0": 168
+  },
   "annotGuard": false,
-  "fieldTrack": true,
+  "fieldTrack": false,
   "templateMode": false,
   "overallAnalysis": false,
-  "debug": false,
+  "debug": true,
   "reduceGraph": true,
   "nativeClass": true,
   "dburl": "jdbc:mysql://liberty.cs.columbia.edu:3306/dyclink?useServerPrepStmts\u003dfalse\u0026rewriteBatchedStatements\u003dtrue\u0026autoReconnect\u003dtrue",

@@ -73,7 +73,7 @@ public class GlobalRecorder {
 	
 	private static HashMap<Integer, LinkedList<HashSet<String>>> stopCallees = new HashMap<Integer, LinkedList<HashSet<String>>>();
 	
-	private static HashMap<Integer, Integer> calleeLines = new HashMap<Integer, Integer>();
+	private static HashMap<Integer, Stack<Integer>> calleeLines = new HashMap<Integer, Stack<Integer>>();
 		
 	private static Object timeLock = new Object();
 	
@@ -140,6 +140,10 @@ public class GlobalRecorder {
 	}
 	
 	public static void registerWriteField(String field, InstNode writeField) {
+		if (!MIBConfiguration.getInstance().isFieldTrack()) {
+			return ;
+		}
+		
 		synchronized(writeFieldLock) {
 			//logger.info("Register field with writer: " + field + " " + writeField);
 			writeFieldMap.put(field, writeField);
@@ -147,12 +151,20 @@ public class GlobalRecorder {
 	}
 	
 	public static InstNode getWriteField(String field) {
+		if (!MIBConfiguration.getInstance().isFieldTrack()) {
+			return null;
+		}
+		
 		synchronized(writeFieldLock) {
 			return writeFieldMap.get(field);
 		}
 	}
 		
 	public static void removeWriteFields(Collection<String> fields) {
+		if (!MIBConfiguration.getInstance().isFieldTrack()) {
+			return ;
+		}
+		
 		synchronized(writeFieldLock) {
 			for (String f: fields) {
 				writeFieldMap.remove(f);
@@ -161,18 +173,30 @@ public class GlobalRecorder {
 	}
 		
 	public static void registerRWFieldHistory(InstNode writeInst, InstNode readInst) {
+		if (!MIBConfiguration.getInstance().isFieldTrack()) {
+			return ;
+		}
+		
 		synchronized(writeFieldLock) {
 			fRecorder.registerHistory(writeInst, readInst);
 		}
 	}
 	
 	public static void increHistoryFreq(String writeKey, String readKey) {
+		if (!MIBConfiguration.getInstance().isFieldTrack()) {
+			return ;
+		}
+		
 		synchronized(writeFieldLock) {
 			fRecorder.increHistoryFreq(writeKey, readKey);
 		}
 	}
 	
 	public static void removeHistory(String writeKey, String readKey) {
+		if (!MIBConfiguration.getInstance().isFieldTrack()) {
+			return ;
+		}
+		
 		synchronized(writeFieldLock) {
 			fRecorder.removeHistory(writeKey, readKey);
 		}
@@ -184,6 +208,10 @@ public class GlobalRecorder {
 	 * @return
 	 */
 	public static int constructGlobalRelations(boolean forced) {
+		if (!MIBConfiguration.getInstance().isFieldTrack()) {
+			return -1;
+		}
+		
 		synchronized(writeFieldLock) {
 			int counter = 0;
 			
@@ -349,7 +377,7 @@ public class GlobalRecorder {
 	}
 		
 	public static void registerGraph(String shortKey, GraphTemplate graph, boolean registerLatest) {
-		synchronized(graphRecorderLock) {
+		synchronized(graphRecorderLock) {			
 			String groupKey = GraphGroup.groupKey(0, graph);
 			
 			if (graphRecorder.containsKey(shortKey)) {
@@ -540,17 +568,25 @@ public class GlobalRecorder {
 		}
 	}
 	
-	public static void enterCalleeLine(int linenumber) {
+	public static void enqueueCalleeLine(int linenumber) {
 		synchronized(stopCalleeLock) {
 			int threadId = ObjectIdAllocater.getThreadId();
-			calleeLines.put(threadId, linenumber);
+			System.out.println("Enter calle line: " + threadId + " " + linenumber);
+			
+			if (!calleeLines.containsKey(threadId)) {
+				Stack<Integer> stack = new Stack<Integer>();
+				calleeLines.put(threadId, stack);
+			}
+			
+			calleeLines.get(threadId).push(linenumber);
 		}
 	}
 	
-	public static void leaveCalleeLine() {
+	public static void dequeueCalleeLine() {
 		synchronized(stopCalleeLock) {
 			int threadId = ObjectIdAllocater.getThreadId();
-			calleeLines.remove(threadId);
+			System.out.println("Leave callee line: " + threadId + " " + calleeLines.get(threadId).pop());
+			//calleeLines.remove(threadId);
 		}
 	}
 	
@@ -567,7 +603,7 @@ public class GlobalRecorder {
 				return false;
 			}
 			
-			Integer myLine = calleeLines.get(threadId);
+			Integer myLine = calleeLines.get(threadId).peek();
 			if (myLine == null) {
 				logger.error("Error retrieve callee line for: " + calleeKey);
 				return false;

@@ -1,0 +1,173 @@
+{
+  "methodKey": "cc.expbase.MyObject:main:([Ljava.lang.String):V",
+  "shortMethodKey": "cc.expbase.MyObject:main:0",
+  "methodName": "main",
+  "methodDesc": "([Ljava/lang/String;)V",
+  "threadId": 0,
+  "threadMethodId": 158,
+  "objId": 0,
+  "methodArgSize": 1,
+  "methodReturnSize": 0,
+  "staticMethod": true,
+  "pool": [
+    {
+      "fromMethod": "cc.expbase.MyObject:main:([Ljava.lang.String):V",
+      "threadId": 0,
+      "threadMethodIdx": 158,
+      "idx": 0,
+      "startTime": 0,
+      "updateTime": 0,
+      "linenumber": 34,
+      "op": 187,
+      "addInfo": "cc/expbase/MyObject",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "0-158-2": 1.0,
+        "0-158-3": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:main:([Ljava.lang.String):V",
+      "threadId": 0,
+      "threadMethodIdx": 158,
+      "idx": 2,
+      "startTime": 4,
+      "updateTime": 4,
+      "linenumber": 34,
+      "op": 183,
+      "addInfo": "cc.expbase.MyObject:\u003cinit\u003e:():V",
+      "instDataParentList": [
+        "0-158-0"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {},
+      "calleeInfo": {
+        "metaCallees": [
+          {
+            "calleeIdx": "0-159",
+            "normFreq": 1.0
+          }
+        ],
+        "parentReplay": {
+          "0": [
+            "0-158-0"
+          ]
+        }
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:main:([Ljava.lang.String):V",
+      "threadId": 0,
+      "threadMethodIdx": 158,
+      "idx": 3,
+      "startTime": 5,
+      "updateTime": 5,
+      "linenumber": 34,
+      "op": 58,
+      "addInfo": "2",
+      "instDataParentList": [
+        "0-158-0"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "0-158-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:main:([Ljava.lang.String):V",
+      "threadId": 0,
+      "threadMethodIdx": 158,
+      "idx": 4,
+      "startTime": 6,
+      "updateTime": 6,
+      "linenumber": 35,
+      "op": 178,
+      "addInfo": "java.lang.System.out.Ljava/io/PrintStream;",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "0-158-7": 1.0
+      },
+      "globalChildIdx": []
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:main:([Ljava.lang.String):V",
+      "threadId": 0,
+      "threadMethodIdx": 158,
+      "idx": 5,
+      "startTime": 7,
+      "updateTime": 7,
+      "linenumber": 35,
+      "op": 25,
+      "addInfo": "2",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "0-158-3"
+      ],
+      "controlParentList": [],
+      "childFreqMap": {
+        "0-158-6": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:main:([Ljava.lang.String):V",
+      "threadId": 0,
+      "threadMethodIdx": 158,
+      "idx": 6,
+      "startTime": 209,
+      "updateTime": 209,
+      "linenumber": 35,
+      "op": 182,
+      "addInfo": "cc.expbase.MyObject:loopAdd:():I",
+      "instDataParentList": [
+        "0-158-5"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "0-158-7": 1.0
+      },
+      "calleeInfo": {
+        "metaCallees": [
+          {
+            "calleeIdx": "0-160",
+            "normFreq": 1.0,
+            "lastInstString": "0-160-19"
+          }
+        ],
+        "parentReplay": {
+          "0": [
+            "0-158-5"
+          ]
+        }
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:main:([Ljava.lang.String):V",
+      "threadId": 0,
+      "threadMethodIdx": 158,
+      "idx": 7,
+      "startTime": 210,
+      "updateTime": 210,
+      "linenumber": 35,
+      "op": 182,
+      "addInfo": "java.io.PrintStream:println:(I):V:2:0:16",
+      "instDataParentList": [
+        "0-158-6",
+        "0-158-4"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {}
+    }
+  ],
+  "edgeNum": 108,
+  "vertexNum": 61,
+  "firstReadLocalVars": [],
+  "childDominant": 54
+}

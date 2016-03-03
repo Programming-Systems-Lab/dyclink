@@ -53,7 +53,7 @@ public class GraphTemplate {
 	public transient HashMap<String, HashSet<String>> fieldRelations;
 	
 	public transient boolean mustExist = false;
-		
+			
 	public GraphTemplate() {
 		
 	}

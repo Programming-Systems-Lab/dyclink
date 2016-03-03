@@ -1,16 +1,8 @@
 package edu.columbia.psl.cc.util;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.RandomAccessFile;
 import java.io.StringWriter;
-import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 
@@ -60,7 +52,7 @@ public class ShutdownLogger {
 		appendMessage(sw.toString());
 	}
 	
-	private static void flushBuf(int threadId, boolean forced) {
+	private static void flushBuf(boolean forced) {
 		if (buf.length() > BUF_SIZE || forced) {
 			synchronized(shutdownLogLock) {
 				try {
@@ -73,18 +65,15 @@ public class ShutdownLogger {
 		}
 	}
 	
-	public static void appendMessage(String msg) {
-		int threadId = ObjectIdAllocater.getThreadId();
-		
-		System.out.println(msgPrefix + threadId + ": " + msg);
+	public static void appendMessage(String msg) {		
+		System.out.println(msgPrefix + ": " + msg);
 		
 		buf.append(msg + "\n");
-		flushBuf(threadId, false);
+		flushBuf(false);
 	}
 	
 	public static void finalFlush() {
-		int threadId = ObjectIdAllocater.getThreadId();
-		flushBuf(threadId, true);
+		flushBuf(true);
 	}
 	
 }

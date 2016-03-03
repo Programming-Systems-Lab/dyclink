@@ -24,12 +24,13 @@ import edu.columbia.psl.cc.pojo.NameMap;
 import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.GsonManager;
+import edu.columbia.psl.cc.util.ShutdownLogger;
 import edu.columbia.psl.cc.util.StringUtil;
 import edu.columbia.psl.cc.util.TemplateLoader;
 
 public class HorizontalMerger {
 	
-	private static Logger logger = LogManager.getLogger(HorizontalMerger.class);
+	//private static Logger logger = LogManager.getLogger(HorizontalMerger.class);
 	
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 	
@@ -73,7 +74,7 @@ public class HorizontalMerger {
 		} else if (dirIdx == 1) {
 			dirString = MIBConfiguration.getInstance().getTestDir();
 		} else {
-			logger.error("Invalid dir idx: " + dirIdx);
+			ShutdownLogger.appendException(new Exception("Invalid dir idx: " + dirIdx));
 			return null;
 		}
 		
@@ -84,7 +85,7 @@ public class HorizontalMerger {
 		while (allNameIt.hasNext()) {
 			String name = allNameIt.next();
 			if (recursiveMethods.contains(name)) {
-				logger.info("Recursive method: " + name + ", no need for extraction");
+				ShutdownLogger.appendMessage("Recursive method: " + name + ", no need for extraction");
 				GsonManager.cacheGraph(name, dirIdx, true);
 				allNameIt.remove();
 			} else {
@@ -102,13 +103,13 @@ public class HorizontalMerger {
 		NameMap nameMap = GsonManager.readJsonGeneric(nameMapFile, nameMapToken);
 		HashSet<String> recursiveMethods = nameMap.getRecursiveMethods();
 		
-		logger.info("Start loading all cached graphs");
+		ShutdownLogger.appendMessage("Start loading all cached graphs");
 		String cacheDirString = MIBConfiguration.getInstance().getCacheDir();
 		File cacheDir = new File(cacheDirString);
 		HashMap<String, HashSet<GraphTemplate>> graphByNames = 
 				TemplateLoader.loadCacheTemplates(cacheDir, graphToken, recursiveMethods);
 		
-		logger.info("Total method types in cache: " + graphByNames.keySet().size());
+		ShutdownLogger.appendMessage("Total method types in cache: " + graphByNames.keySet().size());
 		for (String key: graphByNames.keySet()) {
 			extractRepGraphs(graphByNames.get(key));
 		}
@@ -121,7 +122,7 @@ public class HorizontalMerger {
 	public static void startExtraction(HashMap<String, List<GraphTemplate>> graphs) {
 		for (String key: graphs.keySet()) {
 			if (GlobalRecorder.getRecursiveMethods().contains(key)) {
-				logger.info("Recursive method: " + key);
+				ShutdownLogger.appendMessage("Recursive method: " + key);
 				
 				//Get the one withe the smallest thread method id
 				List<GraphTemplate> gList = graphs.get(key);
@@ -180,9 +181,9 @@ public class HorizontalMerger {
 			}
 		}
 		
-		logger.info("Graph groups with freq: ");
+		ShutdownLogger.appendMessage("Graph groups with freq: ");
 		for (String groupKey: stats.keySet()) {
-			logger.info(groupKey + ": " + stats.get(groupKey).size());
+			ShutdownLogger.appendMessage(groupKey + ": " + stats.get(groupKey).size());
 			List<GraphTemplate> statList = stats.get(groupKey);
 			Collections.sort(statList, methodIdComp);
 			GraphTemplate groupRep = statList.get(0);
@@ -212,9 +213,10 @@ public class HorizontalMerger {
 				stats.put(groupKey, statList);
 			}
 		}
-		logger.info("Graph groups with freq: ");
+		
+		ShutdownLogger.appendMessage("Graph groups with freq: ");
 		for (String groupKey: stats.keySet()) {
-			logger.info(groupKey + ": " + stats.get(groupKey).size());
+			ShutdownLogger.appendMessage(groupKey + ": " + stats.get(groupKey).size());
 		}
 		
 		//Pick the one with smallest thread method id
@@ -238,7 +240,7 @@ public class HorizontalMerger {
 			}
 			toMerge.add(origin);
 			weights.add(times);
-			logger.info("Rep for " + groupKey + ": " + origin.getMethodKey() + " " + origin.getThreadMethodId());
+			ShutdownLogger.appendMessage("Rep for " + groupKey + ": " + origin.getMethodKey() + " " + origin.getThreadMethodId());
 		}
 		//Collections.sort(toMerge, graphSizeSorter);
 		
@@ -308,7 +310,7 @@ public class HorizontalMerger {
 		String nameWithThread = StringUtil.genKeyWithId(groupRep.getShortMethodKey(), String.valueOf(groupRep.getThreadId()));
 		String dumpName = StringUtil.genKeyWithId(nameWithThread, String.valueOf(groupRep.getThreadMethodId()));
 		
-		logger.info("Profiling methods: " + dumpName);
+		ShutdownLogger.appendMessage("Profiling methods: " + dumpName);
 		
 		if (groupRep.calleeRequired.size() > 0) {
 			String parentDir = StringUtil.genThreadWithMethodIdx(groupRep.getThreadId(), groupRep.getThreadMethodId());
@@ -327,37 +329,37 @@ public class HorizontalMerger {
 		NameMap nameMap = GsonManager.readJsonGeneric(nameMapFile, nameMapToken);
 		HashSet<String> recursiveMethods = nameMap.getRecursiveMethods();
 		
-		logger.info("Start caching latest template graphs");
+		ShutdownLogger.appendMessage("Start caching latest template graphs");
 		HashSet<String> allTemplateNames = cacheLatestGraphs(MIBConfiguration.TEMPLATE_DIR, recursiveMethods);
 		
-		logger.info("Start caching latest test graphs");
+		ShutdownLogger.appendMessage("Start caching latest test graphs");
 		HashSet<String> allTestNames = cacheLatestGraphs(MIBConfiguration.TEST_DIR, recursiveMethods);
 		
-		logger.info("Start loading all cached graphs");
+		ShutdownLogger.appendMessage("Start loading all cached graphs");
 		String cacheDirString = MIBConfiguration.getInstance().getCacheDir();
 		File cacheDir = new File(cacheDirString);
 		HashMap<String, HashSet<GraphTemplate>> graphByNames = 
 				TemplateLoader.loadCacheTemplates(cacheDir, graphToken, recursiveMethods);
 		
-		logger.info("Start select representative template graphs");
+		ShutdownLogger.appendMessage("Start select representative template graphs");
 		for (String name: allTemplateNames) {
-			logger.info("Extracting rep graph for: " + name);
+			ShutdownLogger.appendMessage("Extracting rep graph for: " + name);
 			HashSet<GraphTemplate> allGraphs = graphByNames.get(name);
 			GraphTemplate rep = extractRepGraph(allGraphs);
-			logger.info("Merge result: " + rep.getInstPool().size());
+			ShutdownLogger.appendMessage("Merge result: " + rep.getInstPool().size());
 			GsonManager.writeJsonGeneric(rep, name, graphToken, MIBConfiguration.TEMPLATE_DIR);
 		}
 		
-		logger.info("Start select representative test graphs");
+		ShutdownLogger.appendMessage("Start select representative test graphs");
 		for (String name: allTestNames) {
-			logger.info("Extracting rep graph for: " + name);
+			ShutdownLogger.appendMessage("Extracting rep graph for: " + name);
 			HashSet<GraphTemplate> allGraphs = graphByNames.get(name);
 			GraphTemplate rep = extractRepGraph(allGraphs);
-			logger.info("Merge result: " + rep.getInstPool().size());
+			ShutdownLogger.appendMessage("Merge result: " + rep.getInstPool().size());
 			GsonManager.writeJsonGeneric(rep, name, graphToken, MIBConfiguration.TEST_DIR);
 		}
 		
-		logger.info("Representative graph selection ends");
+		ShutdownLogger.appendMessage("Representative graph selection ends");
 	}
 
 }

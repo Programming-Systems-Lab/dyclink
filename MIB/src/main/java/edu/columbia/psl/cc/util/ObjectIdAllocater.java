@@ -1,21 +1,13 @@
 package edu.columbia.psl.cc.util;
 
-import java.lang.reflect.Field;
-import java.util.BitSet;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import edu.columbia.psl.cc.config.IInstrumentInfo;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 
 public class ObjectIdAllocater {
 	
-	private static Logger logger = LogManager.getLogger(ObjectIdAllocater.class);
+	//private static Logger logger = LogManager.getLogger(ObjectIdAllocater.class);
 
 	//Save 0 for method stack recorder to identify static method
 	private static AtomicInteger indexer = new AtomicInteger(1);
@@ -55,7 +47,7 @@ public class ObjectIdAllocater {
 		return classMethodIndexer.get(methodKey).getAndIncrement();
 	}
 	
-	public static int getThreadMethodIndex(String className, String methodName, String desc, int threadId) {
+	public static int getThreadMethodIndex(String className, String methodName, String desc, int threadId) throws Exception{
 		Class<?> correctClass = null;
 		if (methodName.equals("<init>") || methodName.equals("<clinit>")) {
 			correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(className, methodName, desc, true);
@@ -64,8 +56,9 @@ public class ObjectIdAllocater {
 		}
 		
 		if (correctClass == null) {
-			System.out.println("Cannot retrieve correct class: " + className + " " + methodName);
+			throw new Exception("Cannot retrieve correct class: " + className + " " + methodName);
 		}
+		
 		String methodKey = StringUtil.genKey(correctClass.getName(), methodName, desc);
 		String threadMethodKey = StringUtil.genKeyWithId(methodKey, String.valueOf(threadId));
 		return getThreadMethodIndex(threadMethodKey);
@@ -96,29 +89,7 @@ public class ObjectIdAllocater {
 	public static ConcurrentHashMap<Integer, AtomicInteger> getThreadMethodIdxRecord() {
 		return threadMethodIndexerFast;
 	}
-	
-	public static int parseObjId(Object value) {
-		if (value == null)
-			return -1;
 		
-		Class<?> valueClass = value.getClass();
-		try {
-			Field idField = valueClass.getField(IInstrumentInfo.__mib_id);
-			idField.setAccessible(true);
-			/*System.out.println("Traverse fields of " + valueClass);
-			for (Field f: valueClass.getFields()) {
-				System.out.println(f);
-			}*/
-			int objId = idField.getInt(value);
-			return objId;
-		} catch (Exception ex) {
-			//ex.printStackTrace();
-			//System.out.println("Warning: object " + valueClass + " is not MIB-instrumented");
-			logger.warn("Warning: object " + valueClass + " is not MIB-instrumented");
-			return -1;
-		}
-	}
-	
 	public static void main(String[] args) {
 		Object o = new Object();
 		//System.out.println(getIndex());

@@ -1,0 +1,488 @@
+{
+  "methodKey": "cc.expbase.MyObject:loopAdd:():I",
+  "shortMethodKey": "cc.expbase.MyObject:loopAdd:0",
+  "methodName": "loopAdd",
+  "methodDesc": "()I",
+  "threadId": 0,
+  "threadMethodId": 160,
+  "objId": 1,
+  "methodArgSize": 0,
+  "methodReturnSize": 1,
+  "staticMethod": false,
+  "pool": [
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 0,
+      "startTime": 8,
+      "updateTime": 8,
+      "linenumber": 25,
+      "op": 3,
+      "addInfo": "",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "0-160-1": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 1,
+      "startTime": 9,
+      "updateTime": 9,
+      "linenumber": 25,
+      "op": 54,
+      "addInfo": "2",
+      "instDataParentList": [
+        "0-160-0"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "0-160-5": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 10,
+      "startTime": 42,
+      "updateTime": 199,
+      "linenumber": 27,
+      "op": 96,
+      "addInfo": "",
+      "instDataParentList": [
+        "0-160-9",
+        "0-160-5"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "0-160-15"
+      ],
+      "childFreqMap": {
+        "0-160-11": 7.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 11,
+      "startTime": 43,
+      "updateTime": 200,
+      "linenumber": 27,
+      "op": 54,
+      "addInfo": "2",
+      "instDataParentList": [
+        "0-160-10"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "0-160-15"
+      ],
+      "childFreqMap": {
+        "0-160-19": 1.0,
+        "0-160-5": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 12,
+      "startTime": 44,
+      "updateTime": 201,
+      "linenumber": 26,
+      "op": 132,
+      "addInfo": "3",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "0-160-3",
+        "0-160-12"
+      ],
+      "controlParentList": [
+        "0-160-15"
+      ],
+      "childFreqMap": {
+        "0-160-12": 6.0,
+        "0-160-13": 7.0,
+        "0-160-7": 6.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 13,
+      "startTime": 13,
+      "updateTime": 202,
+      "linenumber": 26,
+      "op": 21,
+      "addInfo": "3",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "0-160-3",
+        "0-160-12"
+      ],
+      "controlParentList": [
+        "0-160-4",
+        "0-160-15"
+      ],
+      "childFreqMap": {
+        "0-160-15": 8.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 14,
+      "startTime": 14,
+      "updateTime": 203,
+      "linenumber": 26,
+      "op": 16,
+      "addInfo": "7",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "0-160-4",
+        "0-160-15"
+      ],
+      "childFreqMap": {
+        "0-160-15": 8.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 15,
+      "startTime": 15,
+      "updateTime": 204,
+      "linenumber": 26,
+      "op": 161,
+      "addInfo": "L520232556",
+      "instDataParentList": [
+        "0-160-14",
+        "0-160-13"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "0-160-4",
+        "0-160-15"
+      ],
+      "childFreqMap": {
+        "0-160-10": 7.0,
+        "0-160-11": 7.0,
+        "0-160-12": 7.0,
+        "0-160-13": 7.0,
+        "0-160-14": 7.0,
+        "0-160-15": 7.0,
+        "0-160-16": 1.0,
+        "0-160-17": 1.0,
+        "0-160-18": 1.0,
+        "0-160-19": 1.0,
+        "0-160-5": 7.0,
+        "0-160-6": 7.0,
+        "0-160-7": 7.0,
+        "0-160-8": 7.0,
+        "0-160-9": 7.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 16,
+      "startTime": 205,
+      "updateTime": 205,
+      "linenumber": 29,
+      "op": 178,
+      "addInfo": "java.lang.System.out.Ljava/io/PrintStream;",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "0-160-15"
+      ],
+      "childFreqMap": {
+        "0-160-18": 1.0
+      },
+      "globalChildIdx": []
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 17,
+      "startTime": 206,
+      "updateTime": 206,
+      "linenumber": 29,
+      "op": 18,
+      "addInfo": "Success to loopadd",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "0-160-15"
+      ],
+      "childFreqMap": {
+        "0-160-18": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 18,
+      "startTime": 207,
+      "updateTime": 207,
+      "linenumber": 29,
+      "op": 182,
+      "addInfo": "java.io.PrintStream:println:(Ljava.lang.String):V:2:0:16",
+      "instDataParentList": [
+        "0-160-17",
+        "0-160-16"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "0-160-15"
+      ],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 19,
+      "startTime": 208,
+      "updateTime": 208,
+      "linenumber": 30,
+      "op": 21,
+      "addInfo": "2",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "0-160-11"
+      ],
+      "controlParentList": [
+        "0-160-15"
+      ],
+      "childFreqMap": {}
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 2,
+      "startTime": 10,
+      "updateTime": 10,
+      "linenumber": 26,
+      "op": 3,
+      "addInfo": "",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "0-160-3": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 3,
+      "startTime": 11,
+      "updateTime": 11,
+      "linenumber": 26,
+      "op": 54,
+      "addInfo": "3",
+      "instDataParentList": [
+        "0-160-2"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "0-160-12": 1.0,
+        "0-160-13": 1.0,
+        "0-160-7": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 4,
+      "startTime": 12,
+      "updateTime": 12,
+      "linenumber": 26,
+      "op": 167,
+      "addInfo": "L900008524",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "0-160-13": 1.0,
+        "0-160-14": 1.0,
+        "0-160-15": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 5,
+      "startTime": 16,
+      "updateTime": 194,
+      "linenumber": 27,
+      "op": 21,
+      "addInfo": "2",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "0-160-1",
+        "0-160-11"
+      ],
+      "controlParentList": [
+        "0-160-15"
+      ],
+      "childFreqMap": {
+        "0-160-10": 7.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 6,
+      "startTime": 17,
+      "updateTime": 195,
+      "linenumber": 27,
+      "op": 25,
+      "addInfo": "0",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "0-160-15"
+      ],
+      "childFreqMap": {
+        "0-160-9": 7.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 7,
+      "startTime": 18,
+      "updateTime": 196,
+      "linenumber": 27,
+      "op": 21,
+      "addInfo": "3",
+      "instDataParentList": [],
+      "writeDataParentList": [
+        "0-160-3",
+        "0-160-12"
+      ],
+      "controlParentList": [
+        "0-160-15"
+      ],
+      "childFreqMap": {
+        "0-160-9": 7.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 8,
+      "startTime": 19,
+      "updateTime": 197,
+      "linenumber": 27,
+      "op": 4,
+      "addInfo": "",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "0-160-15"
+      ],
+      "childFreqMap": {
+        "0-160-9": 7.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+      "threadId": 0,
+      "threadMethodIdx": 160,
+      "idx": 9,
+      "startTime": 41,
+      "updateTime": 198,
+      "linenumber": 27,
+      "op": 182,
+      "addInfo": "cc.expbase.MyObject:add:(II):I",
+      "instDataParentList": [
+        "0-160-8",
+        "0-160-7",
+        "0-160-6"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [
+        "0-160-15"
+      ],
+      "childFreqMap": {
+        "0-160-10": 7.0
+      },
+      "calleeInfo": {
+        "metaCallees": [
+          {
+            "calleeIdx": "0-165",
+            "normFreq": 0.33,
+            "lastInstString": "0-165-25"
+          },
+          {
+            "calleeIdx": "0-161",
+            "normFreq": 0.67,
+            "lastInstString": "0-161-25"
+          }
+        ],
+        "parentReplay": {
+          "0": [
+            "0-160-6"
+          ],
+          "1": [
+            "0-160-7"
+          ],
+          "2": [
+            "0-160-8"
+          ]
+        }
+      }
+    }
+  ],
+  "lastBeforeReturn": {
+    "fromMethod": "cc.expbase.MyObject:loopAdd:():I",
+    "threadId": 0,
+    "threadMethodIdx": 160,
+    "idx": 19,
+    "startTime": 208,
+    "updateTime": 208,
+    "linenumber": 30,
+    "op": 21,
+    "addInfo": "2",
+    "instDataParentList": [],
+    "writeDataParentList": [
+      "0-160-11"
+    ],
+    "controlParentList": [
+      "0-160-15"
+    ],
+    "childFreqMap": {}
+  },
+  "edgeNum": 101,
+  "vertexNum": 54,
+  "firstReadLocalVars": [
+    "0-160-6"
+  ],
+  "childDominant": 21
+}

@@ -1,0 +1,54 @@
+{
+  "methodKey": "cc.expbase.MyObject:\u003cinit\u003e:():V",
+  "shortMethodKey": "cc.expbase.MyObject:\u003cinit\u003e:0",
+  "methodName": "\u003cinit\u003e",
+  "methodDesc": "()V",
+  "threadId": 0,
+  "threadMethodId": 159,
+  "objId": 1,
+  "methodArgSize": 0,
+  "methodReturnSize": 0,
+  "staticMethod": false,
+  "pool": [
+    {
+      "fromMethod": "cc.expbase.MyObject:\u003cinit\u003e:():V",
+      "threadId": 0,
+      "threadMethodIdx": 159,
+      "idx": 0,
+      "startTime": 2,
+      "updateTime": 2,
+      "linenumber": 3,
+      "op": 25,
+      "addInfo": "0",
+      "instDataParentList": [],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {
+        "0-159-1": 1.0
+      }
+    },
+    {
+      "fromMethod": "cc.expbase.MyObject:\u003cinit\u003e:():V",
+      "threadId": 0,
+      "threadMethodIdx": 159,
+      "idx": 1,
+      "startTime": 3,
+      "updateTime": 3,
+      "linenumber": 3,
+      "op": 183,
+      "addInfo": "java.lang.Object:\u003cinit\u003e:():V:1:0:17",
+      "instDataParentList": [
+        "0-159-0"
+      ],
+      "writeDataParentList": [],
+      "controlParentList": [],
+      "childFreqMap": {}
+    }
+  ],
+  "edgeNum": 1,
+  "vertexNum": 2,
+  "firstReadLocalVars": [
+    "0-159-0"
+  ],
+  "childDominant": 0
+}

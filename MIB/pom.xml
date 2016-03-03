@@ -71,10 +71,10 @@
           			<archive>
             			<manifest>
               				<addClasspath>true</addClasspath>
-              				<mainClass>edu.columbia.cs.psl.cc.permain.MIBDriver</mainClass>
+              				<mainClass>edu.columbia.psl.cc.permain.MIBDriver</mainClass>
             			</manifest>
             			<manifestEntries>
-            				<Premain-Class>edu.columbia.cs.psl.cc.premain.PreMain</Premain-Class>
+            				<Premain-Class>edu.columbia.psl.cc.premain.PreMain</Premain-Class>
             			</manifestEntries>
           			</archive>
         		</configuration>
@@ -206,7 +206,7 @@
     	<artifactId>com.gephi.local</artifactId>
     	<version>0.9</version>
     	<scope>system</scope>
-    <systemPath>${project.basedir}/lib/gephi-toolkit.jar</systemPath>
+    	<systemPath>${project.basedir}/lib/gephi-toolkit.jar</systemPath>
 	</dependency>
   </dependencies>
 </project>

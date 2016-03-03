@@ -1,5 +1,6 @@
 package edu.columbia.psl.cc.util;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,6 +16,7 @@ import org.objectweb.asm.Type;
 import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.analysis.StaticTester;
+import edu.columbia.psl.cc.config.IInstrumentInfo;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.crawler.NativePackages;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
@@ -154,15 +156,37 @@ public class MethodStackRecorder {
 			}
 		}
 		
-		if (GlobalRecorder.shouldStopMe(this.shortMethodKey)) {
+		if (GlobalRecorder.shouldStopMe(this.shortMethodKey)) 
 			this.stopRecord = true;
-		} else {
-			GlobalRecorder.enqueueStopCallees();
-		}
+		
+		GlobalRecorder.enqueueStopCallees();
+		
 		/*logger.info("Enter " + 
 				" " + this.methodKey + 
 				" " + this.threadId + 
 				" " + this.threadMethodId);*/
+	}
+	
+	public static final int parseObjId(Object value) {
+		if (value == null)
+			return -1;
+		
+		Class<?> valueClass = value.getClass();
+		try {
+			Field idField = valueClass.getField(IInstrumentInfo.__mib_id);
+			idField.setAccessible(true);
+			/*System.out.println("Traverse fields of " + valueClass);
+			for (Field f: valueClass.getFields()) {
+				System.out.println(f);
+			}*/
+			int objId = idField.getInt(value);
+			return objId;
+		} catch (Exception ex) {
+			//ex.printStackTrace();
+			//System.out.println("Warning: object " + valueClass + " is not MIB-instrumented");
+			logger.warn("Warning: object " + valueClass + " is not MIB-instrumented");
+			return -1;
+		}
 	}
 	
 	private void stopLocalVar(int localVarId) {
@@ -280,14 +304,14 @@ public class MethodStackRecorder {
 		
 		int objId = 0;
 		if (opcode == Opcodes.GETFIELD) {
-			objId = ObjectIdAllocater.parseObjId(this.stackSimulator.peek().getRelatedObj());
+			objId = parseObjId(this.stackSimulator.peek().getRelatedObj());
 			//this.stackSimulator.peek().removeRelatedObj();
 		} else if (opcode == Opcodes.PUTFIELD) {
 			if (typeSort == Type.LONG || typeSort == Type.DOUBLE) {
-				objId = ObjectIdAllocater.parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 3).getRelatedObj());
+				objId = parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 3).getRelatedObj());
 				//this.stackSimulator.get(this.stackSimulator.size() - 3).removeRelatedObj();
 			} else {
-				objId = ObjectIdAllocater.parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 2).getRelatedObj());
+				objId = parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 2).getRelatedObj());
 				//this.stackSimulator.get(this.stackSimulator.size() - 2).removeRelatedObj();
 			}
 		}
@@ -721,7 +745,7 @@ public class MethodStackRecorder {
 						InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
 						Object objOnStack = relatedInst.getRelatedObj();
 						//methodId = ObjectIdAllocater.parseObjId(objOnStack);
-						objId = ObjectIdAllocater.parseObjId(objOnStack);
+						objId = parseObjId(objOnStack);
 						//relatedInst.removeRelatedObj();
 					}
 					
@@ -875,10 +899,6 @@ public class MethodStackRecorder {
 			return ;
 		}
 		
-		if (this.stopRecord) {
-			return ;
-		}
-		
 		if (GlobalRecorder.checkUndersizedMethod(this.shortMethodKey)) {
 			GlobalRecorder.dequeueStopCallees();
 			return ;
@@ -901,6 +921,13 @@ public class MethodStackRecorder {
 		if (this.beforeReturn != null) {
 			gt.setLastBeforeReturn(this.beforeReturn);
 			//logger.info("Before return inst: " + this.beforeReturn);
+		}
+		
+		if (this.stopRecord) {
+			//Just push to the queue, don't enter graph group
+			GlobalRecorder.registerLatestGraph(gt);
+			GlobalRecorder.dequeueStopCallees();
+			return ;
 		}
 		
 		HashMap<String, GraphTemplate> calleeRequired = new HashMap<String, GraphTemplate>();

@@ -107,7 +107,6 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 					bos.writeTo(fos);
 					fos.close();
 				}
-				
 				return cw.toByteArray();
 			} catch (Exception ex) {
 				//ex.printStackTrace();

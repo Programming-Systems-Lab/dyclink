@@ -407,6 +407,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IInstrumentInfo
 	public void visitCode() {
 		this.mv.visitCode();
 		if (this.constructor && !this.superVisited) {
+			System.out.println("Init recorder for constructor: " + this.className);
 			this.initConstructorRecorder();
 			return ; 
 		}
@@ -581,18 +582,18 @@ public class DynamicMethodMiner extends MethodVisitor implements IInstrumentInfo
 	}
 	
 	@Override
-	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
 		if (this.shouldInstrument()) {
 			this.convertConst(this.curLineNum);
 			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
 					Type.getInternalName(GlobalRecorder.class), 
-					"enterCalleeLine", 
+					"enqueueCalleeLine", 
 					"(I)V", 
 					false);
 		}
 		
 		//For merging the graph on the fly, need to visit method before recording them
-		this.mv.visitMethodInsn(opcode, owner, name, desc, false);
+		this.mv.visitMethodInsn(opcode, owner, name, desc, itf);
 		
 		if (this.shouldInstrument()) {			
 			//A bit complex here, this to handle passing object before the super or this has been initialized
@@ -623,10 +624,10 @@ public class DynamicMethodMiner extends MethodVisitor implements IInstrumentInfo
 			
 			int instIdx = this.handleMethod(opcode, owner, name, desc);
 			this.updateMethodRep(opcode);
-			this.convertConst(this.curLineNum);
+			
 			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
 					Type.getInternalName(GlobalRecorder.class), 
-					"leaveCalleeLine", 
+					"dequeueCalleeLine", 
 					"()V", 
 					false);
 			//this.bbAnalyzer.signalInst(opcode, owner + " " + name + " " + desc);
@@ -643,6 +644,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IInstrumentInfo
 		}
 		
 		//If the INVOKESPECIAL is visited, start instrument constructor
+		System.out.println("Touch invoke special: " + this.className + " isConstructor: " + this.constructor + " " + name);
 		if (this.constructor 
 				&& opcode == Opcodes.INVOKESPECIAL 
 				&& (owner.equals(this.superName) || owner.equals(this.className))
@@ -779,17 +781,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IInstrumentInfo
 	public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int indes) {
 		this.mv.visitLocalVariable(name, desc, signature, start, end, indes);
 	}
-	
-	/*@Override
-	public void onMethodExit(int opcode) {
-		System.out.println("On Method Exit: " + opcode);
-		if (this.annotGuard()) {
-			System.out.println("On Method Exit: " + opcode);
-			//this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
-			//this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodStackRecorder, srGraphDump, srGraphDumpDesc);
-		}
-	}*/
-	
+		
 	@Override
 	public void visitEnd() {		
 		if (this.indexer.get() < MIBConfiguration.getInstance().getInstThreshold() && !this.visitMethod) {

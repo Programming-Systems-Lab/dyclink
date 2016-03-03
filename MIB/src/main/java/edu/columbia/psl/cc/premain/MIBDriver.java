@@ -2,7 +2,7 @@ package edu.columbia.psl.cc.premain;
 
 import java.io.File;
 import java.lang.reflect.Method;
-
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -116,6 +116,7 @@ public class MIBDriver {
 			Class targetClass = Class.forName(className);
 			memorizedTargetClass = targetClass;
 			logger.info("Confirm class: " + targetClass);
+			logger.info("Confirm args: " + Arrays.toString(newArgs));
 			//logger.info("Class loader: " + targetClass.getClassLoader().getClass().getName() + " " + System.identityHashCode(targetClass.getClassLoader()));
 			
 			Method mainMethod = targetClass.getMethod("main", String[].class);
@@ -136,7 +137,7 @@ public class MIBDriver {
 		if (MIBConfiguration.getInstance().isFieldTrack()) {
 			//Construct relations between w and r fields
 			//logger.info("Construct global edges");
-			int gEdgeNum = GlobalRecorder.constructGlobalRelations(false);
+			GlobalRecorder.constructGlobalRelations(false);
 		}
 		
 		//Dump all graphs in memory

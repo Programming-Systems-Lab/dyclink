@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.util.GlobalRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
@@ -20,7 +21,7 @@ public class MethodNode extends InstNode {
 	
 	public static final double EPSILON = Math.pow(10, -4);
 	
-	public static final int CALLEE_MAX = 10;
+	public static final int CALLEE_MAX = 5;
 	
 	private CalleeInfo calleeInfo = new CalleeInfo();
 	
@@ -40,6 +41,10 @@ public class MethodNode extends InstNode {
 	}
 	
 	public static void globalRWRemoveHelper(GraphTemplate callee) {
+		if (!MIBConfiguration.getInstance().isFieldTrack()) {
+			return ;
+		}
+		
 		HashMap<String, HashSet<String>> cRW = callee.fieldRelations;
 		for (String w: cRW.keySet()) {
 			HashSet<String> rs = cRW.get(w);
@@ -241,24 +246,26 @@ public class MethodNode extends InstNode {
 			gf = this.callees.get(groupKey);
 			gf.freq++;
 			
-			//The rw history of callee has been registered, need to remove
-			globalRWRemoveHelper(callee);
-			
-			//Incre history freq
-			HashMap<String, HashSet<String>> curRW = gf.callee.fieldRelations;
-			for (String w: curRW.keySet()) {
-				HashSet<String> rs = curRW.get(w);
-				for (String r: rs) {
-					GlobalRecorder.increHistoryFreq(w, r);
+			if (MIBConfiguration.getInstance().isFieldTrack()) {
+				//The rw history of callee has been registered, need to remove
+				globalRWRemoveHelper(callee);
+				
+				//Incre history freq
+				HashMap<String, HashSet<String>> curRW = gf.callee.fieldRelations;
+				for (String w: curRW.keySet()) {
+					HashSet<String> rs = curRW.get(w);
+					for (String r: rs) {
+						GlobalRecorder.increHistoryFreq(w, r);
+					}
 				}
+				
+				//Remove write fields
+				//HashMap<String, InstNode> cWriteFields = callee.writeFields;
+				//GlobalRecorder.removeWriteFields(cWriteFields.keySet());
+				
+				//Insert the original relations back
+				//GlobalRecorder.registerAllWriteFields(gf.callee.writeFields);
 			}
-			
-			//Remove write fields
-			//HashMap<String, InstNode> cWriteFields = callee.writeFields;
-			//GlobalRecorder.removeWriteFields(cWriteFields.keySet());
-			
-			//Insert the original relations back
-			//GlobalRecorder.registerAllWriteFields(gf.callee.writeFields);
 		} else {
 			gf = new GraphWithFreq();
 			gf.callee = callee;
@@ -270,7 +277,9 @@ public class MethodNode extends InstNode {
 			this.maxGraphFreq = gf.freq;
 		}
 		
+		System.out.println("Current call freq: " + this.callFreq);
 		if (this.callFreq > CALLEE_MAX) {
+			System.out.println("Callee hits limitation: " + callee.getShortMethodKey() + " " + this.linenumber);
 			GlobalRecorder.registerStopCallee(callee.getShortMethodKey(), this.linenumber);
 		}
 	}
