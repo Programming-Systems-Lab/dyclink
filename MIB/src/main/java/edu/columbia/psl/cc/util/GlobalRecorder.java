@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -30,7 +31,6 @@ import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.StaticMethodMiner;
-import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class GlobalRecorder {
 	
@@ -71,7 +71,9 @@ public class GlobalRecorder {
 	
 	private static HashMap<Integer, List<GraphTemplate>> unIdChildGraphs = new HashMap<Integer, List<GraphTemplate>>();
 	
-	private static int secondDumpCounter = 0;
+	private static HashMap<Integer, LinkedList<HashSet<String>>> stopCallees = new HashMap<Integer, LinkedList<HashSet<String>>>();
+	
+	private static HashMap<Integer, Integer> calleeLines = new HashMap<Integer, Integer>();
 		
 	private static Object timeLock = new Object();
 	
@@ -92,6 +94,8 @@ public class GlobalRecorder {
 	private static Object graphRecorderLock = new Object();
 	
 	private static Object unIdChildLock = new Object();
+	
+	private static Object stopCalleeLock = new Object();
 	
 	public static void registerLoadedClass(String className, String shortClinit) {
 		synchronized(loadClassLock) {
@@ -378,8 +382,7 @@ public class GlobalRecorder {
 			}
 			
 			if (registerLatest) {
-				int threadId = ObjectIdAllocater.getThreadId();
-				latestGraphs.put(threadId, graph);
+				registerLatestGraph(graph);
 			}
 			
 			//Rarely happens. If the parent constructor calls the child method before child constructor
@@ -389,8 +392,8 @@ public class GlobalRecorder {
 			}
 		}
 	}
-	
-	public static void recoverLatestGraph(GraphTemplate latestGraph) {
+		
+	public static void registerLatestGraph(GraphTemplate latestGraph) {
 		synchronized(graphRecorderLock) {
 			int threadId = ObjectIdAllocater.getThreadId();
 			latestGraphs.put(threadId, latestGraph);
@@ -508,6 +511,73 @@ public class GlobalRecorder {
 		}
 	}
 	
+	public static void enqueueStopCallees() {
+		synchronized(stopCalleeLock) {
+			int threadId = ObjectIdAllocater.getThreadId();
+			HashSet<String> emptyCallees = new HashSet<String>();
+			if (stopCallees.containsKey(threadId)) {
+				stopCallees.get(threadId).add(emptyCallees);
+			} else {
+				LinkedList<HashSet<String>> queue = new LinkedList<HashSet<String>>();
+				queue.add(emptyCallees);
+				stopCallees.put(threadId, queue);
+			}
+		}
+	}
+	
+	public static void dequeueStopCallees() {
+		synchronized(stopCalleeLock) {
+			int threadId = ObjectIdAllocater.getThreadId();
+			stopCallees.get(threadId).removeLast();
+		}
+	}
+	
+	public static void registerStopCallee(String calleeKey, int myLine) {
+		synchronized(stopCalleeLock) {
+			int threadId = ObjectIdAllocater.getThreadId();
+			String fullKey = calleeKey + "-" + myLine;
+			stopCallees.get(threadId).getLast().add(fullKey);
+		}
+	}
+	
+	public static void enterCalleeLine(int linenumber) {
+		synchronized(stopCalleeLock) {
+			int threadId = ObjectIdAllocater.getThreadId();
+			calleeLines.put(threadId, linenumber);
+		}
+	}
+	
+	public static void leaveCalleeLine() {
+		synchronized(stopCalleeLock) {
+			int threadId = ObjectIdAllocater.getThreadId();
+			calleeLines.remove(threadId);
+		}
+	}
+	
+	public static boolean shouldStopMe(String calleeKey) {
+		synchronized(stopCalleeLock) {
+			int threadId = ObjectIdAllocater.getThreadId();
+			if (!stopCallees.containsKey(threadId)) {
+				//this means that this method is the first under current thread
+				return false;
+			}
+			
+			if (stopCallees.size() == 0) {
+				logger.error("Error stop callee record for: " + calleeKey);
+				return false;
+			}
+			
+			Integer myLine = calleeLines.get(threadId);
+			if (myLine == null) {
+				logger.error("Error retrieve callee line for: " + calleeKey);
+				return false;
+			}
+			
+			String fullKey = calleeKey + "-" + myLine.toString();
+			return stopCallees.get(threadId).getLast().contains(fullKey);
+		}
+	}
+		
 	public static void clearContext() {
 		synchronized(graphRecorderLock) {
 			graphRecorder.clear();
@@ -526,6 +596,11 @@ public class GlobalRecorder {
 		synchronized(timeLock) {
 			//curDigit.set(0);
 			curTime.set(0);
+		}
+		
+		synchronized(stopCalleeLock) {
+			stopCallees.clear();
+			calleeLines.clear();
 		}
 		System.gc();
 	}	

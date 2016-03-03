@@ -47,12 +47,7 @@
   "simStrategy": 1,
   "testMethodThresh": -1,
   "threadInit": 0,
-  "threadMethodIdxRecord": {
-    "0": 7,
-    "1": 2,
-    "2": 2,
-    "3": 2
-  },
+  "threadMethodIdxRecord": {},
   "annotGuard": false,
   "fieldTrack": true,
   "templateMode": false,

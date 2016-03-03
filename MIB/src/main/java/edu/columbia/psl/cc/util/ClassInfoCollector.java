@@ -109,7 +109,8 @@ public class ClassInfoCollector {
 		return null;
 	}
 
-	public static Class<?> retrieveCorrectClassByMethod(String className, String methodName, String methodDescriptor, boolean direct) {
+	public static Class<?> retrieveCorrectClassByMethod(String className, 
+			String methodName, String methodDescriptor, boolean direct) {
 		String classMethodCacheKey = StringUtil.concateKey(className, methodName, methodDescriptor);
 		if (methodToClass.containsKey(classMethodCacheKey)) {
 			return methodToClass.get(classMethodCacheKey);
@@ -135,10 +136,7 @@ public class ClassInfoCollector {
 					if (m.getName().equals(methodName)) {
 						Type[] mArgs = Type.getArgumentTypes(m);
 						Type mReturn = Type.getReturnType(m);
-						
-						/*if (!targetReturn.equals(mReturn))
-							continue ;*/
-						
+												
 						if (mArgs.length != targetArgs.length)
 							continue ;
 						
@@ -149,7 +147,7 @@ public class ClassInfoCollector {
 							count++;
 						}
 						
-						if (count == targetArgs.length && mReturn.equals(targetReturn)) {
+						if (count == targetArgs.length) {
 							methodToClass.put(classMethodCacheKey, calledClass);
 							return calledClass;
 						}

@@ -74,8 +74,6 @@ public class MethodStackRecorder {
 	private HashSet<String> firstReadLocalVars = new HashSet<String>();
 	
 	private HashSet<Integer> shouldRecordReadLocalVars = new HashSet<Integer>();
-	
-	private HashSet<InstNode> preInsts = new HashSet<InstNode>();
 		
 	protected String curLabel = null;
 	
@@ -91,6 +89,8 @@ public class MethodStackRecorder {
 	
 	public int objId = 0;
 	
+	private boolean overTime = false;
+	
 	private boolean stopRecord = false;
 	
 	public boolean initConstructor = true;
@@ -102,7 +102,7 @@ public class MethodStackRecorder {
 			int objId) {
 		
 		if (TimeController.isOverTime()) {
-			this.stopRecord = true;
+			this.overTime = true;
 			return ;
 		}
 		
@@ -111,7 +111,7 @@ public class MethodStackRecorder {
 		this.methodDesc = methodDesc;
 				
 		this.methodKey = StringUtil.genKey(className, methodName, methodDesc);
-		this.shortMethodKey = GlobalRecorder.getGlobalName(this.methodKey);
+		this.shortMethodKey = GlobalRecorder.getGlobalName(this.methodKey);		
 		Type methodType = Type.getMethodType(this.methodDesc);
 		this.methodArgSize = methodType.getArgumentTypes().length;
 		if (methodType.getReturnType().getSort() == Type.VOID) {
@@ -122,14 +122,7 @@ public class MethodStackRecorder {
 		} else {
 			this.methodReturnSize = 1;
 		}
-			
-		/*if (!methodType.getReturnType().getDescriptor().equals("V")) {
-			this.methodReturnSize = 1;
-		}*/
-		
-		//this.smm = GlobalRecorder.getStaticMethodMiner(this.shortMethodKey);
-		//this.threadId = Thread.currentThread().getId();
-		
+				
 		this.staticMethod = isStatic;		
 		this.objId = objId;
 		
@@ -161,16 +154,15 @@ public class MethodStackRecorder {
 			}
 		}
 		
+		if (GlobalRecorder.shouldStopMe(this.shortMethodKey)) {
+			this.stopRecord = true;
+		} else {
+			GlobalRecorder.enqueueStopCallees();
+		}
 		/*logger.info("Enter " + 
 				" " + this.methodKey + 
 				" " + this.threadId + 
 				" " + this.threadMethodId);*/
-		
-		//Load possible clinit
-		/*if (this.methodName.equals(init)) {
-			//Instead of using NEW, let init to attempt loading clinit
-			this.checkNGetClInit(this.className);
-		}*/
 	}
 	
 	private void stopLocalVar(int localVarId) {
@@ -218,7 +210,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void updateCurLabel(String curLabel) {
-		if (this.stopRecord)
+		if (this.stopRecord || this.overTime)
 			return ;
 		
 		this.curLabel = curLabel;
@@ -248,10 +240,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void updateObjOnStack(Object obj, int traceBack) {
-		//logger.info("Logged obj: " + obj);
-		//logger.info("Trace back: " + traceBack);
-		//logger.info("Current statck: " + this.stackSimulator);
-		if (this.stopRecord)
+		if (this.stopRecord || this.overTime)
 			return ;
 		
 		int idx = this.stackSimulator.size() - 1 - traceBack;
@@ -260,7 +249,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {
-		if (this.stopRecord)
+		if (this.stopRecord || this.overTime)
 			return ;
 		
 		//logger.info("Handle ldc: " + opcode + " " + instIdx + " " + addInfo);
@@ -281,7 +270,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleField(int opcode, int instIdx, String owner, String name, String desc) {
-		if (this.stopRecord)
+		if (this.stopRecord || this.overTime)
 			return ;
 		
 		//logger.info("Handle field: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
@@ -305,14 +294,6 @@ public class MethodStackRecorder {
 		
 		//Search the real owner of the field
 		Class<?> targetClass = ClassInfoCollector.retrieveCorrectClassByField(owner, name);
-		//logger.info("Class owner of field with objId: " + targetClass + " " + owner + " " + name);
-		
-		/*if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.PUTSTATIC) {
-			//JVM will load the owner, not the exact class
-			if (!owner.equals(this.className))
-				this.checkNGetClInit(targetClass.getName());
-		}*/
-		
 		String fieldKey = targetClass.getName() + "." + name + "." + desc;
 		
 		if (objId > 0) {
@@ -391,7 +372,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleOpcode(int opcode, int instIdx, String addInfo) {
-		if (this.stopRecord)
+		if (this.stopRecord || this.overTime)
 			return ;
 		
 		//logger.info("Handle opcode: " + opcode + " " + instIdx + " " + addInfo);
@@ -436,7 +417,7 @@ public class MethodStackRecorder {
 	 * @param localVarIdx
 	 */
 	public void handleOpcode(int opcode, int instIdx, int localVarIdx) {
-		if (this.stopRecord)
+		if (this.stopRecord || this.overTime)
 			return ;
 		
 		//logger.info("Handle opcode: " + opcode + " " + localVarIdx);
@@ -549,7 +530,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleMultiNewArray(String desc, int dim, int instIdx) {
-		if (this.stopRecord)
+		if (this.stopRecord || this.overTime)
 			return ;
 		
 		//logger.info("Handle MultiNewArray: " + desc + " " + dim + " " + instIdx);
@@ -612,7 +593,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc) {
-		if (this.stopRecord)
+		if (this.stopRecord || this.overTime)
 			return ;
 		
 		//long startTime = System.nanoTime();
@@ -716,7 +697,7 @@ public class MethodStackRecorder {
 							curMethodKey, 
 							InstPool.REGULAR);
 					this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
-					GlobalRecorder.recoverLatestGraph(childGraph);
+					GlobalRecorder.registerLatestGraph(childGraph);
 					//System.out.println("Recorder time: " + (System.nanoTime() - startTime));
 					return ;
 				} else {
@@ -749,9 +730,10 @@ public class MethodStackRecorder {
 						//logger.info("Recursive object: " + this.objId + " " + this.shortMethodKey);
 						GlobalRecorder.registerRecursiveMethod(childGraph.getShortMethodKey());
 					}
-										
-					fullInst.registerCallee(childGraph);
-					//this.latestWriteFieldRecorder.putAll(childGraph.getLatestWriteFields());
+					
+					boolean stopCallee = GlobalRecorder.shouldStopMe(childGraph.getShortMethodKey());
+					if (!stopCallee)
+						fullInst.registerCallee(childGraph);
 					
 					if (args.length > 0) {
 						for (int i = args.length - 1; i >= 0 ;i--) {
@@ -806,7 +788,7 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleDup(int opcode) {
-		if (this.stopRecord)
+		if (this.stopRecord || this.overTime)
 			return ;
 		
 		InstNode dupInst = null;
@@ -888,17 +870,17 @@ public class MethodStackRecorder {
 	
 	public void dumpGraph() {
 		GlobalRecorder.removeWriteFields(this.writeFields.keySet());
-		if (this.stopRecord || TimeController.isOverTime()) {
+		if (this.overTime || TimeController.isOverTime()) {
 			//this.clearCurrentThreadId();
 			return ;
 		}
 		
+		if (this.stopRecord) {
+			return ;
+		}
+		
 		if (GlobalRecorder.checkUndersizedMethod(this.shortMethodKey)) {
-			/*logger.info("Leave " + " undersized" +
-					" " + this.methodKey + 
-					" " + this.threadId + 
-					" " + this.threadMethodId);*/
-			//this.clearCurrentThreadId();
+			GlobalRecorder.dequeueStopCallees();
 			return ;
 		}
 		
@@ -1001,6 +983,7 @@ public class MethodStackRecorder {
 		String dumpKey = StringUtil.genKeyWithId(this.shortMethodKey, String.valueOf(this.threadId));
 		boolean registerLatest = (!this.methodName.equals("<clinit>"));
 		GlobalRecorder.registerGraph(dumpKey, gt, registerLatest);
+		GlobalRecorder.dequeueStopCallees();
 		
 		//gt.calleeCache = this.calleeCache;
 		//this.showStackSimulator();

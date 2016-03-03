@@ -20,6 +20,8 @@ public class MethodNode extends InstNode {
 	
 	public static final double EPSILON = Math.pow(10, -4);
 	
+	public static final int CALLEE_MAX = 10;
+	
 	private CalleeInfo calleeInfo = new CalleeInfo();
 	
 	private HashMap<String, GraphWithFreq> callees = new HashMap<String, GraphWithFreq>();
@@ -27,6 +29,8 @@ public class MethodNode extends InstNode {
 	private RegularState rs = new RegularState();
 	
 	private int maxGraphFreq = 0;
+	
+	private int callFreq = 0;
 	
 	public static double roundHelper(double frac) {
 		frac = frac * 100;
@@ -226,6 +230,8 @@ public class MethodNode extends InstNode {
 	}
 		
 	public void registerCallee(GraphTemplate callee) {
+		this.callFreq++;
+		
 		//No need for linenumber actually.
 		String groupKey = GraphGroup.groupKey(this.getLinenumber(), callee);
 		GraphWithFreq gf = null;
@@ -263,8 +269,12 @@ public class MethodNode extends InstNode {
 		if (gf.freq > this.maxGraphFreq) {
 			this.maxGraphFreq = gf.freq;
 		}
+		
+		if (this.callFreq > CALLEE_MAX) {
+			GlobalRecorder.registerStopCallee(callee.getShortMethodKey(), this.linenumber);
+		}
 	}
-	
+		
 	public void clearCallees() {
 		this.callees.clear();
 	}

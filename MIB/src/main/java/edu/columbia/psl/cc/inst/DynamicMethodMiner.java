@@ -100,7 +100,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IInstrumentInfo
 			String testAnnot, 
 			boolean annotGuard) {
 		//super(Opcodes.ASM4, mv, access, myName, desc);
-		super(Opcodes.ASM4, mv);
+		super(Opcodes.ASM5, mv);
 		this.className = className;
 		this.superName = superName;
 		this.myName = myName;
@@ -582,32 +582,21 @@ public class DynamicMethodMiner extends MethodVisitor implements IInstrumentInfo
 	
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-		//Before System.exit(), dump whatwever we have
-		if (opcode == Opcodes.INVOKESTATIC 
-				&& owner.equals("java/lang/System") 
-				&& name.equals("exit") 
-				&& desc.equals("(I)V")) {
-			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
-			this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
-					methodStackRecorder, 
-					srGraphDump, 
-					srGraphDumpDesc, 
-					false);
-			
-			//this.mv.visitInsn(Opcodes.ICONST_1);
+		if (this.shouldInstrument()) {
+			this.convertConst(this.curLineNum);
 			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-					"edu/columbia/psl/cc/premain/MIBDriver", 
-					"graphing", 
-					"()V", 
+					Type.getInternalName(GlobalRecorder.class), 
+					"enterCalleeLine", 
+					"(I)V", 
 					false);
 		}
 		
 		//For merging the graph on the fly, need to visit method before recording them
 		this.mv.visitMethodInsn(opcode, owner, name, desc, false);
 		
-		if (this.shouldInstrument()) {
+		if (this.shouldInstrument()) {			
 			//A bit complex here, this to handle passing object before the super or this has been initialized
-			//Only for constructor. But if the object is not this or super, then spassing obj should be fine
+			//Only for constructor. But if the object is not this or super, then passing obj should be fine
 			if (opcode == Opcodes.INVOKESPECIAL 
 					&& name.equals("<init>") 
 					&& (!this.aload0Lock || (!owner.equals(this.superName) && !owner.equals(this.className)))) {
@@ -634,6 +623,12 @@ public class DynamicMethodMiner extends MethodVisitor implements IInstrumentInfo
 			
 			int instIdx = this.handleMethod(opcode, owner, name, desc);
 			this.updateMethodRep(opcode);
+			this.convertConst(this.curLineNum);
+			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
+					Type.getInternalName(GlobalRecorder.class), 
+					"leaveCalleeLine", 
+					"()V", 
+					false);
 			//this.bbAnalyzer.signalInst(opcode, owner + " " + name + " " + desc);
 			
 			int returnSort = Type.getMethodType(desc).getReturnType().getSort();
