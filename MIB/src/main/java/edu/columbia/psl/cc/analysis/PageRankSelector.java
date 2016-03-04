@@ -509,7 +509,7 @@ public class PageRankSelector {
 		Options options = ArgConfiguration.getOptions();
 		
 		boolean constructOnly = false;
-		String templateDir = null;
+		String targetDir = null;
 		String testDir = null;
 		String[] graphrepos = null;
 		
@@ -518,8 +518,8 @@ public class PageRankSelector {
 			constructOnly = true;
 		}
 		
-		if (cLine.hasOption(ArgConfiguration.TEMPLATE) && cLine.hasOption(ArgConfiguration.TEST)) {
-			templateDir = cLine.getOptionValue(ArgConfiguration.TEMPLATE);
+		if (cLine.hasOption(ArgConfiguration.TARGET) && cLine.hasOption(ArgConfiguration.TEST)) {
+			targetDir = cLine.getOptionValue(ArgConfiguration.TARGET);
 			testDir = cLine.getOptionValue(ArgConfiguration.TEST);
 		} else {
 			graphrepos = cLine.getOptionValues(ArgConfiguration.GREPO);
@@ -571,14 +571,14 @@ public class PageRankSelector {
 		
 		if (graphrepos == null || graphrepos.length == 0) {
 			logger.info("Normal load");
-			if (templateDir == null || testDir == null) {
-				templateDir = MIBConfiguration.getInstance().getTemplateDir();
-				testDir = MIBConfiguration.getInstance().getTestDir();
+			if (targetDir == null || testDir == null) {
+				logger.error("Invalid graph directory: " + targetDir + " " + testDir);
+				System.exit(-1);
 			}
-			logger.info("Lib1 direcotry: " + (new File(templateDir)).getAbsolutePath());
+			logger.info("Lib1 direcotry: " + (new File(targetDir)).getAbsolutePath());
 			logger.info("Lib2 direcotry: " + (new File(testDir)).getAbsolutePath());
 			
-			initiateSubGraphMining(templateDir, 
+			initiateSubGraphMining(targetDir, 
 					testDir, 
 					url, 
 					username, 

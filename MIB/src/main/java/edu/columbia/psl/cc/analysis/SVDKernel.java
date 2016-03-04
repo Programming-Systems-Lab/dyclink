@@ -291,7 +291,7 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 		}
 		
 		try {
-			File f = new File(MIBConfiguration.getInstance().getCostTableDir() + methodName + ".csv");
+			File f = new File("./cost_table/" + methodName + ".csv");
 			if (f.exists()) {
 				f.delete();
 			}
@@ -369,7 +369,7 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 		}
 				
 		try {
-			File f = new File(MIBConfiguration.getInstance().getCostTableDir() + methodName + ".csv");
+			File f = new File("./cost_table/" + methodName + ".csv");
 			if (f.exists()) {
 				f.delete();
 			}

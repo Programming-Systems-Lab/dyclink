@@ -77,8 +77,8 @@ public class Debugger {
 			targetBuilder.append(sortedInsts.get(i).toString() + "\n");
 		}
 		
-		GsonManager.writeJsonGeneric(fileGraph, outputName, graphToken, -1);
 		try {
+			GsonManager.writeJsonGeneric(fileGraph, outputName, graphToken, -1);
 			BufferedWriter bw = new BufferedWriter(new FileWriter("results/sub3.txt"));
 			bw.append(subBuilder.toString());
 			bw.flush();

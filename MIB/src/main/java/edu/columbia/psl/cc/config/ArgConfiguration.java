@@ -9,9 +9,9 @@ public class ArgConfiguration {
 	
 	public final static String CONSTRUCT_DES = "Only construct final graphs without mining";
 	
-	public final static String TEMPLATE = "template";
+	public final static String TARGET = "template";
 	
-	public final static String TEMPLATE_DES = "The dir of template graphs";
+	public final static String TARGET_DES = "The dir of template graphs";
 	
 	public final static String TEST = "test";
 	
@@ -30,10 +30,10 @@ public class ArgConfiguration {
 	static {
 		options.addOption(CONSTRUCT, false, CONSTRUCT_DES);
 		
-		Option templateOption = new Option(TEMPLATE, TEMPLATE_DES);
-		templateOption.setRequired(false);
-		templateOption.setArgs(1);
-		options.addOption(templateOption);
+		Option targetOption = new Option(TARGET, TARGET_DES);
+		targetOption.setRequired(false);
+		targetOption.setArgs(1);
+		options.addOption(targetOption);
 		
 		Option testOption = new Option(TEST, TEST_DES);
 		testOption.setRequired(false);

@@ -37,47 +37,7 @@ import edu.columbia.psl.cc.premain.MIBDriver;
 public class GsonManager {
 	
 	private static Logger logger = LogManager.getLogger(GsonManager.class);
-	
-	public static void writePath(String fileName, List<InstNode> path) {
-		StringBuilder sb = new StringBuilder();
-		for (InstNode inst: path) {
-			sb.append(inst.toString() + "\n");
-		}
-		
-		try {
-			File f = new File(MIBConfiguration.getInstance().getPathDir() + "/" + fileName + ".txt");
-			if (f.exists())
-				f.delete();
 			
-			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-			bw.write(sb.toString());
-			bw.close();
-		} catch (Exception ex) {
-			logger.error("Exception: ", ex);
-		}
-	}
-	
-	public static <T> void writeJson(T obj, String fileName, boolean isTemplate) {
-		GsonBuilder gb = new GsonBuilder();
-		gb.setPrettyPrinting();
-		gb.registerTypeAdapter(Var.class, new VarAdapter());
-		Gson gson = gb.create();
-		String toWrite = gson.toJson(obj);
-		try {
-			File f;
-			if (isTemplate) {
-				f = new File(MIBConfiguration.getInstance().getTemplateDir() + "/" + fileName + ".json");
-			} else {
-				f = new File(MIBConfiguration.getInstance().getTestDir() + "/" + fileName + ".json");
-			}
-			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-			bw.write(toWrite);
-			bw.close();
-		} catch (Exception ex) {
-			logger.error("Exception: ", ex);
-		}
-	}
-	
 	public static <T> T readJson(File f, T type) {
 		GsonBuilder gb = new GsonBuilder();
 		gb.setPrettyPrinting();
@@ -101,36 +61,40 @@ public class GsonManager {
 	 * @param typeToken
 	 * @param isTemplate
 	 */
-	public static <T> void writeJsonGeneric(T obj, String fileName, TypeToken typeToken, int dirIdx) {
+	public static <T> void writeJsonGeneric(T obj, 
+			String fileName, 
+			TypeToken<T> typeToken, 
+			int dirIdx) throws Exception {
+		String toWrite = jsonString(obj, typeToken);
+		
+		File f;
+		if (dirIdx == MIBConfiguration.GRAPH_DIR) {
+			f = new File(MIBConfiguration.getInstance().getGraphDir() + "/" + fileName + ".json");
+		} else if (dirIdx == MIBConfiguration.LABEL_MAP_DIR) {
+			f = new File(MIBConfiguration.getInstance().getLabelmapDir() + "/" + fileName + ".json");
+		} else if (dirIdx == MIBConfiguration.CACHE_DIR){
+			f = new File(MIBConfiguration.getInstance().getCacheDir() + "/" + fileName);
+		} else {
+			f = new File(fileName);
+		}
+		
+		if (!f.exists()) {
+			f.createNewFile();
+		}
+		
+		BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+		bw.write(toWrite);
+		bw.close();
+	}
+	
+	public static <T> String jsonString(T obj, TypeToken<T> token) {
 		GsonBuilder gb = new GsonBuilder();
 		gb.setPrettyPrinting();
 		gb.registerTypeAdapter(InstNode.class, new InstNodeAdapter());
 		Gson gson = gb.enableComplexMapKeySerialization().create();
-		String toWrite = gson.toJson(obj, typeToken.getType());
-		try {
-			File f;
-			if (dirIdx == MIBConfiguration.TEMPLATE_DIR) {
-				f = new File(MIBConfiguration.getInstance().getTemplateDir() + "/" + fileName + ".json");
-			} else if (dirIdx == MIBConfiguration.TEST_DIR) {
-				f = new File(MIBConfiguration.getInstance().getTestDir() + "/" + fileName + ".json");
-			} else if (dirIdx == MIBConfiguration.LABEL_MAP_DIR) {
-				f = new File(MIBConfiguration.getInstance().getLabelmapDir() + "/" + fileName + ".json");
-			} else if (dirIdx == MIBConfiguration.CACHE_DIR){
-				f = new File(MIBConfiguration.getInstance().getCacheDir() + "/" + fileName);
-			} else {
-				f = new File(fileName);
-			}
-			
-			if (!f.exists()) {
-				f.createNewFile();
-			}
-			
-			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-			bw.write(toWrite);
-			bw.close();
-		} catch (Exception ex) {
-			logger.error("Exception: ", ex);
-		}
+		String toWrite = gson.toJson(obj, token.getType());
+		
+		return toWrite;
 	}
 	
 	public static boolean copyFile(File source, File cache) throws IOException{
@@ -156,110 +120,6 @@ public class GsonManager {
 				cacheChannel.close();
 		}
 		return false;
-	}
-	
-	public static void cacheGraph(String fileName, int dirIdx, boolean kept) {
-		File f;
-		if (dirIdx == 0) {
-			f = new File(MIBConfiguration.getInstance().getTemplateDir() + "/" + fileName + ".json");
-		} else if (dirIdx == 1) {
-			f = new File(MIBConfiguration.getInstance().getTestDir() + "/" + fileName + ".json");
-		} else {
-			f = new File(MIBConfiguration.getInstance().getLabelmapDir() + "/" + fileName + ".json");
-		}
-		
-		if (f.exists()) {
-			try {
-				String newFileName = StringUtil.genKeyWithId(fileName, UUID.randomUUID().toString());
-				File cacheFile = new File(MIBConfiguration.getInstance().getCacheDir() + "/" + newFileName + ".json");
-				//String newFileName = StringUtil.genKeyWithId(fileName, String.valueOf(g.getThreadMethodId()));
-				if (kept) {
-					if (!copyFile(f, cacheFile)) {
-						logger.warn("Warning: fail to copy file: " + f.getName());
-					}
-				} else {
-					if (!f.renameTo(new File(MIBConfiguration.getInstance().getCacheDir() + "/" + newFileName + ".json"))) {
-						logger.warn("Warning: fail to move file: " + f.getName());
-					}
-				}
-			} catch (Exception ex) {
-				logger.error("Exception: ", ex);
-			}
-		}
-	}
-	
-	public static void cacheAllGraphs(Map<String, List<GraphTemplate>> allGraphs, String...name) {
-		if (allGraphs.size() == 0)
-			return ;
-		
-		try {
-			String zipFileName = null;
-			if (name.length == 0) {
-				Date d = new Date();
-				SimpleDateFormat formatter = new SimpleDateFormat("yy-MM-dd-HH-mm-ss-SSS");
-				zipFileName = MIBConfiguration.getInstance().getCacheDir() + "/" + formatter.format(d) + ".zip";
-			} else {
-				zipFileName = MIBConfiguration.getInstance().getCacheDir() + "/" + name[0] + ".zip" ;
-			}
-			
-			FileOutputStream fos = new FileOutputStream(zipFileName, true);
-			
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ZipOutputStream zos = new ZipOutputStream(bos);
-			for (String shortKey: allGraphs.keySet()) {
-				GsonManager.cacheDirectGraphs(shortKey, allGraphs.get(shortKey), zos);
-			}
-			zos.close();
-			fos.write(bos.toByteArray());
-			bos.close();
-			fos.flush();
-			try {
-				fos.close();
-			} catch (Exception ex) {
-				logger.error("Exception: ", ex);
-			}
-		} catch (Exception ex) {
-			logger.error("Exception: ", ex);
-		}
-	}
-	
-	public static void cacheNameMap(NameMap nameMap, ZipOutputStream zos) {
-		TypeToken<NameMap> nameToken = new TypeToken<NameMap>(){};
-		GsonBuilder gb = new GsonBuilder();
-		gb.setPrettyPrinting();
-		Gson gson = gb.enableComplexMapKeySerialization().create();
-		String toWrite = gson.toJson(nameMap, nameToken.getType());
-		
-		try {
-			ZipEntry zipEntry = new ZipEntry("nameMap");
-			zos.putNextEntry(zipEntry);
-			zos.write(toWrite.getBytes(Charset.forName("UTF-8")));
-			zos.closeEntry();
-		} catch (Exception ex) {
-			logger.error("Exception: ", ex);
-		}
-	}
-	
-	public static void cacheDirectGraphs(String fileName, List<GraphTemplate> graphs, ZipOutputStream zos) {
-		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
-		GsonBuilder gb = new GsonBuilder();
-		gb.setPrettyPrinting();
-		gb.registerTypeAdapter(InstNode.class, new InstNodeAdapter());
-		Gson gson = gb.enableComplexMapKeySerialization().create();
-		
-		try {
-			for (GraphTemplate g: graphs) {
-				String fullFileName = StringUtil.genKeyWithId(fileName, String.valueOf(g.getThreadMethodId())) + ".json";
-				String toWrite = gson.toJson(g, graphToken.getType());
-				ZipEntry zipEntry = new ZipEntry(fullFileName);
-				zos.putNextEntry(zipEntry);
-				zos.write(toWrite.getBytes(Charset.forName("UTF-8")));
-				zos.closeEntry();
-				//writeJsonGeneric(g, fullFileName, graphToken, MIBConfiguration.CACHE_DIR);
-			}
-		} catch (Exception ex) {
-			logger.error("Exception: ", ex);
-		}
 	}
 		
 	public static <T> T readJsonGeneric(File f, TypeToken typeToken) {
@@ -298,28 +158,7 @@ public class GsonManager {
 			cleanHelper(dir.getAbsolutePath());
 		}
 	}
-	
-	public static void cleanDirs(boolean cleanTemp, boolean cleanTest) {
-		File tempDir = new File(MIBConfiguration.getInstance().getTemplateDir());
-		File teDir = new File(MIBConfiguration.getInstance().getTestDir());
-		//File cacheDir = new File(MIBConfiguration.getInstance().getCacheDir());
-		File pathDir = new File(MIBConfiguration.getInstance().getPathDir());
-		File costDir = new File(MIBConfiguration.getInstance().getCostTableDir());
-		File labelmapDir = new File(MIBConfiguration.getInstance().getLabelmapDir());
 		
-		if (cleanTemp)
-			cleanDir(tempDir);
-		
-		if (cleanTest)
-			cleanDir(teDir);
-		
-		//No matter what, clean cache
-		//cleanDir(cacheDir);
-		cleanDir(pathDir);
-		cleanDir(costDir);
-		//cleanDir(labelmapDir);
-	}
-	
 	public static void writeResult(String fileName, StringBuilder sb) {
 		writeResult(fileName, sb.toString());
 	}

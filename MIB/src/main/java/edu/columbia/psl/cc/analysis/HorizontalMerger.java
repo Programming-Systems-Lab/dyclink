@@ -1,6 +1,8 @@
 package edu.columbia.psl.cc.analysis;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -10,6 +12,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,36 +70,7 @@ public class HorizontalMerger {
 			return g1Id > g2Id?1: (g1Id < g2Id? -1: 0);
 		}
 	};
-	
-	public static HashSet<String> cacheLatestGraphs(int dirIdx, 
-			HashSet<String> recursiveMethods) {
-		String dirString = "";
-		if (dirIdx == 0) {
-			dirString = MIBConfiguration.getInstance().getTemplateDir();
-		} else if (dirIdx == 1) {
-			dirString = MIBConfiguration.getInstance().getTestDir();
-		} else {
-			ShutdownLogger.appendException(new Exception("Invalid dir idx: " + dirIdx));
-			return null;
-		}
 		
-		File dir = new File(dirString);
-		
-		HashSet<String> allNames = TemplateLoader.loadAllFileNames(dir);
-		Iterator<String> allNameIt = allNames.iterator();
-		while (allNameIt.hasNext()) {
-			String name = allNameIt.next();
-			if (recursiveMethods.contains(name)) {
-				ShutdownLogger.appendMessage("Recursive method: " + name + ", no need for extraction");
-				GsonManager.cacheGraph(name, dirIdx, true);
-				allNameIt.remove();
-			} else {
-				GsonManager.cacheGraph(name, dirIdx, false);
-			}
-		}		
-		return allNames;
-	}
-	
 	/**
 	 * Load cached graphs from hardisk for mining
 	 */
@@ -135,8 +111,8 @@ public class HorizontalMerger {
 		}
 	}
 	
-	public static void startExtractionFast(HashMap<String, HashMap<String, GraphTemplate>> graphs) {
-		
+	public static void startExtractionFast(String appName, HashMap<String, HashMap<String, GraphTemplate>> graphs) {
+		List<GraphTemplate> finalGraphs = new ArrayList<GraphTemplate>();
 		for (String key: graphs.keySet()) {
 			HashMap<String, GraphTemplate> graphGroups = graphs.get(key);
 			
@@ -156,10 +132,14 @@ public class HorizontalMerger {
 				}
 				
 				//System.out.println("Check dump: " + key + " " + groupKey);
-				writeGraphHelper(graphGroups.get(groupKey));
+				//writeGraphHelper(graphGroups.get(groupKey));
+				finalGraphs.add(graphGroups.get(groupKey));
 				dumpedGroups.add(groupKey);
 			}
 		}
+		
+		ShutdownLogger.appendMessage("Total graphs: " + finalGraphs.size());
+		zipGraphsHelper(appName, finalGraphs);
 	}
 	
 	/**
@@ -296,13 +276,17 @@ public class HorizontalMerger {
 		}
 		
 		for (String myKey: callees.keySet()) {
-			GraphTemplate me = callees.get(myKey);
-			if (me.calleeRequired.size() > 0) {
-				writeCallees(myKey, me.calleeRequired);
+			try {
+				GraphTemplate me = callees.get(myKey);
+				if (me.calleeRequired.size() > 0) {
+					writeCallees(myKey, me.calleeRequired);
+				}
+				
+				String dumpName = parentIdx + "/" + myKey;
+				GsonManager.writeJsonGeneric(me, dumpName, graphToken, MIBConfiguration.CACHE_DIR);
+			} catch (Exception ex) {
+				ShutdownLogger.appendException(ex);
 			}
-			
-			String dumpName = parentIdx + "/" + myKey;
-			GsonManager.writeJsonGeneric(me, dumpName, graphToken, MIBConfiguration.CACHE_DIR);
 		}
 	}
 	
@@ -317,49 +301,76 @@ public class HorizontalMerger {
 			writeCallees(parentDir, groupRep.calleeRequired);
 		}
 		
-		if (MIBConfiguration.getInstance().isTemplateMode()) {
-			GsonManager.writeJsonGeneric(groupRep, dumpName, graphToken, MIBConfiguration.TEMPLATE_DIR);
-		} else {
-			GsonManager.writeJsonGeneric(groupRep, dumpName, graphToken, MIBConfiguration.TEST_DIR);
+		try {
+			GsonManager.writeJsonGeneric(groupRep, dumpName, graphToken, MIBConfiguration.GRAPH_DIR);
+		} catch (Exception ex) {
+			ShutdownLogger.appendException(ex);
 		}
 	}
 	
-	public static void main(String[] args) {
-		File nameMapFile = new File(MIBConfiguration.getInstance().getLabelmapDir() + "/nameMap.json");
-		NameMap nameMap = GsonManager.readJsonGeneric(nameMapFile, nameMapToken);
-		HashSet<String> recursiveMethods = nameMap.getRecursiveMethods();
-		
-		ShutdownLogger.appendMessage("Start caching latest template graphs");
-		HashSet<String> allTemplateNames = cacheLatestGraphs(MIBConfiguration.TEMPLATE_DIR, recursiveMethods);
-		
-		ShutdownLogger.appendMessage("Start caching latest test graphs");
-		HashSet<String> allTestNames = cacheLatestGraphs(MIBConfiguration.TEST_DIR, recursiveMethods);
-		
-		ShutdownLogger.appendMessage("Start loading all cached graphs");
-		String cacheDirString = MIBConfiguration.getInstance().getCacheDir();
-		File cacheDir = new File(cacheDirString);
-		HashMap<String, HashSet<GraphTemplate>> graphByNames = 
-				TemplateLoader.loadCacheTemplates(cacheDir, graphToken, recursiveMethods);
-		
-		ShutdownLogger.appendMessage("Start select representative template graphs");
-		for (String name: allTemplateNames) {
-			ShutdownLogger.appendMessage("Extracting rep graph for: " + name);
-			HashSet<GraphTemplate> allGraphs = graphByNames.get(name);
-			GraphTemplate rep = extractRepGraph(allGraphs);
-			ShutdownLogger.appendMessage("Merge result: " + rep.getInstPool().size());
-			GsonManager.writeJsonGeneric(rep, name, graphToken, MIBConfiguration.TEMPLATE_DIR);
+	public static void zipCalleesHelper(ZipOutputStream zipStream, 
+			String parentDir, 
+			HashMap<String, GraphTemplate> callees) {
+		try {
+			for (String calleeKey: callees.keySet()) {
+				GraphTemplate g = callees.get(calleeKey);
+				
+				if (g.calleeRequired.size() > 0) {
+					zipCalleesHelper(zipStream, parentDir, g.calleeRequired);
+				}
+				
+				String entryName = "cache/" + parentDir + "/" + calleeKey + ".json";
+				
+				ZipEntry entry = new ZipEntry(entryName);
+				zipStream.putNextEntry(entry);
+				
+				String jsonString = GsonManager.jsonString(g, graphToken);
+				byte[] data = jsonString.getBytes();
+				zipStream.write(data, 0, data.length);
+				zipStream.closeEntry();
+			}
+		} catch (Exception ex) {
+			ShutdownLogger.appendException(ex);
 		}
-		
-		ShutdownLogger.appendMessage("Start select representative test graphs");
-		for (String name: allTestNames) {
-			ShutdownLogger.appendMessage("Extracting rep graph for: " + name);
-			HashSet<GraphTemplate> allGraphs = graphByNames.get(name);
-			GraphTemplate rep = extractRepGraph(allGraphs);
-			ShutdownLogger.appendMessage("Merge result: " + rep.getInstPool().size());
-			GsonManager.writeJsonGeneric(rep, name, graphToken, MIBConfiguration.TEST_DIR);
-		}
-		
-		ShutdownLogger.appendMessage("Representative graph selection ends");
 	}
-
+	
+	public static void zipGraphsHelper(String appName, Collection<GraphTemplate> graphs) {
+		try {
+			File checkBase = new File(MIBConfiguration.getInstance().getGraphDir());
+			if (!checkBase.exists()) {
+				checkBase.mkdirs();
+			}
+			
+			String baseDir = checkBase.getAbsolutePath();
+			String zipFilePath = baseDir + "/" + appName + ".zip";
+			FileOutputStream zipFile = new FileOutputStream(zipFilePath);
+			ZipOutputStream zipStream = new ZipOutputStream(new BufferedOutputStream(zipFile));
+			
+			for (GraphTemplate g: graphs) {
+				if (g.calleeRequired.size() > 0) {
+					String parentDir = StringUtil.genThreadWithMethodIdx(g.getThreadId(), g.getThreadMethodId());
+					zipCalleesHelper(zipStream, parentDir, g.calleeRequired);
+				}
+				
+				String className = g.getShortMethodKey().split(":")[0];
+				String pkgName = StringUtil.parsePkgName(className);
+				
+				String nameWithThread = StringUtil.genKeyWithId(g.getShortMethodKey(), String.valueOf(g.getThreadId()));
+				String dumpName = StringUtil.genKeyWithId(nameWithThread, String.valueOf(g.getThreadMethodId()));
+				String entryName = pkgName + "/" + dumpName + ".json";
+				ShutdownLogger.appendMessage("Entry: " + entryName);
+				ZipEntry entry = new ZipEntry(entryName);
+				zipStream.putNextEntry(entry);
+				
+				String jsonString = GsonManager.jsonString(g, graphToken);
+				byte[] data = jsonString.getBytes();
+				zipStream.write(data, 0, data.length);
+				zipStream.closeEntry();
+			}
+			zipStream.close();
+		} catch (Exception ex) {
+			ShutdownLogger.appendException(ex);
+		}
+	}
+	
 }

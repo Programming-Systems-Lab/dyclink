@@ -257,6 +257,12 @@ public class StringUtil {
 		}
 	}
 	
+	public static String parsePkgName(String className) {
+		int lastDot = className.lastIndexOf(".");
+		String pkgName = className.substring(0, lastDot);
+		return pkgName;
+	}
+	
 	public static void main (String[] args) {
 		//String name = "1234:6.json";
 		//System.out.println("Remove 6: " + removeUUID(name));

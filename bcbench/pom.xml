@@ -132,5 +132,30 @@
   		<artifactId>sshj</artifactId>
   		<version>0.15.0</version>
 	</dependency>
+		<dependency>
+		<groupId>org.apache.maven</groupId>
+		<artifactId>maven-model</artifactId>
+		<version>3.0.5</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.maven</groupId>
+		<artifactId>maven-compat</artifactId>
+		<version>3.0.5</version>
+	</dependency>
+	<dependency>
+		<groupId>org.sonatype.aether</groupId>
+		<artifactId>aether-api</artifactId>
+		<version>1.13.1</version>
+	</dependency>
+  	<dependency>
+  		<groupId>com.jcabi</groupId>
+  		<artifactId>jcabi-aether</artifactId>
+ 		 <version>0.10.1</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.logging.log4j</groupId>
+		<artifactId>log4j-core</artifactId>
+		<version>2.5</version>
+	</dependency>
   </dependencies>
 </project>

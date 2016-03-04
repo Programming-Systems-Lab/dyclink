@@ -84,6 +84,7 @@ public class MIBDriver {
 			@Override
 			public void run() {
 				graphing();
+				ShutdownLogger.finalFlush();
 			}
 		});
 				
@@ -142,7 +143,7 @@ public class MIBDriver {
 		
 		//Dump all graphs in memory
 		//logger.info("Select dominant graphs: " + memorizedTargetClass);
-		selectDominantGraphs();
+		selectDominantGraphs(memorizedTargetClass.getName());
 		
 		//Update configuration
 		//logger.info("Update configuration");
@@ -157,7 +158,11 @@ public class MIBDriver {
 		nameMap.setUndersizedMethods(GlobalRecorder.getUndersizedMethods());
 		nameMap.setUntransformedClass(GlobalRecorder.getUntransformedClass());
 		
-		GsonManager.writeJsonGeneric(nameMap, "nameMap", nameMapToken, MIBConfiguration.LABEL_MAP_DIR);
+		try {
+			GsonManager.writeJsonGeneric(nameMap, "nameMap", nameMapToken, MIBConfiguration.LABEL_MAP_DIR);
+		} catch (Exception ex) {
+			ShutdownLogger.appendException(ex);
+		}
 	}
 	
 	public static void setupGlobalRecorder() {
@@ -208,18 +213,22 @@ public class MIBDriver {
 		}
 		
 		if (toSerialize.size() > 0) {
-			MIBConfiguration config = MIBConfiguration.getInstance();
-			config.setThreadMethodIdxRecord(toSerialize);
-			
-			String fileName = "./config/mib_config.json";
-			GsonManager.writeJsonGeneric(config, fileName, configToken, -1);
+			try {
+				MIBConfiguration config = MIBConfiguration.getInstance();
+				config.setThreadMethodIdxRecord(toSerialize);
+				
+				String fileName = "./config/mib_config.json";
+				GsonManager.writeJsonGeneric(config, fileName, configToken, -1);
+			} catch (Exception ex) {
+				ShutdownLogger.appendException(ex);
+			}
 		}
 	}
 	
-	public synchronized static void selectDominantGraphs() {
+	public synchronized static void selectDominantGraphs(String appName) {
 		//Dump all graphs in memory
 		//HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
 		HashMap<String, HashMap<String, GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
-		HorizontalMerger.startExtractionFast(allGraphs);
+		HorizontalMerger.startExtractionFast(appName, allGraphs);
 	}
 }

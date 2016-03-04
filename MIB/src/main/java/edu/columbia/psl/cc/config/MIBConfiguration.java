@@ -25,13 +25,11 @@ public class MIBConfiguration {
 	
 	public static int CAT_STRAT = 3;
 		
-	public static int TEMPLATE_DIR = 0;
+	public static int GRAPH_DIR = 0;
 	
-	public static int TEST_DIR = 1;
+	public static int LABEL_MAP_DIR = 1;
 	
-	public static int LABEL_MAP_DIR = 2;
-	
-	public static int CACHE_DIR = 3;
+	public static int CACHE_DIR = 2;
 	
 	private List<String> excludeClass;
 	
@@ -41,16 +39,8 @@ public class MIBConfiguration {
 	
 	private String opCodeCatId;
 	
-	private String costTableDir;
-	
-	private int costLimit;
-	
-	private String templateDir;
-	
-	private String testDir;
-	
-	private String pathDir;
-	
+	private String graphDir;
+		
 	private String labelmapDir;
 	
 	private String resultDir;
@@ -100,8 +90,6 @@ public class MIBConfiguration {
 	private boolean annotGuard;
 	
 	private boolean fieldTrack;
-	
-	private boolean templateMode;
 	
 	private boolean overallAnalysis;
 	
@@ -170,22 +158,6 @@ public class MIBConfiguration {
 
 	public void setOpCodeCatId(String opCodeCatId) {
 		this.opCodeCatId = opCodeCatId;
-	}
-
-	public String getCostTableDir() {
-		return costTableDir;
-	}
-
-	public void setCostTableDir(String costTableDir) {
-		this.costTableDir = costTableDir;
-	}
-
-	public int getCostLimit() {
-		return costLimit;
-	}
-
-	public void setCostLimit(int costLimit) {
-		this.costLimit = costLimit;
 	}
 
 	public double getControlWeight() {
@@ -291,11 +263,7 @@ public class MIBConfiguration {
 	public double getPgEpsilon() {
 		return this.pgEpsilon;
 	}
-	
-	public String getTemplateDir() {
-		return templateDir;
-	}
-	
+		
 	public void setStaticThreshold(double staticThreshold) {
 		this.staticThreshold = staticThreshold;
 	}
@@ -327,27 +295,15 @@ public class MIBConfiguration {
 	public int getSimStrategy() {
 		return this.simStrategy;
 	}
-
-	public void setTemplateDir(String templateDir) {
-		this.templateDir = templateDir;
+	
+	public void setGraphDir(String graphDir) {
+		this.graphDir = graphDir;
 	}
-
-	public String getTestDir() {
-		return testDir;
+	
+	public String getGraphDir() {
+		return this.graphDir;
 	}
-
-	public void setTestDir(String testDir) {
-		this.testDir = testDir;
-	}
-
-	public String getPathDir() {
-		return pathDir;
-	}
-
-	public void setPathDir(String pathDir) {
-		this.pathDir = pathDir;
-	}
-
+	
 	public String getLabelmapDir() {
 		return labelmapDir;
 	}
@@ -395,15 +351,7 @@ public class MIBConfiguration {
 	public void setFieldTrack(boolean fieldTrack) {
 		this.fieldTrack = fieldTrack;
 	}
-	
-	public boolean isTemplateMode() {
-		return this.templateMode;
-	}
-	
-	public void setTemplateMode(boolean templateMode) {
-		this.templateMode = templateMode;
-	}
-	
+		
 	public boolean isOverallAnalysis() {
 		return this.overallAnalysis;
 	}
@@ -465,11 +413,7 @@ public class MIBConfiguration {
 		StringBuilder sb = new StringBuilder();
 		sb.append("op table path: " + this.opTablePath + "\n");
 		sb.append("op code cat id: " + this.opCodeCatId + "\n");
-		sb.append("cost table dir: " + this.costTableDir + "\n");
-		sb.append("cost limit: " + this.costLimit + "\n");
-		sb.append("template dir: " + this.templateDir + "\n");
-		sb.append("test dir: " + this.testDir + "\n");
-		sb.append("path dir: " + this.pathDir + "\n");
+		sb.append("graph dir: " + this.graphDir + "\n");
 		sb.append("label dir: " + this.labelmapDir + "\n");
 		sb.append("result dir: " + this.resultDir + "\n");
 		sb.append("debug dir: " + this.debugDir + "\n");
@@ -491,7 +435,6 @@ public class MIBConfiguration {
 		sb.append("dynamic threshod: " + this.simThreshold + "\n");
 		sb.append("annotation guard: " + this.annotGuard + "\n");
 		sb.append("field track: " + this.fieldTrack + "\n");
-		sb.append("template mode: " + this.templateMode + "\n");
 		sb.append("overall analysis: " + this.overallAnalysis + "\n");
 		sb.append("reduce graph: " + this.reduceGraph + "\n");
 		//sb.append("cache graphs: " + this.cacheGraph + "\n");

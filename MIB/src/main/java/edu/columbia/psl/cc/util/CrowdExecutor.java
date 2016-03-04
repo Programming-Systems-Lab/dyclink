@@ -96,8 +96,7 @@ public class CrowdExecutor {
 			
 			//Need to set the grah path
 			MIBConfiguration config = MIBConfiguration.reloadInstance();
-			config.setTemplateMode(false);
-			config.setTestDir(graphRepoPath);
+			config.setGraphDir(graphRepoPath);
 			
 			System.out.println("Check config before writing: " + config.getThreadMethodIdxRecord());
 			

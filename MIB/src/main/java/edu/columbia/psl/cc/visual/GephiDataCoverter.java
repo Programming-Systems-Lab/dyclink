@@ -12,10 +12,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.gephi.data.attributes.api.AttributeColumn;
-import org.gephi.data.attributes.api.AttributeController;
-import org.gephi.data.attributes.api.AttributeModel;
-import org.gephi.data.attributes.api.AttributeType;
+import org.gephi.graph.api.Column;
 import org.gephi.graph.api.DirectedGraph;
 import org.gephi.graph.api.Edge;
 import org.gephi.graph.api.GraphController;
@@ -31,11 +28,6 @@ import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.types.EdgeColor;
 import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
-import org.gephi.ranking.api.Ranking;
-import org.gephi.ranking.api.RankingController;
-import org.gephi.ranking.api.Transformer;
-import org.gephi.ranking.plugin.transformer.AbstractColorTransformer;
-import org.gephi.ranking.plugin.transformer.AbstractSizeTransformer;
 import org.openide.util.Lookup;
 
 import com.google.gson.reflect.TypeToken;
@@ -60,12 +52,12 @@ public class GephiDataCoverter {
 	
 	private static String edgeHeader = "Source,Target,Type,Weight\n";
 	
-	public static void visualizeGraph(InstPool pool, List<InstWrapper> results) {
+	/*public static void visualizeGraph(InstPool pool, List<InstWrapper> results) {
 		ProjectController pc = Lookup.getDefault().lookup(ProjectController.class);
 		pc.newProject();
 		Workspace workspace = pc.getCurrentWorkspace();
 		
-		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
+		//GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
 		AttributeController ac = Lookup.getDefault().lookup(AttributeController.class);
 		AttributeModel model = ac.getModel();
 				
@@ -76,13 +68,24 @@ public class GephiDataCoverter {
 		
 		AttributeColumn edgeWeightColumn = model.getEdgeTable().getColumn("Weight");
 		
+		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getGraphModel();
+		
+		Column idColumn = graphModel.getNodeTable().getColumn("Id");
+		Column lableColumn = graphModel.getNodeTable().getColumn("Label");
+		Column attrColumn = graphModel.getNodeTable().addColumn("Attribute", int.class);
+		Column weightColumn = graphModel.getNodeTable().addColumn("Weight", double.class);
+		
+		Column edgeWeightColumn = graphModel.getEdgeTable().getColumn("Weight");
+		
 		System.out.println("Existing node attributes");
-		for (AttributeColumn col: model.getNodeTable().getColumns()) {
+		for (int i = 0; i < graphModel.getNodeTable().countColumns(); i++) {
+			Column col = graphModel.getNodeTable().getColumn(i);
 			System.out.println(col);
 		}
 		
 		System.out.println("Existing edge attributes");
-		for (AttributeColumn col: model.getEdgeTable().getColumns()) {
+		for (int i = 0; i < graphModel.getEdgeTable().countColumns(); i++) {
+			Column col = graphModel.getEdgeTable().getColumn(i);
 			System.out.println(col);
 		}
 		
@@ -100,9 +103,9 @@ public class GephiDataCoverter {
 			tmp.getNodeData().getAttributes().setValue(attrColumn.getIndex(), attribute);
 			tmp.getNodeData().getAttributes().setValue(weightColumn.getIndex(), weight);
 			
-			//tmp.setLabel(label);
-			//tmp.setAttribute("Attribute", attribute);
-			//tmp.setAttribute("Weight", weight);
+			tmp.setLabel(label);
+			tmp.setAttribute(attrColumn, attribute);
+			tmp.setAttribute(weightColumn, weight);
 			nodeHistory.put(id, tmp);
 		}
 		
@@ -116,7 +119,7 @@ public class GephiDataCoverter {
 				}
 				
 				Node childNode = nodeHistory.get(cId);
-				float freq = curInst.getChildFreqMap().get(cId).floatValue();
+				double freq = curInst.getChildFreqMap().get(cId).doubleValue();
 				graphModel.factory().newEdge(curNode, childNode, freq, true);
 				//Edge newEdge = graphModel.factory().newEdge(curNode, childNode);
 				//newEdge.setWeight(freq);
@@ -170,7 +173,7 @@ public class GephiDataCoverter {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-	}
+	}*/
 	
 	public static void main(String[] args) {
 		//visualizeGraph(null, null);

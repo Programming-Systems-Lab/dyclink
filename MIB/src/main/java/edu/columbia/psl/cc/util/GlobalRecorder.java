@@ -253,12 +253,7 @@ public class GlobalRecorder {
 			
 			if (dumpFields.length() > 0) {
 				try {
-					String path ="";
-					if (MIBConfiguration.getInstance().isTemplateMode()) {
-						path = MIBConfiguration.getInstance().getTemplateDir() + "/fields.txt";
-					} else {
-						path = MIBConfiguration.getInstance().getTestDir() + "/fields.txt";
-					}
+					String path = MIBConfiguration.getInstance().getGraphDir() + "/fields.txt";
 					
 					FileWriter fw = new FileWriter(path);
 					BufferedWriter bw = new BufferedWriter(fw);

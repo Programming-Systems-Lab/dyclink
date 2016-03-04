@@ -109,7 +109,7 @@ public class MIBTestExecutionListener extends RunListener{
 				logger.info("Global edges: " + gEdgeNum);
 			}
 			
-			MIBDriver.selectDominantGraphs();
+			MIBDriver.selectDominantGraphs(description.toString());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		} finally {

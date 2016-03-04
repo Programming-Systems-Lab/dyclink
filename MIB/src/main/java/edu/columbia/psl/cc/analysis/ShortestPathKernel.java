@@ -26,7 +26,7 @@ import edu.columbia.psl.cc.util.StringUtil;
 
 public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 		
-	//private static int limit = (int)1E2;
+	private static int limit = (int)1E2;
 	
 	public static VarPool addFakeVar(VarPool smallPool, int diff) {
 		VarPool ret = new VarPool(smallPool);
@@ -50,7 +50,7 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 	private int kernelMethod(CostObj x1, CostObj x2) {
 		if (x1.getLabels().equals(x2.getLabels()) && 
 				x1.getCost() == x2.getCost() &&
-				x1.getCost() < MIBConfiguration.getInstance().getCostLimit() &&
+				x1.getCost() < limit &&
 				x1.getCost() > 0) {
 			//System.out.println("Debugger: " + x1);
 			return 1;
@@ -101,7 +101,7 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 				if (v1.getAll().contains(v2)) {
 					costTable[i][j] = 1;
 				} else {
-					costTable[i][j] = MIBConfiguration.getInstance().getCostLimit();
+					costTable[i][j] = limit;
 				}
 			}
 		}
@@ -152,7 +152,7 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 					co.setCost(0);
 					costTable[i][j] = co;
 				} else if (!inst1.getChildFreqMap().containsKey(inst2Key)) {
-					co.setCost(MIBConfiguration.getInstance().getCostLimit());
+					co.setCost(limit);
 					costTable[i][j] = co;
 					//costTable[i][j] = limit;
 				} else {
@@ -197,7 +197,7 @@ public class ShortestPathKernel implements MIBSimilarity<CostObj[][]> {
 		}
 		
 		try {
-			File f = new File(MIBConfiguration.getInstance().getCostTableDir() + methodName + ".csv");
+			File f = new File("./cost_table/" + methodName + ".csv");
 			if (f.exists()) {
 				f.delete();
 			}
