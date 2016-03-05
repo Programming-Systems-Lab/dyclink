@@ -56,12 +56,13 @@ public class GraphLoadController {
 		}
 	}
 	
-	public static List<GraphProfile> parallelizeProfiling(HashMap<String, GraphTemplate> graphs) {
+	public static List<GraphProfile> parallelizeProfiling(HashMap<String, GraphTemplate> graphs, 
+			int parallelFactor) {
 		List<GraphProfile> profiles = new ArrayList<GraphProfile>();
 		
 		try {
 			ExecutorService profileExecutor = 
-					Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
+					Executors.newFixedThreadPool(parallelFactor);
 			List<Future<GraphProfile>> futureProfiles = new ArrayList<Future<GraphProfile>>();
 			for (String fileName: graphs.keySet()) {
 				GraphTemplate graph = graphs.get(fileName);
@@ -133,91 +134,88 @@ public class GraphLoadController {
 		}
 	}
 		
-	public static Comparison normalLoad(File templateLoc, 
-			File testLoc, 
+	public static Comparison normalLoad(String targetPath, 
+			String testPath, 
 			List<SubGraphCrawler> crawlers) {
 		Comparison compResult = new Comparison();
 		compResult.inst_thresh = MIBConfiguration.getInstance().getInstThreshold();
 		compResult.inst_cat = MIBConfiguration.getInstance().getSimStrategy();
 		
-		boolean probeTemplate = TemplateLoader.probeDir(templateLoc.getAbsolutePath());
-		boolean probeTest = TemplateLoader.probeDir(testLoc.getAbsolutePath());
+		//boolean probeTarget = TemplateLoader.probeDir(targetLoc);
+		//boolean probeTest = TemplateLoader.probeDir(testLoc);
+		
+		File targetLoc = new File(targetPath);
+		File testLoc = null;
+		if (testPath != null)
+			testLoc = new File(testPath);
+		
+		boolean probeTarget = (targetLoc != null && targetLoc.isDirectory());
+		boolean probeTest = (testLoc != null && testLoc.isDirectory());
 		String lib1Name = "";
 		String lib2Name = "";
 		
-		HashMap<String, GraphTemplate> templates = null;
+		HashMap<String, GraphTemplate> targets = null;
 		HashMap<String, GraphTemplate> tests = null;
+		int parallelFactor = Runtime.getRuntime().availableProcessors();
 		
-		if (probeTemplate && probeTest) {
-			logger.info("Comparison mode: templates vs tests");
-			templates = TemplateLoader.loadTemplate(templateLoc, graphToken);
-			tests = TemplateLoader.loadTemplate(testLoc, graphToken);
+		if (probeTarget && probeTest) {
+			logger.info("Comparison mode: " + targetLoc.getAbsolutePath() + " " + testLoc.getAbsolutePath());
 			
-			lib1Name = templateLoc.getName();
+			//targets = TemplateLoader.loadTemplate(targetLoc, graphToken);
+			//tests = TemplateLoader.loadTemplate(testLoc, graphToken);
+			targets = TemplateLoader.unzipDir(targetLoc, graphToken);
+			tests = TemplateLoader.unzipDir(testLoc, graphToken);
+			
+			lib1Name = targetLoc.getName();
 			lib2Name = testLoc.getName();
 			
 			compResult.lib1 = lib1Name;
 			compResult.lib2 = lib2Name;
-			compResult.method1 = templates.size();
+			compResult.method1 = targets.size();
 			compResult.method2 = tests.size();
 			
-			filterGraphs(templates);
+			filterGraphs(targets);
 			filterGraphs(tests);
 			
-			compResult.method_f_1 = templates.size();
+			compResult.method_f_1 = targets.size();
 			compResult.method_f_2 = tests.size();
 			
-			logger.info("Template size: " + templates.size());
+			logger.info("Target size: " + targets.size());
 			logger.info("Test size: " + tests.size());
 			
-			List<GraphProfile> templateProfiles = parallelizeProfiling(templates);
-			List<GraphProfile> testProfiles = parallelizeProfiling(tests);
+			List<GraphProfile> targetProfiles = parallelizeProfiling(targets, parallelFactor);
+			List<GraphProfile> testProfiles = parallelizeProfiling(tests, parallelFactor);
 			
-			logger.info("Template profiles: " + templateProfiles.size());
+			logger.info("Target profiles: " + targetProfiles.size());
 			logger.info("Test profiles: " + testProfiles.size());
 			
-			constructCrawlerList(templateProfiles, testProfiles, crawlers);
-			constructCrawlerList(testProfiles, templateProfiles, crawlers);
-		} else if (probeTemplate) {
-			logger.info("Exhaustive mode: templates vs. templates");
-			templates = TemplateLoader.loadTemplate(templateLoc, graphToken);
-			lib1Name = templateLoc.getName();
+			constructCrawlerList(targetProfiles, testProfiles, crawlers);
+			constructCrawlerList(testProfiles, targetProfiles, crawlers);
+		} else if (probeTarget) {
+			logger.info("Exhaustive mode: " + targetLoc.getAbsolutePath());
+			targets = TemplateLoader.unzipDir(targetLoc, graphToken);
+			lib1Name = targetLoc.getName();
 			
 			compResult.lib1 = lib1Name;
 			compResult.lib2 = lib1Name;
-			compResult.method1 = templates.size();
-			compResult.method2 = templates.size();
+			compResult.method1 = targets.size();
+			compResult.method2 = targets.size();
 			
-			filterGraphs(templates);
-			compResult.method_f_1 = templates.size();
-			compResult.method_f_2 = templates.size();
-			logger.info("Template size: " + templates.size());
+			filterGraphs(targets);
+			compResult.method_f_1 = targets.size();
+			compResult.method_f_2 = targets.size();
+			logger.info("Target size: " + targets.size());
 			
-			List<GraphProfile> templateProfiles = parallelizeProfiling(templates);
-			logger.info("Template profiles: " + templateProfiles.size());
+			List<GraphProfile> targetProfiles = parallelizeProfiling(targets, parallelFactor);
+			logger.info("Target profiles: " + targetProfiles.size());
 			
-			constructCrawlerList(templateProfiles, templateProfiles, crawlers);
-		} else if (probeTest) {
-			logger.info("Exhaustive mode: tests vs. tests");
-			tests = TemplateLoader.loadTemplate(testLoc, graphToken);
-			lib2Name = testLoc.getName();
-			
-			compResult.lib1 = lib2Name;
-			compResult.lib2 = lib2Name;
-			compResult.method1 = tests.size();
-			compResult.method2 = tests.size();
-			
-			filterGraphs(tests);
-			compResult.method_f_1 = tests.size();
-			compResult.method_f_2 = tests.size();
-			logger.info("Test size: " + tests.size());
-			
-			List<GraphProfile> testProfiles = parallelizeProfiling(tests);
-			logger.info("Test profiles: " + testProfiles.size());
-			
-			constructCrawlerList(testProfiles, testProfiles,crawlers);
+			if (MIBConfiguration.getInstance().isExclPkg()) {
+				constructCrawlerListExcludePkg(targetProfiles, targetProfiles, crawlers);
+			} else {
+				constructCrawlerList(targetProfiles, targetProfiles, crawlers);
+			}
 		} else {
-			logger.info("Empty repos for both templates and tests");
+			logger.info("Empty repos for mining");
 			System.exit(-1);
 		}
 		compResult.m_compare = crawlers.size();
@@ -248,27 +246,12 @@ public class GraphLoadController {
 			
 			filterGraphs(usrLoads);
 			
-			List<GraphProfile> profiles = parallelizeProfiling(usrLoads);
+			int parallelFactor = Runtime.getRuntime().availableProcessors();
+			List<GraphProfile> profiles = parallelizeProfiling(usrLoads, parallelFactor);
 			allProfiles.addAll(profiles);
 		}
 		loadedByRepo.put(graphRepoFileName, allProfiles);
 		unfilters.put(graphRepoFileName, totalCount);
-		
-		/*for (String validRepo: validRepos) {
-			logger.info("User repo: " + validRepo);
-			
-			File repoDir = new File(validRepo);
-			HashMap<String, GraphTemplate> loads = TemplateLoader.loadTemplate(repoDir, graphToken);
-			unfilters.put(validRepo, loads.size());
-			
-			filterGraphs(loads);
-			logger.info("User method size: " + loads.size());
-			
-			List<GraphProfile> profiles = parallelizeProfiling(loads);
-			logger.info("User profiles: " + profiles.size());
-			
-			loadedByRepo.put(validRepo, profiles);
-		}*/
 	}
 		
 	public static void groupLoadWihtStruct(HashMap<String, HashMap<String, List<String>>> graphRepos, 
@@ -288,7 +271,8 @@ public class GraphLoadController {
 				filterGraphs(usrLoads);
 				logger.info("User method size: " + usrLoads.size());
 				
-				List<GraphProfile> profiles = parallelizeProfiling(usrLoads);
+				int parallelFactor = Runtime.getRuntime().availableProcessors();
+				List<GraphProfile> profiles = parallelizeProfiling(usrLoads, parallelFactor);
 				logger.info("User profiles: " + profiles.size());
 				
 				usrDirsWGraphs.put(usrDirString, profiles);

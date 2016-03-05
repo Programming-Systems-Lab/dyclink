@@ -1,7 +1,9 @@
 package edu.columbia.psl.cc.util;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.Callable;
@@ -9,6 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.pojo.GraphTemplate;
 
 public class TemplateLoader {
 	
@@ -31,8 +37,8 @@ public class TemplateLoader {
 		}
 	};
 	
-	public static boolean probeDir(String dirName) {
-		File dir = new File(dirName);
+	public static boolean probeDir(File dir) {
+
 		if (!dir.isDirectory())
 			return false;
 		
@@ -70,6 +76,75 @@ public class TemplateLoader {
 		return ret;
 	}
 	
+	public static <T> HashMap<String, T> unzipDir(File dir, TypeToken<T> typeToken) {
+		HashMap<String, T> ret = new HashMap<String, T>();
+		if (!dir.isDirectory()) {
+			logger.warn("Non-directory: " + dir.getAbsolutePath());
+			return ret;
+		}
+		
+		for (File zip: dir.listFiles()) {
+			if (!zip.getName().endsWith(".zip")) {
+				logger.warn("Non-zip file: " + zip.getName());
+				continue ;
+			}
+			
+			unzipFile(zip, typeToken, ret);
+			logger.info("# loaded graphs: " + ret.size());
+		}
+		
+		return ret;
+	}
+	
+	public static <T> void unzipFile(File zipFile, 
+			TypeToken<T> typeToken, 
+			HashMap<String, T> container) {
+		
+		try {
+			ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
+			ZipEntry curEntry = null;
+			while ((curEntry = zis.getNextEntry()) != null) {
+				String entryName = curEntry.getName();
+				
+				if (!entryName.endsWith(".json")) {
+					logger.warn("Non-json file: " + entryName);
+					continue ;
+				}
+				
+				entryName = entryName.replace(".json", "");
+				int start = entryName.indexOf("/") + 1;
+				entryName = entryName.substring(start, entryName.length());
+				
+				if (MIBConfiguration.getInstance().isExclSpec()) {
+					String methodName = entryName.split(":")[1];
+					if (methodName.equals("<init>") 
+							|| methodName.equals("<clinit>") 
+							|| methodName.equals("toString") 
+							|| methodName.equals("equals") 
+							|| methodName.equals("hashCode")) {
+						continue ;
+					}
+				}
+				
+				StringBuilder sb = new StringBuilder();
+				byte[] buffer = new byte[1024];
+				int read = 0;
+				
+				while ((read = zis.read(buffer, 0, 1024)) >= 0) {
+					sb.append(new String(buffer, 0, read));
+				}
+				
+				T value = GsonManager.readJsonGeneric(sb.toString(), typeToken);
+				container.put(entryName, value);
+				
+				zis.closeEntry();
+			}
+			zis.close();
+		} catch (Exception ex) {
+			logger.error("Error: ", ex);
+		}
+	}
+	
 	/**
 	 * Cache usually contains large number of files. Parallalize the file loading
 	 * @param dir
@@ -93,7 +168,8 @@ public class TemplateLoader {
 			ret.put(name, retSet);
 			return ret;
 		} else {
-			ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
+			int parallelFactor = Runtime.getRuntime().availableProcessors();
+			ExecutorService executor = Executors.newFixedThreadPool(parallelFactor);
 			HashMap<String, HashSet<Future<T>>> futureMap = new HashMap<String, HashSet<Future<T>>>();
 			for (final File f: dir.listFiles(nameFilter)) {
 				String name = StringUtil.removeUUID(f.getName());
@@ -158,6 +234,12 @@ public class TemplateLoader {
 			logger.warn("File not exist: " + f.getName());
 			return null;
 		}
+	}
+	
+	public static void main(String[] args) {
+		File test = new File("graphs/cc.expbase.MyObject.zip");
+		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
+		//unzipFile(test, graphToken);
 	}
 
 }

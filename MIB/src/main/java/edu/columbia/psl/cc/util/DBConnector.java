@@ -36,21 +36,29 @@ public class DBConnector {
 		if (baseurl == null || username == null || password == null)
 			return null;
 		try {
-			if (connect == null || !connect.isValid(5)) {
-				Class.forName("com.mysql.jdbc.Driver");
-				connect = DriverManager.getConnection(baseurl, username, password);
+			if (connect == null || !connect.isValid(10)) {
+				int counter = 0;
+				while (counter < 5) {
+					Class.forName("com.mysql.jdbc.Driver");
+					connect = DriverManager.getConnection(baseurl, username, password);
+					if (connect.isValid(10)) {
+						return connect;
+					}
+					
+					logger.warn("Reconnect to DB: " + counter++);
+				}
+				
+				logger.error("Fail to connect to DB...");
 			}
-						
-			return connect;
 		} catch (Exception ex) {
 			logger.error("Exception: ", ex);
-			logger.info("Try reconnect to DB...");
+/*			logger.info("Try reconnect to DB...");
 			try {
 				connect = DriverManager.getConnection(baseurl, username, password);
 				return connect;
 			} catch (Exception ex2) {
 				logger.error("Second time fails to connect: ", ex2);
-			}
+			}*/
 		}
 		return null;
 	}
@@ -63,6 +71,10 @@ public class DBConnector {
 			//Class.forName("com.mysql.jdbc.Driver");
 			//Connection connect = DriverManager.getConnection(baseurl, username, password);
 			Connection connect = DBConnector.getConnection();
+			if (connect == null) {
+				return false;
+			}
+			
 			boolean probe = connect.isValid(10);
 			//connect.close();
 			return probe;

@@ -31,7 +31,6 @@
   "instDataWeight": 1.0,
   "writeDataWeight": 1.0,
   "precisionDigit": 5,
-  "parallelFactor": 8,
   "instThreshold": 10,
   "instLimit": 3000,
   "pgAlpha": 0.15,
@@ -44,12 +43,13 @@
   "testMethodThresh": -1,
   "threadInit": 0,
   "threadMethodIdxRecord": {
-    "0": 218
+    "0": 10
   },
   "annotGuard": false,
   "fieldTrack": false,
-  "overallAnalysis": false,
   "debug": true,
+  "exclSpec": true,
+  "exclPkg": true,
   "reduceGraph": true,
   "nativeClass": true,
   "dburl": "jdbc:mysql://liberty.cs.columbia.edu:3306/dyclink?useServerPrepStmts\u003dfalse\u0026rewriteBatchedStatements\u003dtrue\u0026autoReconnect\u003dtrue",

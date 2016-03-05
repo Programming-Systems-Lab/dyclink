@@ -174,7 +174,8 @@ public class SVDKernel implements MIBSimilarity<double[][]>{
 		HashMap<String, double[]> svdMap = new HashMap<String, double[]>();
 		HashMap<String, Future<double[]>> svdFuture = new HashMap<String, Future<double[]>>();
 		
-		ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
+		int parallelFactor = Runtime.getRuntime().availableProcessors();
+		ExecutorService executor = Executors.newFixedThreadPool(parallelFactor);
 		for (String key: cachedMap.keySet()) {
 			SVDWorker worker = new SVDWorker();
 			worker.methodName = key;

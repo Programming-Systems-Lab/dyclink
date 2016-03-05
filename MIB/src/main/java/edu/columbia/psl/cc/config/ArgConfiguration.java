@@ -17,9 +17,9 @@ public class ArgConfiguration {
 	
 	public final static String TEST_DES  = "The dir of test graphs";
 	
-	public final static String GREPO = "graphrepo";
+	/*public final static String GREPO = "graphrepo";
 	
-	public final static String GREPO_DES = "The dir of all graph repos";
+	public final static String GREPO_DES = "The dir of all graph repos";*/
 	
 	public final static String DB_PW = "dbpw";
 	
@@ -31,7 +31,7 @@ public class ArgConfiguration {
 		options.addOption(CONSTRUCT, false, CONSTRUCT_DES);
 		
 		Option targetOption = new Option(TARGET, TARGET_DES);
-		targetOption.setRequired(false);
+		targetOption.setRequired(true);
 		targetOption.setArgs(1);
 		options.addOption(targetOption);
 		
@@ -40,10 +40,10 @@ public class ArgConfiguration {
 		testOption.setArgs(1);
 		options.addOption(testOption);
 		
-		Option graphrepo = new Option(GREPO, GREPO_DES);
+		/*Option graphrepo = new Option(GREPO, GREPO_DES);
 		graphrepo.setRequired(false);
 		graphrepo.setArgs(Option.UNLIMITED_VALUES);
-		options.addOption(graphrepo);
+		options.addOption(graphrepo);*/
 		
 		Option dbpw = new Option(DB_PW, DB_PW_DES);
 		dbpw.setRequired(false);

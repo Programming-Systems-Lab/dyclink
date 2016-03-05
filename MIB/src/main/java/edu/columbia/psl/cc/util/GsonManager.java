@@ -138,6 +138,21 @@ public class GsonManager {
 		}
 		return null;
 	}
+	
+	public static <T> T readJsonGeneric(String contents, TypeToken typeToken) {
+		GsonBuilder gb = new GsonBuilder();
+		gb.setPrettyPrinting();
+		gb.registerTypeAdapter(InstNode.class, new InstNodeAdapter());
+		//Gson gson = gb.enableComplexMapKeySerialization().create();
+		Gson gson = gb.create();
+		try {
+			T ret = gson.fromJson(contents, typeToken.getType());
+			return ret;
+		} catch (Exception ex) {
+			logger.error("Excpetion: ", ex);
+		}
+		return null;
+	}
 		
 	private static void cleanHelper(String fileName) {
 		File dir = new File(fileName);

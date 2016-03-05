@@ -314,16 +314,15 @@ public class HorizontalMerger {
 		try {
 			for (String calleeKey: callees.keySet()) {
 				GraphTemplate g = callees.get(calleeKey);
-				
+					
 				if (g.calleeRequired.size() > 0) {
 					zipCalleesHelper(zipStream, parentDir, g.calleeRequired);
 				}
-				
-				String entryName = "cache/" + parentDir + "/" + calleeKey + ".json";
-				
+					
+				String entryName = "cache/" + parentDir + "/" + calleeKey + ".json";                       
 				ZipEntry entry = new ZipEntry(entryName);
 				zipStream.putNextEntry(entry);
-				
+					
 				String jsonString = GsonManager.jsonString(g, graphToken);
 				byte[] data = jsonString.getBytes();
 				zipStream.write(data, 0, data.length);
@@ -340,37 +339,37 @@ public class HorizontalMerger {
 			if (!checkBase.exists()) {
 				checkBase.mkdirs();
 			}
-			
-			String baseDir = checkBase.getAbsolutePath();
-			String zipFilePath = baseDir + "/" + appName + ".zip";
-			FileOutputStream zipFile = new FileOutputStream(zipFilePath);
-			ZipOutputStream zipStream = new ZipOutputStream(new BufferedOutputStream(zipFile));
-			
-			for (GraphTemplate g: graphs) {
-				if (g.calleeRequired.size() > 0) {
-					String parentDir = StringUtil.genThreadWithMethodIdx(g.getThreadId(), g.getThreadMethodId());
-					zipCalleesHelper(zipStream, parentDir, g.calleeRequired);
-				}
-				
-				String className = g.getShortMethodKey().split(":")[0];
-				String pkgName = StringUtil.parsePkgName(className);
-				
-				String nameWithThread = StringUtil.genKeyWithId(g.getShortMethodKey(), String.valueOf(g.getThreadId()));
-				String dumpName = StringUtil.genKeyWithId(nameWithThread, String.valueOf(g.getThreadMethodId()));
-				String entryName = pkgName + "/" + dumpName + ".json";
-				ShutdownLogger.appendMessage("Entry: " + entryName);
-				ZipEntry entry = new ZipEntry(entryName);
-				zipStream.putNextEntry(entry);
-				
-				String jsonString = GsonManager.jsonString(g, graphToken);
-				byte[] data = jsonString.getBytes();
-				zipStream.write(data, 0, data.length);
-				zipStream.closeEntry();
-			}
-			zipStream.close();
+		                       
+		    String baseDir = checkBase.getAbsolutePath();
+		    String zipFilePath = baseDir + "/" + appName + ".zip";
+		    FileOutputStream zipFile = new FileOutputStream(zipFilePath);
+		    ZipOutputStream zipStream = new ZipOutputStream(new BufferedOutputStream(zipFile));
+		                       
+		    for (GraphTemplate g: graphs) {
+		    	if (g.calleeRequired.size() > 0) {
+		    		String parentDir = StringUtil.genThreadWithMethodIdx(g.getThreadId(), g.getThreadMethodId());
+		    		//zipCalleesHelper(zipStream, parentDir, g.calleeRequired);
+		    		writeCallees(parentDir, g.calleeRequired);
+		    	}
+		                               
+		    	String className = g.getShortMethodKey().split(":")[0];
+		    	String pkgName = StringUtil.parsePkgName(className);
+		                               
+		    	String nameWithThread = StringUtil.genKeyWithId(g.getShortMethodKey(), String.valueOf(g.getThreadId()));
+		    	String dumpName = StringUtil.genKeyWithId(nameWithThread, String.valueOf(g.getThreadMethodId()));
+		    	String entryName = pkgName + "/" + dumpName + ".json";
+		    	ShutdownLogger.appendMessage("Entry: " + entryName);
+		    	ZipEntry entry = new ZipEntry(entryName);
+		    	zipStream.putNextEntry(entry);
+		                               
+		    	String jsonString = GsonManager.jsonString(g, graphToken);
+		    	byte[] data = jsonString.getBytes();
+		    	zipStream.write(data, 0, data.length);
+		    	zipStream.closeEntry();
+		    }
+		    zipStream.close();
 		} catch (Exception ex) {
 			ShutdownLogger.appendException(ex);
 		}
 	}
-	
 }

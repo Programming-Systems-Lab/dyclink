@@ -532,7 +532,8 @@ public class TraceAnalyzer {
 		System.out.println("Similarity threshold:");
 		final double simThreshold = Double.valueOf(console.readLine());
 		
-		ExecutorService traceExecutor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
+		int parallelFactor = Runtime.getRuntime().availableProcessors();
+		ExecutorService traceExecutor = Executors.newFixedThreadPool(parallelFactor);
 		for (int i = startId; i <= endId; i++) {
 			final int compId = i;
 			traceExecutor.submit(new Runnable() {

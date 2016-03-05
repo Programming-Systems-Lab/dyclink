@@ -316,7 +316,7 @@ public class PageRankSelector {
 		return ret;
 	}
 			
-	public static void initiateSubGraphMining(String templateDir, 
+	public static void initiateSubGraphMining(String targetDir, 
 			String testDir, 
 			String url, 
 			String username, 
@@ -324,11 +324,8 @@ public class PageRankSelector {
 			boolean constructOnly) {
 		long startTime = System.currentTimeMillis();
 		
-		File templateLoc = new File(templateDir);
-		File testLoc = new File(testDir);
-
 		List<SubGraphCrawler> crawlers = new ArrayList<SubGraphCrawler>();		
-		Comparison compResult = GraphLoadController.normalLoad(templateLoc, testLoc, crawlers);
+		Comparison compResult = GraphLoadController.normalLoad(targetDir, testDir, crawlers);
 		
 		if (constructOnly) {
 			return ;
@@ -344,7 +341,8 @@ public class PageRankSelector {
 		try {
 			StringBuilder sb = new StringBuilder();
 			
-			ExecutorService executor = Executors.newFixedThreadPool(MIBConfiguration.getInstance().getParallelFactor());
+			int parallelFactor = Runtime.getRuntime().availableProcessors();
+			ExecutorService executor = Executors.newFixedThreadPool(parallelFactor);
 			List<Future<List<HotZone>>> resultRecorder = new ArrayList<Future<List<HotZone>>>();
 			
 			for (SubGraphCrawler crawler: crawlers) {
@@ -509,20 +507,17 @@ public class PageRankSelector {
 		Options options = ArgConfiguration.getOptions();
 		
 		boolean constructOnly = false;
-		String targetDir = null;
-		String testDir = null;
-		String[] graphrepos = null;
-		
 		CommandLine cLine = cParser.parse(options, args);
 		if (cLine.hasOption(ArgConfiguration.CONSTRUCT)) {
 			constructOnly = true;
 		}
 		
-		if (cLine.hasOption(ArgConfiguration.TARGET) && cLine.hasOption(ArgConfiguration.TEST)) {
+		//taret is required
+		String targetDir = cLine.getOptionValue(ArgConfiguration.TARGET);
+		String testDir = null;
+		if (cLine.hasOption(ArgConfiguration.TEST)) {
 			targetDir = cLine.getOptionValue(ArgConfiguration.TARGET);
 			testDir = cLine.getOptionValue(ArgConfiguration.TEST);
-		} else {
-			graphrepos = cLine.getOptionValues(ArgConfiguration.GREPO);
 		}
 		
 		String password = null;
@@ -569,7 +564,36 @@ public class PageRankSelector {
 		logger.info("Dynamic threshold: " + simThreshold);
 		logger.info("Construct only: " + constructOnly);
 		
-		if (graphrepos == null || graphrepos.length == 0) {
+		if (testDir == null) {
+			//Single mode
+			logger.info("Single mode");
+			File targetDirFile = new File(targetDir);
+			logger.info("Target directory: " + targetDirFile.getAbsolutePath());
+			
+			initiateSubGraphMining(targetDir, 
+					null, 
+					url, 
+					username, 
+					password, 
+					constructOnly);
+		} else {
+			//Comparison mode
+			logger.info("Comparison mode");
+			
+			File targetDirFile = new File(targetDir);
+			File testDirFile = new File(testDir);
+			logger.info("Target directory: " + targetDirFile.getAbsolutePath());
+			logger.info("Test directory: " + testDirFile.getAbsolutePath());
+			
+			initiateSubGraphMining(targetDir, 
+					testDir, 
+					url, 
+					username, 
+					password, 
+					constructOnly);
+		}
+		
+		/*if (graphrepos == null || graphrepos.length == 0) {
 			logger.info("Normal load");
 			if (targetDir == null || testDir == null) {
 				logger.error("Invalid graph directory: " + targetDir + " " + testDir);
@@ -631,55 +655,8 @@ public class PageRankSelector {
 			compResult.m_compare = crawlers.size();
 			
 			long startTime = System.currentTimeMillis();
-			subGraphMiner(crawlers, compResult, startTime);
-			
-			
-			//List<String> validRepos = Enumerater.enumerate(graphrepos);
-			//logger.info("Valid usr repose: " + validRepos.size());
-			
-			//Key: usr repo, val: graph profiles under this usr repo
-			/*HashMap<String, Integer> unfilters = new HashMap<String, Integer>();
-			HashMap<String, List<GraphProfile>> loadedByRepo = new HashMap<String, List<GraphProfile>>();
-			
-			GraphLoadController.groupLoad(validRepos, loadedByRepo, unfilters);
-			
-			if (constructOnly)
-				return ;
-			
-			for (int i = 0; i < validRepos.size(); i++) {
-				for (int j = i + 1; j < validRepos.size(); j++) {
-					List<SubGraphCrawler> crawlers = new ArrayList<SubGraphCrawler>();
-					String lib1 = validRepos.get(i);
-					String lib2 = validRepos.get(j);
-					
-					logger.info("Lib1 direcotry: " + (new File(lib1)).getAbsolutePath());
-					logger.info("Lib2 direcotry: " + (new File(lib2)).getAbsolutePath());
-					
-					List<GraphProfile> templateProfiles = loadedByRepo.get(lib1);
-					List<GraphProfile> testProfiles = loadedByRepo.get(lib2);
-					
-					GraphLoadController.constructCrawlerList(templateProfiles, testProfiles, crawlers);
-					GraphLoadController.constructCrawlerList(testProfiles, templateProfiles, crawlers);
-										
-					Comparison compResult = new Comparison();
-					compResult.inst_thresh = MIBConfiguration.getInstance().getInstThreshold();
-					compResult.inst_cat = MIBConfiguration.getInstance().getSimStrategy();
-					String[] lib1Sep = lib1.split("/");
-					String[] lib2Sep = lib2.split("/");
-					compResult.lib1 = lib1Sep[lib1Sep.length - 1];
-					compResult.lib2 = lib2Sep[lib2Sep.length - 1];
-					compResult.method1 = unfilters.get(lib1);
-					compResult.method2 = unfilters.get(lib2);
-					compResult.method_f_1 = templateProfiles.size();
-					compResult.method_f_2 = testProfiles.size();
-					compResult.m_compare = crawlers.size();
-					
-					long startTime = System.currentTimeMillis();
-					subGraphMiner(crawlers, compResult, startTime);
-				}
-			}*/
-			
-		}
+			subGraphMiner(crawlers, compResult, startTime);			
+		}*/
 		
 		try {
 			if (DBConnector.getConnection() != null)

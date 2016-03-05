@@ -57,9 +57,6 @@ public class MIBConfiguration {
 	
 	private int precisionDigit;
 	
-	//private static int parallelFactor = Runtime.getRuntime().availableProcessors();
-	private int parallelFactor;
-	
 	private int instThreshold;
 	
 	private int instLimit;
@@ -91,9 +88,11 @@ public class MIBConfiguration {
 	
 	private boolean fieldTrack;
 	
-	private boolean overallAnalysis;
-	
 	private boolean debug;
+	
+	private boolean exclSpec;
+	
+	private boolean exclPkg;
 	
 	private boolean reduceGraph;
 		
@@ -190,14 +189,6 @@ public class MIBConfiguration {
 
 	public void setPrecisionDigit(int precisionDigit) {
 		this.precisionDigit = precisionDigit;
-	}
-
-	public int getParallelFactor() {
-		return parallelFactor;
-	}
-
-	public void setParallelFactor(int parallelFactor) {
-		this.parallelFactor = parallelFactor;
 	}
 	
 	public int getInstThreshold() {
@@ -352,20 +343,28 @@ public class MIBConfiguration {
 		this.fieldTrack = fieldTrack;
 	}
 		
-	public boolean isOverallAnalysis() {
-		return this.overallAnalysis;
-	}
-	
-	public void setOverallAnalysis(boolean overallAnalysis) {
-		this.overallAnalysis = overallAnalysis;
-	}
-	
 	public boolean isDebug() {
 		return this.debug;
 	}
 	
 	public void setDebug(boolean debug) {
 		this.debug = debug;
+	}
+	
+	public boolean isExclSpec() {
+		return this.exclSpec;
+	}
+	
+	public void setExclSpec(boolean exclSpec) {
+		this.exclSpec = exclSpec;
+	}
+	
+	public boolean isExclPkg() {
+		return this.exclPkg;
+	}
+	
+	public void setExclPkg(boolean exclPkg) {
+		this.exclPkg = exclPkg;
 	}
 	
 	public boolean isReduceGraph() {
@@ -375,15 +374,7 @@ public class MIBConfiguration {
 	public void setReduceGraph(boolean reduceGraph) {
 		this.reduceGraph = reduceGraph;
 	}
-	
-	/*public boolean isCacheGraph() {
-		return this.cacheGraph;
-	}
-	
-	public void setCacheGraph(boolean cacheGraph) {
-		this.cacheGraph = cacheGraph;
-	}*/
-	
+		
 	public boolean isNativeClass() {
 		return this.nativeClass;
 	}
@@ -420,9 +411,7 @@ public class MIBConfiguration {
 		sb.append("control weigtht: " + this.controlWeight + "\n");
 		sb.append("inst data weigtht: " + this.instDataWeight + "\n");
 		sb.append("write data weight: " + this.writeDataWeight + "\n");
-		//sb.append("idx expand factor: " + this.idxExpandFactor + "\n");
 		sb.append("precision digit: " + this.precisionDigit + "\n");
-		sb.append("parallel factor: " + this.parallelFactor + "\n");
 		sb.append("minimum inst number: " + this.instThreshold + "\n");
 		sb.append("inst selection number: " + this.instLimit + "\n");
 		sb.append("test method threshold: " + this.testMethodThresh + "\n");
@@ -435,11 +424,11 @@ public class MIBConfiguration {
 		sb.append("dynamic threshod: " + this.simThreshold + "\n");
 		sb.append("annotation guard: " + this.annotGuard + "\n");
 		sb.append("field track: " + this.fieldTrack + "\n");
-		sb.append("overall analysis: " + this.overallAnalysis + "\n");
 		sb.append("reduce graph: " + this.reduceGraph + "\n");
-		//sb.append("cache graphs: " + this.cacheGraph + "\n");
 		sb.append("native classification: " + this.nativeClass + "\n");
 		sb.append("debug: " + this.debug + "\n");
+		sb.append("exclude spec. methods: " + this.exclSpec + "\n");
+		sb.append("exclude pkg methods: " + this.exclPkg + "\n");
 		return sb.toString();
 	}
 }
