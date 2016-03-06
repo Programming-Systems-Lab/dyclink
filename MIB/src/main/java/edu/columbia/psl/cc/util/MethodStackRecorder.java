@@ -156,8 +156,9 @@ public class MethodStackRecorder {
 			}
 		}
 		
-		if (GlobalRecorder.shouldStopMe(this.shortMethodKey)) 
+		if (GlobalRecorder.shouldStopMe(this.shortMethodKey)) {
 			this.stopRecord = true;
+		}
 		
 		GlobalRecorder.enqueueStopCallees();
 		
@@ -758,6 +759,10 @@ public class MethodStackRecorder {
 					boolean stopCallee = GlobalRecorder.shouldStopMe(childGraph.getShortMethodKey());
 					if (!stopCallee)
 						fullInst.registerCallee(childGraph);
+					/*else {
+						if (childGraph.getMethodName().equals("solve"))
+							System.out.println("Stop callee: " + childGraph.getShortMethodKey());
+					}*/
 					
 					if (args.length > 0) {
 						for (int i = args.length - 1; i >= 0 ;i--) {

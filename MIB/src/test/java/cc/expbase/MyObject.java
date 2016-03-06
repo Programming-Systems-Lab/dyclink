@@ -17,7 +17,7 @@ public class MyObject {
 			ret = j + ret;
 			ret = i * ret;
 		}
-		System.out.println("Success to add");
+		//System.out.println("Success to add");
 		return ret;
 	}
 	
@@ -26,7 +26,7 @@ public class MyObject {
 		for (int i = 0; i < 7; i++) {
 			ret += this.add(i, 1);
 		}
-		System.out.println("Success to loopadd");
+		//System.out.println("Success to loopadd");
 		return ret;
 	}
 		

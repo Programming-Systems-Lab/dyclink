@@ -21,7 +21,7 @@ public class MethodNode extends InstNode {
 	
 	public static final double EPSILON = Math.pow(10, -4);
 	
-	public static final int CALLEE_MAX = 5;
+	public static final int CALLEE_MAX = MIBConfiguration.getInstance().getCallThreshold();
 	
 	private CalleeInfo calleeInfo = new CalleeInfo();
 	
@@ -277,9 +277,15 @@ public class MethodNode extends InstNode {
 			this.maxGraphFreq = gf.freq;
 		}
 		
-		System.out.println("Current call freq: " + this.callFreq);
-		if (this.callFreq > CALLEE_MAX) {
-			System.out.println("Callee hits limitation: " + callee.getShortMethodKey() + " " + this.linenumber);
+		/*if (callee.getMethodName().equals("solve")) {
+			System.out.println("solve call: " + this.callFreq);
+		}*/
+		
+		if (this.callFreq >= CALLEE_MAX) {
+			//logger.info("Hit limits: " + this.fromMethod + " " + callee.getShortMethodKey());
+			/*if (callee.getMethodName().equals("solve")) {
+				System.out.println("Hit limits: " + this.fromMethod + " " + callee.getShortMethodKey() + " " + this.callFreq);
+			}*/
 			GlobalRecorder.registerStopCallee(callee.getShortMethodKey(), this.linenumber);
 		}
 	}

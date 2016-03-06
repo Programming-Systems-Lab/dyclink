@@ -407,13 +407,13 @@ public class DynamicMethodMiner extends MethodVisitor implements IInstrumentInfo
 	public void visitCode() {
 		this.mv.visitCode();
 		if (this.constructor && !this.superVisited) {
-			System.out.println("Init recorder for constructor: " + this.className);
+			//System.out.println("Init recorder for constructor: " + this.className);
 			this.initConstructorRecorder();
 			return ; 
 		}
 		
 		if (this.shouldInstrument() && this.localMsrId < 0) {
-			logger.info("Visit method: " + this.myName + " " + this.shouldInstrument());
+			//logger.info("Visit method: " + this.myName + " " + this.shouldInstrument());
 			
 			//Create the method stack recorder
 			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
@@ -439,7 +439,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IInstrumentInfo
 					false);
 			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
 			
-			if (this.myName.equals("<clinit>")) {
+			/*if (this.myName.equals("<clinit>")) {
 				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 				this.mv.visitLdcInsn(this.superName);
 				this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
@@ -447,7 +447,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IInstrumentInfo
 						srCheckClInit, 
 						srCheckClInitDesc, 
 						false);
-			}
+			}*/
 		}
 	}
 	
@@ -644,7 +644,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IInstrumentInfo
 		}
 		
 		//If the INVOKESPECIAL is visited, start instrument constructor
-		System.out.println("Touch invoke special: " + this.className + " isConstructor: " + this.constructor + " " + name);
+		//System.out.println("Touch invoke special: " + this.className + " isConstructor: " + this.constructor + " " + name);
 		if (this.constructor 
 				&& opcode == Opcodes.INVOKESPECIAL 
 				&& (owner.equals(this.superName) || owner.equals(this.className))

@@ -33,6 +33,7 @@
   "precisionDigit": 5,
   "instThreshold": 10,
   "instLimit": 3000,
+  "callThreshold": 5,
   "pgAlpha": 0.15,
   "pgMaxIter": 50,
   "pgEpsilon": 1.0E-5,
@@ -42,12 +43,10 @@
   "simStrategy": 1,
   "testMethodThresh": -1,
   "threadInit": 0,
-  "threadMethodIdxRecord": {
-    "0": 10
-  },
+  "threadMethodIdxRecord": {},
   "annotGuard": false,
   "fieldTrack": false,
-  "debug": true,
+  "debug": false,
   "exclSpec": true,
   "exclPkg": true,
   "reduceGraph": true,

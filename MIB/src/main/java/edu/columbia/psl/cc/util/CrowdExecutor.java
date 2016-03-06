@@ -11,9 +11,13 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.TreeMap;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -22,8 +26,8 @@ import edu.columbia.psl.cc.config.MIBConfiguration;
 
 public class CrowdExecutor {
 	
-	private static List<String> problems = new ArrayList<String>();
-	
+	private static final Logger logger = LogManager.getLogger(CrowdExecutor.class);
+		
 	private static final Class[] parameters = new Class[]{URL.class};
 	
 	private static final Class[] mainParameters = new Class[]{String[].class};
@@ -37,18 +41,8 @@ public class CrowdExecutor {
 		if (!graphDir.exists()) {
 			graphDir.mkdir();
 		}
-		
-		System.out.println("Problem file: " + args[0]);
-		File problemFile = new File(args[0]);
-		
-		if (problemFile.exists()) {
-			Scanner scanner = new Scanner(problemFile);
-			while (scanner.hasNextLine()) {
-				problems.add(scanner.nextLine());
-			}
-		}
-		
-		File binDir = new File(args[1]);
+				
+		File binDir = new File(args[0]);
 		URLClassLoader sysloader = (URLClassLoader)ClassLoader.getSystemClassLoader();
 		Class sysClass = URLClassLoader.class;
 		
@@ -56,83 +50,70 @@ public class CrowdExecutor {
 		method.setAccessible(true);
 		method.invoke(sysloader, new Object[]{binDir.toURI().toURL()});
 		
-		System.out.println("Bin dir: " + args[1]);
-		System.out.println("Problem pkg: " + args[2]);
+		logger.info("Bin dir: " + args[0]);
+		logger.info("Problem pkg: " + args[1]);
 		
-		String binClusterDir = args[1] + "/" + args[2];
+		String binClusterDir = args[0] + "/" + args[1];
 		File codeJamDir = new File(binClusterDir);
-		System.out.println("Bin cluster dir: " + codeJamDir.getAbsolutePath());
+		String binClusterdir = codeJamDir.getAbsolutePath();
+		logger.info("Bin cluster dir: " + binClusterDir);
 		
-		TreeMap<String, String> executableClasses = new TreeMap<String, String>();
+		//TreeMap<String, String> executableClasses = new TreeMap<String, String>();
+		HashSet<String> executableClasses = new HashSet<String>();
 		for (File usrDir: codeJamDir.listFiles()) {
-			if (usrDir.isDirectory() && !usrDir.getName().startsWith(".") && !problems.contains(usrDir.getName())) {
+			if (usrDir.isDirectory() && !usrDir.getName().startsWith(".")) {
 				String userDirName = usrDir.getName();
-				//System.out.println("User dir name: " + userDirName);
-				File usrRepo = new File(graphDir.getAbsolutePath() + "/" + args[2] + "-" + userDirName);
+				/*File usrRepo = new File(graphDir.getAbsolutePath() + "/" + args[2] + "-" + userDirName);
 				if (!usrRepo.exists()) {
 					usrRepo.mkdir();
-				}
+				}*/
 				
 				for (File classFile: usrDir.listFiles()) {
 					String className = classFile.getName();
-					String fullName = args[2] + "." + userDirName + "." + className.substring(0, className.length() - 6);
+					String fullName = args[1] + "." + userDirName + "." + className.substring(0, className.length() - 6);
 					//System.out.println("Class fullname: " + fullName);
 					
 					Class checkClass = Class.forName(fullName);
 					try {
 						Method mainMethod = checkClass.getMethod("main", mainParameters);
-						//System.out.println(checkClass.getName());
-						executableClasses.put(checkClass.getName(), usrRepo.getAbsolutePath());
+						//executableClasses.put(checkClass.getName(), usrRepo.getAbsolutePath());
+						executableClasses.add(checkClass.getName());
 					} catch (Exception ex) {
-						
+						//Just don't record the class has no main
 					}
 				}
 			}
 		}
+		logger.info("Executable classes: " + executableClasses.size());
 		
 		int success = 0;
-		for (String execClass: executableClasses.keySet()) {
-			String graphRepoPath = executableClasses.get(execClass);
+		for (String execClass: executableClasses) {
+			//String graphRepoPath = executableClasses.get(execClass);
 			
 			//Need to set the grah path
-			MIBConfiguration config = MIBConfiguration.reloadInstance();
+			/*MIBConfiguration config = MIBConfiguration.reloadInstance();
 			config.setGraphDir(graphRepoPath);
 			
 			System.out.println("Check config before writing: " + config.getThreadMethodIdxRecord());
 			
 			String fileName = "./config/mib_config.json";
-			GsonManager.writeJsonGeneric(config, fileName, configToken, -1);
+			GsonManager.writeJsonGeneric(config, fileName, configToken, -1);*/
+						
+			List<String> commands = new ArrayList<String>();
+			commands.add("java");
+			commands.add("-javaagent:target/dyclink-0.0.1-SNAPSHOT.jar");
+			commands.add("-noverify");
+			commands.add("-Xmx4g");
+			commands.add("-cp");
+			commands.add("target/dyclink-0.0.1-SNAPSHOT.jar:" + binDir.getAbsolutePath());
+			commands.add("edu.columbia.psl.cc.premain.MIBDriver");
+			commands.add(execClass);
+			System.out.println("Execute " + commands);
 			
-			/*String[] command = {"/Library/Java/JavaVirtualMachines/jdk1.7.0_07.jdk/Contents/Home/bin/java", 
-					"-javaagent:/Users/mikefhsu/ccws/jvm-clones/MIB/build/jar/mib.jar", 
-					"-XX:-UseSplitVerifier", 
-					"-Xmx6g", 
-					"-cp", binDir.getAbsolutePath() + "/:/Users/mikefhsu/ccws/jvm-clones/MIB/lib/*", 
-					"edu.columbia.psl.cc.premain.MIBDriver", 
-					execClass};*/
-			
-			String[] command = {"java", 
-					"-javaagent:../lib/mib.jar", 
-					"-XX:-UseSplitVerifier", 
-					"-Xmx8g", 
-					"-cp", binDir.getAbsolutePath() + "/:../lib/*", 
-					"edu.columbia.psl.cc.premain.MIBDriver", 
-					execClass};
-			System.out.println("Execute " + Arrays.toString(command));
-			
-			//final File tmpLog = File.createTempFile("./tmplog", null);
-			//tmpLog.deleteOnExit();
-			
-			ProcessBuilder pBuilder = new ProcessBuilder(command);
+			ProcessBuilder pBuilder = new ProcessBuilder();
+			pBuilder.command(commands);
 			//pBuilder.redirectErrorStream(true).redirectOutput(tmpLog);
 			final Process process = pBuilder.start();
-			
-			/*BufferedReader tmpLogReader = new BufferedReader(new FileReader(tmpLog));
-			String buf = "";
-			while ((buf = tmpLogReader.readLine()) != null) {
-				System.out.println(buf);
-			}*/
-			
 			
 			Thread stdOutThread = new Thread() {
 				public void run() {
@@ -179,26 +160,9 @@ public class CrowdExecutor {
 				success++;
 			}
 			
-			/*InputStream is = process.getInputStream();
-			InputStreamReader reader = new InputStreamReader(is);
-			BufferedReader br = new BufferedReader(reader);
-			
-			InputStream errIs = process.getErrorStream();
-			InputStreamReader errReader = new InputStreamReader(errIs);
-			BufferedReader errBr = new BufferedReader(errReader);
-			
-			String buf = "";
-			while ((buf = br.readLine()) != null) {
-				System.out.println(buf);
-			}
-			
-			String errBuff = "";
-			while ((errBuff = errBr.readLine()) != null) {
-				System.err.println(errBuff);
-			}*/
-			System.out.println("Complete " + execClass);
+			logger.info("Complete " + execClass);
 		}
-		System.out.println("Success executions: " + success);
+		logger.info("Success executions: " + success);
 	}
 
 }

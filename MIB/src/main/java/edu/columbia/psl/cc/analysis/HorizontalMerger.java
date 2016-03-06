@@ -278,6 +278,11 @@ public class HorizontalMerger {
 		for (String myKey: callees.keySet()) {
 			try {
 				GraphTemplate me = callees.get(myKey);
+				if (me.calleeRequired == null) {
+					System.out.println("Check graph: " + me.getMethodName());
+					System.exit(-1);
+				}
+				
 				if (me.calleeRequired.size() > 0) {
 					writeCallees(myKey, me.calleeRequired);
 				}

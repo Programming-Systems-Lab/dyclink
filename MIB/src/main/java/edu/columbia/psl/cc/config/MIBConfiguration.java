@@ -61,6 +61,8 @@ public class MIBConfiguration {
 	
 	private int instLimit;
 	
+	private int callThreshold;
+	
 	private double pgAlpha;
 	
 	private int pgMaxIter;
@@ -197,6 +199,14 @@ public class MIBConfiguration {
 	
 	public void setInstThreshold(int instThreshold) {
 		this.instThreshold = instThreshold;
+	}
+	
+	public int getCallThreshold() {
+		return this.callThreshold;
+	}
+	
+	public void setCallThreshold(int callThreshold) {
+		this.callThreshold = callThreshold;
 	}
 	
 	public int getInstLimit() {
@@ -413,6 +423,7 @@ public class MIBConfiguration {
 		sb.append("write data weight: " + this.writeDataWeight + "\n");
 		sb.append("precision digit: " + this.precisionDigit + "\n");
 		sb.append("minimum inst number: " + this.instThreshold + "\n");
+		sb.append("maximum call number: " + this.callThreshold + "\n");
 		sb.append("inst selection number: " + this.instLimit + "\n");
 		sb.append("test method threshold: " + this.testMethodThresh + "\n");
 		sb.append("alpha of PageRank: " + this.pgAlpha + "\n");

@@ -372,7 +372,12 @@ public class GlobalRecorder {
 	}
 		
 	public static void registerGraph(String shortKey, GraphTemplate graph, boolean registerLatest) {
-		synchronized(graphRecorderLock) {			
+		synchronized(graphRecorderLock) {
+			if (graph.calleeRequired == null) {
+				System.out.println("Suspicious graph: " + shortKey);
+				System.exit(-1);
+			}
+			
 			String groupKey = GraphGroup.groupKey(0, graph);
 			
 			if (graphRecorder.containsKey(shortKey)) {
@@ -566,7 +571,7 @@ public class GlobalRecorder {
 	public static void enqueueCalleeLine(int linenumber) {
 		synchronized(stopCalleeLock) {
 			int threadId = ObjectIdAllocater.getThreadId();
-			System.out.println("Enter calle line: " + threadId + " " + linenumber);
+			//System.out.println("Enter calle line: " + threadId + " " + linenumber);
 			
 			if (!calleeLines.containsKey(threadId)) {
 				Stack<Integer> stack = new Stack<Integer>();
@@ -580,8 +585,8 @@ public class GlobalRecorder {
 	public static void dequeueCalleeLine() {
 		synchronized(stopCalleeLock) {
 			int threadId = ObjectIdAllocater.getThreadId();
-			System.out.println("Leave callee line: " + threadId + " " + calleeLines.get(threadId).pop());
-			//calleeLines.remove(threadId);
+			calleeLines.get(threadId).pop();
+			//System.out.println("Leave callee line: " + threadId + " " + calleeLines.get(threadId).pop());
 		}
 	}
 	
@@ -605,6 +610,12 @@ public class GlobalRecorder {
 			}
 			
 			String fullKey = calleeKey + "-" + myLine.toString();
+			
+			/*if (calleeKey.contains("solve")) {
+				System.out.println("Stop callees: " + stopCallees.get(threadId));
+				System.out.println("Query: " + fullKey);
+				System.out.println("Result: " + stopCallees.get(threadId).getLast().contains(fullKey));
+			}*/
 			return stopCallees.get(threadId).getLast().contains(fullKey);
 		}
 	}

@@ -194,23 +194,7 @@ public class InstPool extends TreeSet<InstNode> {
 				inst.getIdx());
 		return this._removeInst(idxKey, inst);
 	}
-	
-	/*public InstNode searchAndGet(String methodKey, long threadId, int threadMethodIdx, int idx) {
-		for (InstNode inst: this) {
-			if (inst.getFromMethod().equals(methodKey) && 
-					inst.getThreadId() == threadId && 
-					inst.getThreadMethodIdx() == threadMethodIdx && 
-					inst.getIdx() == idx)
-				return inst;
-		}
 		
-		
-		if (DEBUG) {
-			logger.warn("Cannot find inst by method key and idx: " +  methodKey + " " + threadId + " " + threadMethodIdx + " " + idx);
-		}
-		return null;
-	}*/
-	
 	public static class InstNodeComp implements Comparator<InstNode> {
 
 		@Override
