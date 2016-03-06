@@ -542,6 +542,7 @@ public class GlobalRecorder {
 	public static void enqueueStopCallees() {
 		synchronized(stopCalleeLock) {
 			int threadId = ObjectIdAllocater.getThreadId();
+			//System.out.println("Enqueue stop callee record: " + threadId);
 			HashSet<String> emptyCallees = new HashSet<String>();
 			if (stopCallees.containsKey(threadId)) {
 				stopCallees.get(threadId).add(emptyCallees);
@@ -603,6 +604,11 @@ public class GlobalRecorder {
 				return false;
 			}
 			
+			if (calleeLines.get(threadId).size() == 0) {
+				logger.error("No callee line information: " + calleeKey);
+				System.exit(-1);
+			}
+			
 			Integer myLine = calleeLines.get(threadId).peek();
 			if (myLine == null) {
 				logger.error("Error retrieve callee line for: " + calleeKey);
@@ -645,5 +651,9 @@ public class GlobalRecorder {
 			calleeLines.clear();
 		}
 		System.gc();
-	}	
+	}
+	
+	public static void main(String[] args) {
+		
+	}
 }

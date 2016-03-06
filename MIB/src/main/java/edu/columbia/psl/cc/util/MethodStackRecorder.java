@@ -156,11 +156,14 @@ public class MethodStackRecorder {
 			}
 		}
 		
-		if (GlobalRecorder.shouldStopMe(this.shortMethodKey)) {
-			this.stopRecord = true;
+		if (!methodName.equals("<clinit>")) {
+			if (GlobalRecorder.shouldStopMe(this.shortMethodKey)) {
+				this.stopRecord = true;
+			}
+			
+			//System.out.println("Ready to enqueue stop callees: " + this.methodKey);
+			GlobalRecorder.enqueueStopCallees();
 		}
-		
-		GlobalRecorder.enqueueStopCallees();
 		
 		/*logger.info("Enter " + 
 				" " + this.methodKey + 
@@ -181,6 +184,8 @@ public class MethodStackRecorder {
 				System.out.println(f);
 			}*/
 			int objId = idField.getInt(value);
+			System.out.println("Obj: " + value);
+			System.out.println("Id: " + objId);
 			return objId;
 		} catch (Exception ex) {
 			//ex.printStackTrace();
@@ -307,14 +312,17 @@ public class MethodStackRecorder {
 		if (opcode == Opcodes.GETFIELD) {
 			objId = parseObjId(this.stackSimulator.peek().getRelatedObj());
 			//this.stackSimulator.peek().removeRelatedObj();
+			System.out.println("Getfield obj id: " + objId);
 		} else if (opcode == Opcodes.PUTFIELD) {
 			if (typeSort == Type.LONG || typeSort == Type.DOUBLE) {
 				objId = parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 3).getRelatedObj());
 				//this.stackSimulator.get(this.stackSimulator.size() - 3).removeRelatedObj();
 			} else {
+				System.out.println("Check obj: " + this.stackSimulator);
 				objId = parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 2).getRelatedObj());
 				//this.stackSimulator.get(this.stackSimulator.size() - 2).removeRelatedObj();
 			}
+			System.out.println("Putfield obj id: " + objId);
 		}
 		
 		//Search the real owner of the field
@@ -324,6 +332,10 @@ public class MethodStackRecorder {
 		if (objId > 0) {
 			//fieldKey += objId;
 			fieldKey = fieldKey + ":" + objId;
+		} else if (opcode == Opcodes.GETFIELD || opcode == Opcodes.PUTFIELD){
+			logger.warn("Uinitialized obj: " + opcode + " " + fieldKey + " " + objId);
+			logger.warn("Current method: " + this.methodKey);
+			System.exit(-1);
 		}
 		
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
@@ -898,7 +910,9 @@ public class MethodStackRecorder {
 	}
 	
 	public void dumpGraph() {
-		GlobalRecorder.removeWriteFields(this.writeFields.keySet());
+		if (MIBConfiguration.getInstance().isFieldTrack())
+			GlobalRecorder.removeWriteFields(this.writeFields.keySet());
+		
 		if (this.overTime || TimeController.isOverTime()) {
 			//this.clearCurrentThreadId();
 			return ;
@@ -1013,9 +1027,10 @@ public class MethodStackRecorder {
 		
 		//String dumpKey = StringUtil.genKeyWithId(this.methodKey, String.valueOf(this.threadId));
 		String dumpKey = StringUtil.genKeyWithId(this.shortMethodKey, String.valueOf(this.threadId));
-		boolean registerLatest = (!this.methodName.equals("<clinit>"));
+		boolean registerLatest = (!this.methodName.equals("<clinit>")); 
 		GlobalRecorder.registerGraph(dumpKey, gt, registerLatest);
-		GlobalRecorder.dequeueStopCallees();
+		if (registerLatest)
+			GlobalRecorder.dequeueStopCallees();
 		
 		//gt.calleeCache = this.calleeCache;
 		//this.showStackSimulator();

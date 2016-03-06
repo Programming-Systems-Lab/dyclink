@@ -43,10 +43,13 @@
   "simStrategy": 1,
   "testMethodThresh": -1,
   "threadInit": 0,
-  "threadMethodIdxRecord": {},
+  "threadMethodIdxRecord": {
+    "0": 12,
+    "1": 11098
+  },
   "annotGuard": false,
   "fieldTrack": false,
-  "debug": false,
+  "debug": true,
   "exclSpec": true,
   "exclPkg": true,
   "reduceGraph": true,
