@@ -63,7 +63,6 @@ public class MIBDriver {
 		
 		//Set inst pool, cannot set it in static initializer, or there will be infinite loop
 		InstPool.DEBUG = MIBConfiguration.getInstance().isDebug();
-		
 		setupGlobalRecorder();
 		
 		//Clean directory
@@ -159,7 +158,8 @@ public class MIBDriver {
 		nameMap.setUntransformedClass(GlobalRecorder.getUntransformedClass());
 		
 		try {
-			GsonManager.writeJsonGeneric(nameMap, "nameMap", nameMapToken, MIBConfiguration.LABEL_MAP_DIR);
+			String fileName = "nameMap";
+			GsonManager.writeJsonGeneric(nameMap, fileName, nameMapToken, MIBConfiguration.LABEL_MAP_DIR);
 		} catch (Exception ex) {
 			ShutdownLogger.appendException(ex);
 		}

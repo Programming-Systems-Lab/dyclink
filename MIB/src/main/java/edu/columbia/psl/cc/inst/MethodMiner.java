@@ -71,7 +71,7 @@ public class MethodMiner extends MethodVisitor{
 	private BlockNode curBlock;
 	
 	public MethodMiner(MethodVisitor mv, String owner, String templateAnnot, String testAnnot, String myName, String myDesc) {
-		super(Opcodes.ASM4, mv);
+		super(Opcodes.ASM5, mv);
 		this.owner = owner;
 		this.templateAnnot = templateAnnot;
 		this.testAnnot = testAnnot;

@@ -9,8 +9,10 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>1.7</source>
+					<target>1.7</target>
+					<fork>true</fork>
+					<executable>/Library/Java/JavaVirtualMachines/jdk1.7.0_07.jdk/Contents/Home/bin/javac</executable>
 				</configuration>
 			</plugin>
 			<plugin>

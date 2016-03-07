@@ -6,6 +6,8 @@ public class FieldNode extends InstNode {
 	
 	private HashSet<String> globalChildIdx = new HashSet<String>();
 	
+	public int writtenObj = -1;
+	
 	public void addGlobalChild(String childIdx) {
 		this.globalChildIdx.add(childIdx);
 	}

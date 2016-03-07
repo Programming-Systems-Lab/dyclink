@@ -1,9 +1,11 @@
 package edu.columbia.psl.cc.util;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -55,7 +57,9 @@ public class MethodStackRecorder {
 	
 	private String shortMethodKey;
 	
-	private boolean staticMethod;
+	private boolean isStatic;
+	
+	private boolean isSynthetic;
 	
 	private int methodArgSize = 0;
 	
@@ -97,10 +101,12 @@ public class MethodStackRecorder {
 	
 	public boolean initConstructor = true;
 	
+	//public List<String> tmpRecords = new ArrayList<String>();
+	
 	public MethodStackRecorder(String className, 
 			String methodName, 
 			String methodDesc, 
-			boolean isStatic, 
+			int access, 
 			int objId) {
 		
 		if (TimeController.isOverTime()) {
@@ -124,14 +130,15 @@ public class MethodStackRecorder {
 		} else {
 			this.methodReturnSize = 1;
 		}
-				
-		this.staticMethod = isStatic;		
+			
+		this.isStatic = ((access & Opcodes.ACC_STATIC) != 0);
+		this.isSynthetic = ((access & Opcodes.ACC_SYNTHETIC) != 0);
 		this.objId = objId;
 		
 		ClassInfoCollector.initiateClassMethodInfo(className, 
 				methodName, 
 				methodDesc, 
-				this.staticMethod);
+				this.isSynthetic);
 		
 		this.threadId = ObjectIdAllocater.getThreadId();
 		/*this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(className, 
@@ -141,7 +148,7 @@ public class MethodStackRecorder {
 		this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(this.threadId);
 		
 		int start = 0;
-		if (!this.staticMethod) {
+		if (!this.isSynthetic) {
 			//Start from 0
 			this.shouldRecordReadLocalVars.add(0);
 			start = 1;
@@ -156,14 +163,12 @@ public class MethodStackRecorder {
 			}
 		}
 		
-		if (!methodName.equals("<clinit>")) {
-			if (GlobalRecorder.shouldStopMe(this.shortMethodKey)) {
-				this.stopRecord = true;
-			}
-			
-			//System.out.println("Ready to enqueue stop callees: " + this.methodKey);
-			GlobalRecorder.enqueueStopCallees();
+		if (GlobalRecorder.shouldStopMe(this.shortMethodKey)) {
+			this.stopRecord = true;
 		}
+		
+		//System.out.println("Ready to enqueue stop callees: " + this.methodKey);
+		GlobalRecorder.enqueueStopCallees();
 		
 		/*logger.info("Enter " + 
 				" " + this.methodKey + 
@@ -184,8 +189,8 @@ public class MethodStackRecorder {
 				System.out.println(f);
 			}*/
 			int objId = idField.getInt(value);
-			System.out.println("Obj: " + value);
-			System.out.println("Id: " + objId);
+			//System.out.println("Obj: " + value);
+			//System.out.println("Id: " + objId);
 			return objId;
 		} catch (Exception ex) {
 			//ex.printStackTrace();
@@ -235,8 +240,7 @@ public class MethodStackRecorder {
 	}
 	
 	private void showStackSimulator() {
-		//System.out.println(this.stackSimulator);
-		logger.info(this.stackSimulator);
+		System.out.println(this.stackSimulator);
 	}
 	
 	public void updateCurLabel(String curLabel) {
@@ -279,10 +283,14 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {
+		/*if (this.methodKey.equals("yourmethod")) {
+			//System.out.println("Handle ldc: " + opcode + " " + instIdx + " " + addInfo);
+			this.tmpRecords.add("Handle ldc: " + opcode + " " + instIdx + " " + addInfo);
+		}*/
+		
 		if (this.stopRecord || this.overTime)
 			return ;
 		
-		//logger.info("Handle ldc: " + opcode + " " + instIdx + " " + addInfo);
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 				this.threadId, 
 				this.threadMethodId, 
@@ -300,43 +308,21 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleField(int opcode, int instIdx, String owner, String name, String desc) {
+		/*if (this.methodKey.equals("yourmethod")) {
+			//System.out.println("Handle field: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+			this.tmpRecords.add("Handle field: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+		}*/
+		
 		if (this.stopRecord || this.overTime)
 			return ;
-		
-		//logger.info("Handle field: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
-		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
-		int opcat = oo.getCatId();
-		int typeSort = Type.getType(desc).getSort();
-		
-		int objId = 0;
-		if (opcode == Opcodes.GETFIELD) {
-			objId = parseObjId(this.stackSimulator.peek().getRelatedObj());
-			//this.stackSimulator.peek().removeRelatedObj();
-			System.out.println("Getfield obj id: " + objId);
-		} else if (opcode == Opcodes.PUTFIELD) {
-			if (typeSort == Type.LONG || typeSort == Type.DOUBLE) {
-				objId = parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 3).getRelatedObj());
-				//this.stackSimulator.get(this.stackSimulator.size() - 3).removeRelatedObj();
-			} else {
-				System.out.println("Check obj: " + this.stackSimulator);
-				objId = parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 2).getRelatedObj());
-				//this.stackSimulator.get(this.stackSimulator.size() - 2).removeRelatedObj();
-			}
-			System.out.println("Putfield obj id: " + objId);
-		}
 		
 		//Search the real owner of the field
 		Class<?> targetClass = ClassInfoCollector.retrieveCorrectClassByField(owner, name);
 		String fieldKey = targetClass.getName() + "." + name + "." + desc;
 		
-		if (objId > 0) {
-			//fieldKey += objId;
-			fieldKey = fieldKey + ":" + objId;
-		} else if (opcode == Opcodes.GETFIELD || opcode == Opcodes.PUTFIELD){
-			logger.warn("Uinitialized obj: " + opcode + " " + fieldKey + " " + objId);
-			logger.warn("Current method: " + this.methodKey);
-			System.exit(-1);
-		}
+		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
+		int opcat = oo.getCatId();
+		int typeSort = Type.getType(desc).getSort();
 		
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 				this.threadId, 
@@ -349,9 +335,33 @@ public class MethodStackRecorder {
 		this.updateControlRelation(fullInst);
 		
 		if (MIBConfiguration.getInstance().isFieldTrack()) {
+			int objId = 0;
+			if (opcode == Opcodes.GETFIELD) {
+				objId = parseObjId(this.stackSimulator.peek().getRelatedObj());
+				//this.stackSimulator.peek().removeRelatedObj();
+			} else if (opcode == Opcodes.PUTFIELD) {
+				if (typeSort == Type.LONG || typeSort == Type.DOUBLE) {
+					objId = parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 3).getRelatedObj());
+					//this.stackSimulator.get(this.stackSimulator.size() - 3).removeRelatedObj();
+				} else {
+					objId = parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 2).getRelatedObj());
+					//this.stackSimulator.get(this.stackSimulator.size() - 2).removeRelatedObj();
+				}
+			}
+			
+			String recordFieldKey = fieldKey;
+			if (objId > 0) {
+				//fieldKey += objId;
+				//Need a set
+				recordFieldKey += (":" + objId);
+			} else if (opcode == Opcodes.GETFIELD || opcode == Opcodes.PUTFIELD){
+				logger.warn("Uinitialized obj: " + opcode + " " + fieldKey + " " + objId);
+				logger.warn("Current method: " + this.methodKey);
+			}
+			
 			if (BytecodeCategory.readFieldCategory().contains(opcat) && objId >= 0) {
 				//Add info for field: owner + name + desc + objId
-				InstNode writeInst = GlobalRecorder.getWriteField(fieldKey);
+				InstNode writeInst = GlobalRecorder.getWriteField(recordFieldKey);
 				
 				//Only reccord global read-write in the same method for now
 				if (writeInst != null 
@@ -370,8 +380,8 @@ public class MethodStackRecorder {
 					}
 				}
 			} else if (BytecodeCategory.writeFieldCategory().contains(opcat) && objId >= 0) {
-				GlobalRecorder.registerWriteField(fieldKey, fullInst);
-				this.writeFields.put(fieldKey, fullInst);
+				GlobalRecorder.registerWriteField(recordFieldKey, fullInst);
+				this.writeFields.put(recordFieldKey, fullInst);
 			} else if (!this.initConstructor) {
 				//Only happens for synthetic fields? No other inst has relation to it, so do nothing
 				//logger.info("Pre-access fields: " + fullInst);
@@ -409,10 +419,20 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleOpcode(int opcode, int instIdx, String addInfo) {
+		/*if (this.methodKey.equals("yourmethod")) {
+			//System.out.println("Handle opcode: " + opcode + " " + instIdx + " " + addInfo);
+			this.tmpRecords.add("Handle opcode: " + opcode + " " + instIdx + " " + addInfo);
+		}*/
+		
 		if (this.stopRecord || this.overTime)
 			return ;
 		
-		//logger.info("Handle opcode: " + opcode + " " + instIdx + " " + addInfo);
+		/*if (this.methodKey.equals("R5P1Y11.burdakovd.A:sum:(Ljava.util.List+D):D") 
+			&& this.linenumber == 197 && opcode == Opcodes.IFGE) {
+				System.out.println("IFGE: " + " " + this.visitDCMPL);
+				this.visitDCMPL = false;
+		}*/
+		
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
 		int opcat = oo.getCatId();
 		
@@ -427,11 +447,25 @@ public class MethodStackRecorder {
 		//this.updateTime(fullInst);
 		this.updateControlRelation(fullInst);
 		
+		/*if (this.methodKey.equals("R5P1Y11.burdakovd.A:sum:(Ljava.util.List+D):D") 
+				&& this.linenumber == 197 && opcode == Opcodes.IFGE) {
+			System.out.println("IFGE: " + fakeCount + " " + this.visitDCMPL);
+			this.visitDCMPL = false;
+		}*/
+		
 		int inputSize = oo.getInList().size();
 		if (inputSize > 0) {
 			for (int i = 0; i < inputSize; i++) {
 				//Should not return null here
 				InstNode tmpInst = this.safePop();
+				if (tmpInst == null) {
+					logger.error("Error pop: " + fullInst);
+					logger.error("Input size: " + oo.getInList().size());
+					logger.error("Current line: " + this.linenumber);
+					//System.out.println("Tmp records: " + this.tmpRecords);
+					System.exit(-1);
+				}
+				
 				this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
 			}
 		}
@@ -453,11 +487,14 @@ public class MethodStackRecorder {
 	 * @param opcode
 	 * @param localVarIdx
 	 */
-	public void handleOpcode(int opcode, int instIdx, int localVarIdx) {
+	public void handleOpcode(int opcode, int instIdx, int localVarIdx) {		
+		/*if (this.methodKey.equals("yourmethod")) {
+			//System.out.println("Handle opcode: " + opcode + " " + localVarIdx);
+			this.tmpRecords.add("Handle opcode: " + opcode + " " + localVarIdx);
+		}*/
+		
 		if (this.stopRecord || this.overTime)
 			return ;
-		
-		//logger.info("Handle opcode: " + opcode + " " + localVarIdx);
 		
 		//Don't record return inst, or need to remove it later
 		if (BytecodeCategory.returnOps().contains(opcode)) {
@@ -563,14 +600,24 @@ public class MethodStackRecorder {
 		
 		if (!hasUpdate) 
 			this.updateStackSimulator(fullInst, 0);
+		
+		/*if (this.methodKey.equals("R5P1Y11.burdakovd.A:sum:(Ljava.util.List+D):D") 
+				&& this.linenumber == 197 && opcode == Opcodes.DCMPL) {
+			System.out.println("DCMPL: " + ++fakeCount);
+			this.visitDCMPL = true;
+		}*/
 		//this.showStackSimulator();
 	}
 	
 	public void handleMultiNewArray(String desc, int dim, int instIdx) {
+		/*if (this.methodKey.equals("yourmethod")) {
+			//System.out.println("Handle MultiNewArray: " + desc + " " + dim + " " + instIdx);
+			this.tmpRecords.add("Handle MultiNewArray: " + desc + " " + dim + " " + instIdx);
+		}*/
+		
 		if (this.stopRecord || this.overTime)
 			return ;
 		
-		//logger.info("Handle MultiNewArray: " + desc + " " + dim + " " + instIdx);
 		String addInfo = desc + " " + dim;
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 				this.threadId, 
@@ -593,7 +640,11 @@ public class MethodStackRecorder {
 	}
 	
 	private void handleRawMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc, InstNode fullInst) {
-		//logger.info("Handling uninstrumented/undersize method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+		/*if (this.methodKey.equals("yourmethod")) {
+			//System.out.println("Handling uninstrumented/undersize method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+			this.tmpRecords.add("Handling uninstrumented/undersize method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+		}*/
+		
 		fullInst.setLinenumber(linenum);
 		//this.updateTime(fullInst);
 		this.updateControlRelation(fullInst);
@@ -630,12 +681,15 @@ public class MethodStackRecorder {
 	}
 	
 	public void handleMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc) {
+		/*if (this.methodKey.equals("yourmethod")) {
+			//System.out.println("Handle method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+			this.tmpRecords.add("Handle method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+		}*/
+		
 		if (this.stopRecord || this.overTime)
 			return ;
 		
 		//long startTime = System.nanoTime();
-		//logger.info("Handle method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
-		
 		ClassMethodInfo cmi = ClassInfoCollector.retrieveClassMethodInfo(owner, name, desc, opcode);
 		int argSize = cmi.argSize;
 		Type[] args = cmi.args;
@@ -826,9 +880,15 @@ public class MethodStackRecorder {
 		} catch (Exception ex) {
 			logger.error("Exception: " + this.methodName + " " + this.threadId + " " + this.threadMethodId, ex);
 		}
+		//this.showStackSimulator();
 	}
 	
 	public void handleDup(int opcode) {
+		/*if (this.methodKey.equals("yourmethod")) {
+			//System.out.println("Handling dup");
+			this.tmpRecords.add("Handling dup");
+		}*/
+		
 		if (this.stopRecord || this.overTime)
 			return ;
 		
@@ -907,6 +967,7 @@ public class MethodStackRecorder {
 				this.stackSimulator.push(dupInst2);
 				break ;
 		}
+		//this.showStackSimulator();
 	}
 	
 	public void dumpGraph() {
@@ -934,7 +995,7 @@ public class MethodStackRecorder {
 		gt.setObjId(this.objId);
 		gt.setMethodArgSize(this.methodArgSize);
 		gt.setMethodReturnSize(this.methodReturnSize);
-		gt.setStaticMethod(this.staticMethod);
+		gt.setStaticMethod(this.isStatic);
 		gt.setFirstReadLocalVars(this.firstReadLocalVars);
 		
 		if (this.beforeReturn != null) {
@@ -1027,10 +1088,15 @@ public class MethodStackRecorder {
 		
 		//String dumpKey = StringUtil.genKeyWithId(this.methodKey, String.valueOf(this.threadId));
 		String dumpKey = StringUtil.genKeyWithId(this.shortMethodKey, String.valueOf(this.threadId));
-		boolean registerLatest = (!this.methodName.equals("<clinit>")); 
-		GlobalRecorder.registerGraph(dumpKey, gt, registerLatest);
-		if (registerLatest)
+		
+		if (this.isSynthetic) {
+			GlobalRecorder.registerLatestGraph(gt);
 			GlobalRecorder.dequeueStopCallees();
+		} else {
+			boolean registerLatest = (!this.methodName.equals("<clinit>")); 
+			GlobalRecorder.registerGraph(dumpKey, gt, registerLatest);
+			GlobalRecorder.dequeueStopCallees();
+		}
 		
 		//gt.calleeCache = this.calleeCache;
 		//this.showStackSimulator();

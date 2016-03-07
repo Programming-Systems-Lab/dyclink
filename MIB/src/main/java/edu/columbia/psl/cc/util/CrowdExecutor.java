@@ -41,6 +41,24 @@ public class CrowdExecutor {
 		if (!graphDir.exists()) {
 			graphDir.mkdir();
 		}
+		
+		File jdkFile = null;
+		File jdkHome = new File("/Library/Java/JavaVirtualMachines/");
+		for (File f: jdkHome.listFiles()) {
+			if (f.getName().matches("jdk1.7.*")) {
+				jdkFile = f;
+				break ;
+			}
+		}
+		
+		String jdkPath = null;
+		if (jdkFile == null) {
+			logger.error("Cannot locate jdk path...");
+			System.exit(-1);
+		} else {
+			jdkPath = jdkFile.getAbsolutePath() + "/Contents/Home/bin/java";
+			logger.info("Confirm jdk path: " + jdkPath);
+		}
 				
 		File binDir = new File(args[0]);
 		URLClassLoader sysloader = (URLClassLoader)ClassLoader.getSystemClassLoader();
@@ -100,9 +118,11 @@ public class CrowdExecutor {
 			GsonManager.writeJsonGeneric(config, fileName, configToken, -1);*/
 						
 			List<String> commands = new ArrayList<String>();
-			commands.add("java");
+			//commands.add("java")
+			commands.add(jdkPath);
 			commands.add("-javaagent:target/dyclink-0.0.1-SNAPSHOT.jar");
-			commands.add("-noverify");
+			//commands.add("-noverify");
+			commands.add("-XX:-UseSplitVerifier");
 			commands.add("-Xmx4g");
 			commands.add("-cp");
 			commands.add("target/dyclink-0.0.1-SNAPSHOT.jar:" + binDir.getAbsolutePath());

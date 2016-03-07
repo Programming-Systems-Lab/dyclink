@@ -558,6 +558,10 @@ public class GlobalRecorder {
 		synchronized(stopCalleeLock) {
 			int threadId = ObjectIdAllocater.getThreadId();
 			stopCallees.get(threadId).removeLast();
+			
+			if (stopCallees.get(threadId).size() == 0) {
+				stopCallees.remove(threadId);
+			}
 		}
 	}
 	
@@ -600,7 +604,7 @@ public class GlobalRecorder {
 			}
 			
 			if (stopCallees.size() == 0) {
-				logger.error("Error stop callee record for: " + calleeKey);
+				logger.error("Suspicious stop callees: " + calleeKey);
 				return false;
 			}
 			
@@ -617,7 +621,7 @@ public class GlobalRecorder {
 			
 			String fullKey = calleeKey + "-" + myLine.toString();
 			
-			/*if (calleeKey.contains("solve")) {
+			/*if (calleeKey.contains("<init>")) {
 				System.out.println("Stop callees: " + stopCallees.get(threadId));
 				System.out.println("Query: " + fullKey);
 				System.out.println("Result: " + stopCallees.get(threadId).getLast().contains(fullKey));

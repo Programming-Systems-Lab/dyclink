@@ -158,7 +158,7 @@ public class TokenCalculator {
 		List<Integer> instsRecorder = new ArrayList<Integer>();
 		TreeSet<Integer> lineTracer = new TreeSet<Integer>();
 		
-		MethodInstCalculator instCalculator = new MethodInstCalculator(Opcodes.ASM4, instsRecorder, lineTracer);
+		MethodInstCalculator instCalculator = new MethodInstCalculator(Opcodes.ASM5, instsRecorder, lineTracer);
 		cr.accept(instCalculator, 0);
 		//System.out.println("Instructions: " + instsRecorder.size());
 		//System.out.println("Lines: " + lineTracer.size());
@@ -321,7 +321,7 @@ public class TokenCalculator {
 		@Override
 		public MethodVisitor visitMethod(int access, 
 				String name, String desc, String signature, String[] exceptions) {
-			MethodVisitor oriMv = new MethodVisitor(Opcodes.ASM4){};
+			MethodVisitor oriMv = new MethodVisitor(Opcodes.ASM5){};
 			
 			//System.out.println(name + desc);
 			InstructionAdapter instMv = new InstructionAdapter(oriMv) {

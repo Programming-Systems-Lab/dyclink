@@ -12,7 +12,7 @@ public class ObjClassVisitor extends ClassVisitor{
 	private String owner;
 	
 	public ObjClassVisitor(ClassVisitor cv, String owner) {
-		super(Opcodes.ASM4, cv);
+		super(Opcodes.ASM5, cv);
 		this.owner = owner;
 	}
 	

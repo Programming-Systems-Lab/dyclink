@@ -44,9 +44,9 @@ public class ClassMiner extends ClassVisitor implements IInstrumentInfo{
 	
 	private boolean isInterface;
 	
-	private boolean constructVisit = false;
-	
 	private boolean annotGuard = true;
+	
+	private boolean objIdOwner = false;
 		
 	public ClassMiner(ClassVisitor cv, String owner, String classAnnot, String templateAnnot, String testAnnot) {
 		super(Opcodes.ASM5, cv);
@@ -77,8 +77,10 @@ public class ClassMiner extends ClassVisitor implements IInstrumentInfo{
 			//this.cv.visitField(Opcodes.ACC_PUBLIC, MIBConfiguration.getMibId(), "I", null, null);
 			//Only the object before Object has this objId, all children/grandchildren inherit its value
 			String superReplace = this.superName.replace("/", ".");
-			if (!StringUtil.shouldIncludeClass(superReplace))
+			if (!StringUtil.shouldIncludeClass(superReplace)) {
 				this.cv.visitField(Opcodes.ACC_PUBLIC, __mib_id, "I", null, null);
+				this.objIdOwner = true;
+			}
 		} else {
 			logger.info("Not instrument interface: " + name);
 		}
@@ -111,7 +113,8 @@ public class ClassMiner extends ClassVisitor implements IInstrumentInfo{
 					desc, 
 					this.templateAnnot, 
 					this.testAnnot, 
-					this.annotGuard);
+					this.annotGuard, 
+					this.objIdOwner);
 			LocalVariablesSorter lvs = new LocalVariablesSorter(access, desc, dmm);
 			
 			//See the comment from https://github.com/pmahoney/asm-bug/blob/master/src/main/java/Main.java
