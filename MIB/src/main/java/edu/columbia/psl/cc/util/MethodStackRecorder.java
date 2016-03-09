@@ -2,6 +2,7 @@ package edu.columbia.psl.cc.util;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -138,7 +139,7 @@ public class MethodStackRecorder {
 		ClassInfoCollector.initiateClassMethodInfo(className, 
 				methodName, 
 				methodDesc, 
-				this.isSynthetic);
+				this.isStatic);
 		
 		this.threadId = ObjectIdAllocater.getThreadId();
 		/*this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(className, 
@@ -163,7 +164,7 @@ public class MethodStackRecorder {
 			}
 		}
 		
-		if (GlobalRecorder.shouldStopMe(this.shortMethodKey)) {
+		if (!methodName.equals("<clinit>") && GlobalRecorder.shouldStopMe(this.shortMethodKey)) {
 			this.stopRecord = true;
 		}
 		
@@ -694,7 +695,7 @@ public class MethodStackRecorder {
 		int argSize = cmi.argSize;
 		Type[] args = cmi.args;
 		Type rType = cmi.returnType;
-		int endIdx = cmi.endIdx;
+		int[] idxArray = cmi.idxArray;
 		
 		try {
 			String curMethodKey = StringUtil.genKey(owner, name, desc);
@@ -825,31 +826,24 @@ public class MethodStackRecorder {
 					boolean stopCallee = GlobalRecorder.shouldStopMe(childGraph.getShortMethodKey());
 					if (!stopCallee)
 						fullInst.registerCallee(childGraph);
-					/*else {
-						if (childGraph.getMethodName().equals("solve"))
-							System.out.println("Stop callee: " + childGraph.getShortMethodKey());
-					}*/
 					
 					if (args.length > 0) {
 						for (int i = args.length - 1; i >= 0 ;i--) {
 							Type t = args[i];
 							InstNode targetNode = null;
+							int idx = idxArray[i];
 							if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
 								this.safePop();
 								targetNode = this.safePop();
 								
-								endIdx -= 1;
 								//parentFromCaller.put(endIdx, targetNode);
 								this.updateCachedMap(targetNode, fullInst, MIBConfiguration.INST_DATA_DEP);
-								fullInst.registerParentReplay(endIdx, targetNode);
-								endIdx -= 1;
+								fullInst.registerParentReplay(idx, targetNode);
 							} else {
 								targetNode = this.safePop();
 								//parentFromCaller.put(endIdx, targetNode);
 								this.updateCachedMap(targetNode, fullInst, MIBConfiguration.INST_DATA_DEP);
-								fullInst.registerParentReplay(endIdx, targetNode);
-								
-								endIdx -= 1;
+								fullInst.registerParentReplay(idx, targetNode);
 							}
 						}
 					}

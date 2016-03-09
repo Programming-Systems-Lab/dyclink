@@ -194,10 +194,13 @@ public class GraphConstructor {
 						}
 						
 						double freq = allFreq * frac;
-						GraphUtil.multiplyGraph(callee, freq);
+						if (freq > Math.pow(10, -5)) {
+							GraphUtil.multiplyGraph(callee, freq);
+						}
+						
 						if (parentFromCaller != null || controlInsts != null) {
 							//double freq = allFreq * frac;
-							//GraphUtil.multiplyGraph(callee, freq);	
+							//GraphUtil.multiplyGraph(callee, freq);
 							GraphUtil.dataDepFromParentToChildWithFreq(parentFromCaller, cReadNodes, freq);
 														
 							if (controlInsts != null) {
@@ -209,7 +212,6 @@ public class GraphConstructor {
 						}
 						
 						if (childMap.size() > 0) {
-							
 							InstNode calleeChildReplace = callee.getLastBeforeReturn();
 							if (calleeChildReplace == null) {
 								logger.info("Current inst: " + inst);
@@ -240,14 +242,16 @@ public class GraphConstructor {
 									continue ;
 								}
 								
-								calleeChildReplace.increChild(childNode.getThreadId(), 
-										childNode.getThreadMethodIdx(), 
-										childNode.getIdx(), 
-										cFreq);
-								childNode.registerParent(calleeChildReplace.getThreadId(), 
-										calleeChildReplace.getThreadMethodIdx(), 
-										calleeChildReplace.getIdx(), 
-										MIBConfiguration.INST_DATA_DEP);
+								if (cFreq > Math.pow(10, -5)) {
+									calleeChildReplace.increChild(childNode.getThreadId(), 
+											childNode.getThreadMethodIdx(), 
+											childNode.getIdx(), 
+											cFreq);
+									childNode.registerParent(calleeChildReplace.getThreadId(), 
+											calleeChildReplace.getThreadMethodIdx(), 
+											calleeChildReplace.getIdx(), 
+											MIBConfiguration.INST_DATA_DEP);
+								}
 								
 								//childNode.getInstDataParentList().remove(mnId);
 								cRemoveMn.add(childNode);

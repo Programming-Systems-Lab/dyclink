@@ -317,10 +317,7 @@ public class PageRankSelector {
 	}
 			
 	public static void initiateSubGraphMining(String targetDir, 
-			String testDir, 
-			String url, 
-			String username, 
-			String password, 
+			String testDir,
 			boolean constructOnly) {
 		long startTime = System.currentTimeMillis();
 		
@@ -563,6 +560,8 @@ public class PageRankSelector {
 		logger.info("Static threshold: " + staticThreshold);
 		logger.info("Dynamic threshold: " + simThreshold);
 		logger.info("Construct only: " + constructOnly);
+		logger.info("DB url: " + url);
+		logger.info("DB username: " + username);
 		
 		if (testDir == null) {
 			//Single mode
@@ -572,9 +571,6 @@ public class PageRankSelector {
 			
 			initiateSubGraphMining(targetDir, 
 					null, 
-					url, 
-					username, 
-					password, 
 					constructOnly);
 		} else {
 			//Comparison mode
@@ -587,9 +583,6 @@ public class PageRankSelector {
 			
 			initiateSubGraphMining(targetDir, 
 					testDir, 
-					url, 
-					username, 
-					password, 
 					constructOnly);
 		}
 		
@@ -914,27 +907,7 @@ public class PageRankSelector {
 				}
 								
 				//Don't compare double directly, give 0.5% threshold
-				if (sim > simThreshold) {
-					/*System.out.println("Check target ranks");
-					for (int i = 0; i < 20; i++) {
-						InstWrapper iw = ranks.get(i);
-						System.out.println(iw.inst);
-						System.out.println(iw.pageRank);
-					}
-					
-					int[] subCopy = new int[20];
-					System.arraycopy(subProfile.pgRep, 0, subCopy, 0, 20);
-					System.out.println("Sub pg rank: " + Arrays.toString(subCopy));
-					System.out.println("Sub linetrace: " + subProfile.lineTrace);
-					int[] candCopy = new int[20];
-					System.arraycopy(candPGRep, 0, candCopy, 0, 20);
-					System.out.println("Can pg rank: " + Arrays.toString(candCopy));
-					System.out.println("Can linetrace: " + segInfo.lineTrace);
-					System.out.println("Dynamic similarity: " + sim);
-					
-					System.out.println("Sub important: " + subProfile.centroidWrapper.inst);
-					System.out.println("Can important: " + ranks.get(0).inst);*/
-					
+				if (sim > simThreshold) {					
 					HotZone zone = new HotZone();
 					zone.setSubStart(subProfile.startInst);
 					zone.setSubCentroid(subProfile.centroidWrapper.inst);

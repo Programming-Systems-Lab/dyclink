@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -29,8 +30,9 @@ public class ClassInfoCollector {
 	public static void initiateClassMethodInfo(String className, String methodName, String methodDesc, boolean isStatic) {
 		String classMethodCacheKey = StringUtil.concateKey(className, methodName, methodDesc);
 		
-		if (classMethodInfoMap.containsKey(classMethodCacheKey)) 
+		if (classMethodInfoMap.containsKey(classMethodCacheKey)) {
 			return ;
+		}
 		
 		ClassMethodInfo cmi = new ClassMethodInfo();
 		
@@ -40,15 +42,45 @@ public class ClassInfoCollector {
 		Type returnType = methodType.getReturnType();
 		
 		int argSize = 0;
+		int[] idxArray = new int[args.length];
+		int realIdx = 1;
+		if (isStatic) {
+			realIdx = 0;
+		}
+		
 		for (int i = 0; i < args.length; i++) {
+			idxArray[i] = realIdx;
 			if (args[i].getSort() == Type.DOUBLE || args[i].getSort() == Type.LONG) {
 				argSize += 2;
+				realIdx += 2;
 			} else {
 				argSize++;
+				realIdx++;
 			}
 		}
 		
-		int endIdx = -1;
+		/*int endIdx = -1;
+		if (args.length == 0) {
+			endIdx = 0;
+		} else {
+			int realIdx = 1;
+			if (isStatic) {
+				realIdx = 0;
+			}
+			
+			int[] idxArray = new int[args.length];
+			for (int i = 0; i < args.length; i++) {
+				Type t = args[i];
+				idxArray[i] = realIdx; 
+				if (t.getSort() == Type.DOUBLE || t.getSort() == Type.LONG) {
+					realIdx += 2;
+				} else {
+					realIdx += 1;
+				}
+			}
+		}
+		
+		
 		if (args.length > 0) {
 			int startIdx = 0;
 			if (!isStatic) {
@@ -67,18 +99,19 @@ public class ClassInfoCollector {
 			endIdx--;
 		} else {
 			endIdx = 0;
-		}
+		}*/
 		
 		cmi.args = args;
 		cmi.returnType = returnType;
 		cmi.argSize = argSize;
-		cmi.endIdx = endIdx;
+		//cmi.endIdx = endIdx;
+		cmi.idxArray = idxArray;
 		classMethodInfoMap.put(classMethodCacheKey, cmi);
 	}
 	
 	public static ClassMethodInfo retrieveClassMethodInfo(String className, String methodName, String methodDesc, int opcode) {
 		String classMethodCacheKey = StringUtil.concateKey(className, methodName, methodDesc);
-		
+				
 		if (classMethodInfoMap.containsKey(classMethodCacheKey)) {
 			return classMethodInfoMap.get(classMethodCacheKey);
 		} else {
@@ -86,7 +119,8 @@ public class ClassInfoCollector {
 			if (BytecodeCategory.staticMethodOps().contains(opcode)) {
 				isStatic = true;
 			}
-			initiateClassMethodInfo(className, methodName, methodDesc, isStatic);
+			
+			initiateClassMethodInfo(className, methodName, methodDesc, isStatic);			
 			return classMethodInfoMap.get(classMethodCacheKey);
 		}
 	}
@@ -252,9 +286,9 @@ public class ClassInfoCollector {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}*/
-		initiateClassMethodInfo("a", "b", "(Lorg/la4j/matrix/Matrix;)Z", false);
-		String classMethodCacheKey = StringUtil.concateKey("a", "b", "(Lorg/la4j/matrix/Matrix;)Z");
-		System.out.println(classMethodInfoMap.get(classMethodCacheKey).endIdx);
+		initiateClassMethodInfo("a", "b", "(D[LR5P1Y11.aditsu.Cakes$P;)D", true);
+		String classMethodCacheKey = StringUtil.concateKey("a", "b", "(D[LR5P1Y11.aditsu.Cakes$P;)D");
+		System.out.println(Arrays.toString(classMethodInfoMap.get(classMethodCacheKey).idxArray));
 	}
 
 }

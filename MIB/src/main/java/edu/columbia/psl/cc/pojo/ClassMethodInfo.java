@@ -12,5 +12,6 @@ public class ClassMethodInfo {
 	//The word size of input arg
 	public int argSize;
 	
-	public int endIdx;
+	//public int endIdx;
+	public int[] idxArray;
 }

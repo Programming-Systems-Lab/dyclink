@@ -67,7 +67,7 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 			//Start the instrumentation here;
 			try {
 				ClassReader cr = new ClassReader(classfileBuffer);
-				ClassWriter preWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
+				/*ClassWriter preWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
 					@Override
 					protected String getCommonSuperClass(String type1, String type2) {
 						try {
@@ -76,7 +76,10 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 							return "java/lang/Unknown";
 						}
 					}
-				};
+				};*/
+				
+				ClassWriter preWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+				
 				cr.accept(new ClassVisitor(Opcodes.ASM5, preWriter) {
 					@Override
 					public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {

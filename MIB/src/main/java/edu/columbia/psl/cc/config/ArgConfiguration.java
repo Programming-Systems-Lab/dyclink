@@ -5,11 +5,11 @@ import org.apache.commons.cli.Options;
 
 public class ArgConfiguration {
 	
-	public final static String CONSTRUCT = "t";
+	public final static String CONSTRUCT = "construct";
 	
 	public final static String CONSTRUCT_DES = "Only construct final graphs without mining";
 	
-	public final static String TARGET = "template";
+	public final static String TARGET = "target";
 	
 	public final static String TARGET_DES = "The dir of template graphs";
 	

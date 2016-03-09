@@ -33,15 +33,19 @@ public class DBConnector {
 	}
 	
 	public static Connection getConnection() {
-		if (baseurl == null || username == null || password == null)
+		if (baseurl == null || username == null || password == null) {
+			logger.error("Missing info: " + baseurl + " " + username);
 			return null;
+		}
+		
 		try {
-			if (connect == null || !connect.isValid(10)) {
+			if (connect == null) {
 				int counter = 0;
 				while (counter < 5) {
 					Class.forName("com.mysql.jdbc.Driver");
 					connect = DriverManager.getConnection(baseurl, username, password);
 					if (connect.isValid(10)) {
+						logger.info("Retrieve connection: " + connect);
 						return connect;
 					}
 					
@@ -49,6 +53,26 @@ public class DBConnector {
 				}
 				
 				logger.error("Fail to connect to DB...");
+				return null;
+			} else if (!connect.isValid(10)) {
+				logger.info("Connection timeout, reconnect...");
+				int counter = 0;
+				while (counter < 5) {
+					Class.forName("com.mysql.jdbc.Driver");
+					connect = DriverManager.getConnection(baseurl, username, password);
+					if (connect.isValid(10)) {
+						logger.info("Retrieve connection: " + connect);
+						return connect;
+					}
+					
+					logger.warn("Reconnect to DB: " + counter++);
+				}
+				
+				logger.error("Fail to connect to DB...");
+				return null;
+			} else {
+				logger.info("Exist connection");
+				return connect;
 			}
 		} catch (Exception ex) {
 			logger.error("Exception: ", ex);
@@ -70,13 +94,14 @@ public class DBConnector {
 		try {
 			//Class.forName("com.mysql.jdbc.Driver");
 			//Connection connect = DriverManager.getConnection(baseurl, username, password);
-			Connection connect = DBConnector.getConnection();
+			connect = DBConnector.getConnection();
 			if (connect == null) {
 				return false;
 			}
 			
 			boolean probe = connect.isValid(10);
 			//connect.close();
+			logger.info("Probing database: " + probe);
 			return probe;
 		} catch (Exception ex) {
 			ex.printStackTrace();

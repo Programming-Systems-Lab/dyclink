@@ -411,20 +411,22 @@ public class GraphUtil {
 	public static void multiplyGraph(GraphTemplate g, double times) {
 		for (InstNode inst: g.getInstPool()) {
 			TreeMap<String, Double> childMap = inst.getChildFreqMap();
-						
-			if (inst instanceof FieldNode) {
-				FieldNode fInst = (FieldNode)inst;
-				HashSet<String> globalChild = fInst.getGlobalChildIdx();
-				
-				if (globalChild != null && globalChild.size() > 0) {
-					for (String cKey: childMap.keySet()) {
-						if (globalChild.contains(cKey))
-							continue ;
-						
-						double val = childMap.get(cKey) * times;
-						childMap.put(cKey, val);
+			
+			if (MIBConfiguration.getInstance().isFieldTrack()) {
+				if (inst instanceof FieldNode) {
+					FieldNode fInst = (FieldNode)inst;
+					HashSet<String> globalChild = fInst.getGlobalChildIdx();
+					
+					if (globalChild != null && globalChild.size() > 0) {
+						for (String cKey: childMap.keySet()) {
+							if (globalChild.contains(cKey))
+								continue ;
+							
+							double val = childMap.get(cKey) * times;
+							childMap.put(cKey, val);
+						}
+						continue ;
 					}
-					continue ;
 				}
 			}
 			
@@ -858,8 +860,15 @@ public class GraphUtil {
 			if (f.inheritedInfo != null) {
 				for (Integer inheritedVar: f.inheritedInfo) {
 					HashSet<InstNode> parentNodes = parentMap.get(inheritedVar);
+					
+					if (parentNodes == null) {
+						System.err.println("Error composition: " + f);
+						System.err.println("Var id: " + inheritedVar);
+						System.err.println("Parent map: " + parentMap);
+						System.exit(-1);
+					}
 
-					for (InstNode parentNode: parentNodes) {				
+					for (InstNode parentNode: parentNodes) {
 						parentNode.increChild(f.getThreadId(), 
 								f.getThreadMethodIdx(), 
 								f.getIdx(), 

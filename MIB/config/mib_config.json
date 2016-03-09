@@ -44,8 +44,7 @@
   "testMethodThresh": -1,
   "threadInit": 0,
   "threadMethodIdxRecord": {
-    "0": 4669398,
-    "1": 2523799
+    "0": 1308235
   },
   "annotGuard": false,
   "fieldTrack": false,

@@ -20,6 +20,7 @@ import edu.columbia.psl.cc.analysis.PageRankSelector.ProfileWorker;
 import edu.columbia.psl.cc.analysis.PageRankSelector.SubGraphCrawler;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
+import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.util.StringUtil;
 import edu.columbia.psl.cc.util.TemplateLoader;
 import edu.columbia.psl.cc.util.DBConnector.Comparison;
@@ -92,18 +93,36 @@ public class GraphLoadController {
 	public static void constructCrawlerListExcludePkg(List<GraphProfile> subProfiles, 
 			List<GraphProfile> targetProfiles, 
 			List<SubGraphCrawler> crawlers) {
+		int shouldCount = 0;
+		int realCount = 0;
 		for (GraphProfile subProfile: subProfiles) {
 			String[] subParsed = subProfile.graph.getMethodKey().split(":");
 			String subPkgWithClass = subParsed[0];
 			String subPkg = StringUtil.extractPkg(subPkgWithClass);
 			for (GraphProfile targetProfile: targetProfiles) {
+				if (subProfile.graph.getMethodKey().equals(targetProfile.graph.getMethodKey())) {
+					continue ;
+				}
+				shouldCount++;
 				String[] targetParsed = targetProfile.graph.getMethodKey().split(":");
 				String targetPkgWithClass = targetParsed[0];
 				String targetPkg = StringUtil.extractPkg(targetPkgWithClass);
 				
 				if (subPkg.equals(targetPkg)) {
-					continue ;
+					boolean related = false;
+					for (InstNode sInst: subProfile.graph.getInstPool()) {
+						for (InstNode tInst: targetProfile.graph.getInstPool()) {
+							if (sInst.getFromMethod().equals(tInst.getFromMethod())) {
+								related = true;
+								break ;
+							}
+						}
+					}
+					
+					if (related)
+						continue ;
 				}
+				realCount++;
 				
 				SubGraphCrawler crawler = new SubGraphCrawler();
 				crawler.subGraphName = subProfile.graph.getMethodKey();
@@ -113,6 +132,8 @@ public class GraphLoadController {
 				crawlers.add(crawler);
 			}
 		}
+		logger.info("Should count: " + shouldCount);
+		logger.info("Real count: " + realCount);
 	}
 	
 	public static void constructCrawlerList(List<GraphProfile> subProfiles, 
@@ -157,6 +178,7 @@ public class GraphLoadController {
 		HashMap<String, GraphTemplate> targets = null;
 		HashMap<String, GraphTemplate> tests = null;
 		int parallelFactor = Runtime.getRuntime().availableProcessors();
+		//int parallelFactor = 1;
 		
 		if (probeTarget && probeTest) {
 			logger.info("Comparison mode: " + targetLoc.getAbsolutePath() + " " + testLoc.getAbsolutePath());
