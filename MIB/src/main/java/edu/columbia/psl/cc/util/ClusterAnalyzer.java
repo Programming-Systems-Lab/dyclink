@@ -19,6 +19,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
 
@@ -27,6 +29,8 @@ public class ClusterAnalyzer {
 	private final static String header = "method,real_label,1st,1st_sim,2nd,2nd_sim,3rd,3rd_sim,4th,4th_sim,5th,5th_sim,label_count,predict_label\n";
 	
 	public static Options options = new Options();
+	
+	private static Logger logger = LogManager.getLogger(ClusterAnalyzer.class);
 	
 	static {
 		options.addOption("start", true, "Comp id (start)");
@@ -42,6 +46,12 @@ public class ClusterAnalyzer {
 		options.getOption("k").setRequired(true);
 		options.getOption("insts").setRequired(true);
 		options.getOption("similarity").setRequired(true);
+	}
+	
+	public static String composeInstructionKey(String rawInst) {
+		String[] rawInstInfo = rawInst.split(" ");
+		String key = rawInstInfo[0] + "@" + rawInstInfo[3];
+		return key;
 	}
 	
 	public static void main(String[] args) {
@@ -70,14 +80,14 @@ public class ClusterAnalyzer {
 			String username = MIBConfiguration.getInstance().getDbusername();
 			String dburl = MIBConfiguration.getInstance().getDburl();
 			
-			System.out.println("Confirm query settings:");
-			System.out.println("DB url: " + dburl);
-			System.out.println("Comp id (start): " + compIdStart);
-			System.out.println("Comp id (end): " + compIdEnd); 
-			System.out.println("Instruction size: " + segSize);
-			System.out.println("Similarity threshold: " + simThresh);
-			System.out.println("Filter next and read: " + filter);
-			System.out.println("Break tie: " + breakTie);
+			logger.info("Confirm query settings:");
+			logger.info("DB url: " + dburl);
+			logger.info("Comp id (start): " + compIdStart);
+			logger.info("Comp id (end): " + compIdEnd); 
+			logger.info("Instruction size: " + segSize);
+			logger.info("Similarity threshold: " + simThresh);
+			logger.info("Filter next and read: " + filter);
+			logger.info("Break tie: " + breakTie);
 			
 			Class.forName("com.mysql.jdbc.Driver");
 			Connection connect = DriverManager.getConnection(dburl, username, password);
@@ -92,7 +102,7 @@ public class ClusterAnalyzer {
 				allMethods.add(subName);
 				subCount++;
 			}
-			System.out.println("# of sub methods: " + subCount);
+			logger.info("# of sub methods: " + subCount);
 			
 			String targetQuery = "SELECT distinct target FROM result_table2 WHERE comp_id between " + compIdStart + " and " + compIdEnd;
 			PreparedStatement targetStatement = connect.prepareStatement(targetQuery);
@@ -103,16 +113,16 @@ public class ClusterAnalyzer {
 				allMethods.add(targetName);
 				targetCount++;
 			}
-			System.out.println("# of target methods: " + targetCount);
-			System.out.println("# of total methods: " + allMethods.size());
+			logger.info("# of target methods: " + targetCount);
+			logger.info("# of total methods: " + allMethods.size());
 			
 			StringBuilder result = new StringBuilder();
 			result.append(header);
+			int validMethods = 0;
+			int correctMethods = 0;
 			for (String method: allMethods) {
 				StringBuilder row = new StringBuilder();
 				//String method = "R5P1Y14.darnley.A:solve:():Ljava.lang.String";
-				
-				System.out.println("Me: " + method);
 				String[] myInfo = method.split("\\.");
 				String myLabel = myInfo[0];
 				String myName = myInfo[1];
@@ -121,11 +131,12 @@ public class ClusterAnalyzer {
 				//Filter out readXX, or nextXX, which are some little utility functions
 				if (filter) {
 					if (myMethod.startsWith("read") || myMethod.startsWith("next")) {
-						System.out.println("Filter out utility method: " + method + "\n");
+						//System.out.println("Filter out utility method: " + method + "\n");
 						continue ;
 					}
 				}
 				
+				logger.info("Me: " + method);
 				row.append(method + "," + myLabel + ",");
 				
 				String knnQuery = "SELECT rt.* FROM result_table2 rt " +
@@ -154,7 +165,7 @@ public class ClusterAnalyzer {
 				HashMap<String, List<Neighbor>> neighborRecord = new HashMap<String, List<Neighbor>>();
 				HashSet<String> neighborTraceCache = new HashSet<String>();
 				HashSet<String> neighborCache = new HashSet<String>();
-				while (knnResult.next()) {					
+				while (knnResult.next()) {				
 					String knnSub = knnResult.getString("sub");
 					String knnTarget = knnResult.getString("target");
 					double similarity = knnResult.getDouble("similarity");
@@ -185,34 +196,54 @@ public class ClusterAnalyzer {
 					String neighborName = neighborInfo[1];
 					String neighborMethod = neighbor.split(":")[1];
 					
+					//To be conservative, for a user project in the same year, only pick one
+					//String neighborKey = neighborLabel + "-" + neighborName;
+					
 					/*if (neighborName.equals(myName))
 						continue ;*/
 					
 					if (filter) {
 						if (neighborMethod.startsWith("read") || neighborMethod.startsWith("next")) {
-							System.out.println("Filter neighbor utility method: " + neighbor);
+							//System.out.println("Filter neighbor utility method: " + neighbor);
 							continue ;
 						}
 					}
 										
 					if (checkSub) {
 						String subStart = knnResult.getString("s_start");
+						//To be more precise, extract method name and inst id
+						String subStartKey = composeInstructionKey(subStart);
+						
 						String subCentroid = knnResult.getString("s_centroid");
+						String subCentroidKey = composeInstructionKey(subCentroid);
+						
 						String subEnd = knnResult.getString("s_end");
-						trace = subStart + "-" + subCentroid + "-" + subEnd;
+						String subEndKey = composeInstructionKey(subEnd);
+						
+						trace = subStartKey + "-" + subCentroidKey + "-" + subEndKey;
 					} else {
 						String targetStart = knnResult.getString("t_start");
+						String targetStartKey = composeInstructionKey(targetStart);
+						
 						String targetCentroid = knnResult.getString("t_centroid");
+						String targetCentroidKey = composeInstructionKey(targetCentroid);
+						
 						String targetEnd = knnResult.getString("t_end");
-						trace = targetStart + "-" + targetCentroid + "-" + targetEnd;
+						String targetEndKey = composeInstructionKey(targetEnd);
+						
+						trace = targetStartKey + "-" + targetCentroidKey + "-" + targetEndKey;
 					}
 					
+					//logger.info("Trace: " + trace);
+					
 					if (neighborCache.contains(neighbor)) {
+						logger.info("Dup neighbor: " + neighbor);
 						continue ;
 					}
 					neighborCache.add(neighbor);
 					
 					if (neighborTraceCache.contains(trace)) {
+						logger.info("Dup trace: " + trace);
 						continue ;
 					}
 					neighborTraceCache.add(trace);
@@ -240,22 +271,24 @@ public class ClusterAnalyzer {
 				}
 				
 				if (neighborRecord.size() == 0) {
-					System.out.println("Query no result\n");
+					logger.info("Query no result\n");
 					continue ;
 				}
+				
+				validMethods++;
 				
 				int remained = 5- count;
 				for (int i = 0; i < remained; i++) {
 					row.append(" , ,");
 				}
 				
-				System.out.println("Check neighbor count: ");
+				//System.out.println("Check neighbor count: ");
 				List<String> bestLabels = new ArrayList<String>();
 				int bestLabelCount = Integer.MIN_VALUE;
 				String countString = "";
 				for (String label: neighborRecord.keySet()) {
 					int labelCount = neighborRecord.get(label).size();
-					System.out.println("Label: " + label + " " + labelCount);
+					logger.info("Label: " + label + " " + labelCount);
 					String labelSummary = label + ":" + labelCount + "-";
 					countString += labelSummary;
 					
@@ -270,9 +303,9 @@ public class ClusterAnalyzer {
 					}
 				}
 				countString = countString.substring(0, countString.length() - 1);
-				System.out.println("Count string: " + countString);
+				//System.out.println("Count string: " + countString);
 				row.append(countString + ",");
-				System.out.println("Check best labels: " + bestLabels);
+				//System.out.println("Check best labels: " + bestLabels);
 				
 				String bestLabel = "";
 				if (bestLabels.size() == 1) {
@@ -292,10 +325,20 @@ public class ClusterAnalyzer {
 						}	
 					}
 				}
-				System.out.println("Best label: " + bestLabel + "\n");
+				//System.out.println("Best label: " + bestLabel + "\n");
 				row.append(bestLabel + "\n");
 				result.append(row);
+				logger.info("My label: " + myLabel);
+				logger.info("Best label: " + bestLabel);
+				
+				if (myLabel.equals(bestLabel)) {
+					correctMethods++;
+				}
 			}
+			
+			logger.info("Valid methods: " + validMethods);
+			logger.info("Correct methods: " + correctMethods);
+			logger.info("Precision: " + ((double)correctMethods)/validMethods);
 			
 			File resultDir = new File("./results");
 			if (!resultDir.exists()) {
@@ -308,7 +351,7 @@ public class ClusterAnalyzer {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
 			bw.write(result.toString());
 			bw.close();
-			System.out.println("Result path: " + fileName);
+			//System.out.println("Result path: " + fileName);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

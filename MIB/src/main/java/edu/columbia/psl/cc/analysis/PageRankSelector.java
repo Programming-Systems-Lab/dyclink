@@ -325,6 +325,14 @@ public class PageRankSelector {
 		Comparison compResult = GraphLoadController.normalLoad(targetDir, testDir, crawlers);
 		
 		if (constructOnly) {
+			System.out.println("Crawler count: " + crawlers.size());
+			int worstcase = 0;
+			for (SubGraphCrawler sg: crawlers) {
+				int targetSize = sg.targetGraph.getInstPool().size();
+				//System.out.println("Target graph size: " + targetSize);
+				worstcase += targetSize;
+			}
+			System.out.println("Worst case subgraph matching: " + worstcase);
 			return ;
 		}
 		

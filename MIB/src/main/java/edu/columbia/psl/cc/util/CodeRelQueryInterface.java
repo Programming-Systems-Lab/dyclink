@@ -124,13 +124,20 @@ public class CodeRelQueryInterface {
 				}
 				
 				HashSet<String> trace = new HashSet<String>();
-				trace.add(subStart);
-				trace.add(subCentroid);
-				trace.add(subEnd);
+				String subStartKey = ClusterAnalyzer.composeInstructionKey(subStart);
+				String subCentroidKey = ClusterAnalyzer.composeInstructionKey(subCentroid);
+				String subEndKey = ClusterAnalyzer.composeInstructionKey(subEnd);
+				trace.add(subStartKey);
+				trace.add(subCentroidKey);
+				trace.add(subEndKey);
 				
-				trace.add(targetStart);
-				trace.add(targetCentroid);
-				trace.add(targetEnd);
+				
+				String targetStartKey = ClusterAnalyzer.composeInstructionKey(targetStart);
+				String targetCentroidKey = ClusterAnalyzer.composeInstructionKey(targetCentroid);
+				String targetEndKey = ClusterAnalyzer.composeInstructionKey(targetEnd);
+				trace.add(targetStartKey);
+				trace.add(targetCentroidKey);
+				trace.add(targetEndKey);
 				
 				CodeRel cr = null;
 				double sim = result.getDouble("similarity");
@@ -165,6 +172,7 @@ public class CodeRelQueryInterface {
 					
 					if (cr1.bestTrace.equals(cr2.bestTrace)) {
 						//If traces are the same, just keep one
+						logger.info("Dup rel: " + cr1.methodPair + " " + cr2.methodPair);
 						toRemove.add(cr2.methodPair);
 					}
 				}
@@ -173,7 +181,6 @@ public class CodeRelQueryInterface {
 			for (HashSet<String> r: toRemove) {
 				codeRels.remove(r);
 			}
-
 			
 			logger.info("Check code rels");
 			for (HashSet<String> pair: codeRels.keySet()) {
