@@ -25,6 +25,10 @@ public class ArgConfiguration {
 	
 	public final static String DB_PW_DES = "database password";
 	
+	public final static String IGNORE_INIT = "iginit";
+	
+	public final static String IGNORE_INIT_DESC = "ignore constructor/static constrctor";
+	
 	private final static Options options = new Options();
 	
 	static {
@@ -49,6 +53,10 @@ public class ArgConfiguration {
 		dbpw.setRequired(false);
 		dbpw.setArgs(1);
 		options.addOption(dbpw);
+		
+		Option iginit = new Option(IGNORE_INIT, IGNORE_INIT_DESC);
+		iginit.setRequired(false);
+		options.addOption(iginit);
 	}
 	
 	public static Options getOptions() {

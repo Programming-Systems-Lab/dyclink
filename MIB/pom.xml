@@ -39,17 +39,33 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<!--<relocations>
-								<relocation>
+							<relocations>
+								<!--<relocation>
 									<pattern>org.apache.commons.cli</pattern>
-									<shadedPattern>edu.columbia.cs.psl.clonedetector.org.apache.commons.cli</shadedPattern>
+									<shadedPattern>edu.columbia.psl.cc.org.apache.commons.cli</shadedPattern>
 								</relocation>
 								<relocation>
 									<pattern>org.objectweb.asm</pattern>
-									<shadedPattern>edu.columbia.cs.psl.clonedetector.org.objectweb.asm</shadedPattern>
+									<shadedPattern>edu.columbia.psl.cc.org.objectweb.asm</shadedPattern>
+								</relocation>-->
+								<!--<relocation>
+									<pattern>org.apache.commons.math3</pattern>
+									<shadedPattern>edu.columbia.psl.cc.org.apache.commons.math3</shadedPattern>
 								</relocation>
+								<relocation>
+									<pattern>cern</pattern>
+									<shadedPattern>edu.columbia.psl.cc.cern</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>corejava</pattern>
+									<shadedPattern>edu.columbia.psl.cc.corejava</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>hep</pattern>
+									<shadedPattern>edu.columbia.psl.cc.hep</shadedPattern>
+								</relocation>-->
 							</relocations>
-							<minimizeJar>true</minimizeJar>-->
+							<!--<minimizeJar>true</minimizeJar>-->
 						</configuration>
 					</execution>
 				</executions>

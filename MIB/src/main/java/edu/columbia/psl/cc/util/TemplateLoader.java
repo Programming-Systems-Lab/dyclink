@@ -29,6 +29,8 @@ public class TemplateLoader {
 	
 	private static String skipMethod = "main:([Ljava.lang.String)";
 	
+	public static boolean IGINIT = true;
+	
 	private static FilenameFilter nameFilter = new FilenameFilter() {
 		@Override
 		public boolean accept(File dir, String name) {
@@ -117,12 +119,16 @@ public class TemplateLoader {
 				
 				if (MIBConfiguration.getInstance().isExclSpec()) {
 					String methodName = entryName.split(":")[1];
-					if (methodName.equals("<init>") 
-							|| methodName.equals("<clinit>") 
-							|| methodName.equals("toString") 
+					if (methodName.equals("toString") 
 							|| methodName.equals("equals") 
 							|| methodName.equals("hashCode")) {
 						continue ;
+					}
+					
+					if (IGINIT) {
+						if (methodName.equals("<init>") || methodName.equals("<clinit>")) {
+							continue ;
+						}
 					}
 				}
 				

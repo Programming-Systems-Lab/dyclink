@@ -282,10 +282,7 @@ public class MethodNode extends InstNode {
 		}*/
 		
 		if (this.callFreq >= CALLEE_MAX) {
-			//logger.info("Hit limits: " + this.fromMethod + " " + callee.getShortMethodKey());
-			/*if (callee.getMethodName().equals("solve")) {
-				System.out.println("Hit limits: " + this.fromMethod + " " + callee.getShortMethodKey() + " " + this.callFreq);
-			}*/
+			//logger.info("Curent call: " + this.fromMethod + " " + this.linenumber + " " + callee.getShortMethodKey() + " " + this.callFreq);
 			GlobalRecorder.registerStopCallee(callee.getShortMethodKey(), this.linenumber);
 		}
 	}

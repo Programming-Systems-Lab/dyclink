@@ -553,6 +553,9 @@ public class PageRankSelector {
 		if (MIBConfiguration.getInstance().isNativeClass()) {
 			MIBDriver.setupNativePackages();
 		}
+		
+		boolean iginit = cLine.hasOption(ArgConfiguration.IGNORE_INIT);
+		TemplateLoader.IGINIT = iginit;
 				
 		logger.info("Start PageRank analysis for Bytecode subgraph mining");
 		logger.info("Similarity strategy: " + MIBConfiguration.getInstance().getSimStrategy());
@@ -562,6 +565,7 @@ public class PageRankSelector {
 		logger.info("Construct only: " + constructOnly);
 		logger.info("DB url: " + url);
 		logger.info("DB username: " + username);
+		logger.info("Ignore constructor/static constructor" + iginit);
 		
 		if (testDir == null) {
 			//Single mode

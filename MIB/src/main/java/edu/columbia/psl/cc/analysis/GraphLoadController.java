@@ -228,8 +228,40 @@ public class GraphLoadController {
 			compResult.method_f_2 = targets.size();
 			logger.info("Target size: " + targets.size());
 			
+			/*logger.info("Before merging");
+			int bv = 0;
+			for (GraphTemplate gt: targets.values()) {
+				logger.info("Method name: " + gt.getMethodKey());
+				logger.info("Inst size: " + gt.getInstPool().size());
+				bv += gt.getInstPool().size();
+			}
+			logger.info("Before total vertices: " + bv);
+			logger.info("Before avg vertices: " + ((double)bv)/targets.size());*/
+			
 			List<GraphProfile> targetProfiles = parallelizeProfiling(targets, parallelFactor);
 			logger.info("Target profiles: " + targetProfiles.size());
+			
+			//For exp purpose...
+			/*int vSum = 0;
+			int eSum = 0;
+			int vMax = Integer.MIN_VALUE;
+			for (GraphProfile gp: targetProfiles) {
+				if (gp.graph.getVertexNum() > vMax) {
+					vMax = gp.graph.getInstPool().size();
+				}
+				
+				vSum += gp.graph.getInstPool().size();
+				for (InstNode in: gp.graph.getInstPool()) {
+					eSum += in.getChildFreqMap().size();
+				}
+			}
+			double avgVertex = ((double)vSum)/targetProfiles.size();
+			double avgEdge = ((double)eSum)/targetProfiles.size();
+			logger.info("Total vertices: " + vSum);
+			logger.info("Avg vertices: " + avgVertex);
+			logger.info("Max vertices: " + vMax);
+			logger.info("Total edges: " + eSum);
+			logger.info("Avg edges: " + avgEdge);*/
 			
 			if (MIBConfiguration.getInstance().isExclPkg()) {
 				constructCrawlerListExcludePkg(targetProfiles, targetProfiles, crawlers);

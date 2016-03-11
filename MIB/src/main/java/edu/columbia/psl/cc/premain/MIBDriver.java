@@ -4,6 +4,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -64,7 +65,7 @@ public class MIBDriver {
 		//Set inst pool, cannot set it in static initializer, or there will be infinite loop
 		InstPool.DEBUG = MIBConfiguration.getInstance().isDebug();
 		setupGlobalRecorder();
-		
+				
 		//Clean directory
 		//GsonManager.cleanDirs(mConfig.isCleanTemplate(), mConfig.isCleanTest());
 		
@@ -128,7 +129,10 @@ public class MIBDriver {
 	}
 	
 	private static void graphing() {		
-		ShutdownLogger.appendMessage("Graphing: " + memorizedTargetClass.getName());
+		int threadIdInit = MIBConfiguration.getInstance().getThreadInit();
+		String now = String.valueOf((new Date()).getTime());
+		String fileName = memorizedTargetClass.getName() + "-" + threadIdInit + "-" + now;
+		ShutdownLogger.appendMessage("Graphing: " + fileName);
 		
 		//Dump name map
 		//logger.info("Dump nameMap: " + memorizedTargetClass);
@@ -142,7 +146,7 @@ public class MIBDriver {
 		
 		//Dump all graphs in memory
 		//logger.info("Select dominant graphs: " + memorizedTargetClass);
-		selectDominantGraphs(memorizedTargetClass.getName());
+		selectDominantGraphs(fileName);
 		
 		//Update configuration
 		//logger.info("Update configuration");

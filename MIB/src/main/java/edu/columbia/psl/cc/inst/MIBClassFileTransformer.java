@@ -111,7 +111,7 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 					fos.close();
 				}
 				return cw.toByteArray();
-			} catch (Exception ex) {
+			} catch (Throwable ex) {
 				//ex.printStackTrace();
 				logger.error("Fail to transform class: " + name + ", recover original class");
 				logger.error("Message: ", ex);

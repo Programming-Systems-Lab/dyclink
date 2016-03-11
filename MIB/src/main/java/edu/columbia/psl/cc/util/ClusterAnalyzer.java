@@ -15,11 +15,34 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Options;
+
 import edu.columbia.psl.cc.config.MIBConfiguration;
 
 public class ClusterAnalyzer {
 	
 	private final static String header = "method,real_label,1st,1st_sim,2nd,2nd_sim,3rd,3rd_sim,4th,4th_sim,5th,5th_sim,label_count,predict_label\n";
+	
+	public static Options options = new Options();
+	
+	static {
+		options.addOption("start", true, "Comp id (start)");
+		options.addOption("end", true, "Comp id (end)");
+		options.addOption("k", true, "Neightbor number");
+		options.addOption("insts", true, "Instrution size");
+		options.addOption("similarity", true, "Similarity threshold");
+		options.addOption("filter", false, "Filter out read and next");
+		options.addOption("break", false, "Break tie");
+		
+		options.getOption("start").setRequired(true);
+		options.getOption("end").setRequired(true);
+		options.getOption("k").setRequired(true);
+		options.getOption("insts").setRequired(true);
+		options.getOption("similarity").setRequired(true);
+	}
 	
 	public static void main(String[] args) {
 		Console console = System.console();
@@ -33,26 +56,16 @@ public class ClusterAnalyzer {
 			char[] passArray = console.readPassword();
 			final String password = new String(passArray);
 			
-			System.out.println("Comp id (start)");
-			int compIdStart = Integer.valueOf(console.readLine());
+			CommandLineParser parser = new DefaultParser();
+			CommandLine commands = parser.parse(options, args);
 			
-			System.out.println("Comp id (end)");
-			int compIdEnd = Integer.valueOf(console.readLine());
-			
-			System.out.println("Neighbor number: ");
-			int kNum = Integer.valueOf(console.readLine());
-			
-			System.out.println("Instruction size: ");
-			int segSize = Integer.valueOf(console.readLine());
-			
-			System.out.println("Similarity: ");
-			double simThresh = Double.valueOf(console.readLine());
-			
-			System.out.println("Filter out read, next: ");
-			boolean filter = Boolean.valueOf(console.readLine());
-			
-			System.out.println("Break tie: ");
-			boolean breakTie = Boolean.valueOf(console.readLine());
+			int compIdStart = Integer.valueOf(commands.getOptionValue("start"));
+			int compIdEnd = Integer.valueOf(commands.getOptionValue("end"));
+			int kNum = Integer.valueOf(commands.getOptionValue("k"));
+			int segSize = Integer.valueOf(commands.getOptionValue("insts"));
+			double simThresh = Double.valueOf(commands.getOptionValue("similarity"));
+			boolean filter = commands.hasOption("filter");
+			boolean breakTie = commands.hasOption("break");
 						
 			String username = MIBConfiguration.getInstance().getDbusername();
 			String dburl = MIBConfiguration.getInstance().getDburl();
@@ -63,6 +76,8 @@ public class ClusterAnalyzer {
 			System.out.println("Comp id (end): " + compIdEnd); 
 			System.out.println("Instruction size: " + segSize);
 			System.out.println("Similarity threshold: " + simThresh);
+			System.out.println("Filter next and read: " + filter);
+			System.out.println("Break tie: " + breakTie);
 			
 			Class.forName("com.mysql.jdbc.Driver");
 			Connection connect = DriverManager.getConnection(dburl, username, password);
@@ -89,7 +104,7 @@ public class ClusterAnalyzer {
 				targetCount++;
 			}
 			System.out.println("# of target methods: " + targetCount);
-			System.out.println("# of totla: " + allMethods.size());
+			System.out.println("# of total methods: " + allMethods.size());
 			
 			StringBuilder result = new StringBuilder();
 			result.append(header);
@@ -164,14 +179,14 @@ public class ClusterAnalyzer {
 						neighbor = knnSub;
 					}
 					
-					//Skip the the same username from different years
+					//Skip the the same username from different years?
 					String[] neighborInfo = neighbor.split("\\.");
 					String neighborLabel = neighborInfo[0];
 					String neighborName = neighborInfo[1];
 					String neighborMethod = neighbor.split(":")[1];
 					
-					if (neighborName.equals(myName))
-						continue ;
+					/*if (neighborName.equals(myName))
+						continue ;*/
 					
 					if (filter) {
 						if (neighborMethod.startsWith("read") || neighborMethod.startsWith("next")) {

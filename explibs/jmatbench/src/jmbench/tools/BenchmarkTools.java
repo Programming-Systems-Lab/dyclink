@@ -196,7 +196,8 @@ public class BenchmarkTools {
 
         // grab the current classpath and add some additional jars
         String classPath = getClassPath();
-        String app = System.getProperty("java.home")+"/bin/java";
+        //String app = System.getProperty("java.home")+"/bin/java";
+        String app = "/Library/Java/JavaVirtualMachines/jdk1.7.0_51.jdk/Contents/Home/bin/java";
 
         // compute required memory in mega bytes
         allocatedMemory = overrideMemory > 0 ? overrideMemory : (test.getInputMemorySize()/1024/1024+baseMemory)*memoryScale;
@@ -204,7 +205,7 @@ public class BenchmarkTools {
         if(verbose)
             System.out.println("Memory = "+allocatedMemory+" MB");
 
-        /*String []params = new String[10];
+        String []params = new String[10];
         params[0] = app;
         params[1] = "-server";
         params[2] = "-Xms"+allocatedMemory+"M";
@@ -214,11 +215,11 @@ public class BenchmarkTools {
         params[6] = "jmbench.tools.EvaluatorSlave";
         params[7] = "case.xml";
         params[8] = Integer.toString(numTrials);
-        params[9] = Long.toString(requestID);*/
+        params[9] = Long.toString(requestID);
         
-        String []params = new String[13];
+        /*String []params = new String[13];
         params[0] = app;
-        params[1] = "-javaagent:lib/mib.jar";
+        params[1] = "-javaagent:lib/dyclink-0.0.1-SNAPSHOT.jar";
         params[2] = "-XX:-UseSplitVerifier";
         params[3] = "-server";
         params[4] = "-Xms"+allocatedMemory+"M";
@@ -229,7 +230,7 @@ public class BenchmarkTools {
         params[9] = "jmbench.tools.EvaluatorSlave";
         params[10] = "case.xml";
         params[11] = Integer.toString(numTrials);
-        params[12] = Long.toString(requestID);
+        params[12] = Long.toString(requestID);*/
         
         return params;
     }

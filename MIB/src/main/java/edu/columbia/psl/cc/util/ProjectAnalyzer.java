@@ -34,6 +34,7 @@ public class ProjectAnalyzer {
 	}
 	
 	public static String extractPkg(String method) {
+		//System.out.println("Method: " + method);
 		String[] split = method.split("\\.");
 		String pkg = split[0] + "." + split[1];
 		return pkg;
