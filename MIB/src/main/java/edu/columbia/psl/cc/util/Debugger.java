@@ -16,7 +16,7 @@ public class Debugger {
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 	
 	public static void main(String[] args) {
-		String subName = "/Users/mikefhsu/ccws/jvm-clones/MIB/template/cern.colt.matrix.linalg.SingularValueDecomposition:<init>:0:0:2094.json";
+		String subName = args[0];
 		File subFile = new File(subName);
 		GraphTemplate subGraph = GsonManager.readJsonGeneric(subFile, graphToken);
 		GraphConstructor subGc = new GraphConstructor();
@@ -33,7 +33,7 @@ public class Debugger {
 			subBuilder.append(i.toString() + "\n");
 		}
 		
-		String fileName = "/Users/mikefhsu/ccws/jvm-clones/MIB/test/org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64:decompose:0:0:14.json";
+		String fileName = args[1];
 		String outputName = "./results/check.json";
 		
 		int threadId = 0;

@@ -224,24 +224,14 @@ public class TokenCalculator {
 	}
 
 	public static void main(String[] args) throws Exception {
-		/*File javaFile = new File("/Users/mikefhsu/ccws/jvm-clones/explibs/ejml_all/src/org/ejml/alg/dense/decomposition/svd/SvdImplicitQrDecompose.java");
-		File classFile = new File("/Users/mikefhsu/ccws/jvm-clones/explibs/ejml_all/bin/org/ejml/alg/dense/decomposition/svd/SvdImplicitQrDecompose.class");
-		int[] tokInfo = tokenCalculator(javaFile);
-		int[] instInfo = instCalculator(classFile);
-		
-		double avgLine = (tokInfo[1] + instInfo[1])/2;
-		
-		System.out.println("Tok: " + Arrays.toString(tokInfo));
-		System.out.println("Inst: " + Arrays.toString(instInfo));*/
-		
 		List<String> dirs = new ArrayList<String>();
-		dirs.add("/Users/mikefhsu/ccws/jvm-clones/explibs/ejml_all/src");
-		dirs.add("/Users/mikefhsu/ccws/jvm-clones/explibs/commons-math3-3.2-src/src/main/java");
-		dirs.add("/Users/mikefhsu/ccws/jvm-clones/explibs/Jama/src");
-		dirs.add("/Users/mikefhsu/ccws/jvm-clones/explibs/colt/src");
-		dirs.add("/Users/mikefhsu/ccws/jvm-clones/explibs/java-codecs/src/main/java");
-		dirs.add("/Users/mikefhsu/ccws/jvm-clones/explibs/ojalgo/src");
-		dirs.add("/Users/mikefhsu/ccws/jvm-clones/explibs/plexus-cipher/src/main/java");
+		dirs.add("./explibs/ejml_all/src");
+		dirs.add("./explibs/commons-math3-3.2-src/src/main/java");
+		dirs.add("./explibs/Jama/src");
+		dirs.add("./explibs/colt/src");
+		dirs.add("./explibs/java-codecs/src/main/java");
+		dirs.add("./explibs/ojalgo/src");
+		dirs.add("./explibs/plexus-cipher/src/main/java");
 		List<File> recorder = new ArrayList<File>();
 		
 		String ext = "java";
@@ -263,13 +253,13 @@ public class TokenCalculator {
 		//System.out.println("Avg tokens: " + avgTokens);
 		
 		List<String> classDirs = new ArrayList<String>();
-		classDirs.add("/Users/mikefhsu/ccws/jvm-clones/explibs/ejml_all/bin");
-		classDirs.add("/Users/mikefhsu/ccws/jvm-clones/explibs/commons-math3-3.2-src/bin");
-		classDirs.add("/Users/mikefhsu/ccws/jvm-clones/explibs/Jama/bin");
-		classDirs.add("/Users/mikefhsu/ccws/jvm-clones/explibs/colt/bin");
-		classDirs.add("/Users/mikefhsu/ccws/jvm-clones/explibs/java-codecs/bin");
-		classDirs.add("/Users/mikefhsu/ccws/jvm-clones/explibs/ojalgo/bin");
-		classDirs.add("/Users/mikefhsu/ccws/jvm-clones/explibs/plexus-cipher/bin");
+		classDirs.add("./explibs/ejml_all/bin");
+		classDirs.add("./explibs/commons-math3-3.2-src/bin");
+		classDirs.add("./explibs/Jama/bin");
+		classDirs.add("./explibs/colt/bin");
+		classDirs.add("./explibs/java-codecs/bin");
+		classDirs.add("./explibs/ojalgo/bin");
+		classDirs.add("./explibs/plexus-cipher/bin");
 		List<File> classRecorder = new ArrayList<File>();
 		
 		String classExt = "class";

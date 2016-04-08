@@ -299,22 +299,12 @@ public class MethodNode extends InstNode {
 		return this.maxGraphFreq;
 	}
 	
-	/**
-	 * Record callee graph with frequency in runtime
-	 * @author mikefhsu
-	 *
-	 */
 	public static class GraphWithFreq {
 		public GraphTemplate callee;
 		
 		public int freq = 0;
 	}
 	
-	/**
-	 * Record parent info and the necessary info. for callee graphs
-	 * @author mikefhsu
-	 *
-	 */
 	public static class CalleeInfo {
 		
 		public List<MetaGraph> metaCallees;
@@ -323,11 +313,6 @@ public class MethodNode extends InstNode {
 		
 	}
 	
-	/**
-	 * Required infor for callee graphs
-	 * @author mikefhsu
-	 *
-	 */
 	public static class MetaGraph {
 		public String calleeIdx;
 		

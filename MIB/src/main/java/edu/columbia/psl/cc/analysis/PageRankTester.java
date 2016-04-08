@@ -17,7 +17,7 @@ import edu.uci.ics.jung.graph.Hypergraph;
 public class PageRankTester {
 	
 	public static void main(String[] args) {
-		String testGraphPath = "/Users/mikefhsu/Mike/Research/ec2/codejam_mining/graphrepo/R5P1Y13-mikhailOK/R5P1Y13.mikhailOK.A:solveOneTest:0:100:23246772.json";
+		String testGraphPath = args[0];
 		File testGraphFile = new File(testGraphPath);
 		
 		TypeToken<GraphTemplate> token = new TypeToken<GraphTemplate>(){};

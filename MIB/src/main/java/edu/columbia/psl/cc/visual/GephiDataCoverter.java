@@ -44,7 +44,7 @@ import edu.columbia.psl.cc.util.StringUtil;
 
 public class GephiDataCoverter {
 	
-	private static String outputPath = "/Users/mikefhsu/Desktop/grant_graph/";
+	private static String outputPath = "./graph/";
 	
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
 	

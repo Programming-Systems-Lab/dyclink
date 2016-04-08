@@ -327,12 +327,16 @@ public class PageRankSelector {
 		if (constructOnly) {
 			System.out.println("Crawler count: " + crawlers.size());
 			int worstcase = 0;
+			HashSet<String> uniqueMethods = new HashSet<String>();
 			for (SubGraphCrawler sg: crawlers) {
 				int targetSize = sg.targetGraph.getInstPool().size();
 				//System.out.println("Target graph size: " + targetSize);
 				worstcase += targetSize;
+				uniqueMethods.add(sg.subGraphProfile.graph.getMethodKey());
+				uniqueMethods.add(sg.targetGraph.getMethodKey());
 			}
 			System.out.println("Worst case subgraph matching: " + worstcase);
+			System.out.println("Unique methods: " + uniqueMethods.size());
 			return ;
 		}
 		

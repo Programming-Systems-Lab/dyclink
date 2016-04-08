@@ -30,8 +30,6 @@ import edu.columbia.psl.cc.pojo.InstNode;
 
 public class TraceAnalyzer {
 	
-	//public static String graphRepo = "/Users/mikefhsu/Mike/Research/ec2/mib_sandbox_v3/";
-	
 	public static String graphRepo = null;
 	
 	private static TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
