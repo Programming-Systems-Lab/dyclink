@@ -507,7 +507,7 @@ public class PageRankSelector {
 			System.err.println("Null console");
 			System.exit(1);
 		}
-		
+				
 		String url = MIBConfiguration.getInstance().getDburl();
 		String username = MIBConfiguration.getInstance().getDbusername();
 		System.out.println("DB URL: " + url);
@@ -577,7 +577,7 @@ public class PageRankSelector {
 		logger.info("Construct only: " + constructOnly);
 		logger.info("DB url: " + url);
 		logger.info("DB username: " + username);
-		logger.info("Ignore constructor/static constructor" + iginit);
+		logger.info("Ignore constructor/static constructor: " + iginit);
 		
 		if (testDir == null) {
 			//Single mode

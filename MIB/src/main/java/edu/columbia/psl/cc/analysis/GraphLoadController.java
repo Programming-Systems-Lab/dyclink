@@ -257,11 +257,11 @@ public class GraphLoadController {
 			}
 			double avgVertex = ((double)vSum)/targetProfiles.size();
 			double avgEdge = ((double)eSum)/targetProfiles.size();
-			logger.info("Total vertices: " + vSum);
-			logger.info("Avg vertices: " + avgVertex);
-			logger.info("Max vertices: " + vMax);
-			logger.info("Total edges: " + eSum);
-			logger.info("Avg edges: " + avgEdge);*/
+			System.out.println("Total vertices: " + vSum);
+			System.out.println("Avg vertices: " + avgVertex);
+			System.out.println("Max vertices: " + vMax);
+			System.out.println("Total edges: " + eSum);
+			System.out.println("Avg edges: " + avgEdge);*/
 			
 			if (MIBConfiguration.getInstance().isExclPkg()) {
 				constructCrawlerListExcludePkg(targetProfiles, targetProfiles, crawlers);

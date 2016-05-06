@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -67,11 +68,11 @@ public class CodeRelQueryInterface {
 			String username = MIBConfiguration.getInstance().getDbusername();
 			String dburl = MIBConfiguration.getInstance().getDburl();
 			
-			logger.info("Confirm query settings:");
-			logger.info("DB url: " + dburl);
-			logger.info("Instruction size: " + segSize);
-			logger.info("Similarity threshold: " + simThresh);
-			logger.info("Filter next and read: " + filter);
+			System.out.println("Confirm query settings:");
+			System.out.println("DB url: " + dburl);
+			System.out.println("Instruction size: " + segSize);
+			System.out.println("Similarity threshold: " + simThresh);
+			System.out.println("Filter next and read: " + filter);
 			
 			Class.forName("com.mysql.jdbc.Driver");
 			Connection connect = DriverManager.getConnection(dburl, username, password);
@@ -83,7 +84,7 @@ public class CodeRelQueryInterface {
 			PreparedStatement queryStatement = connect.prepareStatement(queryString);
 			ResultSet result = queryStatement.executeQuery();
 			//Key is method pair
-			HashMap<HashSet<String>, CodeRel> codeRels = new HashMap<HashSet<String>,CodeRel> ();
+			HashMap<TreeSet<String>, CodeRel> codeRels = new HashMap<TreeSet<String>,CodeRel> ();
 			while (result.next()) {
 				String sub = result.getString("sub");
 				String target = result.getString("target");
@@ -105,7 +106,7 @@ public class CodeRelQueryInterface {
 					}
 				}
 				
-				HashSet<String> pair = new HashSet<String>();
+				TreeSet<String> pair = new TreeSet<String>();
 				pair.add(sub);
 				pair.add(target);
 								
@@ -159,7 +160,8 @@ public class CodeRelQueryInterface {
 			}
 			
 			List<CodeRel> crList = new ArrayList<CodeRel>(codeRels.values());
-			HashSet<HashSet<String>> toRemove = new HashSet<HashSet<String>>();
+			HashSet<TreeSet<String>> toRemove = new HashSet<TreeSet<String>>();
+			int dupRel = 0;
 			for (int i = 0; i < crList.size(); i++) {
 				CodeRel cr1 = crList.get(i);
 				
@@ -172,23 +174,26 @@ public class CodeRelQueryInterface {
 					
 					if (cr1.bestTrace.equals(cr2.bestTrace)) {
 						//If traces are the same, just keep one
-						logger.info("Dup rel: " + cr1.methodPair + " " + cr2.methodPair);
+						//logger.info("Dup rel: " + cr1.methodPair + " " + cr2.methodPair);
+						dupRel++;
 						toRemove.add(cr2.methodPair);
 					}
 				}
 			}
+			System.out.println("Total rel(before): " + crList.size());
+			System.out.println("Dup rel: " + dupRel);
 			
-			for (HashSet<String> r: toRemove) {
+			for (TreeSet<String> r: toRemove) {
 				codeRels.remove(r);
 			}
 			
-			logger.info("Check code rels");
-			for (HashSet<String> pair: codeRels.keySet()) {
-				logger.info(pair + " " + codeRels.get(pair).sim);
-				logger.info(codeRels.get(pair).bestTrace);
+			
+			for (TreeSet<String> pair: codeRels.keySet()) {
+				System.out.println(pair + "," + codeRels.get(pair).sim);
+				//logger.info(codeRels.get(pair).bestTrace);
 			}
 			
-			logger.info("Total code rels: " + codeRels.size());
+			System.out.println("Total code rels: " + codeRels.size());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -196,7 +201,7 @@ public class CodeRelQueryInterface {
 	}
 	
 	public static class CodeRel {
-		HashSet<String> methodPair;
+		TreeSet<String> methodPair;
 		
 		HashSet<HashSet<String>> traces = new HashSet<HashSet<String>>();
 		
