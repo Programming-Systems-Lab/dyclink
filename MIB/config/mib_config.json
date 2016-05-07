@@ -51,6 +51,6 @@
   "exclPkg": true,
   "reduceGraph": true,
   "nativeClass": true,
-  "dburl": "jdbc:mysql://ip:port/db?useServerPrepStmts\u003dfalse\u0026rewriteBatchedStatements\u003dtrue\u0026autoReconnect\u003dtrue",
+  "dburl": "jdbc:mysql://ip:port/dbname?useServerPrepStmts\u003dfalse\u0026rewriteBatchedStatements\u003dtrue\u0026autoReconnect\u003dtrue",
   "dbusername": "root"
 }

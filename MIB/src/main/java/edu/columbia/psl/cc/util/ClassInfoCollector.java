@@ -27,11 +27,11 @@ public class ClassInfoCollector {
 	
 	private static HashMap<String, Class> fieldToClass = new HashMap<String, Class>();
 	
-	public static void initiateClassMethodInfo(String className, String methodName, String methodDesc, boolean isStatic) {
+	public static ClassMethodInfo initiateClassMethodInfo(String className, String methodName, String methodDesc, boolean isStatic) {
 		String classMethodCacheKey = StringUtil.concateKey(className, methodName, methodDesc);
 		
 		if (classMethodInfoMap.containsKey(classMethodCacheKey)) {
-			return ;
+			return classMethodInfoMap.get(classMethodCacheKey);
 		}
 		
 		ClassMethodInfo cmi = new ClassMethodInfo();
@@ -58,55 +58,14 @@ public class ClassInfoCollector {
 				realIdx++;
 			}
 		}
-		
-		/*int endIdx = -1;
-		if (args.length == 0) {
-			endIdx = 0;
-		} else {
-			int realIdx = 1;
-			if (isStatic) {
-				realIdx = 0;
-			}
-			
-			int[] idxArray = new int[args.length];
-			for (int i = 0; i < args.length; i++) {
-				Type t = args[i];
-				idxArray[i] = realIdx; 
-				if (t.getSort() == Type.DOUBLE || t.getSort() == Type.LONG) {
-					realIdx += 2;
-				} else {
-					realIdx += 1;
-				}
-			}
-		}
-		
-		
-		if (args.length > 0) {
-			int startIdx = 0;
-			if (!isStatic) {
-				startIdx = 1;
-			}
-							
-			endIdx = startIdx;
-			for (int i = args.length - 1; i >= 0; i--) {
-				Type t = args[i];
-				if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
-					endIdx += 2;
-				} else {
-					endIdx += 1;
-				}
-			}
-			endIdx--;
-		} else {
-			endIdx = 0;
-		}*/
-		
+				
 		cmi.args = args;
 		cmi.returnType = returnType;
 		cmi.argSize = argSize;
 		//cmi.endIdx = endIdx;
 		cmi.idxArray = idxArray;
 		classMethodInfoMap.put(classMethodCacheKey, cmi);
+		return cmi;
 	}
 	
 	public static ClassMethodInfo retrieveClassMethodInfo(String className, String methodName, String methodDesc, int opcode) {

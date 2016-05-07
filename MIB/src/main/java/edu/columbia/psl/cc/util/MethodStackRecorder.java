@@ -136,7 +136,7 @@ public class MethodStackRecorder {
 		this.isSynthetic = ((access & Opcodes.ACC_SYNTHETIC) != 0);
 		this.objId = objId;
 		
-		ClassInfoCollector.initiateClassMethodInfo(className, 
+		ClassMethodInfo methodProfile = ClassInfoCollector.initiateClassMethodInfo(className, 
 				methodName, 
 				methodDesc, 
 				this.isStatic);
@@ -147,23 +147,10 @@ public class MethodStackRecorder {
 				methodDesc, 
 				this.threadId);*/
 		this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(this.threadId);
-		
-		int start = 0;
-		if (!this.isSynthetic) {
-			//Start from 0
-			this.shouldRecordReadLocalVars.add(0);
-			start = 1;
+		for (Integer idx: methodProfile.idxArray) {
+			this.shouldRecordReadLocalVars.add(idx);
 		}
-		
-		for (Type t: methodType.getArgumentTypes()) {
-			this.shouldRecordReadLocalVars.add(start);
-			if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
-				start += 2;
-			} else {
-				start += 1;
-			}
-		}
-		
+				
 		if (!methodName.equals("<clinit>") && GlobalRecorder.shouldStopMe(this.shortMethodKey)) {
 			this.stopRecord = true;
 		}

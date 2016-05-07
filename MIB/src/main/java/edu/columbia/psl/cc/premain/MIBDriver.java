@@ -129,9 +129,10 @@ public class MIBDriver {
 	}
 	
 	private static void graphing() {		
-		int threadIdInit = MIBConfiguration.getInstance().getThreadInit();
-		String now = String.valueOf((new Date()).getTime());
-		String fileName = memorizedTargetClass.getName() + "-" + threadIdInit + "-" + now;
+		//int threadIdInit = MIBConfiguration.getInstance().getThreadInit();
+		//String now = String.valueOf((new Date()).getTime());
+		//String fileName = memorizedTargetClass.getName() + "-" + threadIdInit + "-" + now;
+		String fileName = memorizedTargetClass.getName();
 		ShutdownLogger.appendMessage("Graphing: " + fileName);
 		
 		//Dump name map
