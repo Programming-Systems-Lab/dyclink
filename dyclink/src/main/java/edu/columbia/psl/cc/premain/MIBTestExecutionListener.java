@@ -17,7 +17,7 @@ import com.google.gson.reflect.TypeToken;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.NameMap;
-import edu.columbia.psl.cc.util.GlobalRecorder;
+import edu.columbia.psl.cc.util.GlobalGraphRecorder;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.ObjectIdAllocater;
 import edu.columbia.psl.cc.util.TimeController;
@@ -105,7 +105,7 @@ public class MIBTestExecutionListener extends RunListener{
 			if (MIBConfiguration.getInstance().isFieldTrack()) {
 				//Construct relations between w and r fields
 				//logger.info("Construct global edges");
-				int gEdgeNum = GlobalRecorder.constructGlobalRelations(false);
+				int gEdgeNum = GlobalGraphRecorder.constructGlobalRelations(false);
 				logger.info("Global edges: " + gEdgeNum);
 			}
 			
@@ -113,7 +113,7 @@ public class MIBTestExecutionListener extends RunListener{
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		} finally {
-			GlobalRecorder.clearContext();
+			GlobalGraphRecorder.clearContext();
 			long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 			System.out.println("Used memory: " + ((double)usedMemory/mb));
 			System.out.println("Execution time: " + ((double)TimeController.testMethodExecutionTime())/1000);

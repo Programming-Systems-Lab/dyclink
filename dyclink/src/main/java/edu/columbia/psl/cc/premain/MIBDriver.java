@@ -24,7 +24,7 @@ import edu.columbia.psl.cc.pojo.FieldRecord;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.NameMap;
-import edu.columbia.psl.cc.util.GlobalRecorder;
+import edu.columbia.psl.cc.util.GlobalGraphRecorder;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.ObjectIdAllocater;
 import edu.columbia.psl.cc.util.ShutdownLogger;
@@ -142,7 +142,7 @@ public class MIBDriver {
 		if (MIBConfiguration.getInstance().isFieldTrack()) {
 			//Construct relations between w and r fields
 			//logger.info("Construct global edges");
-			GlobalRecorder.constructGlobalRelations(false);
+			GlobalGraphRecorder.constructGlobalRelations(false);
 		}
 		
 		//Dump all graphs in memory
@@ -156,11 +156,11 @@ public class MIBDriver {
 	
 	public static void serializeNameMap() {
 		NameMap nameMap = new NameMap();
-		nameMap.setGlobalNameMap(GlobalRecorder.getGlobalNameMap());
-		nameMap.setShortNameCounter(GlobalRecorder.getShortNameCounter());
-		nameMap.setRecursiveMethods(GlobalRecorder.getRecursiveMethods());
-		nameMap.setUndersizedMethods(GlobalRecorder.getUndersizedMethods());
-		nameMap.setUntransformedClass(GlobalRecorder.getUntransformedClass());
+		nameMap.setGlobalNameMap(GlobalGraphRecorder.getGlobalNameMap());
+		nameMap.setShortNameCounter(GlobalGraphRecorder.getShortNameCounter());
+		nameMap.setRecursiveMethods(GlobalGraphRecorder.getRecursiveMethods());
+		nameMap.setUndersizedMethods(GlobalGraphRecorder.getUndersizedMethods());
+		nameMap.setUntransformedClass(GlobalGraphRecorder.getUntransformedClass());
 		
 		try {
 			String fileName = "nameMap";
@@ -179,15 +179,15 @@ public class MIBDriver {
 			NameMap nameMap = GsonManager.readJsonGeneric(file, nameToken);
 			
 			if (nameMap.getGlobalNameMap() != null)
-				GlobalRecorder.setGlobalNameMap(nameMap.getGlobalNameMap());
+				GlobalGraphRecorder.setGlobalNameMap(nameMap.getGlobalNameMap());
 			if (nameMap.getShortNameCounter() != null)
-				GlobalRecorder.setShortNameCounter(nameMap.getShortNameCounter());
+				GlobalGraphRecorder.setShortNameCounter(nameMap.getShortNameCounter());
 			if (nameMap.getRecursiveMethods() != null)
-				GlobalRecorder.setRecursiveMethods(nameMap.getRecursiveMethods());
+				GlobalGraphRecorder.setRecursiveMethods(nameMap.getRecursiveMethods());
 			if (nameMap.getUndersizedMethods() != null)
-				GlobalRecorder.setUndersizedMethods(nameMap.getUndersizedMethods());
+				GlobalGraphRecorder.setUndersizedMethods(nameMap.getUndersizedMethods());
 			if (nameMap.getUntransformedClass() != null)
-				GlobalRecorder.setUntransformedClass(nameMap.getUntransformedClass());
+				GlobalGraphRecorder.setUntransformedClass(nameMap.getUntransformedClass());
 			//System.out.println("Show name map from last execution: " + GlobalRecorder.getGlobalNameMap().size());
 		}
 		
@@ -203,7 +203,7 @@ public class MIBDriver {
 			HashMap<String, Integer> nativeMap = nativePackages.getNativePackages();
 			
 			if (nativeMap != null) {
-				GlobalRecorder.setNativePackages(nativeMap);
+				GlobalGraphRecorder.setNativePackages(nativeMap);
 			}
 		}
 	}
@@ -233,7 +233,7 @@ public class MIBDriver {
 	public synchronized static void selectDominantGraphs(String appName) {
 		//Dump all graphs in memory
 		//HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
-		HashMap<String, HashMap<String, GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
+		HashMap<String, HashMap<String, GraphTemplate>> allGraphs = GlobalGraphRecorder.getGraphs();
 		HorizontalMerger.startExtractionFast(appName, allGraphs);
 	}
 }

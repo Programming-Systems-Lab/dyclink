@@ -107,7 +107,7 @@ public class MethodStackRecorder implements IRecorder{
 		this.methodDesc = methodDesc;
 				
 		this.methodKey = StringUtil.genKey(className, methodName, methodDesc);
-		this.shortMethodKey = GlobalRecorder.getGlobalName(this.methodKey);		
+		this.shortMethodKey = GlobalGraphRecorder.getGlobalName(this.methodKey);		
 		Type methodType = Type.getMethodType(this.methodDesc);
 		this.methodArgSize = methodType.getArgumentTypes().length;
 		if (methodType.getReturnType().getSort() == Type.VOID) {
@@ -138,12 +138,12 @@ public class MethodStackRecorder implements IRecorder{
 			this.shouldRecordReadLocalVars.add(idx);
 		}
 				
-		if (!methodName.equals("<clinit>") && GlobalRecorder.shouldStopMe(this.shortMethodKey)) {
+		if (!methodName.equals("<clinit>") && GlobalGraphRecorder.shouldStopMe(this.shortMethodKey)) {
 			this.stopRecord = true;
 		}
 		
 		//System.out.println("Ready to enqueue stop callees: " + this.methodKey);
-		GlobalRecorder.enqueueStopCallees();
+		GlobalGraphRecorder.enqueueStopCallees();
 		
 		/*logger.info("Enter " + 
 				" " + this.methodKey + 
@@ -326,13 +326,13 @@ public class MethodStackRecorder implements IRecorder{
 			
 			if (BytecodeCategory.readFieldCategory().contains(opcat) && objId >= 0) {
 				//Add info for field: owner + name + desc + objId
-				InstNode writeInst = GlobalRecorder.getWriteField(recordFieldKey);
+				InstNode writeInst = GlobalGraphRecorder.getWriteField(recordFieldKey);
 				
 				//Only reccord global read-write in the same method for now
 				if (writeInst != null 
 						&& writeInst.getThreadId() == this.threadId 
 						&& writeInst.getThreadMethodIdx() == this.threadMethodId) {
-					GlobalRecorder.registerRWFieldHistory(writeInst, fullInst);
+					GlobalGraphRecorder.registerRWFieldHistory(writeInst, fullInst);
 					String writeIdx = FieldRecorder.toIndex(writeInst);
 					String readIdx = FieldRecorder.toIndex(fullInst);
 					
@@ -345,7 +345,7 @@ public class MethodStackRecorder implements IRecorder{
 					}
 				}
 			} else if (BytecodeCategory.writeFieldCategory().contains(opcat) && objId >= 0) {
-				GlobalRecorder.registerWriteField(recordFieldKey, fullInst);
+				GlobalGraphRecorder.registerWriteField(recordFieldKey, fullInst);
 				this.writeFields.put(recordFieldKey, fullInst);
 			} else if (!this.initConstructor) {
 				//Only happens for synthetic fields? No other inst has relation to it, so do nothing
@@ -671,10 +671,10 @@ public class MethodStackRecorder implements IRecorder{
 				if (Type.getType(owner).getSort() == Type.ARRAY 
 						|| !StringUtil.shouldIncludeClass(correctClass.getName()) 
 						|| !StringUtil.shouldIncludeMethod(name, desc)
-						|| GlobalRecorder.checkUndersizedMethod(GlobalRecorder.getGlobalName(realMethodKey)) 
-						|| GlobalRecorder.checkUntransformedClass(correctClass.getName())) {
+						|| GlobalGraphRecorder.checkUndersizedMethod(GlobalGraphRecorder.getGlobalName(realMethodKey)) 
+						|| GlobalGraphRecorder.checkUntransformedClass(correctClass.getName())) {
 					String pkgName = StringUtil.extractPkg(correctClass.getName());
-					String npId = String.valueOf(GlobalRecorder.getNativePackageId(pkgName));
+					String npId = String.valueOf(GlobalGraphRecorder.getNativePackageId(pkgName));
 					
 					//curMethodKey = StringUtil.genKeyWithId(curMethodKey, npId);
 					curMethodKey = StringUtil.completeMethodKeyWithInfo(curMethodKey, npId, desc, opcode);
@@ -691,7 +691,7 @@ public class MethodStackRecorder implements IRecorder{
 				
 				//logger.info("Before retrieve: " + owner + " " + name + " " + desc);
 				//GlobalRecorder.checkLatestGraphs();
-				GraphTemplate childGraph = GlobalRecorder.getLatestGraph(this.threadId);
+				GraphTemplate childGraph = GlobalGraphRecorder.getLatestGraph(this.threadId);
 				if (childGraph == null) {
 					logger.error("No child graph can be retrieved: " + realMethodKey);
 					//Add default np ID
@@ -721,7 +721,7 @@ public class MethodStackRecorder implements IRecorder{
 							curMethodKey, 
 							InstPool.REGULAR);
 					this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
-					GlobalRecorder.registerLatestGraph(childGraph);
+					GlobalGraphRecorder.registerLatestGraph(childGraph);
 					//System.out.println("Recorder time: " + (System.nanoTime() - startTime));
 					return ;
 				} else {
@@ -752,10 +752,10 @@ public class MethodStackRecorder implements IRecorder{
 					if (childGraph.getObjId() == this.objId 
 							&& childGraph.getShortMethodKey().equals(this.shortMethodKey)) {
 						//logger.info("Recursive object: " + this.objId + " " + this.shortMethodKey);
-						GlobalRecorder.registerRecursiveMethod(childGraph.getShortMethodKey());
+						GlobalGraphRecorder.registerRecursiveMethod(childGraph.getShortMethodKey());
 					}
 					
-					boolean stopCallee = GlobalRecorder.shouldStopMe(childGraph.getShortMethodKey());
+					boolean stopCallee = GlobalGraphRecorder.shouldStopMe(childGraph.getShortMethodKey());
 					if (!stopCallee)
 						fullInst.registerCallee(childGraph);
 					
@@ -898,15 +898,15 @@ public class MethodStackRecorder implements IRecorder{
 	
 	public void dumpGraph() {
 		if (MIBConfiguration.getInstance().isFieldTrack())
-			GlobalRecorder.removeWriteFields(this.writeFields.keySet());
+			GlobalGraphRecorder.removeWriteFields(this.writeFields.keySet());
 		
 		if (this.overTime || TimeController.isOverTime()) {
 			//this.clearCurrentThreadId();
 			return ;
 		}
 		
-		if (GlobalRecorder.checkUndersizedMethod(this.shortMethodKey)) {
-			GlobalRecorder.dequeueStopCallees();
+		if (GlobalGraphRecorder.checkUndersizedMethod(this.shortMethodKey)) {
+			GlobalGraphRecorder.dequeueStopCallees();
 			return ;
 		}
 		
@@ -931,8 +931,8 @@ public class MethodStackRecorder implements IRecorder{
 		
 		if (this.stopRecord) {
 			//Just push to the queue, don't enter graph group
-			GlobalRecorder.registerLatestGraph(gt);
-			GlobalRecorder.dequeueStopCallees();
+			GlobalGraphRecorder.registerLatestGraph(gt);
+			GlobalGraphRecorder.dequeueStopCallees();
 			return ;
 		}
 		
@@ -1016,12 +1016,12 @@ public class MethodStackRecorder implements IRecorder{
 		String dumpKey = StringUtil.genKeyWithId(this.shortMethodKey, String.valueOf(this.threadId));
 		
 		if (this.isSynthetic) {
-			GlobalRecorder.registerLatestGraph(gt);
-			GlobalRecorder.dequeueStopCallees();
+			GlobalGraphRecorder.registerLatestGraph(gt);
+			GlobalGraphRecorder.dequeueStopCallees();
 		} else {
 			boolean registerLatest = (!this.methodName.equals("<clinit>")); 
-			GlobalRecorder.registerGraph(dumpKey, gt, registerLatest);
-			GlobalRecorder.dequeueStopCallees();
+			GlobalGraphRecorder.registerGraph(dumpKey, gt, registerLatest);
+			GlobalGraphRecorder.dequeueStopCallees();
 		}
 		
 		//gt.calleeCache = this.calleeCache;

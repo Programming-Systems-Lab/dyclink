@@ -10,7 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import edu.columbia.psl.cc.config.MIBConfiguration;
-import edu.columbia.psl.cc.util.GlobalRecorder;
+import edu.columbia.psl.cc.util.GlobalGraphRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class MethodNode extends InstNode {
@@ -50,7 +50,7 @@ public class MethodNode extends InstNode {
 			HashSet<String> rs = cRW.get(w);
 			
 			for (String r: rs) {
-				GlobalRecorder.removeHistory(w, r);
+				GlobalGraphRecorder.removeHistory(w, r);
 			}
 		}
 	}
@@ -255,7 +255,7 @@ public class MethodNode extends InstNode {
 				for (String w: curRW.keySet()) {
 					HashSet<String> rs = curRW.get(w);
 					for (String r: rs) {
-						GlobalRecorder.increHistoryFreq(w, r);
+						GlobalGraphRecorder.increHistoryFreq(w, r);
 					}
 				}
 				
@@ -283,7 +283,7 @@ public class MethodNode extends InstNode {
 		
 		if (this.callFreq >= CALLEE_MAX) {
 			//logger.info("Curent call: " + this.fromMethod + " " + this.linenumber + " " + callee.getShortMethodKey() + " " + this.callFreq);
-			GlobalRecorder.registerStopCallee(callee.getShortMethodKey(), this.linenumber);
+			GlobalGraphRecorder.registerStopCallee(callee.getShortMethodKey(), this.linenumber);
 		}
 	}
 		

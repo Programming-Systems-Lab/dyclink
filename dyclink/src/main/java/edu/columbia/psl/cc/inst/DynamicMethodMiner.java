@@ -19,7 +19,7 @@ import edu.columbia.psl.cc.abs.IMethodMiner;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
-import edu.columbia.psl.cc.util.GlobalRecorder;
+import edu.columbia.psl.cc.util.GlobalGraphRecorder;
 import edu.columbia.psl.cc.util.MethodStackRecorder;
 import edu.columbia.psl.cc.util.ObjectIdAllocater;
 import edu.columbia.psl.cc.util.StringUtil;
@@ -30,7 +30,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 	
 	private static String methodStackRecorder = Type.getInternalName(MethodStackRecorder.class);
 	
-	private static String globalRecorder = Type.getInternalName(GlobalRecorder.class);
+	private static String globalRecorder = Type.getInternalName(GlobalGraphRecorder.class);
 	
 	private String className;
 	
@@ -103,7 +103,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 		this.myName = myName;
 		this.desc = desc;
 		this.fullKey = StringUtil.genKey(className, myName, desc);
-		this.shortKey = GlobalRecorder.registerGlobalName(className, myName, fullKey);
+		this.shortKey = GlobalGraphRecorder.registerGlobalName(className, myName, fullKey);
 		this.templateAnnot = templateAnnot;
 		this.testAnnot = testAnnot;
 		this.annotGuard = annotGuard;
@@ -619,7 +619,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 		if (this.shouldInstrument()) {
 			this.convertConst(this.curLineNum);
 			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-					Type.getInternalName(GlobalRecorder.class), 
+					Type.getInternalName(GlobalGraphRecorder.class), 
 					"enqueueCalleeLine", 
 					"(I)V", 
 					false);
@@ -659,7 +659,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 			//this.updateMethodRep(opcode);
 			
 			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-					Type.getInternalName(GlobalRecorder.class), 
+					Type.getInternalName(GlobalGraphRecorder.class), 
 					"dequeueCalleeLine", 
 					"()V", 
 					false);
@@ -807,7 +807,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 	@Override
 	public void visitEnd() {
 		if (this.indexer.get() < MIBConfiguration.getInstance().getInstThreshold() && !this.visitMethod) {
-			GlobalRecorder.registerUndersizedMethod(this.shortKey);
+			GlobalGraphRecorder.registerUndersizedMethod(this.shortKey);
 		}
 		//this.bbAnalyzer.summarizeDanglings();
 		//this.bbAnalyzer.printBlockInfo();

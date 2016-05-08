@@ -11,7 +11,7 @@ import edu.columbia.psl.cc.pojo.FieldNode;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.MethodNode.RegularState;
-import edu.columbia.psl.cc.util.GlobalRecorder;
+import edu.columbia.psl.cc.util.GlobalGraphRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class InstPool extends TreeSet<InstNode> {
@@ -38,7 +38,7 @@ public class InstPool extends TreeSet<InstNode> {
 	}
 	
 	private void updateTime(InstNode fullInst) {
-		long curTime = GlobalRecorder.getCurTime();
+		long curTime = GlobalGraphRecorder.getCurTime();
 		if (fullInst.getStartTime() < 0) {
 			fullInst.setStartTime(curTime);
 			fullInst.setUpdateTime(curTime);

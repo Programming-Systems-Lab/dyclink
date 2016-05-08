@@ -26,7 +26,7 @@ import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.NameMap;
-import edu.columbia.psl.cc.util.GlobalRecorder;
+import edu.columbia.psl.cc.util.GlobalGraphRecorder;
 import edu.columbia.psl.cc.util.GraphUtil;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.ShutdownLogger;
@@ -97,7 +97,7 @@ public class HorizontalMerger {
 	 */
 	public static void startExtraction(HashMap<String, List<GraphTemplate>> graphs) {
 		for (String key: graphs.keySet()) {
-			if (GlobalRecorder.getRecursiveMethods().contains(key)) {
+			if (GlobalGraphRecorder.getRecursiveMethods().contains(key)) {
 				ShutdownLogger.appendMessage("Recursive method: " + key);
 				
 				//Get the one withe the smallest thread method id

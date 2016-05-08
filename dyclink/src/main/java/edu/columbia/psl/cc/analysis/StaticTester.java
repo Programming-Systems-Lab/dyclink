@@ -7,7 +7,7 @@ import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
-import edu.columbia.psl.cc.util.GlobalRecorder;
+import edu.columbia.psl.cc.util.GlobalGraphRecorder;
 import edu.columbia.psl.cc.util.SearchUtil;
 
 public class StaticTester {
@@ -24,7 +24,7 @@ public class StaticTester {
 	 */
 	public static double[] genDistribution(Collection<InstNode> insts) {
 		int baseLength = SearchUtil.baseLength();
-		int totalLength = baseLength + GlobalRecorder.getNativePackages().size() + 1;
+		int totalLength = baseLength + GlobalGraphRecorder.getNativePackages().size() + 1;
 		//System.out.println("Base length: " + baseLength);
 		//System.out.println("Native length: " + GlobalRecorder.getNativePackages().size());
 		//System.out.println("Total length: " + totalLength);

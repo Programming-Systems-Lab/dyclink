@@ -16,7 +16,6 @@ import org.objectweb.asm.Type;
 import edu.columbia.psl.cc.abs.IMethodMiner;
 import edu.columbia.psl.cc.abs.IRecorder;
 import edu.columbia.psl.cc.config.MIBConfiguration;
-import edu.columbia.psl.cc.crawler.NativePackages;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.ClassMethodInfo;
@@ -99,7 +98,7 @@ public class CumuMethodRecorder implements IRecorder {
 		this.methodDesc = methodDesc;
 				
 		this.methodKey = StringUtil.genKey(className, methodName, methodDesc);
-		this.shortMethodKey = GlobalRecorder.getGlobalName(this.methodKey);		
+		this.shortMethodKey = GlobalGraphRecorder.getGlobalName(this.methodKey);		
 		Type methodType = Type.getMethodType(this.methodDesc);
 		this.methodArgSize = methodType.getArgumentTypes().length;
 		if (methodType.getReturnType().getSort() == Type.VOID) {
@@ -265,52 +264,27 @@ public class CumuMethodRecorder implements IRecorder {
 			} else if (opcode == Opcodes.PUTFIELD) {
 				if (typeSort == Type.LONG || typeSort == Type.DOUBLE) {
 					objId = parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 3).getRelatedObj());
-					//this.stackSimulator.get(this.stackSimulator.size() - 3).removeRelatedObj();
 				} else {
 					objId = parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 2).getRelatedObj());
-					//this.stackSimulator.get(this.stackSimulator.size() - 2).removeRelatedObj();
 				}
 			}
 			
 			String recordFieldKey = fieldKey;
 			if (objId > 0) {
-				//fieldKey += objId;
-				//Need a set
 				recordFieldKey += (":" + objId);
 			} else if (opcode == Opcodes.GETFIELD || opcode == Opcodes.PUTFIELD){
-				logger.warn("Uinitialized obj: " + opcode + " " + fieldKey + " " + objId);
-				logger.warn("Current method: " + this.methodKey);
+				logger.error("Uinitialized obj: " + opcode + " " + fieldKey + " " + objId);
+				logger.error("Current method: " + this.methodKey);
+				System.exit(-1);
 			}
 			
-			if (BytecodeCategory.readFieldCategory().contains(opcat) && objId >= 0) {
-				//Add info for field: owner + name + desc + objId
-				InstNode writeInst = GlobalRecorder.getWriteField(recordFieldKey);
-				
-				//Only reccord global read-write in the same method for now
-				if (writeInst != null 
-						&& writeInst.getThreadId() == this.threadId 
-						&& writeInst.getThreadMethodIdx() == this.threadMethodId) {
-					GlobalRecorder.registerRWFieldHistory(writeInst, fullInst);
-					String writeIdx = FieldRecorder.toIndex(writeInst);
-					String readIdx = FieldRecorder.toIndex(fullInst);
-					
-					if (this.rwFieldRelations.containsKey(writeIdx)) {
-						this.rwFieldRelations.get(writeIdx).add(readIdx);
-					} else {
-						HashSet<String> reads = new HashSet<String>();
-						reads.add(readIdx);
-						this.rwFieldRelations.put(writeIdx, reads);
-					}
-				}
-			} else if (BytecodeCategory.writeFieldCategory().contains(opcat) && objId >= 0) {
-				GlobalRecorder.registerWriteField(recordFieldKey, fullInst);
-				this.writeFields.put(recordFieldKey, fullInst);
-			} else if (!this.initConstructor) {
-				//Only happens for synthetic fields? No other inst has relation to it, so do nothing
-				//logger.info("Pre-access fields: " + fullInst);
+			if (opcode == Opcodes.PUTSTATIC || opcode == Opcodes.PUTFIELD) {
+				CumuGraphRecorder.registerWriterField(recordFieldKey, fullInst);
+			} else if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.GETFIELD) {
+				CumuGraphRecorder.updateReaderField(recordFieldKey, fullInst);
 			} else {
-				logger.warn("Current method retrieves non-instrumented obj id: " + this.methodName + " " + objId);
-				logger.warn("Fail to retrieve object ID " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
+				logger.error("Unrecognized field op: " + opcode);
+				System.exit(-1);
 			}
 		}
 		
@@ -555,190 +529,17 @@ public class CumuMethodRecorder implements IRecorder {
 		if (this.overTime)
 			return ;
 		
-		//long startTime = System.nanoTime();
-		ClassMethodInfo cmi = ClassInfoCollector.retrieveClassMethodInfo(owner, name, desc, opcode);
-		int argSize = cmi.argSize;
-		Type[] args = cmi.args;
-		Type rType = cmi.returnType;
-		int[] idxArray = cmi.idxArray;
+		//long startTime = System.nanoTime();		
+		String curMethodKey = StringUtil.genKey(owner, name, desc);
+		InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
+				this.threadId, 
+				this.threadMethodId, 
+				instIdx, 
+				opcode, 
+				curMethodKey, 
+				InstPool.REGULAR);
 		
-		try {
-			String curMethodKey = StringUtil.genKey(owner, name, desc);
-			if (TimeController.isOverTime()) {
-				curMethodKey = StringUtil.genKeyWithId(curMethodKey, defaultPkgId);
-				InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
-						this.threadId, 
-						this.threadMethodId, 
-						instIdx, 
-						opcode, 
-						curMethodKey, 
-						InstPool.REGULAR);
-				this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
-				return ;
-			} else {
-				//The case for class part is only for debugging
-				Class correctClass;
-				if (BytecodeCategory.staticMethodOps().contains(opcode)) {
-					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
-				} else {
-					InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
-					Object objOnStack = relatedInst.getRelatedObj();
-					
-					if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
-						//constructor
-						correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, true);
-					} else if (opcode == Opcodes.INVOKESPECIAL && owner.equals(this.className)) {
-						//private method
-						correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, true);
-					} else if (opcode == Opcodes.INVOKESPECIAL) {
-						//super method, may be in grand parents
-						correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
-					} else {
-						//logger.info("Retrieve method by class name: " + name + objOnStack.getClass().getName());
-						String internalName = Type.getInternalName(objOnStack.getClass());
-						correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(internalName, name, desc, false);
-					}
-				}
-				
-				String realMethodKey = StringUtil.genKey(correctClass.getName(), name, desc);
-				if (Type.getType(owner).getSort() == Type.ARRAY 
-						|| !StringUtil.shouldIncludeClass(correctClass.getName()) 
-						|| !StringUtil.shouldIncludeMethod(name, desc)
-						|| GlobalRecorder.checkUndersizedMethod(GlobalRecorder.getGlobalName(realMethodKey)) 
-						|| GlobalRecorder.checkUntransformedClass(correctClass.getName())) {
-					String pkgName = StringUtil.extractPkg(correctClass.getName());
-					String npId = String.valueOf(GlobalRecorder.getNativePackageId(pkgName));
-					
-					//curMethodKey = StringUtil.genKeyWithId(curMethodKey, npId);
-					curMethodKey = StringUtil.completeMethodKeyWithInfo(curMethodKey, npId, desc, opcode);
-					InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
-							this.threadId, 
-							this.threadMethodId, 
-							instIdx, 
-							opcode, 
-							curMethodKey, 
-							InstPool.REGULAR);
-					this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
-					return ;
-				}
-				
-				//logger.info("Before retrieve: " + owner + " " + name + " " + desc);
-				//GlobalRecorder.checkLatestGraphs();
-				GraphTemplate childGraph = GlobalRecorder.getLatestGraph(this.threadId);
-				if (childGraph == null) {
-					logger.error("No child graph can be retrieved: " + realMethodKey);
-					//Add default np ID
-					//curMethodKey = StringUtil.genKeyWithId(curMethodKey, defaultPkgId);
-					curMethodKey = StringUtil.completeMethodKeyWithInfo(curMethodKey, defaultPkgId, desc, opcode);
-					InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
-							this.threadId, 
-							this.threadMethodId, 
-							instIdx, 
-							opcode, 
-							curMethodKey, 
-							InstPool.REGULAR);
-					this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
-					return ;
-				} else if (!childGraph.getMethodName().equals(name) 
-						|| !childGraph.getMethodDesc().equals(desc)) {
-					logger.error("Incompatible graph: " + childGraph.getMethodKey());
-					logger.error("Wanted: " + correctClass.getName() + " " + name + " " + desc);
-					//Add default np ID
-					//curMethodKey = StringUtil.genKeyWithId(curMethodKey, defaultPkgId);
-					curMethodKey = StringUtil.completeMethodKeyWithInfo(curMethodKey, defaultPkgId, desc, opcode);
-					InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
-							this.threadId, 
-							this.threadMethodId, 
-							instIdx, 
-							opcode, 
-							curMethodKey, 
-							InstPool.REGULAR);
-					this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
-					GlobalRecorder.registerLatestGraph(childGraph);
-					//System.out.println("Recorder time: " + (System.nanoTime() - startTime));
-					return ;
-				} else {
-					//logger.info("Child graph: " + childGraph.getMethodName());
-					//logger.info("Correct class: " + correctClass.getName());
-					MethodNode fullInst = (MethodNode)this.pool.searchAndGet(this.methodKey, 
-							this.threadId, 
-							this.threadMethodId, 
-							instIdx, 
-							opcode, 
-							curMethodKey, 
-							InstPool.METHOD);
-					fullInst.setLinenumber(linenum);
-					//this.updateTime(fullInst);
-					this.updateControlRelation(fullInst);
-					
-					int objId = -1;
-					if (opcode == Opcodes.INVOKESTATIC) {
-						objId = 0;
-					} else {
-						InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
-						Object objOnStack = relatedInst.getRelatedObj();
-						//methodId = ObjectIdAllocater.parseObjId(objOnStack);
-						objId = parseObjId(objOnStack);
-						//relatedInst.removeRelatedObj();
-					}
-					
-					if (childGraph.getObjId() == this.objId 
-							&& childGraph.getShortMethodKey().equals(this.shortMethodKey)) {
-						//logger.info("Recursive object: " + this.objId + " " + this.shortMethodKey);
-						GlobalRecorder.registerRecursiveMethod(childGraph.getShortMethodKey());
-					}
-					
-					boolean stopCallee = GlobalRecorder.shouldStopMe(childGraph.getShortMethodKey());
-					if (!stopCallee)
-						fullInst.registerCallee(childGraph);
-					
-					if (args.length > 0) {
-						for (int i = args.length - 1; i >= 0 ;i--) {
-							Type t = args[i];
-							InstNode targetNode = null;
-							int idx = idxArray[i];
-							if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
-								this.safePop();
-								targetNode = this.safePop();
-								
-								//parentFromCaller.put(endIdx, targetNode);
-								this.updateCachedMap(targetNode, fullInst, MIBConfiguration.INST_DATA_DEP);
-								fullInst.registerParentReplay(idx, targetNode);
-							} else {
-								targetNode = this.safePop();
-								//parentFromCaller.put(endIdx, targetNode);
-								this.updateCachedMap(targetNode, fullInst, MIBConfiguration.INST_DATA_DEP);
-								fullInst.registerParentReplay(idx, targetNode);
-							}
-						}
-					}
-					
-					if (opcode != Opcodes.INVOKESTATIC) {
-						//loadNode can be anyload that load an object
-						InstNode loadNode = this.safePop();
-						//parentFromCaller.put(0, loadNode);
-						this.updateCachedMap(loadNode, fullInst, MIBConfiguration.INST_DATA_DEP);
-						fullInst.registerParentReplay(0, loadNode);
-					}
-					
-					String returnType = rType.getDescriptor();
-					if (!returnType.equals("V")) {
-						//InstNode lastSecond = childGraph.getLastBeforeReturn();
-						if (returnType.equals("D") || returnType.equals("J")) {
-							this.updateStackSimulator(2, fullInst);
-						} else {
-							this.updateStackSimulator(1, fullInst);
-						}
-					}
-					
-					/*if (!similar) {
-						this.updateVertexEdgeNum(childGraph);
-					}*/
-				}
-			}
-		} catch (Exception ex) {
-			logger.error("Exception: " + this.methodName + " " + this.threadId + " " + this.threadMethodId, ex);
-		}
+		this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 		//this.showStackSimulator();
 	}
 	
@@ -826,14 +627,14 @@ public class CumuMethodRecorder implements IRecorder {
 	
 	public void dumpGraph() {
 		if (MIBConfiguration.getInstance().isFieldTrack())
-			GlobalRecorder.removeWriteFields(this.writeFields.keySet());
+			GlobalGraphRecorder.removeWriteFields(this.writeFields.keySet());
 		
 		if (this.overTime || TimeController.isOverTime()) {
 			return ;
 		}
 		
-		if (GlobalRecorder.checkUndersizedMethod(this.shortMethodKey)) {
-			GlobalRecorder.dequeueStopCallees();
+		if (GlobalGraphRecorder.checkUndersizedMethod(this.shortMethodKey)) {
+			GlobalGraphRecorder.dequeueStopCallees();
 			return ;
 		}
 		
@@ -902,12 +703,7 @@ public class CumuMethodRecorder implements IRecorder {
 				}
 			}
 			edgeNum += childNum;
-		}
-		/*System.out.println("Graph v: " + vertexNum);
-		System.out.println("Graph e: " + edgeNum);
-		System.out.println("vDelta: " + vDelta);
-		System.out.println("eDelta: " + eDelta);*/
-		
+		}		
 		vertexNum = vertexNum + vDelta;
 		edgeNum = edgeNum + eDelta;
 				
@@ -932,19 +728,23 @@ public class CumuMethodRecorder implements IRecorder {
 		//logger.info("Total edge count: " + gt.getEdgeNum());
 		//logger.info("Total vertex count: " + gt.getVertexNum());
 		
-		//String dumpKey = StringUtil.genKeyWithId(this.methodKey, String.valueOf(this.threadId));
 		String dumpKey = StringUtil.genKeyWithId(this.shortMethodKey, String.valueOf(this.threadId));
 		
-		if (this.isSynthetic) {
-			GlobalRecorder.registerLatestGraph(gt);
-			GlobalRecorder.dequeueStopCallees();
+		if (this.isStatic) {
+			CumuGraphRecorder.registerStaticGraph(this.shortMethodKey, gt);
 		} else {
-			boolean registerLatest = (!this.methodName.equals("<clinit>")); 
-			GlobalRecorder.registerGraph(dumpKey, gt, registerLatest);
-			GlobalRecorder.dequeueStopCallees();
+			CumuGraphRecorder.registerObjGraph(this.objId, gt);
 		}
 		
-		//gt.calleeCache = this.calleeCache;
+		/*if (this.isSynthetic) {
+			GlobalGraphRecorder.registerLatestGraph(gt);
+			GlobalGraphRecorder.dequeueStopCallees();
+		} else {
+			boolean registerLatest = (!this.methodName.equals("<clinit>")); 
+			GlobalGraphRecorder.registerGraph(dumpKey, gt, registerLatest);
+			GlobalGraphRecorder.dequeueStopCallees();
+		}*/
+		
 		//this.showStackSimulator();
 		/*logger.info("Leave " + 
 				" " + this.methodKey + 

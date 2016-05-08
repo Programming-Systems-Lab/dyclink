@@ -24,7 +24,7 @@ import edu.columbia.psl.cc.annot.analyzeClass;
 import edu.columbia.psl.cc.annot.extractTemplate;
 import edu.columbia.psl.cc.annot.testTemplate;
 import edu.columbia.psl.cc.config.MIBConfiguration;
-import edu.columbia.psl.cc.util.GlobalRecorder;
+import edu.columbia.psl.cc.util.GlobalGraphRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
 public class MIBClassFileTransformer implements ClassFileTransformer {
@@ -115,7 +115,7 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 				//ex.printStackTrace();
 				logger.error("Fail to transform class: " + name + ", recover original class");
 				logger.error("Message: ", ex);
-				GlobalRecorder.registerUntransformedClass(name);
+				GlobalGraphRecorder.registerUntransformedClass(name);
 			}
 		}
 		return classfileBuffer;
