@@ -3,7 +3,7 @@ package edu.columbia.psl.cc.inst;
 import java.util.HashMap;
 import java.util.ArrayList;
 
-import edu.columbia.psl.cc.config.IInstrumentInfo;
+import edu.columbia.psl.cc.abs.IMethodMiner;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.util.StringUtil;
@@ -20,7 +20,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
 
-public class ClassMiner extends ClassVisitor implements IInstrumentInfo{
+public class ClassMiner extends ClassVisitor implements IMethodMiner{
 	
 	private static Logger logger = LogManager.getLogger(ClassMiner.class);
 	
@@ -105,17 +105,35 @@ public class ClassMiner extends ClassVisitor implements IInstrumentInfo{
 				return mv;
 			}
 			
-			DynamicMethodMiner dmm =  new DynamicMethodMiner(mv, 
-					this.owner, 
-					this.superName, 
-					access, 
-					name, 
-					desc, 
-					this.templateAnnot, 
-					this.testAnnot, 
-					this.annotGuard, 
-					this.objIdOwner);
-			LocalVariablesSorter lvs = new LocalVariablesSorter(access, desc, dmm);
+			if (!MIBConfiguration.getInstance().isCumuGraph()) {
+				DynamicMethodMiner dmm =  new DynamicMethodMiner(mv, 
+						this.owner, 
+						this.superName, 
+						access, 
+						name, 
+						desc, 
+						this.templateAnnot, 
+						this.testAnnot, 
+						this.annotGuard, 
+						this.objIdOwner);
+				LocalVariablesSorter lvs = new LocalVariablesSorter(access, desc, dmm);
+				dmm.setLocalVariablesSorter(lvs);
+				return dmm.getLocalVariablesSorter();
+			} else {
+				CumuMethodMiner cmm = new CumuMethodMiner(mv, 
+						this.owner, 
+						this.superName, 
+						access, 
+						name, 
+						desc, 
+						this.templateAnnot, 
+						this.testAnnot, 
+						this.annotGuard, 
+						this.objIdOwner);
+				LocalVariablesSorter lvs = new LocalVariablesSorter(access, desc, cmm);
+				cmm.setLocalVariablesSorter(lvs);
+				return cmm.getLocalVariablesSorter();
+			}
 			
 			//See the comment from https://github.com/pmahoney/asm-bug/blob/master/src/main/java/Main.java
 			/*try {
@@ -126,8 +144,6 @@ public class ClassMiner extends ClassVisitor implements IInstrumentInfo{
 				ex.printStackTrace();
 			}*/
 			
-			dmm.setLocalVariablesSorter(lvs);
-			return dmm.getLocalVariablesSorter();
 		}
 		return mv;
 	}

@@ -106,6 +106,8 @@ public class MIBConfiguration {
 		
 	private boolean nativeClass;
 	
+	private boolean cumuGraph;
+	
 	private String dburl;
 	
 	private String dbusername;
@@ -423,6 +425,14 @@ public class MIBConfiguration {
 		this.nativeClass = nativeClass;
 	}
 	
+	public boolean isCumuGraph() {
+		return this.cumuGraph;
+	}
+	
+	public void setCumuGraph(boolean cumuGraph) {
+		this.cumuGraph = cumuGraph;
+	}
+	
 	public void setDburl(String dburl) {
 		this.dburl = dburl;
 	}
@@ -469,6 +479,7 @@ public class MIBConfiguration {
 		sb.append("field track: " + this.fieldTrack + "\n");
 		sb.append("reduce graph: " + this.reduceGraph + "\n");
 		sb.append("native classification: " + this.nativeClass + "\n");
+		sb.append("cumulative graph: " + this.cumuGraph + "\n");
 		sb.append("debug: " + this.debug + "\n");
 		sb.append("exclude spec. methods: " + this.exclSpec + "\n");
 		sb.append("exclude pkg methods: " + this.exclPkg + "\n");

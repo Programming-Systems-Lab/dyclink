@@ -1,12 +1,9 @@
 package edu.columbia.psl.cc.util;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -16,11 +13,8 @@ import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import com.google.gson.reflect.TypeToken;
-
 import edu.columbia.psl.cc.abs.IMethodMiner;
 import edu.columbia.psl.cc.abs.IRecorder;
-import edu.columbia.psl.cc.analysis.StaticTester;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.crawler.NativePackages;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
@@ -31,9 +25,9 @@ import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 
-public class MethodStackRecorder implements IRecorder{
+public class CumuMethodRecorder implements IRecorder {
 	
-	private static Logger logger = LogManager.getLogger(MethodStackRecorder.class);
+	private static Logger logger = LogManager.getLogger(CumuMethodRecorder.class);
 			
 	private String className;
 	
@@ -55,7 +49,7 @@ public class MethodStackRecorder implements IRecorder{
 		
 	private Stack<InstNode> stackSimulator = new Stack<InstNode>();
 	
-	private InstNode curControlInst;
+	private InstNode lastInst;
 		
 	//Key: local var idx, Val: inst node
 	private Map<Integer, InstNode> localVarRecorder = new HashMap<Integer, InstNode>();
@@ -85,13 +79,11 @@ public class MethodStackRecorder implements IRecorder{
 	
 	private boolean overTime = false;
 	
-	private boolean stopRecord = false;
+	//private boolean stopRecord = false;
 	
 	public boolean initConstructor = true;
 	
-	//public List<String> tmpRecords = new ArrayList<String>();
-	
-	public MethodStackRecorder(String className, 
+	public CumuMethodRecorder(String className, 
 			String methodName, 
 			String methodDesc, 
 			int access, 
@@ -129,26 +121,10 @@ public class MethodStackRecorder implements IRecorder{
 				this.isStatic);
 		
 		this.threadId = ObjectIdAllocater.getThreadId();
-		/*this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(className, 
-				methodName, 
-				methodDesc, 
-				this.threadId);*/
 		this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(this.threadId);
 		for (Integer idx: methodProfile.idxArray) {
 			this.shouldRecordReadLocalVars.add(idx);
 		}
-				
-		if (!methodName.equals("<clinit>") && GlobalRecorder.shouldStopMe(this.shortMethodKey)) {
-			this.stopRecord = true;
-		}
-		
-		//System.out.println("Ready to enqueue stop callees: " + this.methodKey);
-		GlobalRecorder.enqueueStopCallees();
-		
-		/*logger.info("Enter " + 
-				" " + this.methodKey + 
-				" " + this.threadId + 
-				" " + this.threadMethodId);*/
 	}
 	
 	public static final int parseObjId(Object value) {
@@ -159,17 +135,9 @@ public class MethodStackRecorder implements IRecorder{
 		try {
 			Field idField = valueClass.getField(IMethodMiner.__mib_id);
 			idField.setAccessible(true);
-			/*System.out.println("Traverse fields of " + valueClass);
-			for (Field f: valueClass.getFields()) {
-				System.out.println(f);
-			}*/
 			int objId = idField.getInt(value);
-			//System.out.println("Obj: " + value);
-			//System.out.println("Id: " + objId);
 			return objId;
 		} catch (Exception ex) {
-			//ex.printStackTrace();
-			//System.out.println("Warning: object " + valueClass + " is not MIB-instrumented");
 			logger.warn("Warning: object " + valueClass + " is not MIB-instrumented");
 			return -1;
 		}
@@ -219,26 +187,17 @@ public class MethodStackRecorder implements IRecorder{
 	}
 	
 	public void updateCurLabel(String curLabel) {
-		if (this.stopRecord || this.overTime)
+		if (this.overTime)
 			return ;
 		
 		this.curLabel = curLabel;
-		
-		/*if (this.checkLabel) {
-			if (this.curControlInst.getOp().getOpcode() != Opcodes.GOTO) {
-				logger.error("Control inst not goto: " + this.curControlInst);
-			}
-			String expectLabel = this.curControlInst.getAddInfo();
-			if (!this.curLabel.equals(expectLabel))
-				this.curControlInst = null;
-			
-			this.checkLabel = false;
-		}*/
 	}
 	
 	private void updateControlRelation(InstNode fullInst) {
-		if (this.curControlInst != null)
-			this.updateCachedMap(this.curControlInst, fullInst, MIBConfiguration.CONTR_DEP);
+		if (this.lastInst != null)
+			this.updateCachedMap(this.lastInst, fullInst, MIBConfiguration.CONTR_DEP);
+		
+		this.lastInst = fullInst;
 	}
 	
 	private synchronized InstNode safePop() {
@@ -249,7 +208,7 @@ public class MethodStackRecorder implements IRecorder{
 	}
 	
 	public void updateObjOnStack(Object obj, int traceBack) {
-		if (this.stopRecord || this.overTime)
+		if (this.overTime)
 			return ;
 		
 		int idx = this.stackSimulator.size() - 1 - traceBack;
@@ -258,7 +217,7 @@ public class MethodStackRecorder implements IRecorder{
 	}
 	
 	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {		
-		if (this.stopRecord || this.overTime)
+		if (this.overTime)
 			return ;
 		
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
@@ -272,13 +231,12 @@ public class MethodStackRecorder implements IRecorder{
 		//this.updateTime(fullInst);
 		
 		this.updateControlRelation(fullInst);
-		
 		this.updateStackSimulator(times, fullInst);
 		//this.showStackSimulator();
 	}
 	
 	public void handleField(int opcode, int instIdx, String owner, String name, String desc) {		
-		if (this.stopRecord || this.overTime)
+		if (this.overTime)
 			return ;
 		
 		//Search the real owner of the field
@@ -384,12 +342,10 @@ public class MethodStackRecorder implements IRecorder{
 	}
 	
 	public void handleOpcode(int opcode, int instIdx, String addInfo) {		
-		if (this.stopRecord || this.overTime)
+		if (this.overTime)
 			return ;
 		
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
-		int opcat = oo.getCatId();
-		
 		InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
 				this.threadId, 
 				this.threadMethodId, 
@@ -400,7 +356,7 @@ public class MethodStackRecorder implements IRecorder{
 		fullInst.setLinenumber(this.linenumber);
 		//this.updateTime(fullInst);
 		this.updateControlRelation(fullInst);
-				
+		
 		int inputSize = oo.getInList().size();
 		if (inputSize > 0) {
 			for (int i = 0; i < inputSize; i++) {
@@ -419,15 +375,6 @@ public class MethodStackRecorder implements IRecorder{
 		}
 		this.updateStackSimulator(fullInst, 0);
 		//this.showStackSimulator();
-		
-		if (BytecodeCategory.controlCategory().contains(opcat) 
-				|| opcode == Opcodes.TABLESWITCH 
-				|| opcode == Opcodes.LOOKUPSWITCH) {
-			this.curControlInst = fullInst;
-			
-			/*if (this.curControlInst.getOp().getOpcode() == Opcodes.GOTO)
-				this.checkLabel = true;*/
-		}
 	}
 	
 	/**
@@ -435,8 +382,8 @@ public class MethodStackRecorder implements IRecorder{
 	 * @param opcode
 	 * @param localVarIdx
 	 */
-	public void handleOpcode(int opcode, int instIdx, int localVarIdx) {		
-		if (this.stopRecord || this.overTime)
+	public void handleOpcode(int opcode, int instIdx, int localVarIdx) {				
+		if (this.overTime)
 			return ;
 		
 		//Don't record return inst, or need to remove it later
@@ -530,10 +477,6 @@ public class MethodStackRecorder implements IRecorder{
 					InstNode tmpInst = this.safePop();
 					if (!tmpInst.equals(lastTmp)) {
 						this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
-						
-						/*if (BytecodeCategory.returnOps().contains(fullInst.getOp().getOpcode())) {
-							this.beforeReturn = tmpInst;
-						}*/
 					}
 					
 					lastTmp = tmpInst;
@@ -544,16 +487,11 @@ public class MethodStackRecorder implements IRecorder{
 		if (!hasUpdate) 
 			this.updateStackSimulator(fullInst, 0);
 		
-		/*if (this.methodKey.equals("R5P1Y11.burdakovd.A:sum:(Ljava.util.List+D):D") 
-				&& this.linenumber == 197 && opcode == Opcodes.DCMPL) {
-			System.out.println("DCMPL: " + ++fakeCount);
-			this.visitDCMPL = true;
-		}*/
 		//this.showStackSimulator();
 	}
 	
 	public void handleMultiNewArray(String desc, int dim, int instIdx) {		
-		if (this.stopRecord || this.overTime)
+		if (this.overTime)
 			return ;
 		
 		String addInfo = desc + " " + dim;
@@ -613,13 +551,8 @@ public class MethodStackRecorder implements IRecorder{
 		//this.showStackSimulator();
 	}
 	
-	public void handleMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc) {
-		/*if (this.methodKey.equals("yourmethod")) {
-			//System.out.println("Handle method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
-			this.tmpRecords.add("Handle method: " + opcode + " " + instIdx + " " + owner + " " + name + " " + desc);
-		}*/
-		
-		if (this.stopRecord || this.overTime)
+	public void handleMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc) {		
+		if (this.overTime)
 			return ;
 		
 		//long startTime = System.nanoTime();
@@ -809,13 +742,8 @@ public class MethodStackRecorder implements IRecorder{
 		//this.showStackSimulator();
 	}
 	
-	public void handleDup(int opcode) {
-		/*if (this.methodKey.equals("yourmethod")) {
-			//System.out.println("Handling dup");
-			this.tmpRecords.add("Handling dup");
-		}*/
-		
-		if (this.stopRecord || this.overTime)
+	public void handleDup(int opcode) {		
+		if (this.overTime)
 			return ;
 		
 		InstNode dupInst = null;
@@ -901,7 +829,6 @@ public class MethodStackRecorder implements IRecorder{
 			GlobalRecorder.removeWriteFields(this.writeFields.keySet());
 		
 		if (this.overTime || TimeController.isOverTime()) {
-			//this.clearCurrentThreadId();
 			return ;
 		}
 		
@@ -928,14 +855,7 @@ public class MethodStackRecorder implements IRecorder{
 			gt.setLastBeforeReturn(this.beforeReturn);
 			//logger.info("Before return inst: " + this.beforeReturn);
 		}
-		
-		if (this.stopRecord) {
-			//Just push to the queue, don't enter graph group
-			GlobalRecorder.registerLatestGraph(gt);
-			GlobalRecorder.dequeueStopCallees();
-			return ;
-		}
-		
+				
 		HashMap<String, GraphTemplate> calleeRequired = new HashMap<String, GraphTemplate>();
 		Iterator<InstNode> instIterator = this.pool.iterator();
 		int edgeNum = 0, vertexNum = this.pool.size();
@@ -1032,3 +952,4 @@ public class MethodStackRecorder implements IRecorder{
 				" " + this.threadMethodId);*/
 	}
 }
+

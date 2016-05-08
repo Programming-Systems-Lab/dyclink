@@ -16,19 +16,20 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
 import edu.columbia.psl.cc.abs.IMethodMiner;
+import edu.columbia.psl.cc.abs.IRecorder;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
+import edu.columbia.psl.cc.util.CumuMethodRecorder;
 import edu.columbia.psl.cc.util.GlobalRecorder;
-import edu.columbia.psl.cc.util.MethodStackRecorder;
 import edu.columbia.psl.cc.util.ObjectIdAllocater;
 import edu.columbia.psl.cc.util.StringUtil;
 
-public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
+public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 	
 	private static Logger logger = LogManager.getLogger(DynamicMethodMiner.class);
 	
-	private static String methodStackRecorder = Type.getInternalName(MethodStackRecorder.class);
+	private static String cumuMethodRecorder = Type.getInternalName(CumuMethodRecorder.class);
 	
 	private static String globalRecorder = Type.getInternalName(GlobalRecorder.class);
 	
@@ -43,11 +44,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 	private String fullKey;
 	
 	private String shortKey;
-	
-	private String templateAnnot;
-	
-	private String testAnnot;
-		
+			
 	private boolean annotGuard;
 	
 	private LocalVariablesSorter lvs;
@@ -57,36 +54,29 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 	
 	private int access = -1;
 	
-	private Label curLabel = null;
-	
 	private int curLineNum = -1;
 	
+	private String templateAnnot;
+	
+	private String testAnnot;
+	
 	private List<Label> allLabels = new ArrayList<Label>();
-	
-	//private int[] repVector = new int[BytecodeCategory.getOpcodeCategory().size()];
-	
-	//private HashMap<Integer, ArrayList<OpcodeObj>> records = genRecordTemplate();
-	
-	//private ArrayList<OpcodeObj> sequence = new ArrayList<OpcodeObj>();
-	
+		
 	private AtomicInteger indexer = new AtomicInteger();
 	
 	//Enable all instrumentation, if this is a constructor
 	private boolean constructor = false;
 	
 	private boolean objIdOwner = false;
-	
-	//Invoke the change of object id
-	//private boolean superVisited = false;
-	
+		
 	//Control if the constructor should start passing object to recorder
 	private boolean aload0Lock = false;
 	
 	private boolean visitMethod = false;
 	
-	//private BasicBlockAnalyzer bbAnalyzer;
+	private Label curLabel;
 	 
-	public DynamicMethodMiner(MethodVisitor mv, 
+	public CumuMethodMiner(MethodVisitor mv, 
 			String className, 
 			String superName, 
 			int access, 
@@ -96,7 +86,6 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 			String testAnnot, 
 			boolean annotGuard, 
 			boolean objIdOwner) {
-		//super(Opcodes.ASM4, mv, access, myName, desc);
 		super(Opcodes.ASM5, mv);
 		this.className = className;
 		this.superName = superName;
@@ -150,28 +139,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 		else 
 			return false;
 	}
-	
-	/*private void recordOps(int category, int opcode) {
-		OpcodeObj obj = BytecodeCategory.getOpcodeObj(opcode);
-		this.records.get(category).add(obj);
-		this.sequence.add(obj);
-	}
-	
-	private void updateSingleCat(int catId, int opcode) {
-		repVector[catId]++;
-		recordOps(catId, opcode);
-	}
-	
-	private int updateMethodRep(int opcode) {
-		int catId = BytecodeCategory.getSetIdByOpcode(opcode);
-		if (catId >= 0 ) {
-			updateSingleCat(catId, opcode);
-		} else {
-			logger.error("Cannot find category for: " + opcode);
-		}
-		return catId;
-	}*/
-	
+		
 	private void updateObjOnVStack() {		
 		//Store it in MethodStackRecorder
 		this.mv.visitInsn(Opcodes.DUP);
@@ -179,7 +147,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 		this.mv.visitInsn(Opcodes.SWAP);
 		this.mv.visitInsn(Opcodes.ICONST_0);
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
-				methodStackRecorder, 
+				cumuMethodRecorder, 
 				objOnStack, 
 				objOnStackDesc, 
 				false);
@@ -224,7 +192,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.convertConst(linenumber);
 		this.mv.visitFieldInsn(Opcodes.PUTFIELD, 
-				methodStackRecorder, 
+				cumuMethodRecorder, 
 				"linenumber", 
 				Type.INT_TYPE.getDescriptor());
 	}
@@ -233,7 +201,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.mv.visitLdcInsn(label.toString());
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
-				methodStackRecorder, 
+				cumuMethodRecorder, 
 				srUpdateCurLabel, 
 				srUpdateCurLabelDesc, 
 				false);
@@ -250,7 +218,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 			this.convertConst(addInfo[0]);
 		}
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
-				methodStackRecorder, 
+				cumuMethodRecorder, 
 				srHandleCommon, 
 				srHCDesc, 
 				false);
@@ -265,7 +233,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 		this.convertConst(idx);
 		this.mv.visitLdcInsn(addInfo);
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
-				methodStackRecorder, 
+				cumuMethodRecorder, 
 				srHandleCommon, 
 				srHCDescString, 
 				false);
@@ -282,7 +250,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 		this.mv.visitLdcInsn(name);
 		this.mv.visitLdcInsn(desc);
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
-				methodStackRecorder, 
+				cumuMethodRecorder, 
 				srHandleField, 
 				srHandleFieldDesc, 
 				false);
@@ -298,7 +266,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 		this.convertConst(times);
 		this.mv.visitLdcInsn(addInfo);
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
-				methodStackRecorder, 
+				cumuMethodRecorder, 
 				srHandleLdc, 
 				srHandleLdcDesc, 
 				false);
@@ -313,7 +281,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 		int idx = this.getIndex();
 		this.convertConst(idx);
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
-				methodStackRecorder, 
+				cumuMethodRecorder, 
 				srHandleMultiArray, 
 				srHandleMultiArrayDesc, 
 				false);
@@ -331,7 +299,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 		this.mv.visitLdcInsn(name);
 		this.mv.visitLdcInsn(desc);
 		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
-				methodStackRecorder, 
+				cumuMethodRecorder, 
 				srHandleMethod, 
 				srHandleMethodDesc, 
 				false);
@@ -342,18 +310,18 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 	public void initConstructorRecorder() {
 		if (this.shouldInstrument()) {
 			//Create the method stack recorder
-			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
-			this.mv.visitTypeInsn(Opcodes.NEW, methodStackRecorder);
+			this.localMsrId = this.lvs.newLocal(Type.getType(CumuMethodRecorder.class));
+			this.mv.visitTypeInsn(Opcodes.NEW, cumuMethodRecorder);
 			this.mv.visitInsn(Opcodes.DUP);
 			this.mv.visitLdcInsn(this.className);
 			this.mv.visitLdcInsn(this.myName);
 			this.mv.visitLdcInsn(this.desc);
 			
 			this.mv.visitInsn(Opcodes.ICONST_0);
-			this.convertConst(MethodStackRecorder.CONSTRUCTOR_DEFAULT);
+			this.convertConst(IRecorder.CONSTRUCTOR_DEFAULT);
 			
 			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, 
-					methodStackRecorder, 
+					cumuMethodRecorder, 
 					"<init>", 
 					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZI)V", 
 					false);
@@ -361,7 +329,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 			
 			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 			this.mv.visitInsn(Opcodes.ICONST_0);
-			this.mv.visitFieldInsn(Opcodes.PUTFIELD, methodStackRecorder, "initConstructor", "Z");
+			this.mv.visitFieldInsn(Opcodes.PUTFIELD, cumuMethodRecorder, "initConstructor", "Z");
 		}
 	}
 	
@@ -387,11 +355,11 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 			this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, __mib_id, "I");
-			this.mv.visitFieldInsn(Opcodes.PUTFIELD, methodStackRecorder, "objId", "I");
+			this.mv.visitFieldInsn(Opcodes.PUTFIELD, cumuMethodRecorder, "objId", "I");
 			
 			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 			this.mv.visitInsn(Opcodes.ICONST_1);
-			this.mv.visitFieldInsn(Opcodes.PUTFIELD, methodStackRecorder, "initConstructor","Z");
+			this.mv.visitFieldInsn(Opcodes.PUTFIELD, cumuMethodRecorder, "initConstructor","Z");
 			
 			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 			this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, __mib_id, "I");
@@ -436,8 +404,8 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 			//logger.info("Visit method: " + this.myName + " " + this.shouldInstrument());
 			
 			//Create the method stack recorder
-			this.localMsrId = this.lvs.newLocal(Type.getType(MethodStackRecorder.class));
-			this.mv.visitTypeInsn(Opcodes.NEW, methodStackRecorder);
+			this.localMsrId = this.lvs.newLocal(Type.getType(CumuMethodRecorder.class));
+			this.mv.visitTypeInsn(Opcodes.NEW, cumuMethodRecorder);
 			this.mv.visitInsn(Opcodes.DUP);
 			this.mv.visitLdcInsn(this.className);
 			this.mv.visitLdcInsn(this.myName);
@@ -460,7 +428,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 			}
 			
 			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, 
-					methodStackRecorder, 
+					cumuMethodRecorder, 
 					"<init>", 
 					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", 
 					false);
@@ -520,7 +488,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 				instIdx = this.handleOpcode(opcode);
 				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 				this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
-						methodStackRecorder, 
+						cumuMethodRecorder, 
 						srGraphDump, 
 						srGraphDumpDesc, 
 						false);
@@ -648,7 +616,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 				this.mv.visitInsn(Opcodes.SWAP);
 				this.convertConst(traceBack);
 				this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
-						methodStackRecorder, 
+						cumuMethodRecorder, 
 						objOnStack, 
 						objOnStackDesc, 
 						false);
@@ -681,7 +649,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 				this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, __mib_id, "I");
-				this.mv.visitFieldInsn(Opcodes.PUTFIELD, methodStackRecorder, "objId", "I");
+				this.mv.visitFieldInsn(Opcodes.PUTFIELD, cumuMethodRecorder, "objId", "I");
 			}
 		}
 	}
@@ -695,16 +663,6 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 			//this.bbAnalyzer.signalJump(opcode, label);
 		}
 		this.mv.visitJumpInsn(opcode, label);
-		
-		/*if (this.shouldInstrument() && !this.constructor) {
-			if (opcode != Opcodes.GOTO && opcode != Opcodes.JSR) {
-				Label breakLabel = new Label();
-				this.mv.visitLabel(breakLabel);
-				this.blockAnalyzer.setCurLabel(breakLabel);
-				this.handleLabel(breakLabel);
-				logger.info("Break label: " + breakLabel);
-			}
-		}*/
 	}
 	
 	@Override
@@ -805,7 +763,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 	}
 		
 	@Override
-	public void visitEnd() {
+	public void visitEnd() {		
 		if (this.indexer.get() < MIBConfiguration.getInstance().getInstThreshold() && !this.visitMethod) {
 			GlobalRecorder.registerUndersizedMethod(this.shortKey);
 		}
@@ -815,3 +773,4 @@ public class DynamicMethodMiner extends MethodVisitor implements IMethodMiner{
 		this.mv.visitEnd();
 	}
 }
+
