@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.JarFile;
@@ -24,6 +25,7 @@ import edu.columbia.psl.cc.pojo.FieldRecord;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.NameMap;
+import edu.columbia.psl.cc.util.CumuGraphRecorder;
 import edu.columbia.psl.cc.util.GlobalGraphRecorder;
 import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.ObjectIdAllocater;
@@ -136,17 +138,13 @@ public class MIBDriver {
 		ShutdownLogger.appendMessage("Graphing: " + fileName);
 		
 		//Dump name map
-		//logger.info("Dump nameMap: " + memorizedTargetClass);
 		serializeNameMap();
 		
-		if (MIBConfiguration.getInstance().isFieldTrack()) {
-			//Construct relations between w and r fields
-			//logger.info("Construct global edges");
+		/*if (MIBConfiguration.getInstance().isFieldTrack()) {
 			GlobalGraphRecorder.constructGlobalRelations(false);
-		}
+		}*/
 		
 		//Dump all graphs in memory
-		//logger.info("Select dominant graphs: " + memorizedTargetClass);
 		selectDominantGraphs(fileName);
 		
 		//Update configuration
@@ -232,8 +230,13 @@ public class MIBDriver {
 	
 	public synchronized static void selectDominantGraphs(String appName) {
 		//Dump all graphs in memory
-		//HashMap<String, List<GraphTemplate>> allGraphs = GlobalRecorder.getGraphs();
-		HashMap<String, HashMap<String, GraphTemplate>> allGraphs = GlobalGraphRecorder.getGraphs();
-		HorizontalMerger.startExtractionFast(appName, allGraphs);
+		if (!MIBConfiguration.getInstance().isCumuGraph()) {
+			HashMap<String, HashMap<String, GraphTemplate>> allGraphs = GlobalGraphRecorder.getGraphs();
+			HorizontalMerger.startExtractionFast(appName, allGraphs);
+		} else {
+			List<GraphTemplate> allGraphs = CumuGraphRecorder.getCumuGraphs();
+			HorizontalMerger.startExtractionFast(appName, allGraphs);
+		}
+		
 	}
 }

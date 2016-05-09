@@ -1,11 +1,14 @@
 package edu.columbia.psl.cc.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 
-public class CumuGraphRecorder {
+public class CumuGraphRecorder extends GlobalGraphRecorder{
 	
 	private static HashMap<String, GraphTemplate> STATIC_MAP = new HashMap<String, GraphTemplate>();
 	
@@ -41,6 +44,7 @@ public class CumuGraphRecorder {
 		synchronized(FIELD_LOCK) {
 			InstNode writer = FIELD_MAP.get(fieldKey);
 			writer.increChild(reader.getThreadId(), reader.getThreadMethodIdx(), reader.getIdx(), 1.0);
+			reader.registerParent(writer.getThreadId(), writer.getThreadMethodIdx(), writer.getIdx(), MIBConfiguration.WRITE_DATA_DEP);
 		}
 	}
 	
@@ -54,6 +58,19 @@ public class CumuGraphRecorder {
 		synchronized(OBJ_LOCK) {
 			return OBJ_MAP.get(objId);
 		}
+	}
+	
+	public static List<GraphTemplate> getCumuGraphs() {
+		List<GraphTemplate> allGraphs = new ArrayList<GraphTemplate>();
+		synchronized(OBJ_LOCK) {
+			allGraphs.addAll(OBJ_MAP.values());
+		}
+		
+		synchronized(STATIC_LOCK) {
+			allGraphs.addAll(STATIC_MAP.values());
+		}
+		
+		return allGraphs;
 	}
 
 }

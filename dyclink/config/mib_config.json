@@ -45,10 +45,17 @@
   "simStrategy": 1,
   "testMethodThresh": -1,
   "threadInit": 0,
-  "threadMethodIdxRecord": {},
+  "threadMethodIdxRecord": {
+    "0": 21
+  },
   "annotGuard": false,
+<<<<<<< 0971fb78d235a192fa0dc0679b386dff65505eff:dyclink/config/mib_config.json
   "fieldTrack": false,
   "debug": false,
+=======
+  "fieldTrack": true,
+  "debug": true,
+>>>>>>> Static field works:MIB/config/mib_config.json
   "exclSpec": true,
   "exclPkg": true,
   "reduceGraph": true,

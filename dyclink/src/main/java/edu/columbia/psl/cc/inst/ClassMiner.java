@@ -74,16 +74,15 @@ public class ClassMiner extends ClassVisitor implements IMethodMiner{
 		this.isInterface = (access & Opcodes.ACC_INTERFACE) != 0;
 		if (!isInterface) {
 			logger.info("Instrumenting class " + name + " extends " + superName);			
-			//this.cv.visitField(Opcodes.ACC_PUBLIC, MIBConfiguration.getMibId(), "I", null, null);
 			//Only the object before Object has this objId, all children/grandchildren inherit its value
 			String superReplace = this.superName.replace("/", ".");
 			if (!StringUtil.shouldIncludeClass(superReplace)) {
 				this.cv.visitField(Opcodes.ACC_PUBLIC, __mib_id, "I", null, null);
 				this.objIdOwner = true;
 			}
-		} else {
+		} /*else {
 			logger.info("Not instrument interface: " + name);
-		}
+		}*/
 	}
 	
 	@Override

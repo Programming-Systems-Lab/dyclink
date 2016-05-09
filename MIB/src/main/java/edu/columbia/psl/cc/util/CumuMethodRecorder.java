@@ -98,7 +98,7 @@ public class CumuMethodRecorder implements IRecorder {
 		this.methodDesc = methodDesc;
 				
 		this.methodKey = StringUtil.genKey(className, methodName, methodDesc);
-		this.shortMethodKey = GlobalGraphRecorder.getGlobalName(this.methodKey);		
+		this.shortMethodKey = CumuGraphRecorder.getGlobalName(this.methodKey);		
 		Type methodType = Type.getMethodType(this.methodDesc);
 		this.methodArgSize = methodType.getArgumentTypes().length;
 		if (methodType.getReturnType().getSort() == Type.VOID) {
@@ -278,13 +278,20 @@ public class CumuMethodRecorder implements IRecorder {
 				System.exit(-1);
 			}
 			
-			if (opcode == Opcodes.PUTSTATIC || opcode == Opcodes.PUTFIELD) {
-				CumuGraphRecorder.registerWriterField(recordFieldKey, fullInst);
-			} else if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.GETFIELD) {
-				CumuGraphRecorder.updateReaderField(recordFieldKey, fullInst);
-			} else {
-				logger.error("Unrecognized field op: " + opcode);
-				System.exit(-1);
+			Class realOwner = ClassInfoCollector.retrieveCorrectClassByField(owner, name);
+			System.out.println("Real owner: " + realOwner.getName());
+			if (Type.getType(owner).getSort() != Type.ARRAY 
+					&& StringUtil.shouldIncludeClass(realOwner.getName())) {
+				if (opcode == Opcodes.PUTSTATIC || opcode == Opcodes.PUTFIELD) {
+					System.out.println("Write field: " + recordFieldKey + " " + fullInst);
+					CumuGraphRecorder.registerWriterField(recordFieldKey, fullInst);
+				} else if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.GETFIELD) {
+					System.out.println("Read field: " + recordFieldKey + " " + fullInst);
+					CumuGraphRecorder.updateReaderField(recordFieldKey, fullInst);
+				} else {
+					logger.error("Unrecognized field op: " + opcode);
+					System.exit(-1);
+				}
 			}
 		}
 		
@@ -625,19 +632,11 @@ public class CumuMethodRecorder implements IRecorder {
 		//this.showStackSimulator();
 	}
 	
-	public void dumpGraph() {
-		if (MIBConfiguration.getInstance().isFieldTrack())
-			GlobalGraphRecorder.removeWriteFields(this.writeFields.keySet());
-		
+	public void dumpGraph() {		
 		if (this.overTime || TimeController.isOverTime()) {
 			return ;
 		}
-		
-		if (GlobalGraphRecorder.checkUndersizedMethod(this.shortMethodKey)) {
-			GlobalGraphRecorder.dequeueStopCallees();
-			return ;
-		}
-		
+				
 		GraphTemplate gt = new GraphTemplate();
 		
 		gt.setMethodKey(this.methodKey);
@@ -735,16 +734,7 @@ public class CumuMethodRecorder implements IRecorder {
 		} else {
 			CumuGraphRecorder.registerObjGraph(this.objId, gt);
 		}
-		
-		/*if (this.isSynthetic) {
-			GlobalGraphRecorder.registerLatestGraph(gt);
-			GlobalGraphRecorder.dequeueStopCallees();
-		} else {
-			boolean registerLatest = (!this.methodName.equals("<clinit>")); 
-			GlobalGraphRecorder.registerGraph(dumpKey, gt, registerLatest);
-			GlobalGraphRecorder.dequeueStopCallees();
-		}*/
-		
+				
 		//this.showStackSimulator();
 		/*logger.info("Leave " + 
 				" " + this.methodKey + 

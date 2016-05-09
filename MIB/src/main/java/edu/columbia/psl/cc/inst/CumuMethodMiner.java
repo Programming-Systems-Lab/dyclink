@@ -20,8 +20,8 @@ import edu.columbia.psl.cc.abs.IRecorder;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
+import edu.columbia.psl.cc.util.CumuGraphRecorder;
 import edu.columbia.psl.cc.util.CumuMethodRecorder;
-import edu.columbia.psl.cc.util.GlobalGraphRecorder;
 import edu.columbia.psl.cc.util.ObjectIdAllocater;
 import edu.columbia.psl.cc.util.StringUtil;
 
@@ -31,7 +31,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 	
 	private static String cumuMethodRecorder = Type.getInternalName(CumuMethodRecorder.class);
 	
-	private static String globalRecorder = Type.getInternalName(GlobalGraphRecorder.class);
+	private static String cumuGraphRecorder = Type.getInternalName(CumuGraphRecorder.class);
 	
 	private String className;
 	
@@ -92,7 +92,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 		this.myName = myName;
 		this.desc = desc;
 		this.fullKey = StringUtil.genKey(className, myName, desc);
-		this.shortKey = GlobalGraphRecorder.registerGlobalName(className, myName, fullKey);
+		this.shortKey = CumuGraphRecorder.registerGlobalName(className, myName, fullKey);
 		this.templateAnnot = templateAnnot;
 		this.testAnnot = testAnnot;
 		this.annotGuard = annotGuard;
@@ -364,7 +364,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 			this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, __mib_id, "I");
 			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-					globalRecorder, 
+					cumuGraphRecorder, 
 					"initUnIdGraphs", 
 					"(I)V", 
 					false);
@@ -376,17 +376,6 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 		this.mv.visitCode();
 		int objTmp = -1;
 		if (this.constructor && this.objIdOwner) {
-			//System.out.println("Init recorder for constructor: " + this.className);
-			//this.initConstructorRecorder();
-			
-			//this.mv.visitVarInsn(Opcodes.ALOAD, 0);
-			//this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, __mib_id, "I");
-			
-			//Label originPath = new Label();
-			//Label genIdPath = new Label();
-			
-			//this.mv.visitLabel(genIdPath);
-			//this.mv.visitJumpInsn(Opcodes.IFNE, originPath);
 			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
 					Type.getInternalName(ObjectIdAllocater.class), 
@@ -433,16 +422,6 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 					"(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V", 
 					false);
 			this.mv.visitVarInsn(Opcodes.ASTORE, this.localMsrId);
-			
-			/*if (this.myName.equals("<clinit>")) {
-				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
-				this.mv.visitLdcInsn(this.superName);
-				this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
-						methodStackRecorder, 
-						srCheckClInit, 
-						srCheckClInitDesc, 
-						false);
-			}*/
 		}
 	}
 	
@@ -583,16 +562,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 	}
 	
 	@Override
-	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-		if (this.shouldInstrument()) {
-			this.convertConst(this.curLineNum);
-			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-					Type.getInternalName(GlobalGraphRecorder.class), 
-					"enqueueCalleeLine", 
-					"(I)V", 
-					false);
-		}
-		
+	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {		
 		//For merging the graph on the fly, need to visit method before recording them
 		this.mv.visitMethodInsn(opcode, owner, name, desc, itf);
 		
@@ -625,14 +595,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 			
 			int instIdx = this.handleMethod(opcode, owner, name, desc);
 			//this.updateMethodRep(opcode);
-			
-			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
-					Type.getInternalName(GlobalGraphRecorder.class), 
-					"dequeueCalleeLine", 
-					"()V", 
-					false);
-			//this.bbAnalyzer.signalInst(opcode, owner + " " + name + " " + desc);
-			
+						
 			int returnSort = Type.getMethodType(desc).getReturnType().getSort();
 			if (returnSort == Type.OBJECT || returnSort == Type.ARRAY)
 				this.updateObjOnVStack();
@@ -764,12 +727,6 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 		
 	@Override
 	public void visitEnd() {		
-		if (this.indexer.get() < MIBConfiguration.getInstance().getInstThreshold() && !this.visitMethod) {
-			GlobalGraphRecorder.registerUndersizedMethod(this.shortKey);
-		}
-		//this.bbAnalyzer.summarizeDanglings();
-		//this.bbAnalyzer.printBlockInfo();
-		
 		this.mv.visitEnd();
 	}
 }

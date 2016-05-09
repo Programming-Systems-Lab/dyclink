@@ -138,8 +138,14 @@ public class HorizontalMerger {
 			}
 		}
 		
-		ShutdownLogger.appendMessage("Total graphs: " + finalGraphs.size());
-		zipGraphsHelper(appName, finalGraphs);
+		/*ShutdownLogger.appendMessage("Total graphs: " + finalGraphs.size());
+		zipGraphsHelper(appName, finalGraphs);*/
+		startExtractionFast(appName, finalGraphs);
+	}
+	
+	public static void startExtractionFast(String appName, List<GraphTemplate> graphs) {
+		ShutdownLogger.appendMessage("Total graphs: " + graphs.size());
+		zipGraphsHelper(appName, graphs);
 	}
 	
 	/**
