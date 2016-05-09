@@ -117,13 +117,14 @@ public class CumuMethodRecorder implements IRecorder {
 				methodDesc, 
 				this.isStatic);
 		
-		this.threadId = ObjectIdAllocater.getThreadId();
-		this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(this.threadId);
 		for (Integer idx: methodProfile.idxArray) {
 			this.shouldRecordReadLocalVars.add(idx);
 		}
 		
 		if (this.methodName.equals("<init>") || this.methodName.equals("<clinit>")) {
+			this.threadId = ObjectIdAllocater.getThreadId();
+			this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(this.threadId);
+			
 			//No matter what, this is going to be a new graph
 			this.pool = new InstPool();
 		} else {
@@ -135,8 +136,16 @@ public class CumuMethodRecorder implements IRecorder {
 			}
 			
 			if (probe == null) {
+				this.threadId = ObjectIdAllocater.getThreadId();
+				this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(this.threadId);
+				
 				this.pool = new InstPool();
 			} else {
+				//For cumulating the graph, we need to reuse the original thread id and methodid
+				//This is for ensuring the unique id for a method
+				this.threadId = probe.getThreadId();
+				this.threadMethodId = probe.getThreadMethodId();
+				
 				this.pool = probe.getInstPool();
 				this.newGraph = false;
 			}

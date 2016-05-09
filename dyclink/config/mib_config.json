@@ -45,9 +45,7 @@
   "simStrategy": 1,
   "testMethodThresh": -1,
   "threadInit": 0,
-  "threadMethodIdxRecord": {
-    "0": 40
-  },
+  "threadMethodIdxRecord": {},
   "annotGuard": false,
 <<<<<<< 0971fb78d235a192fa0dc0679b386dff65505eff:dyclink/config/mib_config.json
   "fieldTrack": false,
