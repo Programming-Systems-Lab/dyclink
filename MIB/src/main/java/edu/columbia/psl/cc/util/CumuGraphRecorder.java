@@ -12,7 +12,8 @@ public class CumuGraphRecorder extends GlobalGraphRecorder{
 	
 	private static HashMap<String, GraphTemplate> STATIC_MAP = new HashMap<String, GraphTemplate>();
 	
-	private static HashMap<Integer, GraphTemplate> OBJ_MAP = new HashMap<Integer, GraphTemplate>();
+	private static HashMap<Integer, HashMap<String, GraphTemplate>> OBJ_MAP = 
+			new HashMap<Integer, HashMap<String, GraphTemplate>>();
 	
 	private static HashMap<String, InstNode> FIELD_MAP = new HashMap<String, InstNode>();
 	
@@ -22,15 +23,15 @@ public class CumuGraphRecorder extends GlobalGraphRecorder{
 	
 	private static final Object FIELD_LOCK = new Object();
 	
-	public static void registerStaticGraph(String shortKey, GraphTemplate graph) {
+	public static void registerStaticGraph(String methodKey, GraphTemplate graph) {
 		synchronized(STATIC_LOCK) {
-			STATIC_MAP.put(shortKey, graph);
+			STATIC_MAP.put(methodKey, graph);
 		}
 	}
 	
-	public static GraphTemplate retrieveStaticGraph(String shortKey) {
+	public static GraphTemplate retrieveStaticGraph(String methodKey) {
 		synchronized(STATIC_LOCK) {
-			return STATIC_MAP.get(shortKey);
+			return STATIC_MAP.get(methodKey);
 		}
 	}
 	
@@ -50,20 +51,39 @@ public class CumuGraphRecorder extends GlobalGraphRecorder{
 	
 	public static void registerObjGraph(int objId, GraphTemplate graph) {
 		synchronized(OBJ_LOCK) {
-			OBJ_MAP.put(objId, graph);
+			String methodKey = graph.getMethodKey();
+			if (OBJ_MAP.containsKey(objId)) {
+				HashMap<String, GraphTemplate> methodMap = OBJ_MAP.get(objId);
+				
+				if (!methodMap.containsKey(methodKey)) {
+					methodMap.put(methodKey, graph);
+				}
+				
+			} else {
+				HashMap<String, GraphTemplate> methodMap = new HashMap<String, GraphTemplate>();
+				methodMap.put(methodKey, graph);
+				OBJ_MAP.put(objId, methodMap);
+			}
 		}
 	}
 	
-	public static GraphTemplate retrieveObjGraph(int objId) {
+	public static GraphTemplate retrieveObjGraph(int objId, String methodKey) {
 		synchronized(OBJ_LOCK) {
-			return OBJ_MAP.get(objId);
+			if (!OBJ_MAP.containsKey(objId)) {
+				return null;
+			}
+			
+			return OBJ_MAP.get(objId).get(methodKey);
 		}
 	}
 	
 	public static List<GraphTemplate> getCumuGraphs() {
 		List<GraphTemplate> allGraphs = new ArrayList<GraphTemplate>();
 		synchronized(OBJ_LOCK) {
-			allGraphs.addAll(OBJ_MAP.values());
+			for (Integer objId: OBJ_MAP.keySet()) {
+				HashMap<String, GraphTemplate> methodMap = OBJ_MAP.get(objId);
+				allGraphs.addAll(methodMap.values());
+			}
 		}
 		
 		synchronized(STATIC_LOCK) {

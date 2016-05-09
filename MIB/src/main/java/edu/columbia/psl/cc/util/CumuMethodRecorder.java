@@ -52,11 +52,7 @@ public class CumuMethodRecorder implements IRecorder {
 		
 	//Key: local var idx, Val: inst node
 	private Map<Integer, InstNode> localVarRecorder = new HashMap<Integer, InstNode>();
-	
-	private HashMap<String, HashSet<String>> rwFieldRelations = new HashMap<String, HashSet<String>>();
-		
-	private HashMap<String, InstNode> writeFields = new HashMap<String, InstNode>();
-				
+					
 	//Record which insts might be affecte by field written by parent method
 	private HashSet<String> firstReadLocalVars = new HashSet<String>();
 	
@@ -66,7 +62,9 @@ public class CumuMethodRecorder implements IRecorder {
 	
 	public int linenumber = 0;
 	
-	protected InstPool pool = new InstPool();
+	protected InstPool pool = null;
+	
+	private boolean newGraph = true;
 		
 	private InstNode beforeReturn;
 	
@@ -123,6 +121,25 @@ public class CumuMethodRecorder implements IRecorder {
 		this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(this.threadId);
 		for (Integer idx: methodProfile.idxArray) {
 			this.shouldRecordReadLocalVars.add(idx);
+		}
+		
+		if (this.methodName.equals("<init>") || this.methodName.equals("<clinit>")) {
+			//No matter what, this is going to be a new graph
+			this.pool = new InstPool();
+		} else {
+			GraphTemplate probe = null;
+			if (this.isStatic) {
+				probe = CumuGraphRecorder.retrieveStaticGraph(this.methodKey);
+			} else {
+				probe = CumuGraphRecorder.retrieveObjGraph(this.objId, this.methodKey);
+			}
+			
+			if (probe == null) {
+				this.pool = new InstPool();
+			} else {
+				this.pool = probe.getInstPool();
+				this.newGraph = false;
+			}
 		}
 	}
 	
@@ -633,7 +650,7 @@ public class CumuMethodRecorder implements IRecorder {
 	}
 	
 	public void dumpGraph() {		
-		if (this.overTime || TimeController.isOverTime()) {
+		if (this.overTime || TimeController.isOverTime() || !this.newGraph) {
 			return ;
 		}
 				
@@ -709,28 +726,13 @@ public class CumuMethodRecorder implements IRecorder {
 		gt.setEdgeNum(edgeNum);
 		gt.setVertexNum(vertexNum);
 		gt.setChildDominant(maxChildVertex);
-		gt.calleeRequired = calleeRequired;
-		
-		if (MIBConfiguration.getInstance().isFieldTrack()) {
-			//Accumulate write fields and field rw relations from callees
-			for (GraphTemplate child: calleeRequired.values()) {
-				this.rwFieldRelations.putAll(child.fieldRelations);
-			}
-			
-			//gt.writeFields = this.writeFields;
-			gt.fieldRelations = this.rwFieldRelations;
-		}
-		
+		gt.calleeRequired = calleeRequired;		
 		gt.setInstPool(this.pool);
-		//gt.setDist(dist);
-		
-		//logger.info("Total edge count: " + gt.getEdgeNum());
-		//logger.info("Total vertex count: " + gt.getVertexNum());
 		
 		String dumpKey = StringUtil.genKeyWithId(this.shortMethodKey, String.valueOf(this.threadId));
 		
 		if (this.isStatic) {
-			CumuGraphRecorder.registerStaticGraph(this.shortMethodKey, gt);
+			CumuGraphRecorder.registerStaticGraph(this.methodKey, gt);
 		} else {
 			CumuGraphRecorder.registerObjGraph(this.objId, gt);
 		}

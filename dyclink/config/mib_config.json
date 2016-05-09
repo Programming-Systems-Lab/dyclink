@@ -46,7 +46,7 @@
   "testMethodThresh": -1,
   "threadInit": 0,
   "threadMethodIdxRecord": {
-    "0": 21
+    "0": 40
   },
   "annotGuard": false,
 <<<<<<< 0971fb78d235a192fa0dc0679b386dff65505eff:dyclink/config/mib_config.json
