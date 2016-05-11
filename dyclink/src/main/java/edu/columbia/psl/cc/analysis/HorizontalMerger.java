@@ -21,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.reflect.TypeToken;
 
+import edu.columbia.psl.cc.abs.AbstractGraph;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
@@ -112,7 +113,7 @@ public class HorizontalMerger {
 	}
 	
 	public static void startExtractionFast(String appName, HashMap<String, HashMap<String, GraphTemplate>> graphs) {
-		List<GraphTemplate> finalGraphs = new ArrayList<GraphTemplate>();
+		List<AbstractGraph> finalGraphs = new ArrayList<AbstractGraph>();
 		for (String key: graphs.keySet()) {
 			HashMap<String, GraphTemplate> graphGroups = graphs.get(key);
 			
@@ -140,12 +141,13 @@ public class HorizontalMerger {
 		
 		/*ShutdownLogger.appendMessage("Total graphs: " + finalGraphs.size());
 		zipGraphsHelper(appName, finalGraphs);*/
-		startExtractionFast(appName, finalGraphs);
+		TypeToken<GraphTemplate> graphToken = new TypeToken<GraphTemplate>(){};
+		startExtractionFast(appName, finalGraphs, graphToken);
 	}
 	
-	public static void startExtractionFast(String appName, List<GraphTemplate> graphs) {
+	public static void startExtractionFast(String appName, List<AbstractGraph> graphs, TypeToken graphToken) {
 		ShutdownLogger.appendMessage("Total graphs: " + graphs.size());
-		zipGraphsHelper(appName, graphs);
+		zipGraphsHelper(appName, graphs, graphToken);
 	}
 	
 	/**
@@ -273,7 +275,9 @@ public class HorizontalMerger {
 		return dominant;
 	}
 	
-	public static void writeCallees(String parentIdx, HashMap<String, GraphTemplate> callees) {
+	public static void writeCallees(String parentIdx, 
+			HashMap<String, AbstractGraph> callees, 
+			TypeToken graphToken) {
 		String fullDirString = MIBConfiguration.getInstance().getCacheDir() + "/" + parentIdx;
 		File fullDir = new File(fullDirString);
 		
@@ -283,14 +287,14 @@ public class HorizontalMerger {
 		
 		for (String myKey: callees.keySet()) {
 			try {
-				GraphTemplate me = callees.get(myKey);
+				AbstractGraph me = callees.get(myKey);
 				if (me.calleeRequired == null) {
 					System.out.println("Check graph: " + me.getMethodName());
 					System.exit(-1);
 				}
 				
 				if (me.calleeRequired.size() > 0) {
-					writeCallees(myKey, me.calleeRequired);
+					writeCallees(myKey, me.calleeRequired, graphToken);
 				}
 				
 				String dumpName = parentIdx + "/" + myKey;
@@ -309,7 +313,7 @@ public class HorizontalMerger {
 		
 		if (groupRep.calleeRequired.size() > 0) {
 			String parentDir = StringUtil.genThreadWithMethodIdx(groupRep.getThreadId(), groupRep.getThreadMethodId());
-			writeCallees(parentDir, groupRep.calleeRequired);
+			writeCallees(parentDir, groupRep.calleeRequired, graphToken);
 		}
 		
 		try {
@@ -319,7 +323,7 @@ public class HorizontalMerger {
 		}
 	}
 	
-	public static void zipCalleesHelper(ZipOutputStream zipStream, 
+	/*public static void zipCalleesHelper(ZipOutputStream zipStream, 
 			String parentDir, 
 			HashMap<String, GraphTemplate> callees) {
 		try {
@@ -342,9 +346,9 @@ public class HorizontalMerger {
 		} catch (Exception ex) {
 			ShutdownLogger.appendException(ex);
 		}
-	}
+	}*/
 	
-	public static void zipGraphsHelper(String appName, Collection<GraphTemplate> graphs) {
+	public static void zipGraphsHelper(String appName, Collection<AbstractGraph> graphs, TypeToken graphToken) {
 		try {
 			File checkBase = new File(MIBConfiguration.getInstance().getGraphDir());
 			if (!checkBase.exists()) {
@@ -356,11 +360,11 @@ public class HorizontalMerger {
 		    FileOutputStream zipFile = new FileOutputStream(zipFilePath);
 		    ZipOutputStream zipStream = new ZipOutputStream(new BufferedOutputStream(zipFile));
 		                       
-		    for (GraphTemplate g: graphs) {
+		    for (AbstractGraph g: graphs) {
 		    	if (g.calleeRequired.size() > 0) {
 		    		String parentDir = StringUtil.genThreadWithMethodIdx(g.getThreadId(), g.getThreadMethodId());
 		    		//zipCalleesHelper(zipStream, parentDir, g.calleeRequired);
-		    		writeCallees(parentDir, g.calleeRequired);
+		    		writeCallees(parentDir, g.calleeRequired, graphToken);
 		    	}
 		                               
 		    	String className = g.getShortMethodKey().split(":")[0];

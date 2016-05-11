@@ -16,10 +16,12 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.reflect.TypeToken;
 
+import edu.columbia.psl.cc.abs.AbstractGraph;
 import edu.columbia.psl.cc.analysis.HorizontalMerger;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.crawler.NativePackages;
 import edu.columbia.psl.cc.datastruct.InstPool;
+import edu.columbia.psl.cc.pojo.CumuGraph;
 import edu.columbia.psl.cc.pojo.FieldNode;
 import edu.columbia.psl.cc.pojo.FieldRecord;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
@@ -234,8 +236,9 @@ public class MIBDriver {
 			HashMap<String, HashMap<String, GraphTemplate>> allGraphs = GlobalGraphRecorder.getGraphs();
 			HorizontalMerger.startExtractionFast(appName, allGraphs);
 		} else {
-			List<GraphTemplate> allGraphs = CumuGraphRecorder.getCumuGraphs();
-			HorizontalMerger.startExtractionFast(appName, allGraphs);
+			List<AbstractGraph> allGraphs = CumuGraphRecorder.getCumuGraphs();
+			TypeToken<CumuGraph> graphToken = new TypeToken<CumuGraph>(){};
+			HorizontalMerger.startExtractionFast(appName, allGraphs, graphToken);
 		}
 		
 	}

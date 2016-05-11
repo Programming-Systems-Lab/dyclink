@@ -51,6 +51,7 @@ public class GraphLoadController {
 			if (graphHistory.contains(recordKey)) {
 				keyIT.remove();
 			} else if (graph.getVertexNum() <= MIBConfiguration.getInstance().getInstThreshold()) {
+				logger.info("Low instruction graph: " + recordKey);
 				keyIT.remove();
 			} else if (density < GRAPH_DENSITY) {
 				logger.info("Low density graph: " + recordKey + " " + density);

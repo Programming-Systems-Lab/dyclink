@@ -18,6 +18,7 @@ import org.objectweb.asm.Type;
 
 import com.google.gson.reflect.TypeToken;
 
+import edu.columbia.psl.cc.abs.AbstractGraph;
 import edu.columbia.psl.cc.abs.IMethodMiner;
 import edu.columbia.psl.cc.abs.IRecorder;
 import edu.columbia.psl.cc.analysis.StaticTester;
@@ -936,7 +937,7 @@ public class MethodStackRecorder implements IRecorder{
 			return ;
 		}
 		
-		HashMap<String, GraphTemplate> calleeRequired = new HashMap<String, GraphTemplate>();
+		HashMap<String, AbstractGraph> calleeRequired = new HashMap<String, AbstractGraph>();
 		Iterator<InstNode> instIterator = this.pool.iterator();
 		int edgeNum = 0, vertexNum = this.pool.size();
 		int eDelta = 0, vDelta = 0;
@@ -996,7 +997,7 @@ public class MethodStackRecorder implements IRecorder{
 		gt.setChildDominant(maxChildVertex);
 		gt.calleeRequired = calleeRequired;
 		
-		if (MIBConfiguration.getInstance().isFieldTrack()) {
+		/*if (MIBConfiguration.getInstance().isFieldTrack()) {
 			//Accumulate write fields and field rw relations from callees
 			for (GraphTemplate child: calleeRequired.values()) {
 				this.rwFieldRelations.putAll(child.fieldRelations);
@@ -1004,7 +1005,7 @@ public class MethodStackRecorder implements IRecorder{
 			
 			//gt.writeFields = this.writeFields;
 			gt.fieldRelations = this.rwFieldRelations;
-		}
+		}*/
 		
 		gt.setInstPool(this.pool);
 		//gt.setDist(dist);

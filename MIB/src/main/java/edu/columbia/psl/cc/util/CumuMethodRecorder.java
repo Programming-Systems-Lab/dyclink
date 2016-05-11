@@ -13,12 +13,14 @@ import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import edu.columbia.psl.cc.abs.AbstractGraph;
 import edu.columbia.psl.cc.abs.IMethodMiner;
 import edu.columbia.psl.cc.abs.IRecorder;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.ClassMethodInfo;
+import edu.columbia.psl.cc.pojo.CumuGraph;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
@@ -63,8 +65,6 @@ public class CumuMethodRecorder implements IRecorder {
 	public int linenumber = 0;
 	
 	protected InstPool pool = null;
-	
-	private boolean newGraph = true;
 		
 	private InstNode beforeReturn;
 	
@@ -72,13 +72,15 @@ public class CumuMethodRecorder implements IRecorder {
 	
 	private int threadMethodId = -1;
 	
+	private boolean registered = true;
+	
 	public int objId = 0;
 	
 	private boolean overTime = false;
 	
-	//private boolean stopRecord = false;
-	
 	public boolean initConstructor = true;
+	
+	private CumuGraph graph = null;
 	
 	public CumuMethodRecorder(String className, 
 			String methodName, 
@@ -121,25 +123,29 @@ public class CumuMethodRecorder implements IRecorder {
 			this.shouldRecordReadLocalVars.add(idx);
 		}
 		
-		if (this.methodName.equals("<init>") || this.methodName.equals("<clinit>")) {
-			this.threadId = ObjectIdAllocater.getThreadId();
-			this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(this.threadId);
-			
-			//No matter what, this is going to be a new graph
-			this.pool = new InstPool();
+		if (this.methodName.equals("<init>")) {			
+			//For instance method, don't register, since the obj id is not ready
+			this.genNewGraph(false);
+			this.registered = false;
+		} else if (this.methodName.equals("<clinit>")) {			
+			//For instance method, don't register, since the obj id is not ready
+			this.genNewGraph(true);
+			CumuGraphRecorder.registerStaticGraph(this.methodKey, this.graph);
 		} else {
-			GraphTemplate probe = null;
+			CumuGraph probe = null;
 			if (this.isStatic) {
 				probe = CumuGraphRecorder.retrieveStaticGraph(this.methodKey);
 			} else {
 				probe = CumuGraphRecorder.retrieveObjGraph(this.objId, this.methodKey);
 			}
 			
-			if (probe == null) {
-				this.threadId = ObjectIdAllocater.getThreadId();
-				this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(this.threadId);
-				
-				this.pool = new InstPool();
+			if (probe == null) {				
+				this.genNewGraph(true);
+				if (this.isStatic) {
+					CumuGraphRecorder.registerStaticGraph(this.methodKey, this.graph);
+				} else {
+					CumuGraphRecorder.registerObjGraph(this.graph);
+				}
 			} else {
 				//For cumulating the graph, we need to reuse the original thread id and methodid
 				//This is for ensuring the unique id for a method
@@ -147,7 +153,7 @@ public class CumuMethodRecorder implements IRecorder {
 				this.threadMethodId = probe.getThreadMethodId();
 				
 				this.pool = probe.getInstPool();
-				this.newGraph = false;
+				this.graph = probe;
 			}
 		}
 	}
@@ -658,31 +664,46 @@ public class CumuMethodRecorder implements IRecorder {
 		//this.showStackSimulator();
 	}
 	
+	public void genNewGraph(boolean withId) {
+		this.threadId = ObjectIdAllocater.getThreadId();
+		this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(this.threadId);
+		this.pool = new InstPool();
+		
+		CumuGraph graph = new CumuGraph();
+		graph.setMethodKey(this.methodKey);
+		graph.setMethodName(this.methodName);
+		graph.setMethodDesc(this.methodDesc);
+		graph.setShortMethodKey(this.shortMethodKey);
+		graph.setThreadId(this.threadId);
+		graph.setThreadMethodId(this.threadMethodId);
+		graph.setMethodArgSize(this.methodArgSize);
+		graph.setMethodReturnSize(this.methodReturnSize);
+		graph.setStaticMethod(this.isStatic);
+		graph.setFirstReadLocalVars(this.firstReadLocalVars);
+		graph.setInstPool(this.pool);
+		
+		if (withId) {
+			graph.setObjId(this.objId);
+		}
+		
+		this.graph = graph;
+	}
+	
 	public void dumpGraph() {		
-		if (this.overTime || TimeController.isOverTime() || !this.newGraph) {
+		if (this.overTime || TimeController.isOverTime()) {
 			return ;
 		}
-				
-		GraphTemplate gt = new GraphTemplate();
 		
-		gt.setMethodKey(this.methodKey);
-		gt.setMethodName(this.methodName);
-		gt.setMethodDesc(this.methodDesc);
-		gt.setShortMethodKey(this.shortMethodKey);
-		gt.setThreadId(this.threadId);
-		gt.setThreadMethodId(this.threadMethodId);
-		gt.setObjId(this.objId);
-		gt.setMethodArgSize(this.methodArgSize);
-		gt.setMethodReturnSize(this.methodReturnSize);
-		gt.setStaticMethod(this.isStatic);
-		gt.setFirstReadLocalVars(this.firstReadLocalVars);
-		
-		if (this.beforeReturn != null) {
-			gt.setLastBeforeReturn(this.beforeReturn);
-			//logger.info("Before return inst: " + this.beforeReturn);
+		if (!this.registered) {
+			this.graph.setObjId(this.objId);
+			CumuGraphRecorder.registerObjGraph(this.graph);
 		}
 				
-		HashMap<String, GraphTemplate> calleeRequired = new HashMap<String, GraphTemplate>();
+		if (this.beforeReturn != null) {
+			this.graph.addLastBeforeReturn(this.beforeReturn);
+		}
+				
+		HashMap<String, AbstractGraph> calleeRequired = new HashMap<String, AbstractGraph>();
 		Iterator<InstNode> instIterator = this.pool.iterator();
 		int edgeNum = 0, vertexNum = this.pool.size();
 		int eDelta = 0, vDelta = 0;
@@ -732,19 +753,17 @@ public class CumuMethodRecorder implements IRecorder {
 		vertexNum = vertexNum + vDelta;
 		edgeNum = edgeNum + eDelta;
 				
-		gt.setEdgeNum(edgeNum);
-		gt.setVertexNum(vertexNum);
-		gt.setChildDominant(maxChildVertex);
-		gt.calleeRequired = calleeRequired;		
-		gt.setInstPool(this.pool);
+		this.graph.setEdgeNum(edgeNum);
+		this.graph.setVertexNum(vertexNum);
+		this.graph.setChildDominant(maxChildVertex);
+		this.graph.calleeRequired = calleeRequired;		
 		
-		String dumpKey = StringUtil.genKeyWithId(this.shortMethodKey, String.valueOf(this.threadId));
-		
+		/*String dumpKey = StringUtil.genKeyWithId(this.shortMethodKey, String.valueOf(this.threadId));
 		if (this.isStatic) {
 			CumuGraphRecorder.registerStaticGraph(this.methodKey, gt);
 		} else {
 			CumuGraphRecorder.registerObjGraph(this.objId, gt);
-		}
+		}*/
 				
 		//this.showStackSimulator();
 		/*logger.info("Leave " + 
