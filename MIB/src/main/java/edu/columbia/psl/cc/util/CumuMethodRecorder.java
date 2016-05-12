@@ -1,9 +1,7 @@
 package edu.columbia.psl.cc.util;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
@@ -13,16 +11,11 @@ import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import edu.columbia.psl.cc.abs.AbstractGraph;
 import edu.columbia.psl.cc.abs.AbstractRecorder;
-import edu.columbia.psl.cc.abs.IMethodMiner;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.ClassMethodInfo;
-import edu.columbia.psl.cc.pojo.CumuGraph;
-import edu.columbia.psl.cc.pojo.CumuMethodNode;
-import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
@@ -64,8 +57,6 @@ public class CumuMethodRecorder extends AbstractRecorder {
 	protected String curLabel = null;
 	
 	public int linenumber = 0;
-	
-	protected InstPool pool = null;
 		
 	private InstNode beforeReturn;
 	
@@ -80,8 +71,6 @@ public class CumuMethodRecorder extends AbstractRecorder {
 	private boolean overTime = false;
 	
 	public boolean initConstructor = true;
-	
-	private CumuGraph graph = null;
 	
 	public CumuMethodRecorder(String className, 
 			String methodName, 
@@ -126,34 +115,33 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		
 		if (this.methodName.equals("<init>")) {			
 			//For instance method, don't register, since the obj id is not ready
-			this.genNewGraph(false);
 			this.registered = false;
+			this.genMethodInfo();
 		} else if (this.methodName.equals("<clinit>")) {
-			this.genNewGraph(true);
-			CumuGraphRecorder.registerStaticGraph(this.methodKey, this.graph);
+			this.genMethodInfo();
+			int[] methodInfo = {this.threadId, this.threadMethodId};
+			CumuGraphRecorder.registerStaticRecord(this.methodKey, methodInfo);
 		} else {
-			CumuGraph probe = null;
+			int[] probe = null;
 			if (this.isStatic) {
-				probe = CumuGraphRecorder.retrieveStaticGraph(this.methodKey);
+				probe = CumuGraphRecorder.queryStaticRecord(this.methodKey);
 			} else {
-				probe = CumuGraphRecorder.retrieveObjGraph(this.objId, this.methodKey);
+				probe = CumuGraphRecorder.queryObjRecord(this.objId, this.methodKey);
 			}
 			
-			if (probe == null) {				
-				this.genNewGraph(true);
+			if (probe == null) {
+				this.genMethodInfo();
+				int[] methodInfo = {this.threadId, this.threadMethodId};
 				if (this.isStatic) {
-					CumuGraphRecorder.registerStaticGraph(this.methodKey, this.graph);
+					CumuGraphRecorder.registerStaticRecord(this.methodKey, methodInfo);
 				} else {
-					CumuGraphRecorder.registerObjGraph(this.graph);
+					CumuGraphRecorder.registerObjRecord(this.objId, this.methodKey, methodInfo);
 				}
 			} else {
 				//For cumulating the graph, we need to reuse the original thread id and methodid
 				//This is for ensuring the unique id for a method
-				this.threadId = probe.getThreadId();
-				this.threadMethodId = probe.getThreadMethodId();
-				
-				this.pool = probe.getInstPool();
-				this.graph = probe;
+				this.threadId = probe[0];
+				this.threadMethodId = probe[1];
 			}
 		}
 	}
@@ -235,7 +223,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		if (this.overTime)
 			return ;
 		
-		InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
+		InstNode fullInst = CumuGraphRecorder.queryInst(this.methodKey, 
 				this.threadId, 
 				this.threadMethodId, 
 				instIdx, 
@@ -262,7 +250,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		int opcat = oo.getCatId();
 		int typeSort = Type.getType(desc).getSort();
 		
-		InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
+		InstNode fullInst = CumuGraphRecorder.queryInst(this.methodKey, 
 				this.threadId, 
 				this.threadMethodId, 
 				instIdx, 
@@ -343,7 +331,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			return ;
 		
 		OpcodeObj oo = BytecodeCategory.getOpcodeObj(opcode);
-		InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
+		InstNode fullInst = CumuGraphRecorder.queryInst(this.methodKey, 
 				this.threadId, 
 				this.threadMethodId, 
 				instIdx, 
@@ -390,9 +378,12 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			
 			if (inputSize > 0) {
 				InstNode tmpInst = this.safePop();
+				CumuGraphRecorder.pushCalleeResult(tmpInst);
+				
 				this.beforeReturn = tmpInst;
 				if (inputSize == 2) {
 					this.safePop();
+					CumuGraphRecorder.pushCalleeResult(tmpInst);
 				}
 			}
 			return ;
@@ -400,7 +391,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		
 		InstNode fullInst = null;
 		if (localVarIdx >= 0) {
-			fullInst = this.pool.searchAndGet(this.methodKey, 
+			fullInst = CumuGraphRecorder.queryInst(this.methodKey, 
 					this.threadId, 
 					this.threadMethodId, 
 					instIdx, 
@@ -408,7 +399,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 					String.valueOf(localVarIdx), 
 					InstPool.REGULAR);
 		} else {
-			fullInst = this.pool.searchAndGet(this.methodKey, 
+			fullInst = CumuGraphRecorder.queryInst(this.methodKey, 
 					this.threadId, 
 					this.threadMethodId, 
 					instIdx, 
@@ -463,7 +454,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		} else if (BytecodeCategory.dupCategory().contains(opcat)) {
 			this.handleDup(opcode);
 			//dup should not have any dep, no need to parentRemove
-			this.pool.remove(fullInst);
+			CumuGraphRecorder.removeInst(fullInst);
 			hasUpdate = true;
 		} else {			
 			int inputSize = fullInst.getOp().getInList().size();
@@ -492,7 +483,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			return ;
 		
 		String addInfo = desc + " " + dim;
-		InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
+		InstNode fullInst = CumuGraphRecorder.queryInst(this.methodKey, 
 				this.threadId, 
 				this.threadMethodId, 
 				instIdx, 
@@ -563,20 +554,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		Type[] args = cmi.args;
 		Type rType = cmi.returnType;
 		int[] idxArray = cmi.idxArray;
-		
-		String curMethodKey = StringUtil.genKey(owner, name, desc);
-		InstNode ptr = this.pool.searchAndGet(this.methodKey, 
-				this.threadId, 
-				this.threadMethodId, 
-				instIdx, 
-				opcode, 
-				curMethodKey, 
-				InstPool.METHOD);
-		
-		CumuMethodNode fullInst = (CumuMethodNode) ptr;
-		fullInst.setLinenumber(this.linenumber);
-		this.updateControlRelation(fullInst);
-		
+				
 		Class correctClass;
 		int objId = 0;
 		if (opcode == Opcodes.INVOKESTATIC) {
@@ -603,62 +581,104 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		}
 		
 		String realMethodKey = StringUtil.genKey(correctClass.getName(), name, desc);
+		
+		boolean sysCall = false;
+		HashMap<Integer, InstNode> idxMap = new HashMap<Integer, InstNode>();
+		InstNode controlToGlobal = null;
+		MethodNode fullInst = null;
 		if (Type.getType(owner).getSort() == Type.ARRAY 
 				|| !StringUtil.shouldIncludeClass(correctClass.getName()) 
 				|| !StringUtil.shouldIncludeMethod(name, desc)
 				|| CumuGraphRecorder.checkUndersizedMethod(GlobalGraphRecorder.getGlobalName(realMethodKey)) 
 				|| CumuGraphRecorder.checkUntransformedClass(correctClass.getName())) {
-			fullInst.registerJVMCallee(realMethodKey);
-		} else {
-			CumuGraph callee = null;
-			if (opcode == Opcodes.INVOKESTATIC) {
-				callee = CumuGraphRecorder.retrieveStaticGraph(realMethodKey);
-			} else {
-				if (objId == -1) {
-					System.exit(-1);
-				}	
-				callee = CumuGraphRecorder.retrieveObjGraph(objId, realMethodKey);
-			}
-			fullInst.registerCalleeDirect(callee);
+			//Similar to record system call
+			String curMethodKey = StringUtil.genKey(owner, name, desc);
+			InstNode ptr = CumuGraphRecorder.queryInst(this.methodKey, 
+					this.threadId, 
+					this.threadMethodId, 
+					instIdx, 
+					opcode, 
+					curMethodKey, 
+					InstPool.METHOD);
 			
-			if (args.length > 0) {
-				for (int i = args.length - 1; i >= 0 ;i--) {
-					Type t = args[i];
-					InstNode targetNode = null;
-					int idx = idxArray[i];
-					if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
-						this.safePop();
-						targetNode = this.safePop();
-						
-						//parentFromCaller.put(endIdx, targetNode);
+			fullInst = (MethodNode) ptr;
+			fullInst.setLinenumber(this.linenumber);
+			this.updateControlRelation(fullInst);
+			
+			fullInst.increJvmCallees(realMethodKey);			
+			sysCall = true;
+		}
+		
+		if (args.length > 0) {
+			for (int i = args.length - 1; i >= 0 ;i--) {
+				Type t = args[i];
+				InstNode targetNode = null;
+				int idx = idxArray[i];
+				if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
+					this.safePop();
+					targetNode = this.safePop();
+					
+					//parentFromCaller.put(endIdx, targetNode);
+					//this.updateCachedMap(targetNode, fullInst, MIBConfiguration.INST_DATA_DEP);
+					//fullInst.registerParentReplay(idx, targetNode);
+					if (sysCall) {
 						this.updateCachedMap(targetNode, fullInst, MIBConfiguration.INST_DATA_DEP);
-						fullInst.registerParentReplay(idx, targetNode);
 					} else {
-						targetNode = this.safePop();
-						//parentFromCaller.put(endIdx, targetNode);
+						idxMap.put(idx, targetNode);
+					}
+				} else {
+					targetNode = this.safePop();
+					//parentFromCaller.put(endIdx, targetNode);
+					//this.updateCachedMap(targetNode, fullInst, MIBConfiguration.INST_DATA_DEP);
+					//fullInst.registerParentReplay(idx, targetNode);
+					if (sysCall) {
 						this.updateCachedMap(targetNode, fullInst, MIBConfiguration.INST_DATA_DEP);
-						fullInst.registerParentReplay(idx, targetNode);
+					} else {
+						idxMap.put(idx, targetNode);
 					}
 				}
-			}
-			
-			if (opcode != Opcodes.INVOKESTATIC) {
-				//loadNode can be anyload that load an object
-				InstNode loadNode = this.safePop();
-				//parentFromCaller.put(0, loadNode);
-				this.updateCachedMap(loadNode, fullInst, MIBConfiguration.INST_DATA_DEP);
-				fullInst.registerParentReplay(0, loadNode);
-			}
-			
-			String returnType = rType.getDescriptor();
-			if (!returnType.equals("V")) {
-				//InstNode lastSecond = childGraph.getLastBeforeReturn();
-				if (returnType.equals("D") || returnType.equals("J")) {
-					this.updateStackSimulator(2, fullInst);
-				} else {
-					this.updateStackSimulator(1, fullInst);
+				
+				if (!sysCall && i == args.length - 1) {
+					controlToGlobal = targetNode;
 				}
 			}
+		}
+		
+		if (opcode != Opcodes.INVOKESTATIC) {
+			//loadNode can be anyload that load an object
+			InstNode loadNode = this.safePop();
+			
+			if (sysCall) {
+				this.updateCachedMap(loadNode, fullInst, MIBConfiguration.INST_DATA_DEP);
+			} else {
+				idxMap.put(0, loadNode);
+			}
+		}
+				
+		String returnType = rType.getDescriptor();
+		if (!returnType.equals("V")) {
+			//InstNode lastSecond = childGraph.getLastBeforeReturn();
+			if (returnType.equals("D") || returnType.equals("J")) {
+				if (sysCall) {
+					this.updateStackSimulator(2, fullInst);
+				} else {
+					InstNode calleeResult = CumuGraphRecorder.popCalleeResult(true);
+					this.updateStackSimulator(2, calleeResult);
+				}
+			} else {
+				if (sysCall) {
+					this.updateStackSimulator(1, fullInst);
+				} else {
+					InstNode calleeResult = CumuGraphRecorder.popCalleeResult(false);
+					this.updateStackSimulator(1, calleeResult);
+				}
+			}
+		}
+		
+		//Update globel recorder to allow callees to read
+		if (!sysCall) {
+			CumuGraphRecorder.registerIdxMap(idxMap);
+			CumuGraphRecorder.registerCallerControl(controlToGlobal);
 		}
 		
 		//this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
@@ -747,29 +767,9 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		//this.showStackSimulator();
 	}
 	
-	public void genNewGraph(boolean withId) {
+	public void genMethodInfo() {
 		this.threadId = ObjectIdAllocater.getThreadId();
 		this.threadMethodId = ObjectIdAllocater.getThreadMethodIndex(this.threadId);
-		this.pool = new InstPool();
-		
-		CumuGraph graph = new CumuGraph();
-		graph.setMethodKey(this.methodKey);
-		graph.setMethodName(this.methodName);
-		graph.setMethodDesc(this.methodDesc);
-		graph.setShortMethodKey(this.shortMethodKey);
-		graph.setThreadId(this.threadId);
-		graph.setThreadMethodId(this.threadMethodId);
-		graph.setMethodArgSize(this.methodArgSize);
-		graph.setMethodReturnSize(this.methodReturnSize);
-		graph.setStaticMethod(this.isStatic);
-		graph.setFirstReadLocalVars(this.firstReadLocalVars);
-		graph.setInstPool(this.pool);
-		
-		if (withId) {
-			graph.setObjId(this.objId);
-		}
-		
-		this.graph = graph;
 	}
 	
 	public void dumpGraph() {		
@@ -778,11 +778,11 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		}
 		
 		if (!this.registered) {
-			this.graph.setObjId(this.objId);
-			CumuGraphRecorder.registerObjGraph(this.graph);
+			int[] methodInfo = {this.threadId, this.threadMethodId};
+			CumuGraphRecorder.registerObjRecord(this.objId, this.methodKey, methodInfo);
 		}
 				
-		if (this.beforeReturn != null) {
+		/*if (this.beforeReturn != null) {
 			this.graph.addLastBeforeReturn(this.beforeReturn);
 		}
 				
@@ -840,7 +840,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		this.graph.setEdgeNum(edgeNum);
 		this.graph.setVertexNum(vertexNum);
 		this.graph.setChildDominant(maxChildVertex);
-		this.graph.calleeRequired = calleeRequired;		
+		this.graph.calleeRequired = calleeRequired;	*/	
 		
 		/*String dumpKey = StringUtil.genKeyWithId(this.shortMethodKey, String.valueOf(this.threadId));
 		if (this.isStatic) {

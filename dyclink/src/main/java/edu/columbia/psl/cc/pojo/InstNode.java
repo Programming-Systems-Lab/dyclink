@@ -21,7 +21,7 @@ public class InstNode {
 	
 	protected String addInfo = "";
 	
-	public HashSet<Integer> inheritedInfo;
+	public transient HashSet<Integer> inheritedInfo;
 	
 	protected String fromMethod = "";
 	

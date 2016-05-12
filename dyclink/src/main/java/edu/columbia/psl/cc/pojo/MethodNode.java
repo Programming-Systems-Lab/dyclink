@@ -26,6 +26,8 @@ public class MethodNode extends InstNode {
 	
 	protected CalleeInfo calleeInfo = new CalleeInfo();
 	
+	protected HashMap<String, Integer> jvmCallees = new HashMap<String, Integer>();
+	
 	private HashMap<String, GraphWithFreq> callees = new HashMap<String, GraphWithFreq>();
 		
 	private RegularState rs = new RegularState();
@@ -271,6 +273,23 @@ public class MethodNode extends InstNode {
 		
 	public HashMap<String, GraphWithFreq> getCallees() {
 		return this.callees;
+	}
+	
+	public void setJvmCallees(HashMap<String, Integer> jvmCallees) {
+		this.jvmCallees = jvmCallees;
+	}
+	
+	public HashMap<String, Integer> getJvmCallees() {
+		return this.jvmCallees;
+	}
+	
+	public void increJvmCallees(String methodKey) {
+		if (this.jvmCallees.containsKey(methodKey)) {
+			int newFreq = this.jvmCallees.get(methodKey) + 1;
+			this.jvmCallees.put(methodKey, newFreq);
+		} else {
+			this.jvmCallees.put(methodKey, 1);
+		}
 	}
 		
 	public int getMaxCalleeFreq() {
