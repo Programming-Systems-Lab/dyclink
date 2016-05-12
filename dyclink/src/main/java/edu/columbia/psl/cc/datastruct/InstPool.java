@@ -7,6 +7,8 @@ import java.util.TreeSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.pojo.CumuMethodNode;
 import edu.columbia.psl.cc.pojo.FieldNode;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
@@ -140,7 +142,11 @@ public class InstPool extends TreeSet<InstNode> {
 		if (request == REGULAR) {
 			probe = new InstNode();
 		} else if(request == METHOD) {
-			probe = new MethodNode();
+			if (MIBConfiguration.getInstance().isCumuGraph()) {
+				probe = new CumuMethodNode();
+			} else {
+				probe = new MethodNode();
+			}		
 		} else {
 			probe = new FieldNode();
 		}

@@ -20,7 +20,7 @@ import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.abs.AbstractGraph;
 import edu.columbia.psl.cc.abs.IMethodMiner;
-import edu.columbia.psl.cc.abs.IRecorder;
+import edu.columbia.psl.cc.abs.AbstractRecorder;
 import edu.columbia.psl.cc.analysis.StaticTester;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.crawler.NativePackages;
@@ -32,7 +32,7 @@ import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 
-public class MethodStackRecorder implements IRecorder{
+public class MethodStackRecorder extends AbstractRecorder{
 	
 	private static Logger logger = LogManager.getLogger(MethodStackRecorder.class);
 			
@@ -151,31 +151,7 @@ public class MethodStackRecorder implements IRecorder{
 				" " + this.threadId + 
 				" " + this.threadMethodId);*/
 	}
-	
-	public static final int parseObjId(Object value) {
-		if (value == null)
-			return -1;
 		
-		Class<?> valueClass = value.getClass();
-		try {
-			Field idField = valueClass.getField(IMethodMiner.__mib_id);
-			idField.setAccessible(true);
-			/*System.out.println("Traverse fields of " + valueClass);
-			for (Field f: valueClass.getFields()) {
-				System.out.println(f);
-			}*/
-			int objId = idField.getInt(value);
-			//System.out.println("Obj: " + value);
-			//System.out.println("Id: " + objId);
-			return objId;
-		} catch (Exception ex) {
-			//ex.printStackTrace();
-			//System.out.println("Warning: object " + valueClass + " is not MIB-instrumented");
-			logger.warn("Warning: object " + valueClass + " is not MIB-instrumented");
-			return -1;
-		}
-	}
-	
 	private void stopLocalVar(int localVarId) {
 		this.shouldRecordReadLocalVars.remove(localVarId);
 	}
@@ -951,11 +927,12 @@ public class MethodStackRecorder implements IRecorder{
 			if (curInst instanceof MethodNode) {
 				MethodNode mn = (MethodNode) curInst;
 				//HashMap<GraphTemplate, Double> repCallees = MethodNode.extractCallee(mn.getCallees(), mn.getMaxCalleeFreq());
-				HashMap<GraphTemplate, Double> repCallees = MethodNode.extractCallee(mn);
+				HashMap<AbstractGraph, Double> repCallees = MethodNode.extractCallee(mn);
 				
 				int instParentNum = mn.getInstDataParentList().size();
 				int controlParentNum = mn.getControlParentList().size();
-				for (GraphTemplate repCallee: repCallees.keySet()) {
+				for (AbstractGraph absRepCallee: repCallees.keySet()) {
+					GraphTemplate repCallee = (GraphTemplate) absRepCallee;
 					String repKey = StringUtil.genThreadWithMethodIdx(repCallee.getThreadId(), repCallee.getThreadMethodId());
 					double normFreq = repCallees.get(repCallee);
 					mn.registerDomCalleeIdx(repKey, normFreq, repCallee.getLastBeforeReturn());

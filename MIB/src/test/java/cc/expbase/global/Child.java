@@ -22,19 +22,34 @@ public class Child extends Parent {
 		return ret;
 	}
 	
+	public int factorial(int n) {
+		if (n == 0) {
+			return 0;
+		}
+		
+		if (n == 1) {
+			return n;
+		} else {
+			return n * factorial(n - 1);
+		}
+	}
+	
 	public static void main(String[] args) {
 		//Case 1
-		printStaticString();
+		//printStaticString();
 		
 		//Case 2
 		Child c = new Child(5.2f);
-		c.printObjString();
+		//c.printObjString();
 		
 		//Case 3
-		System.out.println(c.parentMethod());
+		/*System.out.println(c.parentMethod());
 		c.setPDouble(6.8);
 		c.setPInt(5);
-		System.out.println(c.parentMethod());
+		System.out.println(c.parentMethod());*/
+		
+		//Case 4
+		System.out.println(c.factorial(5));
 	}
 
 }

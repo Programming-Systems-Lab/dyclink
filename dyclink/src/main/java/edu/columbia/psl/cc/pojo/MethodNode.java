@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.columbia.psl.cc.abs.AbstractGraph;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.util.GlobalGraphRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
@@ -23,7 +24,7 @@ public class MethodNode extends InstNode {
 	
 	public static final int CALLEE_MAX = MIBConfiguration.getInstance().getCallThreshold();
 	
-	private CalleeInfo calleeInfo = new CalleeInfo();
+	protected CalleeInfo calleeInfo = new CalleeInfo();
 	
 	private HashMap<String, GraphWithFreq> callees = new HashMap<String, GraphWithFreq>();
 		
@@ -60,26 +61,21 @@ public class MethodNode extends InstNode {
 	 * @param mn
 	 * @return
 	 */
-	public static HashMap<GraphTemplate, Double> extractCallee(MethodNode mn) {
+	public static HashMap<AbstractGraph, Double> extractCallee(MethodNode mn) {
 		HashMap<String, GraphWithFreq> callees = mn.callees;
 		int maxGraphFreq = mn.getMaxCalleeFreq();
 		int instFreq = 0;
 		if (mn.rs.count > 0) {
 			instFreq = mn.rs.count;
 		}
-		
-		/*logger.info("Callee graph original");
-		for (String key: callees.keySet()) {
-			logger.info(key+ " " + callees.get(key).freq); 
-		}*/
-		
+				
 		int totalFreq = 0;
 		for (GraphWithFreq graF: callees.values()) {
 			totalFreq += graF.freq;
 		}
 		totalFreq += instFreq;
 		
-		HashMap<GraphTemplate, Double> ret = new HashMap<GraphTemplate, Double>();
+		HashMap<AbstractGraph, Double> ret = new HashMap<AbstractGraph, Double>();
 		if (maxGraphFreq >= domPass * totalFreq) {
 			List<GraphWithFreq> toRemove = new ArrayList<GraphWithFreq>();
 			boolean found = false ;
@@ -94,14 +90,14 @@ public class MethodNode extends InstNode {
 				}
 			}
 			
-			for (GraphWithFreq removed: toRemove) {
-				GraphTemplate callee = removed.callee;
+			/*for (GraphWithFreq removed: toRemove) {
+				AbstractGraph callee = removed.callee;
 				if (removed.callee.mustExist)
 					continue ;
 				
 				//System.out.println("Because of dom: " + callee.getMethodName() + " " + callee.getThreadMethodId());
 				globalRWRemoveHelper(callee);
-			}
+			}*/
 			
 			if (found) {
 				return ret;
@@ -134,16 +130,7 @@ public class MethodNode extends InstNode {
 			std = Math.sqrt((stdSum)/(callees.values().size() - 1));
 		}
 		
-		double lowBound = meanFreq - std;
-		
-		/*double meanFreq = ((double)totalFreq)/callees.values().size();
-		double stdSum = 0;
-		for (GraphWithFreq graF: callees.values()) {
-			stdSum += Math.pow(graF.freq - meanFreq, 2);
-		}
-		double std = Math.sqrt((stdSum) / (callees.values().size() - 1));
-		double lowBound = meanFreq - std;*/
-		
+		double lowBound = meanFreq - std;		
 		List<GraphWithFreq> cache = new ArrayList<GraphWithFreq>();
 		int newTotal = 0;
 		for (GraphWithFreq graF: callees.values()) {
@@ -170,14 +157,13 @@ public class MethodNode extends InstNode {
 			if (diff > EPSILON) {
 				ret.put(graF.callee, frac);
 				//logger.info(graF.callee.getVertexNum() + ":" + graF.callee.getEdgeNum() + " " + frac);
-			} else if (!graF.callee.mustExist){
-				//System.out.println("Because of frac: " + graF.callee.getMethodName() + " " + graF.callee.getThreadMethodId());
+			} /*else if (!graF.callee.mustExist){
 				globalRWRemoveHelper(graF.callee);
-			}
+			}*/
 		}
 		return ret;
 	}
-		
+			
 	public void setCalleeInfo(CalleeInfo calleeInfo) {
 		this.calleeInfo = calleeInfo;
 	}
@@ -192,6 +178,10 @@ public class MethodNode extends InstNode {
 	
 	public RegularState getRegularState() {
 		return this.rs;
+	}
+	
+	public void increCallFreq() {
+		this.callFreq++;
 	}
 		
 	public void registerParentReplay(int idx, InstNode instParent) {
@@ -234,8 +224,8 @@ public class MethodNode extends InstNode {
 		this.calleeInfo.metaCallees.add(mg);
 	}
 		
-	public void registerCallee(GraphTemplate callee) {
-		this.callFreq++;
+	public void registerCallee(AbstractGraph callee) {
+		this.increCallFreq();
 		
 		//No need for linenumber actually.
 		String groupKey = GraphGroup.groupKey(this.getLinenumber(), callee);
@@ -246,7 +236,7 @@ public class MethodNode extends InstNode {
 			gf = this.callees.get(groupKey);
 			gf.freq++;
 			
-			if (MIBConfiguration.getInstance().isFieldTrack()) {
+			/*if (MIBConfiguration.getInstance().isFieldTrack()) {
 				//The rw history of callee has been registered, need to remove
 				globalRWRemoveHelper(callee);
 				
@@ -258,14 +248,7 @@ public class MethodNode extends InstNode {
 						GlobalGraphRecorder.increHistoryFreq(w, r);
 					}
 				}
-				
-				//Remove write fields
-				//HashMap<String, InstNode> cWriteFields = callee.writeFields;
-				//GlobalRecorder.removeWriteFields(cWriteFields.keySet());
-				
-				//Insert the original relations back
-				//GlobalRecorder.registerAllWriteFields(gf.callee.writeFields);
-			}
+			}*/
 		} else {
 			gf = new GraphWithFreq();
 			gf.callee = callee;
@@ -276,15 +259,10 @@ public class MethodNode extends InstNode {
 		if (gf.freq > this.maxGraphFreq) {
 			this.maxGraphFreq = gf.freq;
 		}
-		
-		/*if (callee.getMethodName().equals("solve")) {
-			System.out.println("solve call: " + this.callFreq);
-		}*/
-		
-		if (this.callFreq >= CALLEE_MAX) {
-			//logger.info("Curent call: " + this.fromMethod + " " + this.linenumber + " " + callee.getShortMethodKey() + " " + this.callFreq);
+				
+		/*if (this.callFreq >= CALLEE_MAX) {
 			GlobalGraphRecorder.registerStopCallee(callee.getShortMethodKey(), this.linenumber);
-		}
+		}*/
 	}
 		
 	public void clearCallees() {
@@ -294,13 +272,13 @@ public class MethodNode extends InstNode {
 	public HashMap<String, GraphWithFreq> getCallees() {
 		return this.callees;
 	}
-	
+		
 	public int getMaxCalleeFreq() {
 		return this.maxGraphFreq;
 	}
 	
 	public static class GraphWithFreq {
-		public GraphTemplate callee;
+		public AbstractGraph callee;
 		
 		public int freq = 0;
 	}

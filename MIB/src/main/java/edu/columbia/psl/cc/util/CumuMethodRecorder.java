@@ -14,19 +14,20 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import edu.columbia.psl.cc.abs.AbstractGraph;
+import edu.columbia.psl.cc.abs.AbstractRecorder;
 import edu.columbia.psl.cc.abs.IMethodMiner;
-import edu.columbia.psl.cc.abs.IRecorder;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.ClassMethodInfo;
 import edu.columbia.psl.cc.pojo.CumuGraph;
+import edu.columbia.psl.cc.pojo.CumuMethodNode;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 
-public class CumuMethodRecorder implements IRecorder {
+public class CumuMethodRecorder extends AbstractRecorder {
 	
 	private static Logger logger = LogManager.getLogger(CumuMethodRecorder.class);
 			
@@ -127,8 +128,7 @@ public class CumuMethodRecorder implements IRecorder {
 			//For instance method, don't register, since the obj id is not ready
 			this.genNewGraph(false);
 			this.registered = false;
-		} else if (this.methodName.equals("<clinit>")) {			
-			//For instance method, don't register, since the obj id is not ready
+		} else if (this.methodName.equals("<clinit>")) {
 			this.genNewGraph(true);
 			CumuGraphRecorder.registerStaticGraph(this.methodKey, this.graph);
 		} else {
@@ -157,23 +157,7 @@ public class CumuMethodRecorder implements IRecorder {
 			}
 		}
 	}
-	
-	public static final int parseObjId(Object value) {
-		if (value == null)
-			return -1;
 		
-		Class<?> valueClass = value.getClass();
-		try {
-			Field idField = valueClass.getField(IMethodMiner.__mib_id);
-			idField.setAccessible(true);
-			int objId = idField.getInt(value);
-			return objId;
-		} catch (Exception ex) {
-			logger.warn("Warning: object " + valueClass + " is not MIB-instrumented");
-			return -1;
-		}
-	}
-	
 	private void stopLocalVar(int localVarId) {
 		this.shouldRecordReadLocalVars.remove(localVarId);
 	}
@@ -564,21 +548,120 @@ public class CumuMethodRecorder implements IRecorder {
 		//this.showStackSimulator();
 	}
 	
-	public void handleMethod(int opcode, int instIdx, int linenum, String owner, String name, String desc) {		
+	public void handleMethod(int opcode, 
+			int instIdx, 
+			int linenum, 
+			String owner, 
+			String name, 
+			String desc) {
+		
 		if (this.overTime)
 			return ;
 		
-		//long startTime = System.nanoTime();		
+		ClassMethodInfo cmi = ClassInfoCollector.retrieveClassMethodInfo(owner, name, desc, opcode);
+		int argSize = cmi.argSize;
+		Type[] args = cmi.args;
+		Type rType = cmi.returnType;
+		int[] idxArray = cmi.idxArray;
+		
 		String curMethodKey = StringUtil.genKey(owner, name, desc);
-		InstNode fullInst = this.pool.searchAndGet(this.methodKey, 
+		InstNode ptr = this.pool.searchAndGet(this.methodKey, 
 				this.threadId, 
 				this.threadMethodId, 
 				instIdx, 
 				opcode, 
 				curMethodKey, 
-				InstPool.REGULAR);
+				InstPool.METHOD);
 		
-		this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
+		CumuMethodNode fullInst = (CumuMethodNode) ptr;
+		fullInst.setLinenumber(this.linenumber);
+		this.updateControlRelation(fullInst);
+		
+		Class correctClass;
+		int objId = 0;
+		if (opcode == Opcodes.INVOKESTATIC) {
+			correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
+		} else {
+			InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
+			Object objOnStack = relatedInst.getRelatedObj();
+			objId = parseObjId(objOnStack);
+			
+			if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
+				//constructor
+				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, true);
+			} else if (opcode == Opcodes.INVOKESPECIAL && owner.equals(this.className)) {
+				//private method
+				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, true);
+			} else if (opcode == Opcodes.INVOKESPECIAL) {
+				//super method, may be in grand parents
+				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
+			} else {
+				//logger.info("Retrieve method by class name: " + name + objOnStack.getClass().getName());
+				String internalName = Type.getInternalName(objOnStack.getClass());
+				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(internalName, name, desc, false);
+			}
+		}
+		
+		String realMethodKey = StringUtil.genKey(correctClass.getName(), name, desc);
+		if (Type.getType(owner).getSort() == Type.ARRAY 
+				|| !StringUtil.shouldIncludeClass(correctClass.getName()) 
+				|| !StringUtil.shouldIncludeMethod(name, desc)
+				|| CumuGraphRecorder.checkUndersizedMethod(GlobalGraphRecorder.getGlobalName(realMethodKey)) 
+				|| CumuGraphRecorder.checkUntransformedClass(correctClass.getName())) {
+			fullInst.registerJVMCallee(realMethodKey);
+		} else {
+			CumuGraph callee = null;
+			if (opcode == Opcodes.INVOKESTATIC) {
+				callee = CumuGraphRecorder.retrieveStaticGraph(realMethodKey);
+			} else {
+				if (objId == -1) {
+					System.exit(-1);
+				}	
+				callee = CumuGraphRecorder.retrieveObjGraph(objId, realMethodKey);
+			}
+			fullInst.registerCalleeDirect(callee);
+			
+			if (args.length > 0) {
+				for (int i = args.length - 1; i >= 0 ;i--) {
+					Type t = args[i];
+					InstNode targetNode = null;
+					int idx = idxArray[i];
+					if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
+						this.safePop();
+						targetNode = this.safePop();
+						
+						//parentFromCaller.put(endIdx, targetNode);
+						this.updateCachedMap(targetNode, fullInst, MIBConfiguration.INST_DATA_DEP);
+						fullInst.registerParentReplay(idx, targetNode);
+					} else {
+						targetNode = this.safePop();
+						//parentFromCaller.put(endIdx, targetNode);
+						this.updateCachedMap(targetNode, fullInst, MIBConfiguration.INST_DATA_DEP);
+						fullInst.registerParentReplay(idx, targetNode);
+					}
+				}
+			}
+			
+			if (opcode != Opcodes.INVOKESTATIC) {
+				//loadNode can be anyload that load an object
+				InstNode loadNode = this.safePop();
+				//parentFromCaller.put(0, loadNode);
+				this.updateCachedMap(loadNode, fullInst, MIBConfiguration.INST_DATA_DEP);
+				fullInst.registerParentReplay(0, loadNode);
+			}
+			
+			String returnType = rType.getDescriptor();
+			if (!returnType.equals("V")) {
+				//InstNode lastSecond = childGraph.getLastBeforeReturn();
+				if (returnType.equals("D") || returnType.equals("J")) {
+					this.updateStackSimulator(2, fullInst);
+				} else {
+					this.updateStackSimulator(1, fullInst);
+				}
+			}
+		}
+		
+		//this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 		//this.showStackSimulator();
 	}
 	
@@ -714,14 +797,15 @@ public class CumuMethodRecorder implements IRecorder {
 			curInst.removeRelatedObj();
 			
 			int childNum = curInst.getChildFreqMap().size();
-			if (curInst instanceof MethodNode) {
-				MethodNode mn = (MethodNode) curInst;
+			if (curInst instanceof CumuMethodNode) {
+				CumuMethodNode mn = (CumuMethodNode) curInst;
 				//HashMap<GraphTemplate, Double> repCallees = MethodNode.extractCallee(mn.getCallees(), mn.getMaxCalleeFreq());
-				HashMap<GraphTemplate, Double> repCallees = MethodNode.extractCallee(mn);
+				HashMap<AbstractGraph, Double> repCallees = MethodNode.extractCalleeDirect(mn);
 				
 				int instParentNum = mn.getInstDataParentList().size();
 				int controlParentNum = mn.getControlParentList().size();
-				for (GraphTemplate repCallee: repCallees.keySet()) {
+				for (AbstractGraph absRepCallee: repCallees.keySet()) {
+					CumuGraph repCallee = (CumuGraph) absRepCallee;
 					String repKey = StringUtil.genThreadWithMethodIdx(repCallee.getThreadId(), repCallee.getThreadMethodId());
 					double normFreq = repCallees.get(repCallee);
 					mn.registerDomCalleeIdx(repKey, normFreq, repCallee.getLastBeforeReturn());

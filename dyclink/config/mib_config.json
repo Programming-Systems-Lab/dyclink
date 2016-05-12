@@ -25,7 +25,7 @@
   "labelmapDir": "./labelmap",
   "resultDir": "./results",
   "debugDir": "./debug",
-  "cacheDir": "/Users/mikefhsu/Mike/Research/code_clone/fse2016_repo/dyclink_graphmining/cache",
+  "cacheDir": "./cache",
   "controlWeight": 1.0,
   "instDataWeight": 1.0,
   "writeDataWeight": 1.0,
@@ -45,8 +45,11 @@
   "simStrategy": 1,
   "testMethodThresh": -1,
   "threadInit": 0,
-  "threadMethodIdxRecord": {},
+  "threadMethodIdxRecord": {
+    "0": 21
+  },
   "annotGuard": false,
+<<<<<<< d32a8b2585e1feac6987ccd9b69d03fe8aced7cd:dyclink/config/mib_config.json
 <<<<<<< a36347b987a656e3467321dc9b403bd44572910c:dyclink/config/mib_config.json
 <<<<<<< 0971fb78d235a192fa0dc0679b386dff65505eff:dyclink/config/mib_config.json
   "fieldTrack": false,
@@ -56,13 +59,16 @@
 =======
   "fieldTrack": false,
 >>>>>>> Insert an abstract layer for graph objs. Have not tested. Try to solve recursion:MIB/config/mib_config.json
+=======
+  "fieldTrack": true,
+>>>>>>> Backup before changin to a single pool:MIB/config/mib_config.json
   "debug": true,
 >>>>>>> Static field works:MIB/config/mib_config.json
   "exclSpec": true,
   "exclPkg": true,
   "reduceGraph": true,
   "nativeClass": true,
-  "cumuGraph": false,
+  "cumuGraph": true,
   "dburl": "jdbc:mysql://ip:port/dbname?useServerPrepStmts\u003dfalse\u0026rewriteBatchedStatements\u003dtrue\u0026autoReconnect\u003dtrue",
   "dbusername": "root"
 }

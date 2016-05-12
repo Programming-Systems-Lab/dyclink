@@ -4,14 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class GraphGroup extends HashMap<String, List<GraphTemplate>>{
+import edu.columbia.psl.cc.abs.AbstractGraph;
+
+public class GraphGroup extends HashMap<String, List<AbstractGraph>>{
 			
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static String groupKey(int linenumber, GraphTemplate graph) {
+	public static String groupKey(int linenumber, AbstractGraph graph) {
 		return groupKey(linenumber, graph.getVertexNum(), graph.getEdgeNum());
 	}
 	
@@ -19,24 +21,24 @@ public class GraphGroup extends HashMap<String, List<GraphTemplate>>{
 		return String.valueOf(linenumber) + ":" + nodeNum + ":" + depNum;
 	}
 	
-	public GraphTemplate getGraph(int linenumber, GraphTemplate graph) {		
+	public AbstractGraph getGraph(int linenumber, AbstractGraph graph) {		
 		String groupKey = groupKey(linenumber, graph.getVertexNum(), graph.getEdgeNum());
-		List<GraphTemplate> graphsInGroup = this.get(groupKey);
+		List<AbstractGraph> graphsInGroup = this.get(groupKey);
 		
 		if (graphsInGroup == null || graphsInGroup.size() == 0) {
 			return null;
 		} else {
-			GraphTemplate existGraph = graphsInGroup.get(0);
+			AbstractGraph existGraph = graphsInGroup.get(0);
 			return existGraph;
 		}
 	}
 
-	public void addGraph(int linenumber, GraphTemplate graph) {
+	public void addGraph(int linenumber, AbstractGraph graph) {
 		String groupKey = groupKey(linenumber, graph.getVertexNum(), graph.getEdgeNum());
 		if (this.containsKey(groupKey)) {
 			this.get(groupKey).add(graph);
 		} else {
-			List<GraphTemplate> subGraphs = new ArrayList<GraphTemplate>();
+			List<AbstractGraph> subGraphs = new ArrayList<AbstractGraph>();
 			subGraphs.add(graph);
 			this.put(groupKey, subGraphs);
 		}

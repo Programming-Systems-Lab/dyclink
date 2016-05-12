@@ -16,7 +16,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
 import edu.columbia.psl.cc.abs.IMethodMiner;
-import edu.columbia.psl.cc.abs.IRecorder;
+import edu.columbia.psl.cc.abs.AbstractRecorder;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
@@ -318,7 +318,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 			this.mv.visitLdcInsn(this.desc);
 			
 			this.mv.visitInsn(Opcodes.ICONST_0);
-			this.convertConst(IRecorder.CONSTRUCTOR_DEFAULT);
+			this.convertConst(AbstractRecorder.CONSTRUCTOR_DEFAULT);
 			
 			this.mv.visitMethodInsn(Opcodes.INVOKESPECIAL, 
 					cumuMethodRecorder, 
