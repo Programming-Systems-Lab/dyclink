@@ -306,7 +306,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 		
 		return idx;
 	}
-	
+		
 	public void initConstructorRecorder() {
 		if (this.shouldInstrument()) {
 			//Create the method stack recorder
@@ -562,7 +562,11 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 	}
 	
 	@Override
-	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {		
+	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+		if (this.shouldInstrument()) {
+			int instIdx = this.handleMethod(opcode, owner, name, desc);
+		}
+		
 		//For merging the graph on the fly, need to visit method before recording them
 		this.mv.visitMethodInsn(opcode, owner, name, desc, itf);
 		
@@ -593,7 +597,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 				
 			}
 			
-			int instIdx = this.handleMethod(opcode, owner, name, desc);
+			//int instIdx = this.handleMethod(opcode, owner, name, desc);
 			//this.updateMethodRep(opcode);
 						
 			int returnSort = Type.getMethodType(desc).getReturnType().getSort();
@@ -614,6 +618,15 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 				this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, __mib_id, "I");
 				this.mv.visitFieldInsn(Opcodes.PUTFIELD, cumuMethodRecorder, "objId", "I");
 			}
+			
+			//Handle method after
+			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+			this.convertConst(returnSort);
+			this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
+					cumuMethodRecorder, 
+					srHandleMethodAfter, 
+					srHandleMethodAfterDesc, 
+					false);
 		}
 	}
 	

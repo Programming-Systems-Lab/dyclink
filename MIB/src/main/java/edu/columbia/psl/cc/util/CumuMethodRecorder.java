@@ -72,6 +72,8 @@ public class CumuMethodRecorder extends AbstractRecorder {
 	
 	public boolean initConstructor = true;
 	
+	private HashMap<Integer, InstNode> callerIdxMap = null;
+	
 	public CumuMethodRecorder(String className, 
 			String methodName, 
 			String methodDesc, 
@@ -103,7 +105,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		this.isStatic = ((access & Opcodes.ACC_STATIC) != 0);
 		this.isSynthetic = ((access & Opcodes.ACC_SYNTHETIC) != 0);
 		this.objId = objId;
-		
+				
 		ClassMethodInfo methodProfile = ClassInfoCollector.initiateClassMethodInfo(className, 
 				methodName, 
 				methodDesc, 
@@ -144,6 +146,9 @@ public class CumuMethodRecorder extends AbstractRecorder {
 				this.threadMethodId = probe[1];
 			}
 		}
+		
+		this.callerIdxMap = CumuGraphRecorder.retrieveIdxMap();
+		this.lastInst = CumuGraphRecorder.retrieveCallerControl();
 	}
 		
 	private void stopLocalVar(int localVarId) {
@@ -378,14 +383,16 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			
 			if (inputSize > 0) {
 				InstNode tmpInst = this.safePop();
-				CumuGraphRecorder.pushCalleeResult(tmpInst);
+				CumuGraphRecorder.pushCalleeLast(tmpInst);
 				
 				this.beforeReturn = tmpInst;
 				if (inputSize == 2) {
 					this.safePop();
-					CumuGraphRecorder.pushCalleeResult(tmpInst);
 				}
+			} else {
+				CumuGraphRecorder.pushCalleeLast(this.lastInst);
 			}
+			
 			return ;
 		}
 		
@@ -425,24 +432,33 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		//The store instruction will be the sink. The inst on the stack will be source
 		boolean hasUpdate = false;
 		if (BytecodeCategory.writeCategory().contains(opcat)) {
-			if (lastInst != null) {
-				if (localVarIdx >= 0) {
-					this.localVarRecorder.put(localVarIdx, fullInst);
-				}
-				
-				this.updateCachedMap(lastInst, fullInst, MIBConfiguration.INST_DATA_DEP);
-				for (int i = 0; i < fullInst.getOp().getInList().size(); i++)
-					this.safePop();
+			if (localVarIdx >= 0) {
+				this.localVarRecorder.put(localVarIdx, fullInst);
 			}
-			this.stopLocalVar(localVarIdx);
+			
+			this.updateCachedMap(lastInst, fullInst, MIBConfiguration.INST_DATA_DEP);
+			for (int i = 0; i < fullInst.getOp().getInList().size(); i++) {
+				this.safePop();
+			}
+			
+			if (this.callerIdxMap.containsKey(localVarIdx)) {
+				this.callerIdxMap.remove(localVarIdx);
+			}
+			//this.stopLocalVar(localVarIdx);
 		} else if (opcode == Opcodes.IINC) {
 			InstNode parentInst = this.localVarRecorder.get(localVarIdx);
 			if (parentInst != null)
 				this.updateCachedMap(parentInst, fullInst, MIBConfiguration.WRITE_DATA_DEP);
 			
 			this.localVarRecorder.put(localVarIdx, fullInst);
-			this.updateReadLocalVar(fullInst);
-			this.stopLocalVar(localVarIdx);
+			if (this.callerIdxMap != null && this.callerIdxMap.containsKey(localVarIdx)) {
+				InstNode parentFromCaller = this.callerIdxMap.get(localVarIdx);
+				this.updateCachedMap(parentFromCaller, fullInst, MIBConfiguration.WRITE_DATA_DEP);
+			}
+			
+			this.callerIdxMap.remove(localVarIdx);
+			//this.updateReadLocalVar(fullInst);
+			//this.stopLocalVar(localVarIdx);
 		} else if (BytecodeCategory.readCategory().contains(opcat)) {
 			//Search local var recorder;
 			InstNode parentInst = this.localVarRecorder.get(localVarIdx);
@@ -450,7 +466,12 @@ public class CumuMethodRecorder extends AbstractRecorder {
 				this.updateCachedMap(parentInst, fullInst, MIBConfiguration.WRITE_DATA_DEP);
 			}
 			
-			this.updateReadLocalVar(fullInst);
+			if (this.callerIdxMap != null && this.callerIdxMap.containsKey(localVarIdx)) {
+				InstNode parentFromCaller = this.callerIdxMap.get(localVarIdx);
+				this.updateCachedMap(parentFromCaller, fullInst, MIBConfiguration.WRITE_DATA_DEP);
+			}
+			
+			//this.updateReadLocalVar(fullInst);
 		} else if (BytecodeCategory.dupCategory().contains(opcat)) {
 			this.handleDup(opcode);
 			//dup should not have any dep, no need to parentRemove
@@ -538,7 +559,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		}
 		//this.showStackSimulator();
 	}
-	
+			
 	public void handleMethod(int opcode, 
 			int instIdx, 
 			int linenum, 
@@ -661,16 +682,10 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			if (returnType.equals("D") || returnType.equals("J")) {
 				if (sysCall) {
 					this.updateStackSimulator(2, fullInst);
-				} else {
-					InstNode calleeResult = CumuGraphRecorder.popCalleeResult(true);
-					this.updateStackSimulator(2, calleeResult);
 				}
 			} else {
 				if (sysCall) {
 					this.updateStackSimulator(1, fullInst);
-				} else {
-					InstNode calleeResult = CumuGraphRecorder.popCalleeResult(false);
-					this.updateStackSimulator(1, calleeResult);
 				}
 			}
 		}
@@ -685,6 +700,31 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		//this.showStackSimulator();
 	}
 	
+	public void handleAfterMethod(int retSort) {
+		if (retSort == - 1) {
+			return ;
+		}
+		
+		InstNode calleeLast = CumuGraphRecorder.popCalleeLast();
+		switch(retSort) {
+			case 0:
+				//Only control
+				this.lastInst = calleeLast;
+				break ;
+			case 1:
+				this.lastInst = calleeLast;
+				this.updateStackSimulator(1, calleeLast);
+				break ;
+			case 2:
+				this.lastInst = calleeLast;
+				this.updateStackSimulator(2, calleeLast);
+				break ;
+			default:
+				logger.error("Invalid return type for after-method handler: " + retSort);
+				System.exit(-1);
+		}
+	}
+			
 	public void handleDup(int opcode) {		
 		if (this.overTime)
 			return ;

@@ -6,6 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import edu.columbia.psl.cc.abs.AbstractGraph;
 import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.InstPool;
@@ -14,6 +17,8 @@ import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
 
 public class CumuGraphRecorder extends GlobalGraphRecorder {
+	
+	private static final Logger logger = LogManager.getLogger(CumuGraphRecorder.class);
 	
 	private static HashMap<String, int[]> STATIC_RECORD = new HashMap<String, int[]>();
 	
@@ -26,7 +31,7 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 	
 	private static InstNode CALLER_CONTROL = null;
 	
-	private static Stack<InstNode> CALLEE_RESULTS = new Stack<InstNode>();
+	private static Stack<InstNode> CALLEE_LASTS = new Stack<InstNode>();
 	
 	private static final InstPool POOL = new InstPool();
 	
@@ -134,7 +139,9 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 	}
 	
 	public static HashMap<Integer, InstNode> retrieveIdxMap() {
-		return IDX_MAP;
+		HashMap<Integer, InstNode> ret = IDX_MAP;
+		IDX_MAP = null;
+		return ret;
 	}
 	
 	public static void registerCallerControl(InstNode toRegister) {
@@ -142,19 +149,22 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 	}
 	
 	public static InstNode retrieveCallerControl() {
-		return CALLER_CONTROL;
+		InstNode ret = CALLER_CONTROL;
+		CALLER_CONTROL = null;
+		return ret;
 	}
 	
-	public static void pushCalleeResult(InstNode result) {
-		CALLEE_RESULTS.push(result);
+	public static void pushCalleeLast(InstNode result) {
+		CALLEE_LASTS.push(result);
 	}
 	
-	public static InstNode popCalleeResult(boolean twice) {
-		InstNode result = CALLEE_RESULTS.pop();
-		if (twice) {
-			CALLEE_RESULTS.pop();
+	public static InstNode popCalleeLast() {
+		if (CALLEE_LASTS.size() > 2) {
+			logger.error("Errornes callee results: " + CALLEE_LASTS);
+			System.exit(-1);
 		}
 		
+		InstNode result = CALLEE_LASTS.pop();
 		return result;
 	}
 }

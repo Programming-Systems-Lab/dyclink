@@ -33,7 +33,7 @@ public class Child extends Parent {
 			return n * factorial(n - 1);
 		}
 	}
-	
+		
 	public static void main(String[] args) {
 		//Case 1
 		//printStaticString();
