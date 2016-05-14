@@ -28,7 +28,7 @@ public interface IMethodMiner {
 	
 	String srHandleMethodAfter = "handleMethodAfter";
 	
-	String srHandleMethodAfterDesc = "(I)V";
+	String srHandleMethodAfterDesc = "(II)V";
 	
 	String srGraphDump = "dumpGraph";
 	

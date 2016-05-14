@@ -1,5 +1,7 @@
 package cc.expbase.global;
 
+import java.util.Stack;
+
 public class Child extends Parent {
 	
 	public float cFloat;
@@ -36,11 +38,11 @@ public class Child extends Parent {
 		
 	public static void main(String[] args) {
 		//Case 1
-		printStaticString();
+		//printStaticString();
 		
 		//Case 2
-		//Child c = new Child(5.2f);
-		//c.printObjString();
+		Child c = new Child(5.2f);
+		c.printObjString();
 		
 		//Case 3
 		/*System.out.println(c.parentMethod());

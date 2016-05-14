@@ -218,7 +218,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 	public void updateObjOnStack(Object obj, int traceBack) {
 		if (this.overTime)
 			return ;
-		
+				
 		int idx = this.stackSimulator.size() - 1 - traceBack;
 		InstNode latestInst = this.stackSimulator.get(idx);
 		latestInst.setRelatedObj(obj);
@@ -441,7 +441,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 				this.safePop();
 			}
 			
-			if (this.callerIdxMap.containsKey(localVarIdx)) {
+			if (this.callerIdxMap != null && this.callerIdxMap.containsKey(localVarIdx)) {
 				this.callerIdxMap.remove(localVarIdx);
 			}
 			//this.stopLocalVar(localVarIdx);
@@ -559,7 +559,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		}
 		//this.showStackSimulator();
 	}
-			
+				
 	public void handleMethod(int opcode, 
 			int instIdx, 
 			int linenum, 
@@ -630,15 +630,18 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			sysCall = true;
 		}
 		
+		int stackPtr = this.stackSimulator.size();
 		if (args.length > 0) {
 			for (int i = args.length - 1; i >= 0 ;i--) {
 				Type t = args[i];
 				InstNode targetNode = null;
 				int idx = idxArray[i];
 				if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
-					this.safePop();
-					targetNode = this.safePop();
+					//this.safePop();
+					//targetNode = this.safePop();
 					
+					targetNode = this.stackSimulator.get(stackPtr - 2);
+					stackPtr -= 2;
 					//parentFromCaller.put(endIdx, targetNode);
 					//this.updateCachedMap(targetNode, fullInst, MIBConfiguration.INST_DATA_DEP);
 					//fullInst.registerParentReplay(idx, targetNode);
@@ -648,7 +651,11 @@ public class CumuMethodRecorder extends AbstractRecorder {
 						idxMap.put(idx, targetNode);
 					}
 				} else {
-					targetNode = this.safePop();
+					//targetNode = this.safePop();
+					
+					targetNode = this.stackSimulator.get(stackPtr - 1);
+					stackPtr--;
+					
 					//parentFromCaller.put(endIdx, targetNode);
 					//this.updateCachedMap(targetNode, fullInst, MIBConfiguration.INST_DATA_DEP);
 					//fullInst.registerParentReplay(idx, targetNode);
@@ -667,7 +674,9 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		
 		if (opcode != Opcodes.INVOKESTATIC) {
 			//loadNode can be anyload that load an object
-			InstNode loadNode = this.safePop();
+			//InstNode loadNode = this.safePop();
+			InstNode loadNode = this.stackSimulator.get(stackPtr - 1);
+			stackPtr--;
 			
 			if (sysCall) {
 				this.updateCachedMap(loadNode, fullInst, MIBConfiguration.INST_DATA_DEP);
@@ -676,9 +685,8 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			}
 		}
 				
-		String returnType = rType.getDescriptor();
+		/*String returnType = rType.getDescriptor();
 		if (!returnType.equals("V")) {
-			//InstNode lastSecond = childGraph.getLastBeforeReturn();
 			if (returnType.equals("D") || returnType.equals("J")) {
 				if (sysCall) {
 					this.updateStackSimulator(2, fullInst);
@@ -688,23 +696,26 @@ public class CumuMethodRecorder extends AbstractRecorder {
 					this.updateStackSimulator(1, fullInst);
 				}
 			}
-		}
+		}*/
 		
 		//Update globel recorder to allow callees to read
 		if (!sysCall) {
 			CumuGraphRecorder.registerIdxMap(idxMap);
 			CumuGraphRecorder.registerCallerControl(controlToGlobal);
+		} else {
+			//Take the method instruction as its last instruction, since it got no graph
+			CumuGraphRecorder.pushCalleeLast(fullInst);
 		}
 		
 		//this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 		//this.showStackSimulator();
 	}
 	
-	public void handleMethodAfter(int retSort) {
-		if (retSort == - 1) {
-			return ;
+	public void handleMethodAfter(int totalPop, int retSort) {
+		for (int i = 0; i < totalPop; i++) {
+			this.safePop();
 		}
-		
+				
 		InstNode calleeLast = CumuGraphRecorder.popCalleeLast();
 		switch(retSort) {
 			case 0:
@@ -723,6 +734,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 				logger.error("Invalid return type for after-method handler: " + retSort);
 				System.exit(-1);
 		}
+		//this.showStackSimulator();
 	}
 			
 	public void handleDup(int opcode) {		

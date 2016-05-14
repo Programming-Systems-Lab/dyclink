@@ -571,21 +571,21 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 		this.mv.visitMethodInsn(opcode, owner, name, desc, itf);
 		
 		if (this.shouldInstrument()) {
+			Type[] argTypes = Type.getMethodType(desc).getArgumentTypes();
+			int traceBack = 0;
+			for (Type t: argTypes) {
+				if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
+					traceBack += 2;
+				} else {
+					traceBack += 1;
+				}
+			}
+			
 			//A bit complex here, this to handle passing object before the super or this has been initialized
 			//Only for constructor. But if the object is not this or super, then passing obj should be fine
 			if (opcode == Opcodes.INVOKESPECIAL 
 					&& name.equals("<init>") 
-					&& (!this.aload0Lock || (!owner.equals(this.superName) && !owner.equals(this.className)))) {
-				Type[] argTypes = Type.getMethodType(desc).getArgumentTypes();
-				int traceBack = 0;
-				for (Type t: argTypes) {
-					if (t.getDescriptor().equals("D") || t.getDescriptor().equals("J")) {
-						traceBack += 2;
-					} else {
-						traceBack += 1;
-					}
-				}
-				
+					&& (!this.aload0Lock || (!owner.equals(this.superName) && !owner.equals(this.className)))) {				
 				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 				this.mv.visitInsn(Opcodes.SWAP);
 				this.convertConst(traceBack);
@@ -594,7 +594,6 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 						objOnStack, 
 						objOnStackDesc, 
 						false);
-				
 			}
 			
 			//int instIdx = this.handleMethod(opcode, owner, name, desc);
@@ -603,6 +602,9 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 			int returnSort = Type.getMethodType(desc).getReturnType().getSort();
 			if (returnSort == Type.OBJECT || returnSort == Type.ARRAY)
 				this.updateObjOnVStack();
+			
+			if (opcode != Opcodes.INVOKESTATIC)
+				traceBack++;
 			
 			this.visitMethod = true;
 			
@@ -621,6 +623,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 			
 			//Handle method after
 			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+			this.convertConst(traceBack);
 			this.convertConst(returnSort);
 			this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
 					cumuMethodRecorder, 
