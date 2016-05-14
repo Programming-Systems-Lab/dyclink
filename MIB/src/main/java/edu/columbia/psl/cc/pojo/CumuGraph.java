@@ -6,7 +6,7 @@ import edu.columbia.psl.cc.abs.AbstractGraph;
 
 public class CumuGraph extends AbstractGraph {
 	
-	private HashSet<InstNode> lastBeforeReturns = new HashSet<InstNode>();
+	/*private HashSet<InstNode> lastBeforeReturns = new HashSet<InstNode>();
 	
 	public void setLastBeforeReturns(HashSet<InstNode> lastBeforeReturns) {
 		this.lastBeforeReturns = lastBeforeReturns;
@@ -18,6 +18,6 @@ public class CumuGraph extends AbstractGraph {
 	
 	public void addLastBeforeReturn(InstNode lastBeforeReturn) {
 		this.lastBeforeReturns.add(lastBeforeReturn);
-	}
+	}*/
 
 }

@@ -36,10 +36,10 @@ public class Child extends Parent {
 		
 	public static void main(String[] args) {
 		//Case 1
-		//printStaticString();
+		printStaticString();
 		
 		//Case 2
-		Child c = new Child(5.2f);
+		//Child c = new Child(5.2f);
 		//c.printObjString();
 		
 		//Case 3
@@ -49,7 +49,7 @@ public class Child extends Parent {
 		System.out.println(c.parentMethod());*/
 		
 		//Case 4
-		System.out.println(c.factorial(5));
+		//System.out.println(c.factorial(5));
 	}
 
 }

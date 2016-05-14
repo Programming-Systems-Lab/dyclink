@@ -361,7 +361,8 @@ public class HorizontalMerger {
 		    ZipOutputStream zipStream = new ZipOutputStream(new BufferedOutputStream(zipFile));
 		                       
 		    for (AbstractGraph g: graphs) {
-		    	if (g.calleeRequired.size() > 0) {
+		    	if (!MIBConfiguration.getInstance().isCumuGraph() 
+		    			&& g.calleeRequired.size() > 0) {
 		    		String parentDir = StringUtil.genThreadWithMethodIdx(g.getThreadId(), g.getThreadMethodId());
 		    		//zipCalleesHelper(zipStream, parentDir, g.calleeRequired);
 		    		writeCallees(parentDir, g.calleeRequired, graphToken);

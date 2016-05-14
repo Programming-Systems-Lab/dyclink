@@ -43,6 +43,12 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 	
 	private static final Object POOL_LOCK = new Object();
 	
+	public static String DUMP_FULL_NAME;
+	
+	public static String DUMP_GLOBAL_NAME;
+	
+	public static int DUMP_THREAD_ID;
+	
 	public static void registerStaticRecord(String methodKey, int[] methodInfo) {
 		synchronized(STATIC_LOCK) {
 			STATIC_RECORD.put(methodKey, methodInfo);
@@ -101,6 +107,9 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 			for (InstNode inst: POOL) {
 				edge += inst.getChildFreqMap().size();
 			}
+			all.setMethodKey(DUMP_FULL_NAME);
+			all.setShortMethodKey(DUMP_GLOBAL_NAME);
+			all.setThreadId(DUMP_THREAD_ID);
 			all.setInstPool(POOL);
 			all.setVertexNum(POOL.size());
 			all.setEdgeNum(edge);

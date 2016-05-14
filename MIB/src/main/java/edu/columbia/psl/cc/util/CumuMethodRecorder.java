@@ -700,7 +700,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		//this.showStackSimulator();
 	}
 	
-	public void handleAfterMethod(int retSort) {
+	public void handleMethodAfter(int retSort) {
 		if (retSort == - 1) {
 			return ;
 		}

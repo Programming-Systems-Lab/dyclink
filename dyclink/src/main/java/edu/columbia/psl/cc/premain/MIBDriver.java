@@ -33,6 +33,7 @@ import edu.columbia.psl.cc.util.GsonManager;
 import edu.columbia.psl.cc.util.ObjectIdAllocater;
 import edu.columbia.psl.cc.util.ShutdownLogger;
 import edu.columbia.psl.cc.util.StringUtil;
+import edu.uci.ics.jung.graph.event.GraphEvent.Type;
 
 public class MIBDriver {
 	
@@ -123,6 +124,16 @@ public class MIBDriver {
 			logger.info("Confirm class: " + targetClass);
 			logger.info("Confirm args: " + Arrays.toString(newArgs));
 			//logger.info("Class loader: " + targetClass.getClassLoader().getClass().getName() + " " + System.identityHashCode(targetClass.getClassLoader()));
+			
+			if (MIBConfiguration.getInstance().isCumuGraph()) {
+				String fullName = StringUtil.genKey(className, "main", "([Ljava/lang/String;)V");
+				String shortName = CumuGraphRecorder.getGlobalName(fullName);
+				int threadId = ObjectIdAllocater.getThreadId();
+				
+				CumuGraphRecorder.DUMP_FULL_NAME = fullName;
+				CumuGraphRecorder.DUMP_GLOBAL_NAME = shortName;
+				CumuGraphRecorder.DUMP_THREAD_ID = threadId;
+			}
 			
 			Method mainMethod = targetClass.getMethod("main", String[].class);
 			mainMethod.setAccessible(true);
