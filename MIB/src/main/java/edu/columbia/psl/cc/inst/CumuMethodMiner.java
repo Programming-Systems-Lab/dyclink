@@ -596,13 +596,8 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 						false);
 			}
 			
-			//int instIdx = this.handleMethod(opcode, owner, name, desc);
-			//this.updateMethodRep(opcode);
-						
 			int returnSort = Type.getMethodType(desc).getReturnType().getSort();
-			if (returnSort == Type.OBJECT || returnSort == Type.ARRAY)
-				this.updateObjOnVStack();
-			
+						
 			if (opcode != Opcodes.INVOKESTATIC)
 				traceBack++;
 			
@@ -624,12 +619,22 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 			//Handle method after
 			this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 			this.convertConst(traceBack);
-			this.convertConst(returnSort);
+			if (returnSort == Type.DOUBLE || returnSort == Type.LONG) {
+				this.convertConst(2);
+			} else if (returnSort == Type.VOID){
+				this.convertConst(0);
+			} else {
+				this.convertConst(1);
+			}
 			this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
 					cumuMethodRecorder, 
 					srHandleMethodAfter, 
 					srHandleMethodAfterDesc, 
 					false);
+			
+			//After the instruction is inserted into stack
+			if (returnSort == Type.OBJECT || returnSort == Type.ARRAY)
+				this.updateObjOnVStack();
 		}
 	}
 	

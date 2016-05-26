@@ -40,11 +40,11 @@
 						</goals>
 						<configuration>
 							<relocations>
-								<!--<relocation>
+								<relocation>
 									<pattern>org.apache.commons.cli</pattern>
 									<shadedPattern>edu.columbia.psl.cc.org.apache.commons.cli</shadedPattern>
 								</relocation>
-								<relocation>
+								<!--<relocation>
 									<pattern>org.objectweb.asm</pattern>
 									<shadedPattern>edu.columbia.psl.cc.org.objectweb.asm</shadedPattern>
 								</relocation>-->

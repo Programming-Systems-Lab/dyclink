@@ -70,6 +70,13 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 	public static void updateReaderField(String fieldKey, InstNode reader) {
 		synchronized(FIELD_LOCK) {
 			InstNode writer = FIELD_MAP.get(fieldKey);
+			
+			if (writer == null) {
+				System.out.println("Null result: " + fieldKey);
+				System.out.println("Reader: " + reader);
+				System.exit(-1);
+			}
+			
 			writer.increChild(reader.getThreadId(), reader.getThreadMethodIdx(), reader.getIdx(), 1.0);
 			reader.registerParent(writer.getThreadId(), writer.getThreadMethodIdx(), writer.getIdx(), MIBConfiguration.WRITE_DATA_DEP);
 		}

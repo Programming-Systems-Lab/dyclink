@@ -218,7 +218,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 	public void updateObjOnStack(Object obj, int traceBack) {
 		if (this.overTime)
 			return ;
-				
+		
 		int idx = this.stackSimulator.size() - 1 - traceBack;
 		InstNode latestInst = this.stackSimulator.get(idx);
 		latestInst.setRelatedObj(obj);
@@ -288,14 +288,14 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			}
 			
 			Class realOwner = ClassInfoCollector.retrieveCorrectClassByField(owner, name);
-			System.out.println("Real owner: " + realOwner.getName());
+			//System.out.println("Real owner: " + realOwner.getName());
 			if (Type.getType(owner).getSort() != Type.ARRAY 
 					&& StringUtil.shouldIncludeClass(realOwner.getName())) {
 				if (opcode == Opcodes.PUTSTATIC || opcode == Opcodes.PUTFIELD) {
-					System.out.println("Write field: " + recordFieldKey + " " + fullInst);
+					//System.out.println("Write field: " + recordFieldKey + " " + fullInst);
 					CumuGraphRecorder.registerWriterField(recordFieldKey, fullInst);
 				} else if (opcode == Opcodes.GETSTATIC || opcode == Opcodes.GETFIELD) {
-					System.out.println("Read field: " + recordFieldKey + " " + fullInst);
+					//System.out.println("Read field: " + recordFieldKey + " " + fullInst);
 					CumuGraphRecorder.updateReaderField(recordFieldKey, fullInst);
 				} else {
 					logger.error("Unrecognized field op: " + opcode);
@@ -389,7 +389,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 				if (inputSize == 2) {
 					this.safePop();
 				}
-			} else {
+			} else if (!this.methodName.equals("<clinit>")){
 				CumuGraphRecorder.pushCalleeLast(this.lastInst);
 			}
 			
@@ -570,6 +570,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		if (this.overTime)
 			return ;
 		
+		System.out.println("Handling method: " + owner + " " + name + " " + desc);
 		ClassMethodInfo cmi = ClassInfoCollector.retrieveClassMethodInfo(owner, name, desc, opcode);
 		int argSize = cmi.argSize;
 		Type[] args = cmi.args;
@@ -577,13 +578,11 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		int[] idxArray = cmi.idxArray;
 				
 		Class correctClass;
-		int objId = 0;
 		if (opcode == Opcodes.INVOKESTATIC) {
 			correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
 		} else {
 			InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
 			Object objOnStack = relatedInst.getRelatedObj();
-			objId = parseObjId(objOnStack);
 			
 			if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
 				//constructor
