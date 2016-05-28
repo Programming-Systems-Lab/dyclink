@@ -90,6 +90,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		this.methodDesc = methodDesc;
 				
 		this.methodKey = StringUtil.genKey(className, methodName, methodDesc);
+		System.out.println("Current method: " + this.methodKey);
 		this.shortMethodKey = CumuGraphRecorder.getGlobalName(this.methodKey);		
 		Type methodType = Type.getMethodType(this.methodDesc);
 		this.methodArgSize = methodType.getArgumentTypes().length;
@@ -222,6 +223,15 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		int idx = this.stackSimulator.size() - 1 - traceBack;
 		InstNode latestInst = this.stackSimulator.get(idx);
 		latestInst.setRelatedObj(obj);
+		//System.out.println("Update obj: " + latestInst);
+	}
+	
+	public void updateObjIdOnStack(int objId, int traceBack) {
+		int idx = this.stackSimulator.size() - 1 - traceBack;
+		InstNode latestInst = this.stackSimulator.get(idx);
+		latestInst.setRelatedObjId(objId);
+		//System.out.println("Update obj id: " + latestInst + " " + objId);
+		//System.exit(-1);
 	}
 	
 	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {		
@@ -267,24 +277,39 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		
 		if (MIBConfiguration.getInstance().isFieldTrack()) {
 			int objId = 0;
+			Object objOnStack = null;
+			InstNode tmp = null;
 			if (opcode == Opcodes.GETFIELD) {
-				objId = parseObjId(this.stackSimulator.peek().getRelatedObj());
+				tmp = this.stackSimulator.peek();
+				objOnStack = this.stackSimulator.peek().getRelatedObj();
+				objId = parseObjId(objOnStack);
 				//this.stackSimulator.peek().removeRelatedObj();
 			} else if (opcode == Opcodes.PUTFIELD) {
 				if (typeSort == Type.LONG || typeSort == Type.DOUBLE) {
-					objId = parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 3).getRelatedObj());
+					tmp = this.stackSimulator.get(this.stackSimulator.size() - 3);
+					objOnStack = this.stackSimulator.get(this.stackSimulator.size() - 3).getRelatedObj();
+					objId = parseObjId(objOnStack);
 				} else {
-					objId = parseObjId(this.stackSimulator.get(this.stackSimulator.size() - 2).getRelatedObj());
+					tmp = this.stackSimulator.get(this.stackSimulator.size() - 2);
+					objOnStack = this.stackSimulator.get(this.stackSimulator.size() - 2).getRelatedObj();
+					objId = parseObjId(objOnStack);
 				}
 			}
 			
 			String recordFieldKey = fieldKey;
 			if (objId > 0) {
 				recordFieldKey += (":" + objId);
-			} else if (opcode == Opcodes.GETFIELD || opcode == Opcodes.PUTFIELD){
+			} else if (opcode == Opcodes.GETFIELD){
 				logger.error("Uinitialized obj: " + opcode + " " + fieldKey + " " + objId);
+				logger.error("Obj on stack: " + objOnStack);
+				logger.error("Releveant inst: " + tmp);
 				logger.error("Current method: " + this.methodKey);
 				System.exit(-1);
+			} else if (opcode == Opcodes.PUTFIELD) {
+				if (tmp.getOp().getOpcode() == Opcodes.ALOAD 
+						&& tmp.getAddInfo().equals("0")) {
+					objId = tmp.getRelatedObjId();
+				}
 			}
 			
 			Class realOwner = ClassInfoCollector.retrieveCorrectClassByField(owner, name);
@@ -570,12 +595,13 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		if (this.overTime)
 			return ;
 		
-		System.out.println("Handling method: " + owner + " " + name + " " + desc);
 		ClassMethodInfo cmi = ClassInfoCollector.retrieveClassMethodInfo(owner, name, desc, opcode);
 		int argSize = cmi.argSize;
 		Type[] args = cmi.args;
 		Type rType = cmi.returnType;
 		int[] idxArray = cmi.idxArray;
+		
+		System.out.println(this.methodKey + "->" + owner + " " + name + " " + desc);
 				
 		Class correctClass;
 		if (opcode == Opcodes.INVOKESTATIC) {
@@ -714,6 +740,8 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		for (int i = 0; i < totalPop; i++) {
 			this.safePop();
 		}
+		
+		System.out.println("End touch method\n");
 				
 		InstNode calleeLast = CumuGraphRecorder.popCalleeLast();
 		switch(retSort) {
@@ -832,6 +860,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			int[] methodInfo = {this.threadId, this.threadMethodId};
 			CumuGraphRecorder.registerObjRecord(this.objId, this.methodKey, methodInfo);
 		}
+		System.out.println("End method: " + this.methodKey);
 				
 		/*if (this.beforeReturn != null) {
 			this.graph.addLastBeforeReturn(this.beforeReturn);

@@ -55,4 +55,8 @@ public interface IMethodMiner {
 	String objOnStack = "updateObjOnStack";
 	
 	String objOnStackDesc = "(Ljava/lang/Object;I)V";
+	
+	String objIdOnStack = "updateObjIdOnStack";
+	
+	String objIdOnStackDesc = "(II)V";
 }

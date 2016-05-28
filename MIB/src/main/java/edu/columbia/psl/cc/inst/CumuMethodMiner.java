@@ -72,6 +72,8 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 	//Control if the constructor should start passing object to recorder
 	private boolean aload0Lock = false;
 	
+	private boolean isStatic = false;
+	
 	private boolean visitMethod = false;
 	
 	private Label curLabel;
@@ -98,7 +100,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 		this.annotGuard = annotGuard;
 		this.access = access;
 		this.objIdOwner = objIdOwner;
-		//this.isStatic = ((access & Opcodes.ACC_STATIC) != 0);
+		this.isStatic = ((access & Opcodes.ACC_STATIC) != 0);
 		this.constructor = myName.equals("<init>");
 		if (this.constructor)
 			this.aload0Lock = true;
@@ -150,6 +152,18 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 				cumuMethodRecorder, 
 				objOnStack, 
 				objOnStackDesc, 
+				false);
+	}
+	
+	private void updateObjIdOnVStack() {
+		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+		this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+		this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, __mib_id, "I");
+		this.mv.visitInsn(Opcodes.ICONST_0);
+		this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, 
+				cumuMethodRecorder, 
+				objIdOnStack, 
+				objIdOnStackDesc, 
 				false);
 	}
 	
@@ -509,12 +523,26 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 		}
 		this.mv.visitVarInsn(opcode, var);
 		
-		if (this.shouldInstrument()) {
-			if (opcode == Opcodes.ALOAD) {
+		if (this.shouldInstrument() && opcode == Opcodes.ALOAD) {
+			if (this.isStatic) {
+				this.updateObjOnVStack();
+			} else if (!this.constructor) {
+				this.updateObjOnVStack();
+			} else if (var != 0) {
+				this.updateObjOnVStack();
+			} else if (!this.aload0Lock) {
+				this.updateObjOnVStack();
+			} else {
+				//Inner class set up a pointer to outer class
+				//THis happens before Object.<init>
+				this.updateObjIdOnVStack();
+			}
+			
+			/*if (opcode == Opcodes.ALOAD) {
 				if (var != 0 || !this.aload0Lock) {
 					this.updateObjOnVStack();
 				}
-			}
+			}*/
 			
 			/*if (opcode == Opcodes.ALOAD && var == 0 && this.aload0Lock) {
 				//this.mv.visitInsn(Opcodes.DUP);
@@ -714,7 +742,13 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 			for (Label l: labels) {
 				sb.append(l.toString() + ",");
 			}
-			int instIdx = this.handleOpcode(Opcodes.LOOKUPSWITCH, sb.substring(0, sb.length() - 1));
+			
+			if (sb.length() == 0) {
+				this.handleOpcode(Opcodes.LOOKUPSWITCH, "");
+			} else {
+				this.handleOpcode(Opcodes.LOOKUPSWITCH, sb.substring(0, sb.length() - 1));
+			}
+			
 			//this.updateMethodRep(Opcodes.LOOKUPSWITCH);
 			//this.bbAnalyzer.signalLookupSwitch(Opcodes.LOOKUPSWITCH, labels);
 		}

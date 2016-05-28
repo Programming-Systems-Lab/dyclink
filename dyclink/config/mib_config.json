@@ -30,8 +30,12 @@
   "instDataWeight": 1.0,
   "writeDataWeight": 1.0,
   "precisionDigit": 5,
+<<<<<<< ace2d71cc6441468ab04050bd64c59fd82cec2ef:dyclink/config/mib_config.json
   "instThreshold": 10,
   "domInstDiff": 20,
+=======
+  "instThreshold": 0,
+>>>>>>> Progress, but still some bugs on computing global stack:MIB/config/mib_config.json
   "instLimit": 3000,
   "callThreshold": 5,
   "initRef": false,
@@ -46,7 +50,7 @@
   "testMethodThresh": -1,
   "threadInit": 0,
   "threadMethodIdxRecord": {
-    "0": 270
+    "0": 7281
   },
   "annotGuard": false,
 <<<<<<< d32a8b2585e1feac6987ccd9b69d03fe8aced7cd:dyclink/config/mib_config.json

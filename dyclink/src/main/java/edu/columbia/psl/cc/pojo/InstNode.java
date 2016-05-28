@@ -40,7 +40,9 @@ public class InstNode {
 	//For freq map, the key is the inst method + idx, and the value is the frequency
 	protected TreeMap<String, Double> childFreqMap = new TreeMap<String, Double>();
 	
-	private Object relatedObj = null;
+	private transient Object relatedObj = null;
+	
+	private transient int relatedObjId = -1;
 	
 	public transient int callerLine;
 	
@@ -233,6 +235,14 @@ public class InstNode {
 	
 	public Object getRelatedObj() {
 		return this.relatedObj;
+	}
+	
+	public void setRelatedObjId(int objId) {
+		this.relatedObjId = objId;
+	}
+	
+	public int getRelatedObjId() {
+		return this.relatedObjId;
 	}
 	
 	public void removeRelatedObj() {

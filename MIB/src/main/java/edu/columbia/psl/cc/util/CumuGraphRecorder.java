@@ -72,9 +72,8 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 			InstNode writer = FIELD_MAP.get(fieldKey);
 			
 			if (writer == null) {
-				System.out.println("Null result: " + fieldKey);
-				System.out.println("Reader: " + reader);
-				System.exit(-1);
+				logger.warn("Non-initialized field: " + fieldKey);
+				return ;
 			}
 			
 			writer.increChild(reader.getThreadId(), reader.getThreadMethodIdx(), reader.getIdx(), 1.0);
@@ -172,15 +171,19 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 	
 	public static void pushCalleeLast(InstNode result) {
 		CALLEE_LASTS.push(result);
+		System.out.println("Push result: " + result);
+		System.out.println("Pushed stack: " + CALLEE_LASTS);
 	}
 	
 	public static InstNode popCalleeLast() {
-		if (CALLEE_LASTS.size() > 2) {
-			logger.error("Errornes callee results: " + CALLEE_LASTS);
+		if (CALLEE_LASTS.size() > 1) {
+			logger.error("Errornous callee results: " + CALLEE_LASTS);
 			System.exit(-1);
 		}
 		
 		InstNode result = CALLEE_LASTS.pop();
+		System.out.println("Pop result: " + result);
+		System.out.println("Popped stack: " + CALLEE_LASTS);
 		return result;
 	}
 }

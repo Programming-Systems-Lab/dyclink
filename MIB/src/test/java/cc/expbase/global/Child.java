@@ -6,6 +6,8 @@ public class Child extends Parent {
 	
 	public float cFloat;
 	
+	public boolean required;
+	
 	public Child(float val) {
 		this.cFloat = val;
 	}
