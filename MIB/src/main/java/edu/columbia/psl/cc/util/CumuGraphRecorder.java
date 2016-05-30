@@ -31,7 +31,8 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 	
 	private static InstNode CALLER_CONTROL = null;
 	
-	private static Stack<InstNode> CALLEE_LASTS = new Stack<InstNode>();
+	//private static Stack<InstNode> CALLEE_LASTS = new Stack<InstNode>();
+	private static CallPair CALLEE_LAST = null;
 	
 	private static final InstPool POOL = new InstPool();
 	
@@ -169,21 +170,41 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 		return ret;
 	}
 	
-	public static void pushCalleeLast(InstNode result) {
-		CALLEE_LASTS.push(result);
-		System.out.println("Push result: " + result);
-		System.out.println("Pushed stack: " + CALLEE_LASTS);
-	}
-	
-	public static InstNode popCalleeLast() {
-		if (CALLEE_LASTS.size() > 1) {
-			logger.error("Errornous callee results: " + CALLEE_LASTS);
+	public static void pushCalleeLast(String caller, InstNode inst) {
+		//CALLEE_LASTS.push(result);
+		CallPair result = new CallPair();
+		result.caller = caller;
+		result.calleeInst = inst;
+		CALLEE_LAST = result;
+		
+		if (CALLEE_LAST == null) {
+			System.out.println("Error push: " + result);
 			System.exit(-1);
 		}
 		
-		InstNode result = CALLEE_LASTS.pop();
-		System.out.println("Pop result: " + result);
-		System.out.println("Popped stack: " + CALLEE_LASTS);
+		//System.out.println("Push result: " + CALLEE_LAST);
+	}
+	
+	public static CallPair popCalleeLast() {
+		/*if (CALLEE_LASTS.size() > 1) {
+			logger.error("Errornous callee results: " + CALLEE_LASTS);
+			System.exit(-1);
+		}*/
+		
+		if (CALLEE_LAST == null) {
+			System.out.println("Error pop: " + CALLEE_LAST);
+			System.exit(-1);
+		}
+		
+		CallPair result = CALLEE_LAST;
+		CALLEE_LAST = null;
+		//System.out.println("Pop result: " + result);
 		return result;
+	}
+	
+	public static class CallPair {
+		public String caller;
+		
+		public InstNode calleeInst;
 	}
 }

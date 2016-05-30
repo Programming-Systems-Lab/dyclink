@@ -19,6 +19,7 @@ import edu.columbia.psl.cc.pojo.ClassMethodInfo;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
+import edu.columbia.psl.cc.util.CumuGraphRecorder.CallPair;
 
 public class CumuMethodRecorder extends AbstractRecorder {
 	
@@ -73,6 +74,8 @@ public class CumuMethodRecorder extends AbstractRecorder {
 	public boolean initConstructor = true;
 	
 	private HashMap<Integer, InstNode> callerIdxMap = null;
+	
+	String currentCallee = null;
 	
 	public CumuMethodRecorder(String className, 
 			String methodName, 
@@ -221,7 +224,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			return ;
 		
 		int idx = this.stackSimulator.size() - 1 - traceBack;
-		InstNode latestInst = this.stackSimulator.get(idx);
+		InstNode latestInst = this.stackSimulator.get(idx);		
 		latestInst.setRelatedObj(obj);
 		//System.out.println("Update obj: " + latestInst);
 	}
@@ -230,7 +233,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		int idx = this.stackSimulator.size() - 1 - traceBack;
 		InstNode latestInst = this.stackSimulator.get(idx);
 		latestInst.setRelatedObjId(objId);
-		//System.out.println("Update obj id: " + latestInst + " " + objId);
+		System.out.println("Update obj id: " + latestInst + " " + objId);
 		//System.exit(-1);
 	}
 	
@@ -408,14 +411,14 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			
 			if (inputSize > 0) {
 				InstNode tmpInst = this.safePop();
-				CumuGraphRecorder.pushCalleeLast(tmpInst);
+				CumuGraphRecorder.pushCalleeLast(this.methodKey, tmpInst);
 				
 				this.beforeReturn = tmpInst;
 				if (inputSize == 2) {
 					this.safePop();
 				}
 			} else if (!this.methodName.equals("<clinit>")){
-				CumuGraphRecorder.pushCalleeLast(this.lastInst);
+				CumuGraphRecorder.pushCalleeLast(this.methodKey, this.lastInst);
 			}
 			
 			return ;
@@ -600,9 +603,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		Type[] args = cmi.args;
 		Type rType = cmi.returnType;
 		int[] idxArray = cmi.idxArray;
-		
-		System.out.println(this.methodKey + "->" + owner + " " + name + " " + desc);
-				
+					
 		Class correctClass;
 		if (opcode == Opcodes.INVOKESTATIC) {
 			correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
@@ -632,6 +633,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		HashMap<Integer, InstNode> idxMap = new HashMap<Integer, InstNode>();
 		InstNode controlToGlobal = null;
 		MethodNode fullInst = null;
+				
 		if (Type.getType(owner).getSort() == Type.ARRAY 
 				|| !StringUtil.shouldIncludeClass(correctClass.getName()) 
 				|| !StringUtil.shouldIncludeMethod(name, desc)
@@ -651,7 +653,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			fullInst.setLinenumber(this.linenumber);
 			this.updateControlRelation(fullInst);
 			
-			fullInst.increJvmCallees(realMethodKey);			
+			fullInst.increJvmCallees(realMethodKey);	
 			sysCall = true;
 		}
 		
@@ -727,23 +729,33 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		if (!sysCall) {
 			CumuGraphRecorder.registerIdxMap(idxMap);
 			CumuGraphRecorder.registerCallerControl(controlToGlobal);
+			this.currentCallee = realMethodKey;
 		} else {
 			//Take the method instruction as its last instruction, since it got no graph
-			CumuGraphRecorder.pushCalleeLast(fullInst);
+			CumuGraphRecorder.pushCalleeLast(this.methodKey, fullInst);
+			this.currentCallee = this.methodKey;
 		}
 		
 		//this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 		//this.showStackSimulator();
+		logger.info("Ready to pop: " + this.methodKey + "->" + owner + " " + name + " " + desc);
 	}
 	
 	public void handleMethodAfter(int totalPop, int retSort) {
 		for (int i = 0; i < totalPop; i++) {
 			this.safePop();
 		}
+			
+		logger.info("Pull callee: " + this.methodKey);
+		CallPair calleeResult = CumuGraphRecorder.popCalleeLast();
 		
-		System.out.println("End touch method\n");
-				
-		InstNode calleeLast = CumuGraphRecorder.popCalleeLast();
+		if (!calleeResult.caller.equals(this.currentCallee)) {
+			System.out.println("Expected callee: " + this.currentCallee);
+			System.out.println("Real callee: " + calleeResult.caller);
+			System.exit(-1);
+		}
+		
+		InstNode calleeLast = calleeResult.calleeInst;
 		switch(retSort) {
 			case 0:
 				//Only control
