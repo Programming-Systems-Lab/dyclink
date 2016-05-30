@@ -97,7 +97,8 @@ public class ClassInfoCollector {
 				}
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			//ex.printStackTrace();
+			logger.error("Error: ", ex);
 		}
 		return null;
 	}
@@ -152,7 +153,8 @@ public class ClassInfoCollector {
 			//Something wrong if reaching here
 			return calledClass;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			//ex.printStackTrace();
+			logger.error("Error: ", ex);
 		}
 		return null;
 	}
@@ -206,7 +208,8 @@ public class ClassInfoCollector {
 			//Something wrong if we reach here
 			return calledClass;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			//ex.printStackTrace();
+			logger.error("Error: ", ex);
 		}
 		return null;
 	}

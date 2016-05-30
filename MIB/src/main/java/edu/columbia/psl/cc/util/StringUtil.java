@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -12,6 +14,8 @@ import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.pojo.InstNode;
 
 public class StringUtil {
+	
+	private final static Logger logger = LogManager.getLogger(StringUtil.class);
 	
 	private static String pattern = ")";
 	
@@ -97,7 +101,7 @@ public class StringUtil {
 		int idx = desc.lastIndexOf(pattern);
 		
 		if (idx == -1) {
-			System.err.println("Incorrect desc: " + desc);
+			logger.error("Incorrect desc: " + desc);
 			return null;
 		}
 		

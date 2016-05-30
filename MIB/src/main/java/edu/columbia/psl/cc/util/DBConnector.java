@@ -104,7 +104,8 @@ public class DBConnector {
 			logger.info("Probing database: " + probe);
 			return probe;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			//ex.printStackTrace();
+			logger.error("Error: ", ex);
 		}
 		return false;
 	}

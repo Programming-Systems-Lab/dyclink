@@ -147,7 +147,8 @@ public class CrowdExecutor {
 							System.out.println(buf);
 						}
 					} catch (Exception ex) {
-						ex.printStackTrace();
+						//ex.printStackTrace();
+						logger.error("Error: ", ex);
 					}
 				}
 			};
@@ -164,7 +165,8 @@ public class CrowdExecutor {
 							System.out.println(buf);
 						}
 					} catch (Exception ex) {
-						ex.printStackTrace();
+						//ex.printStackTrace();
+						logger.error("Error: ", ex);
 					}
 				}
 			};

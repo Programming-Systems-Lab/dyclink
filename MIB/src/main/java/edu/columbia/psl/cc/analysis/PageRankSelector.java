@@ -556,7 +556,8 @@ public class PageRankSelector {
 					System.out.println("Bye bye~~~");
 				}
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				//ex.printStackTrace();
+				logger.error("Error: ", ex);
 				System.out.println("Leave system because of unexpected error");
 				System.exit(1);
 			}

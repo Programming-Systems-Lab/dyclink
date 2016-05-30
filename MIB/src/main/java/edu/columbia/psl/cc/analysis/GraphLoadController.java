@@ -84,7 +84,8 @@ public class GraphLoadController {
 				profiles.add(graphProfile);
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			//ex.printStackTrace();
+			logger.error("Error: ", ex);
 		}
 
 		return profiles;

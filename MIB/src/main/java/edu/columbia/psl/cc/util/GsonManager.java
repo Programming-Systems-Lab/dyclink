@@ -111,7 +111,8 @@ public class GsonManager {
 			cacheChannel.close();
 			return true;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			//ex.printStackTrace();
+			logger.error("Error: ", ex);
 		} finally {
 			if (sourceChannel != null)
 				sourceChannel.close();

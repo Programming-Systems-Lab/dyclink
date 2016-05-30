@@ -862,9 +862,9 @@ public class GraphUtil {
 					HashSet<InstNode> parentNodes = parentMap.get(inheritedVar);
 					
 					if (parentNodes == null) {
-						System.err.println("Error composition: " + f);
-						System.err.println("Var id: " + inheritedVar);
-						System.err.println("Parent map: " + parentMap);
+						logger.error("Error composition: " + f);
+						logger.error("Var id: " + inheritedVar);
+						logger.error("Parent map: " + parentMap);
 						System.exit(-1);
 					}
 

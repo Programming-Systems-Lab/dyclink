@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -16,6 +18,8 @@ import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.premain.MIBDriver;
 
 public class BytecodeCategory {
+	
+	private static final Logger logger = LogManager.getLogger(BytecodeCategory.class);
 	
 	//private static String opTablePath = "opcodes/opcode_table.txt";
 		
@@ -90,7 +94,7 @@ public class BytecodeCategory {
 		File f = new File(MIBConfiguration.getInstance().getOpCodeCatId());
 		
 		if (!f.exists()) {
-			System.err.println("Opcode category ID table does not exist");
+			logger.error("Opcode category ID table does not exist");
 			return ;
 		}
 		BufferedReader br;
@@ -104,7 +108,8 @@ public class BytecodeCategory {
 			}
 			br.close();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			//ex.printStackTrace();
+			logger.error("Error: ", ex);
 		}
 	}
 	
@@ -129,7 +134,7 @@ public class BytecodeCategory {
 	private static void loadOpcodeTable() {
 		File f = new File(MIBConfiguration.getInstance().getOpTablePath());
 		if (!f.exists()) {
-			System.err.println("Find no opcode table information");
+			logger.error("Find no opcode table information");
 			return ;
 		}
 		
@@ -172,7 +177,7 @@ public class BytecodeCategory {
 				}
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error("Error: ", ex);
 		}
 	}
 	

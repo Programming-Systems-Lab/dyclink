@@ -260,7 +260,8 @@ public class GlobalRecorder {
 					bw.append(dumpFields);
 					bw.close();
 				} catch (Exception ex) {
-					ex.printStackTrace();
+					//ex.printStackTrace();
+					logger.error("Error: ", ex);
 				}
 			}
 			
