@@ -27,12 +27,14 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 	
 	private static HashMap<String, InstNode> FIELD_MAP = new HashMap<String, InstNode>();
 	
+	private static HashSet<String> NON_INIT_FIELDS = new HashSet<String>();
+	
 	private static HashMap<Integer, InstNode> IDX_MAP = null;
 	
 	private static InstNode CALLER_CONTROL = null;
 	
 	//private static Stack<InstNode> CALLEE_LASTS = new Stack<InstNode>();
-	private static CallPair CALLEE_LAST = null;
+	private static HashMap<String, Stack<InstNode>> CALLEE_LASTS = new HashMap<String, Stack<InstNode>>();
 	
 	private static final InstPool POOL = new InstPool();
 	
@@ -73,7 +75,8 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 			InstNode writer = FIELD_MAP.get(fieldKey);
 			
 			if (writer == null) {
-				logger.warn("Non-initialized field: " + fieldKey);
+				//logger.warn("Non-initialized field: " + fieldKey);
+				NON_INIT_FIELDS.add(fieldKey);
 				return ;
 			}
 			
@@ -172,39 +175,34 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 	
 	public static void pushCalleeLast(String caller, InstNode inst) {
 		//CALLEE_LASTS.push(result);
-		CallPair result = new CallPair();
-		result.caller = caller;
-		result.calleeInst = inst;
-		CALLEE_LAST = result;
 		
-		if (CALLEE_LAST == null) {
-			System.out.println("Error push: " + result);
-			System.exit(-1);
-		}
-		
+		if (CALLEE_LASTS.containsKey(caller)) {
+			CALLEE_LASTS.get(caller).push(inst);
+		} else {
+			Stack<InstNode> insts = new Stack<InstNode>();
+			insts.push(inst);
+			CALLEE_LASTS.put(caller, insts);
+		}		
 		//System.out.println("Push result: " + CALLEE_LAST);
 	}
 	
-	public static CallPair popCalleeLast() {
+	public static InstNode popCalleeLast(String caller) {
 		/*if (CALLEE_LASTS.size() > 1) {
 			logger.error("Errornous callee results: " + CALLEE_LASTS);
 			System.exit(-1);
 		}*/
 		
-		if (CALLEE_LAST == null) {
-			System.out.println("Error pop: " + CALLEE_LAST);
-			System.exit(-1);
+		Stack<InstNode> insts = CALLEE_LASTS.get(caller);
+		if (insts == null || insts.size() == 0) {
+			return null;
 		}
 		
-		CallPair result = CALLEE_LAST;
-		CALLEE_LAST = null;
-		//System.out.println("Pop result: " + result);
-		return result;
+		InstNode toReturn = insts.pop();
+		return toReturn;
 	}
 	
-	public static class CallPair {
-		public String caller;
-		
-		public InstNode calleeInst;
+	public static void showCalleeLasts() {
+		//System.out.println(CALLEE_LASTS);
+		logger.info(CALLEE_LASTS);
 	}
 }

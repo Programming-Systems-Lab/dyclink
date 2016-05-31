@@ -22,6 +22,7 @@ import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
 import edu.columbia.psl.cc.util.CumuGraphRecorder;
 import edu.columbia.psl.cc.util.CumuMethodRecorder;
+import edu.columbia.psl.cc.util.GlobalGraphRecorder;
 import edu.columbia.psl.cc.util.ObjectIdAllocater;
 import edu.columbia.psl.cc.util.StringUtil;
 
@@ -781,7 +782,10 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 	}
 		
 	@Override
-	public void visitEnd() {		
+	public void visitEnd() {
+		if (this.indexer.get() < MIBConfiguration.getInstance().getInstThreshold() && !this.visitMethod) {
+			CumuGraphRecorder.registerUndersizedMethod(this.shortKey);
+		}
 		this.mv.visitEnd();
 	}
 }

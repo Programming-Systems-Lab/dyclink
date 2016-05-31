@@ -19,7 +19,6 @@ import edu.columbia.psl.cc.pojo.ClassMethodInfo;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
-import edu.columbia.psl.cc.util.CumuGraphRecorder.CallPair;
 
 public class CumuMethodRecorder extends AbstractRecorder {
 	
@@ -93,7 +92,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		this.methodDesc = methodDesc;
 				
 		this.methodKey = StringUtil.genKey(className, methodName, methodDesc);
-		System.out.println("Current method: " + this.methodKey);
+		//System.out.println("Current method: " + this.methodKey);
 		this.shortMethodKey = CumuGraphRecorder.getGlobalName(this.methodKey);		
 		Type methodType = Type.getMethodType(this.methodDesc);
 		this.methodArgSize = methodType.getArgumentTypes().length;
@@ -233,7 +232,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		int idx = this.stackSimulator.size() - 1 - traceBack;
 		InstNode latestInst = this.stackSimulator.get(idx);
 		latestInst.setRelatedObjId(objId);
-		System.out.println("Update obj id: " + latestInst + " " + objId);
+		//System.out.println("Update obj id: " + latestInst + " " + objId);
 		//System.exit(-1);
 	}
 	
@@ -484,7 +483,10 @@ public class CumuMethodRecorder extends AbstractRecorder {
 				this.updateCachedMap(parentFromCaller, fullInst, MIBConfiguration.WRITE_DATA_DEP);
 			}
 			
-			this.callerIdxMap.remove(localVarIdx);
+			if (this.callerIdxMap != null) {
+				this.callerIdxMap.remove(localVarIdx);
+			}
+			
 			//this.updateReadLocalVar(fullInst);
 			//this.stopLocalVar(localVarIdx);
 		} else if (BytecodeCategory.readCategory().contains(opcat)) {
@@ -738,7 +740,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		
 		//this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 		//this.showStackSimulator();
-		logger.info("Ready to pop: " + this.methodKey + "->" + owner + " " + name + " " + desc);
+		//System.out.println("Ready to pop: " + this.methodKey + "->" + realMethodKey + " " + sysCall);
 	}
 	
 	public void handleMethodAfter(int totalPop, int retSort) {
@@ -746,16 +748,15 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			this.safePop();
 		}
 			
-		logger.info("Pull callee: " + this.methodKey);
-		CallPair calleeResult = CumuGraphRecorder.popCalleeLast();
+		//System.out.println("Pull callee: " + this.methodKey + " " + this.linenumber);
+		InstNode calleeLast = CumuGraphRecorder.popCalleeLast(this.currentCallee);
 		
-		if (!calleeResult.caller.equals(this.currentCallee)) {
-			System.out.println("Expected callee: " + this.currentCallee);
-			System.out.println("Real callee: " + calleeResult.caller);
+		if (calleeLast == null) {
+			logger.error("ERROR! empty inst(callee, method name): " + this.currentCallee + " " + this.methodKey);
+			CumuGraphRecorder.showCalleeLasts();
 			System.exit(-1);
 		}
 		
-		InstNode calleeLast = calleeResult.calleeInst;
 		switch(retSort) {
 			case 0:
 				//Only control
@@ -872,7 +873,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			int[] methodInfo = {this.threadId, this.threadMethodId};
 			CumuGraphRecorder.registerObjRecord(this.objId, this.methodKey, methodInfo);
 		}
-		System.out.println("End method: " + this.methodKey);
+		//System.out.println("End method: " + this.methodKey);
 				
 		/*if (this.beforeReturn != null) {
 			this.graph.addLastBeforeReturn(this.beforeReturn);
