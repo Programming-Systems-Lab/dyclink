@@ -23,6 +23,8 @@ import com.google.gson.reflect.TypeToken;
 
 import edu.columbia.psl.cc.abs.AbstractGraph;
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.datastruct.InstPool;
+import edu.columbia.psl.cc.pojo.CumuGraph;
 import edu.columbia.psl.cc.pojo.GraphGroup;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
@@ -369,7 +371,11 @@ public class HorizontalMerger {
 		    	}
 		                               
 		    	String className = g.getShortMethodKey().split(":")[0];
-		    	String pkgName = StringUtil.parsePkgName(className);
+		    	String pkgName = null;
+		    	if (className.contains("."))
+		    		pkgName = StringUtil.parsePkgName(className);
+		    	else
+		    		pkgName = className;
 		                               
 		    	String nameWithThread = StringUtil.genKeyWithId(g.getShortMethodKey(), String.valueOf(g.getThreadId()));
 		    	String dumpName = StringUtil.genKeyWithId(nameWithThread, String.valueOf(g.getThreadMethodId()));
@@ -387,5 +393,16 @@ public class HorizontalMerger {
 		} catch (Exception ex) {
 			ShutdownLogger.appendException(ex);
 		}
+	}
+	
+	public static void main(String[] args) {
+		AbstractGraph g = new CumuGraph();
+		g.setInstPool(new InstPool());
+		g.setMethodKey("abc");
+		g.setShortMethodKey("abc");
+		Collection<AbstractGraph> test = new HashSet<AbstractGraph>();
+		test.add(g);
+		TypeToken<CumuGraph> token = new TypeToken<CumuGraph>(){};
+		zipGraphsHelper("abc", test, token);
 	}
 }

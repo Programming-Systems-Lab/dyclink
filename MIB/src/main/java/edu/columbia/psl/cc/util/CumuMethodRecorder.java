@@ -23,6 +23,10 @@ import edu.columbia.psl.cc.pojo.OpcodeObj;
 public class CumuMethodRecorder extends AbstractRecorder {
 	
 	private static Logger logger = LogManager.getLogger(CumuMethodRecorder.class);
+	
+	private static long METHOD_COUNT = 0;
+	
+	private static Object COUNT_LOCK = new Object();
 			
 	private String className;
 	
@@ -85,6 +89,13 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		if (TimeController.isOverTime()) {
 			this.overTime = true;
 			return ;
+		}
+		
+		synchronized(COUNT_LOCK) {
+			METHOD_COUNT++;
+			if (METHOD_COUNT % 10000 == 0) {
+				logger.info("# of method calls: " + METHOD_COUNT);
+			}
 		}
 		
 		this.className = className;

@@ -136,7 +136,7 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 			int opcode, 
 			String addInfo, 
 			int request) {
-		synchronized(POOL_LOCK) {
+		synchronized(POOL_LOCK) {			
 			return POOL.searchAndGet(methodKey, threadId, threadMethodIdx, idx, opcode, addInfo, request);
 		}
 	}
