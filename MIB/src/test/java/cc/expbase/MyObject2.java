@@ -1,5 +1,15 @@
 package cc.expbase;
 
+import java.io.File;
+
+import com.google.gson.reflect.TypeToken;
+
+import edu.columbia.psl.cc.pojo.GraphTemplate;
+import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.util.GraphConstructor;
+import edu.columbia.psl.cc.util.GsonManager;
+import edu.columbia.psl.cc.util.TemplateLoader;
+
 public class MyObject2 {
 	
 	private int[] myArray;
@@ -42,14 +52,36 @@ public class MyObject2 {
 		return ret;
 	}
 	
+	public int directAdd(int i, int j) {
+		return i + j;
+	}
+	
+	public int fieldAdd() {
+		return this.myI + this.myJ;
+	}
+	
 	public static void main(String[] args) {
 		MyObject2 mo = new MyObject2();
 		//int[] arr = {1, 2};
 		//mo.setAndSum(arr);
 		mo.myI = 2;
 		mo.myJ = 1;
-		System.out.println(mo.addObj(mo));
-		System.out.println(mo.add(2, 1));
+		//System.out.println(mo.addObj(mo));
+		//System.out.println(mo.add(2, 1));
+		//System.out.println(mo.directAdd(2, 1));
+		//System.out.println(mo.fieldAdd());
+		
+		TypeToken<GraphTemplate> token = new TypeToken<GraphTemplate>(){};
+		File gFile = new File("graphs/cc.expbase/cc.expbase.MyObject2:fieldAdd:0:0:3.json");
+		GraphTemplate g = GsonManager.readJsonGeneric(gFile, token);
+		System.out.println(g.getVertexNum());
+		GraphConstructor gc = new GraphConstructor();
+		gc.reconstructGraph(g, false);
+		
+		for (InstNode i: g.getInstPool()) {
+			System.out.println(i);
+			System.out.println(i.getChildFreqMap());
+		}		
 	}
 
 }

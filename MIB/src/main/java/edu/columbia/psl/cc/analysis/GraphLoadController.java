@@ -46,7 +46,7 @@ public class GraphLoadController {
 			} else if (graph.getVertexNum() <= MIBConfiguration.getInstance().getInstThreshold()) {
 				keyIT.remove();
 			} else if (density < 0.8) {
-				logger.info("Low density graph: " + recordKey);
+				logger.info("Low density graph: " + recordKey + " " + density);
 				keyIT.remove();
 			} else if (graph.getChildDominant() != 0 && diff < dominantDiff) {
 				logger.info("Child dominant graph: " + recordKey);

@@ -30,7 +30,7 @@
   "instDataWeight": 1.0,
   "writeDataWeight": 1.0,
   "precisionDigit": 5,
-  "instThreshold": 10,
+  "instThreshold": 2,
   "instLimit": 3000,
   "callThreshold": 5,
   "pgAlpha": 0.15,
@@ -42,7 +42,9 @@
   "simStrategy": 1,
   "testMethodThresh": -1,
   "threadInit": 0,
-  "threadMethodIdxRecord": {},
+  "threadMethodIdxRecord": {
+    "0": 4
+  },
   "annotGuard": false,
   "fieldTrack": false,
   "debug": false,
