@@ -74,6 +74,5 @@ public class ShutdownLogger {
 	
 	public static void finalFlush() {
 		flushBuf(true);
-	}
-	
+	}	
 }

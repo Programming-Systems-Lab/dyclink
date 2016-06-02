@@ -152,6 +152,16 @@ public class HorizontalMerger {
 		zipGraphsHelper(appName, graphs, graphToken);
 	}
 	
+	public static void startExtractionFast(String appName, AbstractGraph graph, TypeToken graphToken) {
+		ShutdownLogger.appendMessage("Graph size: " + graph.getInstPool().size());
+		String fileName = appName.replace("/", "-");
+		try {
+			GsonManager.writeJsonGeneric(graph, fileName, graphToken, MIBConfiguration.GRAPH_DIR);
+		} catch (Exception ex) {
+			ShutdownLogger.appendException(ex);
+		}
+	}
+	
 	/**
 	 * 
 	 * Each graph pick one with smallest thread method id

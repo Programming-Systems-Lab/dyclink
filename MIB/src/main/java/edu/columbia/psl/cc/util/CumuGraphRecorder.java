@@ -108,9 +108,7 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 		}
 	}
 	
-	public static List<AbstractGraph> getCumuGraphs() {
-		List<AbstractGraph> allGraphs = new ArrayList<AbstractGraph>();
-		
+	public static AbstractGraph getCumuGraph() {		
 		synchronized(POOL_LOCK) {
 			GraphTemplate all = new GraphTemplate();
 			int edge = 0;
@@ -123,10 +121,9 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 			all.setInstPool(POOL);
 			all.setVertexNum(POOL.size());
 			all.setEdgeNum(edge);
-			allGraphs.add(all);
+			
+			return all;
 		}
-		
-		return allGraphs;
 	}
 	
 	public static InstNode queryInst(String methodKey, 

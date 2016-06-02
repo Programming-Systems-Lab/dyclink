@@ -247,9 +247,9 @@ public class MIBDriver {
 			HashMap<String, HashMap<String, GraphTemplate>> allGraphs = GlobalGraphRecorder.getGraphs();
 			HorizontalMerger.startExtractionFast(appName, allGraphs);
 		} else {
-			List<AbstractGraph> allGraphs = CumuGraphRecorder.getCumuGraphs();
+			AbstractGraph allGraph = CumuGraphRecorder.getCumuGraph();
 			TypeToken<CumuGraph> graphToken = new TypeToken<CumuGraph>(){};
-			HorizontalMerger.startExtractionFast(appName, allGraphs, graphToken);
+			HorizontalMerger.startExtractionFast(appName, allGraph, graphToken);
 		}
 		
 	}
