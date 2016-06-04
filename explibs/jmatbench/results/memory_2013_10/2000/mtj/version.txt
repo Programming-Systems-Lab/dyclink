@@ -1,2 +1,0 @@
-version: 1.0
-release date: 2013-10

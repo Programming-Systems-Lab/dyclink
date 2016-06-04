@@ -60,19 +60,49 @@ public class MyObject2 {
 		return this.myI + this.myJ;
 	}
 	
+	public static int getMax(int[] arr) {
+		int ret = Integer.MIN_VALUE;
+		for (int i = 0; i < arr.length; i++) {
+			if (ret > arr[i]) {
+				ret = arr[i];
+			}
+		}
+		return ret;
+	}
+	
+	public static int getMin(int[] arr) {
+		int ret = Integer.MAX_VALUE;
+		for (int i = 0; i < arr.length; i++) {
+			if (ret < arr[i]) {
+				ret = arr[i];
+			}
+		}
+		return ret;
+	}
+	
+	public static int getMinError(int[] arr) {
+		int ret = Integer.MAX_VALUE;
+		for (int i = 0; i > arr.length; i++) {
+			if (ret < arr[i]) {
+				ret = arr[i];
+			}
+		}
+		return ret;
+	}
+	
 	public static void main(String[] args) {
-		MyObject2 mo = new MyObject2();
+		//MyObject2 mo = new MyObject2();
 		//int[] arr = {1, 2};
 		//mo.setAndSum(arr);
-		mo.myI = 2;
-		mo.myJ = 1;
+		//mo.myI = 2;
+		//mo.myJ = 1;
 		//System.out.println(mo.addObj(mo));
 		//System.out.println(mo.add(2, 1));
 		//System.out.println(mo.directAdd(2, 1));
 		//System.out.println(mo.fieldAdd());
 		
-		TypeToken<GraphTemplate> token = new TypeToken<GraphTemplate>(){};
-		File gFile = new File("graphs/cc.expbase/cc.expbase.MyObject2:fieldAdd:0:0:3.json");
+		/*TypeToken<GraphTemplate> token = new TypeToken<GraphTemplate>(){};
+		File gFile = new File("graphs/cc.expbase/cc.expbase.MyObject2:getMin:0:0:6.json");
 		GraphTemplate g = GsonManager.readJsonGeneric(gFile, token);
 		System.out.println(g.getVertexNum());
 		GraphConstructor gc = new GraphConstructor();
@@ -81,7 +111,10 @@ public class MyObject2 {
 		for (InstNode i: g.getInstPool()) {
 			System.out.println(i);
 			System.out.println(i.getChildFreqMap());
-		}		
+		}*/
+		System.out.println(getMax(new int[]{1, 2, 3, 4, 5}));
+		System.out.println(getMin(new int[]{5, 4, 3, 2, 1}));
+		System.out.println(getMinError(new int[]{5, 4, 3, 2, 1}));
 	}
 
 }

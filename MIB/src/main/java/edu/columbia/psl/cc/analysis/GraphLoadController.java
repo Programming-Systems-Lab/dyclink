@@ -35,12 +35,17 @@ public class GraphLoadController {
 	
 	public static void filterGraphs(HashMap<String, GraphTemplate> graphs) {
 		HashSet<String> graphHistory = new HashSet<String>();
+		HashSet<String> uniqueMethods = new HashSet<String>();
+		logger.info("Loaded graphs: " + graphs.size());
 		for (Iterator<String> keyIT = graphs.keySet().iterator(); keyIT.hasNext();) {
 			String key = keyIT.next();
 			GraphTemplate graph = graphs.get(key);
+			
 			String recordKey = graph.getShortMethodKey() + ":" + graph.getVertexNum() + ":" + graph.getEdgeNum();
 			double density = ((double)graph.getEdgeNum())/graph.getVertexNum();
 			int diff = graph.getVertexNum() - graph.getChildDominant();
+			
+			uniqueMethods.add(graph.getShortMethodKey());
 			if (graphHistory.contains(recordKey)) {
 				keyIT.remove();
 			} else if (graph.getVertexNum() <= MIBConfiguration.getInstance().getInstThreshold()) {
@@ -51,10 +56,16 @@ public class GraphLoadController {
 			} else if (graph.getChildDominant() != 0 && diff < dominantDiff) {
 				logger.info("Child dominant graph: " + recordKey);
 				keyIT.remove();
-			}else {
+			} else {
 				graphHistory.add(recordKey);
 			}
 		}
+		logger.info("Raw unique methods: " + uniqueMethods.size());
+		/*System.out.println("--------");
+		for (String m: uniqueMethods) {
+			System.out.println(m);
+		}
+		System.out.println("--------");*/
 	}
 	
 	public static List<GraphProfile> parallelizeProfiling(HashMap<String, GraphTemplate> graphs, 
@@ -243,7 +254,7 @@ public class GraphLoadController {
 			logger.info("Target profiles: " + targetProfiles.size());
 			
 			//For exp purpose...
-			/*int vSum = 0;
+			int vSum = 0;
 			int eSum = 0;
 			int vMax = Integer.MIN_VALUE;
 			for (GraphProfile gp: targetProfiles) {
@@ -262,7 +273,7 @@ public class GraphLoadController {
 			System.out.println("Avg vertices: " + avgVertex);
 			System.out.println("Max vertices: " + vMax);
 			System.out.println("Total edges: " + eSum);
-			System.out.println("Avg edges: " + avgEdge);*/
+			System.out.println("Avg edges: " + avgEdge);
 			
 			if (MIBConfiguration.getInstance().isExclPkg()) {
 				constructCrawlerListExcludePkg(targetProfiles, targetProfiles, crawlers);

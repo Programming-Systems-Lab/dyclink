@@ -1,2 +1,0 @@
-version: 3.2
-release date: 2013-04-03

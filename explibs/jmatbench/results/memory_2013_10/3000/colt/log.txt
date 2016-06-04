@@ -1,5 +1,0 @@
-Current directory = /home/pja/projects/jmatbench/.
-Classpath:
-build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/colt/colt.jar:/home/pja/projects/jmatbench/lib/colt/concurrent.jar
-
-Overhead = 28025651 bytes

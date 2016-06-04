@@ -1,2 +1,0 @@
-version: 34.8
-release date: 2013-09-23

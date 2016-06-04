@@ -805,7 +805,7 @@ public class DynamicMethodMiner extends MethodVisitor implements IInstrumentInfo
 	}
 		
 	@Override
-	public void visitEnd() {		
+	public void visitEnd() {
 		if (this.indexer.get() < MIBConfiguration.getInstance().getInstThreshold() && !this.visitMethod) {
 			GlobalRecorder.registerUndersizedMethod(this.shortKey);
 		}

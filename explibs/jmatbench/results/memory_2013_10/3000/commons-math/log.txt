@@ -1,5 +1,0 @@
-Current directory = /home/pja/projects/jmatbench/.
-Classpath:
-build/jar/benchmark_app.jar:/home/pja/projects/jmatbench/lib/commons-math/commons-math3-3.2-javadoc.jar:/home/pja/projects/jmatbench/lib/commons-math/commons-math3-3.2.jar
-
-Overhead = 28025651 bytes

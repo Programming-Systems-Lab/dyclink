@@ -1,6 +1,0 @@
-<jmbench.tools.memory.MemoryResults>
-  <nameLibrary>JBLAS</nameLibrary>
-  <displayName>solve m&gt;n</displayName>
-  <results/>
-  <numFailed>1</numFailed>
-</jmbench.tools.memory.MemoryResults>
