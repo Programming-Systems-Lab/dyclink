@@ -25,7 +25,7 @@
   "labelmapDir": "./labelmap",
   "resultDir": "./results",
   "debugDir": "./debug",
-  "cacheDir": "/Users/mikefhsu/Desktop/dyclink_graphmining_v2/cache",
+  "cacheDir": "./cache",
   "controlWeight": 1.0,
   "instDataWeight": 1.0,
   "writeDataWeight": 1.0,
