@@ -36,11 +36,11 @@ The constructed graphs of each method will be stored in a zip file under the dir
 ###Step 3 (Sub)graph matching
 For detecting code relatives, DyCLINK takes each graph (each execution of each method) as a testing graph to query all the others (target graphs). Each graph plays as a testing graph and a target graph. DyCLINK uses a testing graph to match part of the target graph.
 
-For computing the functional similarity between methods, you can either assign a single I/O repository, which exhaustively compare all graphs in all zip files under this repository:
+For computing the functional similarity between methods, you can either assign a single graph repository, which exhaustively compare all graphs in all zip files under this repository:
 
 java -Xmx62g -cp target/dyclink-0.0.1-SNAPSHOT.jar edu.columbia.psl.cc.analysis.PageRankSelector -target /path/to/your/graphrepo1
 
-or you can assign two I/O repositories, which compare every pair of I/O profiles (one from repo1 while the other one from repo2):
+or you can assign two graph repositories, which compare every pair of graphss (one from graphrepo1 while the other one from graphrepo2):
 
 java -Xmx62g -cp target/dyclink-0.0.1-SNAPSHOT.jar edu.columbia.psl.cc.analysis.PageRankSelector -target /path/to/your/graphrepo1 -test /path/to/your/graphrepo2
 
