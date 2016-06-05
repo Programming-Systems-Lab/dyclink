@@ -33,7 +33,7 @@ java -javaagent:target/dyclink-0.0.1-SNAPSHOT.jar -noverify -cp "target/CloneDet
 
 The constructed graphs of each method will be stored in a zip file under the directory that you specify for the "graphDir" field in the configuration file.
 
-###Step 3 (Sub)graph matching
+### Step 3 (Sub)graph matching
 For detecting code relatives, DyCLINK takes each graph (each execution of each method) as a testing graph to query all the others (target graphs). Each graph plays as a testing graph and a target graph. DyCLINK uses a testing graph to match part of the target graph.
 
 For computing the functional similarity between methods, you can either assign a single graph repository, which exhaustively compare all graphs in all zip files under this repository:
@@ -47,7 +47,7 @@ java -Xmx62g -cp target/dyclink-0.0.1-SNAPSHOT.jar edu.columbia.psl.cc.analysis.
 Notes: You can also specify "-iginit" to filter out constructors and static constructor.
 
 The detected code relatives will be stored in your MySQL database.
-###Step 4
+### Step 4 Code relatives
 For reviewing the detected code relatives, it will be convenient for you to have an UI for MySQL. If you are a MAC user, you can use [Sequel Pro](http://www.sequelpro.com/). If you are a Linux user, you can find some useful tools [here](http://alternativeto.net/software/sequel-pro/?platform=linux).
 
 The UI tool can help you collect the comparison ID you need.
