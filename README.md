@@ -16,13 +16,13 @@ DyCLINK is a maven project. For installing maven, please refer to [maven](https:
 mvn clean package
 
 ### Step 1 Configuration
-DyCLINK has multiple parameters to specify. The configuration file can be found under "$dyclink\_base/config/mib\_config.json", where "$dyclink\_base" represents the base directory of DyCLINK. You can use the default values for these parameters that we set up for you. Here is the introduction for some parameters you might want to tune:
-  -instThreshold: The programs have instruction number smaller than this value will be ignored
-  -callThreshold: How many unique graphs from a single callee should be recorded
-  -simThreshold: The method pair that have (sub)graph similarity higher than this value is considered as a code relative
-  -controlWeight: The weight of the control dependency(edge)
-  -instDataWeigth: The weight of the data dependency derived from Java specification
-  -writeDataWeigth: The weight of the data dependency between writer/reader instructions
+DyCLINK has multiple parameters to specify. The configuration file can be found under "$dyclink\_base/config/mib\_config.json", where "$dyclink\_base" represents the base directory of DyCLINK. You can use the default values for these parameters that we set up for you. Here is the introduction for some parameters you might want to tune: <br />
+  -instThreshold: The programs have instruction number smaller than this value will be ignored <br />
+  -callThreshold: How many unique graphs from a single callee should be recorded <br />
+  -simThreshold: The method pair that have (sub)graph similarity higher than this value is considered as a code relative <br />
+  -controlWeight: The weight of the control dependency(edge) <br />
+  -instDataWeigth: The weight of the data dependency derived from Java specification <br />
+  -writeDataWeigth: The weight of the data dependency between writer/reader instructions <br />
   -dburl: The database address
   -dbusername: The user name of the database
 
