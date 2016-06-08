@@ -1,0 +1,51 @@
+Step 1. Create database
+CREATE DATABASE dyclink;
+
+Step 2. Create summary (comparison) table
+CREATE TABLE `comp_table` (
+  `comp_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `inst_thresh` double unsigned NOT NULL,
+  `inst_cat` int(11) unsigned NOT NULL,
+  `lib1` varchar(100) NOT NULL DEFAULT '',
+  `lib2` varchar(100) NOT NULL DEFAULT '',
+  `method1` int(11) unsigned NOT NULL,
+  `method2` int(11) unsigned NOT NULL,
+  `method_f_1` int(11) unsigned NOT NULL,
+  `method_f_2` int(11) unsigned NOT NULL,
+  `m_compare` int(20) unsigned NOT NULL,
+  `sub_crawl` int(22) unsigned NOT NULL,
+  `sub_crawl_filter` int(22) unsigned NOT NULL,
+  `s_threshold` double unsigned NOT NULL,
+  `d_threshold` double unsigned NOT NULL,
+  `time` double unsigned NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`comp_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=299 DEFAULT CHARSET=utf8;
+
+Step 3. Create detailed table for code relatives
+CREATE TABLE `result_table2` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `comp_id` int(11) unsigned NOT NULL,
+  `sub` varchar(500) NOT NULL DEFAULT '',
+  `sid` varchar(35) NOT NULL DEFAULT '',
+  `target` varchar(500) NOT NULL DEFAULT '',
+  `tid` varchar(35) NOT NULL DEFAULT '',
+  `s_start` varchar(500) NOT NULL DEFAULT '',
+  `s_centroid` varchar(500) NOT NULL DEFAULT '',
+  `s_centroid_line` int(11) NOT NULL,
+  `s_centroid_caller` int(11) NOT NULL,
+  `s_end` varchar(500) NOT NULL DEFAULT '',
+  `s_trace` text NOT NULL,
+  `t_start` varchar(500) NOT NULL DEFAULT '',
+  `t_centroid` varchar(500) NOT NULL DEFAULT '',
+  `t_centroid_line` int(11) NOT NULL,
+  `t_centroid_caller` int(11) NOT NULL,
+  `t_end` varchar(500) NOT NULL DEFAULT '',
+  `t_trace` text NOT NULL,
+  `seg_size` int(11) unsigned NOT NULL,
+  `static_dist` double unsigned NOT NULL,
+  `similarity` double NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `result_comp2` (`comp_id`),
+  CONSTRAINT `result_comp2` FOREIGN KEY (`comp_id`) REFERENCES `comp_table` (`comp_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6678301 DEFAULT CHARSET=utf8;
