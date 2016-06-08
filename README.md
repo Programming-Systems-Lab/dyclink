@@ -9,7 +9,8 @@ Running
 DyCLINK will rewrite the bytecode of your application for recording executed instructions and constructing graphs. The steps to install and use DyCLINK are as follows.
 
 ### Step 0
-DyCLINK needs a database to store the detected code relatives. We use MySQL. For downloading and installing MySQL, please refer to [MySQL](https://www.mysql.com/).
+DyCLINK needs a database to store the detected code relatives. We use MySQL. For downloading and installing MySQL, please refer to [MySQL](https://www.mysql.com/). For setting up the database, there are 3 steps. You can find more details in scripts/db\_setup.
+
 
 DyCLINK is a maven project. For installing maven, please refer to [maven](https://maven.apache.org/install.html). After installing maven, please change your directory to "dyclink" and use the following command to compile DyCLINK:
 
