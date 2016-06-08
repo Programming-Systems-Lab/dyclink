@@ -24,29 +24,33 @@ DyCLINK has multiple parameters to specify. The configuration file can be found 
   -instDataWeigth: The weight of the data dependency derived from Java specification <br />
   -writeDataWeigth: The weight of the data dependency between writer/reader instructions <br />
   -dburl: The database address
-  -dbusername: The user name of the database
+  -dbusername: The user name of the database <br />
+  -domInstDiff: The minimum instruction difference between the caller graph and its largest callee. For such caller graph will be filtered out, since most of its behavior is from its largest callee. The default value is 20, but this value should decrease with the method size that you want to detect. <br />
+  -graphDensity: #edge/#vertex. If a graph's density is lower than this value, such graph will be filtered out. This default value is 0.8, but again this value should decrease with the method size that you want to detect.
 
 ### Step 2 Dynamic instruction graph
 DyCLINK instrument your applications on the fly to construct dynamic instruction graphs. For executing your application, please use this command:
 
-java -javaagent:target/dyclink-0.0.1-SNAPSHOT.jar -noverify -cp "target/CloneDetector-0.0.1-SNAPSHOT.jar:/path/to/your/bytecodebase" edu.columbia.psl.cc.premain.MIBDriver your.application.class args
+./scripts/dyclink\_con.sh /path/to/your/codebase application.mainclass args 
 
 The constructed graphs of each method will be stored in a zip file under the directory that you specify for the "graphDir" field in the configuration file.
 
 ### Step 3 (Sub)graph matching
 For detecting code relatives, DyCLINK takes each graph (each execution of each method) as a testing graph to query all the others (target graphs). Each graph plays as a testing graph and a target graph. DyCLINK uses a testing graph to match part of the target graph.
 
-For computing the functional similarity between methods, you can either assign a single graph repository, which exhaustively compare all graphs in all zip files under this repository:
+For computing the behavioral similarity between methods, you can either assign a single graph repository, which exhaustively compare all graphs in all zip files under this repository:
 
-java -Xmx62g -cp target/dyclink-0.0.1-SNAPSHOT.jar edu.columbia.psl.cc.analysis.PageRankSelector -target /path/to/your/graphrepo1
+./scripts/dyclink\_sim.sh -target ./path/to/your/graphrepo1
 
-or you can assign two graph repositories, which compare every pair of graphss (one from graphrepo1 while the other one from graphrepo2):
+For not boosting the number of detected code relatives, you can set "exclPkg" in your configuration file as false to exclude the comparison between methods that invoke the same callees.
 
-java -Xmx62g -cp target/dyclink-0.0.1-SNAPSHOT.jar edu.columbia.psl.cc.analysis.PageRankSelector -target /path/to/your/graphrepo1 -test /path/to/your/graphrepo2
+You can assign two graph repositories, which compare every pair of graphs (one from graphrepo1 while the other one from graphrepo2):
+./scripts/dyclink\_sim.sh -target /path/to/your/graphrepo1 -test /path/to/your/graphrepo2
 
-Notes: You can also specify "-iginit" to filter out constructors and static constructor.
+Notes: You can also specify "-iginit" to filter out constructors and static constructor (which may only set up some values for classes/objects without any business logic for DyCLINK to detect). This can save you some analysis time.
 
 The detected code relatives will be stored in your MySQL database.
+
 ### Step 4 Code relatives
 For reviewing the detected code relatives, it will be convenient for you to have an UI for MySQL. If you are a MAC user, you can use [Sequel Pro](http://www.sequelpro.com/). If you are a Linux user, you can find some useful tools [here](http://alternativeto.net/software/sequel-pro/?platform=linux).
 
@@ -58,6 +62,11 @@ java -cp target/dyclink-0.0.1-SNAPSHOT.jar edu.columbia.psl.cc.util.CodeRelQuery
 
 -compId represents the comparison ID, which can be seen from the MySQL database. -insts represents the minimum size of code relatives you care. The default value is 45. -filter is optional and solely for the experiments in the paper. This argument can filter out some simple utility methods that do not contribute to the real business logic of the application.
 
+### Test Run
+For testing if your system set-up is successful, you can use the command to drive a simple test case of DyCLINK:
+./scripts/test\_run.sh
+
+This script will execute two simple methods (which are a code relative) and conduct Step 2 and Step 3 sequentially. The results can be seen under the "results" directory.
 
 Questions, concerns, comments
 ----
