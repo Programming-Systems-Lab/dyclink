@@ -66,7 +66,7 @@ java -cp target/dyclink-0.0.1-SNAPSHOT.jar edu.columbia.psl.cc.util.CodeRelQuery
 For testing if your system set-up is successful, you can use the command to drive a simple test case of DyCLINK:
 ./scripts/test\_run.sh
 
-This script will execute two simple methods (which are a code relative) and conduct Step 2 and Step 3 sequentially. The results can be seen under the "results" directory.
+This script will execute two simple methods (which are a code relative) and conduct Step 2 and Step 3 sequentially. DyCLINK will ask if you want to store the information of detected code relatives in the database. Type "true", if you want to test your database. The URL and user name of your database can be specified in the configuration file. The results can also be seen in a csv file under the "results" directory.
 
 Questions, concerns, comments
 ----
