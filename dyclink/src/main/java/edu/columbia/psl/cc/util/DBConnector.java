@@ -34,7 +34,7 @@ public class DBConnector {
 	
 	public static Connection getConnection() {
 		if (baseurl == null || username == null || password == null) {
-			logger.error("Missing info: " + baseurl + " " + username);
+			logger.warn("Missing info: " + baseurl + " " + username);
 			return null;
 		}
 		

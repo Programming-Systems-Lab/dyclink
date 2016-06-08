@@ -203,10 +203,10 @@ public class GraphReducer {
 				readVars.remove(parentKey);
 				int var = Integer.parseInt(parentInst.getAddInfo());
 				inheritedInfo.add(var);
-				
-				if (!removeInst) {
-					instDataParentIT.remove();
-				}
+			}
+			
+			if (!removeInst) {
+				instDataParentIT.remove();
 			}
 			
 			this.collectFamily(parentInst, recorder, readVars, inheritedInfo, false);
@@ -215,11 +215,5 @@ public class GraphReducer {
 	
 	public GraphTemplate getGraph() {
 		return this.theGraph;
-	}
-	
-	public static void main(String[] args) {
-		String addInfo = "org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64.qralg.Lorg/ejml/alg/dense/decomposition/svd/implicitqr/SvdImplicitQrAlgorithm;:2";
-		System.out.println("Add info sort: " + parseSort(addInfo));
-		System.out.println("Object sort: " + Type.BOOLEAN);
 	}
 }

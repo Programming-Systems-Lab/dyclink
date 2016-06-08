@@ -59,9 +59,15 @@ public class MIBConfiguration {
 	
 	private int instThreshold;
 	
+	private int domInstDiff;
+	
 	private int instLimit;
 	
 	private int callThreshold;
+	
+	private boolean initRef;
+	
+	private double graphDensity;
 	
 	private double pgAlpha;
 	
@@ -201,12 +207,36 @@ public class MIBConfiguration {
 		this.instThreshold = instThreshold;
 	}
 	
+	public int getDomInstDiff() {
+		return this.domInstDiff;
+	}
+	
+	public void setDomInstDiff(int domInstDiff) {
+		this.domInstDiff = domInstDiff;
+	}
+	
 	public int getCallThreshold() {
 		return this.callThreshold;
 	}
 	
+	public double getGraphDensity() {
+		return this.graphDensity;
+	}
+	
+	public void setGraphDensity(double graphDensity) {
+		this.graphDensity = graphDensity;
+	}
+	
 	public void setCallThreshold(int callThreshold) {
 		this.callThreshold = callThreshold;
+	}
+	
+	public boolean isInitRef() {
+		return this.initRef;
+	}
+	
+	public void setInitRef(boolean initRef) {
+		this.initRef = initRef;
 	}
 	
 	public int getInstLimit() {
@@ -423,8 +453,10 @@ public class MIBConfiguration {
 		sb.append("write data weight: " + this.writeDataWeight + "\n");
 		sb.append("precision digit: " + this.precisionDigit + "\n");
 		sb.append("minimum inst number: " + this.instThreshold + "\n");
+		sb.append("minimum other inst number: " + this.domInstDiff + "\n");
+		sb.append("minimum graph density: " + this.graphDensity + "\n");
 		sb.append("maximum call number: " + this.callThreshold + "\n");
-		sb.append("inst selection number: " + this.instLimit + "\n");
+		//sb.append("inst selection number: " + this.instLimit + "\n");
 		sb.append("test method threshold: " + this.testMethodThresh + "\n");
 		sb.append("alpha of PageRank: " + this.pgAlpha + "\n");
 		sb.append("max iteration of PageRank: " + this.pgMaxIter + "\n");

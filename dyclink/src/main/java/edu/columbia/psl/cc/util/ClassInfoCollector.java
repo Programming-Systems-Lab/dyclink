@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import org.objectweb.asm.Type;
 
+import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.ClassMethodInfo;
 import edu.columbia.psl.cc.pojo.InstNode;
@@ -20,6 +21,8 @@ import edu.columbia.psl.cc.pojo.InstNode;
 public class ClassInfoCollector {
 	
 	private static Logger logger = LogManager.getLogger(ClassInfoCollector.class);
+	
+	private static boolean INIT_REF = MIBConfiguration.getInstance().isInitRef();
 		
 	private static HashMap<String, ClassMethodInfo> classMethodInfoMap = new HashMap<String, ClassMethodInfo>();
 	
@@ -42,20 +45,39 @@ public class ClassInfoCollector {
 		Type returnType = methodType.getReturnType();
 		
 		int argSize = 0;
-		int[] idxArray = new int[args.length];
-		int realIdx = 1;
-		if (isStatic) {
-			realIdx = 0;
-		}
-		
-		for (int i = 0; i < args.length; i++) {
-			idxArray[i] = realIdx;
-			if (args[i].getSort() == Type.DOUBLE || args[i].getSort() == Type.LONG) {
-				argSize += 2;
-				realIdx += 2;
-			} else {
-				argSize++;
-				realIdx++;
+		int[] idxArray;
+		if (INIT_REF && !isStatic) {
+			idxArray = new int[args.length + 1];
+			idxArray[0] = 0;
+			
+			int realIdx = 1;
+			for (int i = 1; i < idxArray.length; i++) {
+				idxArray[i] = realIdx;
+				Type argType = args[i - 1];
+				if (argType.getSort() == Type.DOUBLE || argType.getSort() == Type.LONG) {
+					argSize += 2;
+					realIdx += 2;
+				} else {
+					argSize++;
+					realIdx++;
+				}
+			}
+		} else {
+			idxArray = new int[args.length];
+			int realIdx = 1;
+			if (isStatic) {
+				realIdx = 0;
+			}
+			
+			for (int i = 0; i < args.length; i++) {
+				idxArray[i] = realIdx;
+				if (args[i].getSort() == Type.DOUBLE || args[i].getSort() == Type.LONG) {
+					argSize += 2;
+					realIdx += 2;
+				} else {
+					argSize++;
+					realIdx++;
+				}
 			}
 		}
 				
@@ -248,8 +270,8 @@ public class ClassInfoCollector {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}*/
-		initiateClassMethodInfo("a", "b", "(D[LR5P1Y11.aditsu.Cakes$P;)D", true);
-		String classMethodCacheKey = StringUtil.concateKey("a", "b", "(D[LR5P1Y11.aditsu.Cakes$P;)D");
+		initiateClassMethodInfo("a", "b", "(D[LR5P1Y11.aditsu.Cakes$P;I)D", false);
+		String classMethodCacheKey = StringUtil.concateKey("a", "b", "(D[LR5P1Y11.aditsu.Cakes$P;I)D");
 		System.out.println(Arrays.toString(classMethodInfoMap.get(classMethodCacheKey).idxArray));
 	}
 
