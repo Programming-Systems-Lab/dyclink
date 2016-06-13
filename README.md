@@ -59,9 +59,9 @@ The UI tool can help you collect the comparison ID you need.
 
 Then you can run the following command to review the detected code relatives by DyCLINK:
 
-java -cp target/dyclink-0.0.1-SNAPSHOT.jar edu.columbia.psl.cc.util.CodeRelQueryInterface -compId yourCompId -insts yourMinThreshold -filter
+./scripts/dyclink\_query.sh compId insts sim -f 
 
--compId represents the comparison ID, which can be seen from the MySQL database. -insts represents the minimum size of code relatives you care. The default value is 45. -filter is optional and solely for the experiments in the paper. This argument can filter out some simple utility methods that do not contribute to the real business logic of the application.
+compId represents the comparison ID, which can be seen from the MySQL database. insts represents the minimum size of code relatives you care. The default value is 45. sim represents the similarity threshold. -f is optional and solely for the experiments in the paper. This argument can filter out some simple utility methods that do not contribute to the real business logic of the application.
 
 ### Test Run
 For testing if your system set-up is successful, you can use the command to drive a simple test case of DyCLINK:
