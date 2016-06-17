@@ -16,6 +16,9 @@ DyCLINK is a maven project. For installing maven, please refer to [maven](https:
 
 mvn clean package
 
+Before running DyCLINK, please use the following script to create required directories:
+./scripts/dyclink\_setup.sh
+
 ### Step 1 Configuration
 DyCLINK has multiple parameters to specify. The configuration file can be found under "$dyclink\_base/config/mib\_config.json", where "$dyclink\_base" represents the base directory of DyCLINK. You can use the default values for these parameters that we set up for you. Here is the introduction for some parameters you might want to tune: <br />
   -instThreshold: The programs have instruction number smaller than this value will be ignored <br />
@@ -43,7 +46,7 @@ For computing the behavioral similarity between methods, you can either assign a
 
 ./scripts/dyclink\_sim.sh -target ./path/to/your/graphrepo1
 
-For not boosting the number of detected code relatives, you can set "exclPkg" in your configuration file as false to exclude the comparison between methods that invoke the same callees.
+For not boosting the number of detected code relatives, you can set "exclPkg" in your configuration file as true to exclude the comparison between methods that invoke the same callees.
 
 You can assign two graph repositories, which compare every pair of graphs (one from graphrepo1 while the other one from graphrepo2):
 ./scripts/dyclink\_sim.sh -target /path/to/your/graphrepo1 -test /path/to/your/graphrepo2

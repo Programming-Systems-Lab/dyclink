@@ -174,7 +174,7 @@ public class CodeRelQueryInterface {
 					
 					if (cr1.bestTrace.equals(cr2.bestTrace)) {
 						//If traces are the same, just keep one
-						//logger.info("Dup rel: " + cr1.methodPair + " " + cr2.methodPair);
+						System.out.println("Dup rel: " + cr1.methodPair + " " + cr2.methodPair);
 						dupRel++;
 						toRemove.add(cr2.methodPair);
 					}
