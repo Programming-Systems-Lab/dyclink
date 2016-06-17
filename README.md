@@ -17,6 +17,7 @@ DyCLINK is a maven project. For installing maven, please refer to [maven](https:
 mvn clean package
 
 Before running DyCLINK, please use the following script to create required directories:
+
 ./scripts/dyclink\_setup.sh
 
 ### Step 1 Configuration
@@ -49,6 +50,7 @@ For computing the behavioral similarity between methods, you can either assign a
 For not boosting the number of detected code relatives, you can set "exclPkg" in your configuration file as true to exclude the comparison between methods that invoke the same callees.
 
 You can assign two graph repositories, which compare every pair of graphs (one from graphrepo1 while the other one from graphrepo2):
+
 ./scripts/dyclink\_sim.sh -target /path/to/your/graphrepo1 -test /path/to/your/graphrepo2
 
 Notes: You can also specify "-iginit" to filter out constructors and static constructor (which may only set up some values for classes/objects without any business logic for DyCLINK to detect). This can save you some analysis time.
