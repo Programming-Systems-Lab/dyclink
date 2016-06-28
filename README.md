@@ -4,11 +4,25 @@ DyCLINK: A Dynamic Detector for Relative Code with Link Analysis
 
 DyCLINK is a system for detecting methods having similar runtime behavior at instruction level. DyCLINK constructs dynamic instruction graphs based on execution traces for methods and then conducts inexact (sub)graph matching between each execution of each method. The methods having similar (sub)graphs are called "code relatives", because they have relevant runtime behavior. The information about how DyCLINK works can be found in our [FSE 2016 paper](http://jonbell.net/fse_16_dyclink.pdf).
 
+Virtual Machine
+-------
+To facilitate the researchers and developers to use DyCLINK, we prepare a virtual machine [here](https://drive.google.com/file/d/0B-Sb0pnsw61vWEdraHd3OE41YUk/view?usp=sharing) including DyCLINK and all required software.
+
+We set up the credential, user name as “dyclink” and password as “Qwerty123”, for our VM. 
+The home directory of DyCLINK is /home/dyclink/dyclink\_fse/dyclink. 
+The credential for the database is “root” as the user name and “qwerty” as the password.
+
+The package of VM also contains the executable binary of DyCLINK.
+The user can use it directly on real machines.
+
 Running
 -------
 DyCLINK will rewrite the bytecode of your application for recording executed instructions and constructing graphs. The steps to install and use DyCLINK are as follows.
+Because DyCLINK is cpu- and memory-intensive, we suggest you to use the machine with 8+ cores and 20+ GB memory.
 
 ### Step 0
+Currently DyCLINK supports [Java 7](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html).
+
 DyCLINK needs a database to store the detected code relatives. We use MySQL. For downloading and installing MySQL, please refer to [MySQL](https://www.mysql.com/). For setting up the database, there are 3 steps. You can find more details in scripts/db\_setup.
 
 
@@ -53,7 +67,7 @@ You can assign two graph repositories, which compare every pair of graphs (one f
 
 ./scripts/dyclink\_sim.sh -target /path/to/your/graphrepo1 -test /path/to/your/graphrepo2
 
-Notes: You can also specify "-iginit" to filter out constructors and static constructor (which may only set up some values for classes/objects without any business logic for DyCLINK to detect). This can save you some analysis time.
+Notes: You can also specify "-iginit" to filter out constructors and static constructor (which may only set up some values for classes/objects without any business logic for DyCLINK to detect). This can save you some analysis time. We set the maximum memory (-Xmx) as 60G in our script. If this does not apply to your machine, you can change it to a suitable number.
 
 The detected code relatives will be stored in your MySQL database.
 
@@ -66,7 +80,7 @@ Then you can run the following command to review the detected code relatives by 
 
 ./scripts/dyclink\_query.sh compId insts sim -f 
 
-compId represents the comparison ID, which can be seen from the MySQL database. insts represents the minimum size of code relatives you care. The default value is 45. sim represents the similarity threshold. -f is optional and solely for the experiments in the paper. This argument can filter out some simple utility methods that do not contribute to the real business logic of the application.
+compId represents the comparison ID, which can be seen from the MySQL database. insts represents the minimum size of code relatives you care. The default value is 45. sim represents the similarity threshold. -f is an optional flag. This argument filter out some simple utility methods that do not contribute to the real business logic of the application in our experimental codebases.
 
 ### Test Run
 For testing if your system set-up is successful, you can use the command to drive a simple test case of DyCLINK:
@@ -74,8 +88,14 @@ For testing if your system set-up is successful, you can use the command to driv
 
 This script will execute two simple methods (which are a code relative) and conduct Step 2 and Step 3 sequentially. DyCLINK will ask if you want to store the information of detected code relatives in the database. Type "true", if you want to test your database. The URL and user name of your database can be specified in the configuration file. The results can also be seen in a csv file under the "results" directory.
 
+Potential problems during executions
+-------
+The cache directory records meta information for constructing graphs. 
+If the user fails §A.5 and plans to rerun, she needs to clean the cache directory and set threadMethodIdxRecord to empty in the configuration file, config/mib\_config.json. 
+Also, due to nondeterminism in a running program, DyCLINK may record different graphs, causing results to vary slightly between multiple runs.
+
 Questions, concerns, comments
-----
+-------
 Please email [Mike Su](mailto:mikefhsu@cs.columbia.edu) with any feedback. This project is still under heavy development, and we have several future plans. Thus we would very much welcome any feedback.
 
 License
