@@ -8,9 +8,9 @@ Virtual Machine
 -------
 To facilitate the researchers and developers to use DyCLINK, we prepare a virtual machine [here](https://drive.google.com/file/d/0B-Sb0pnsw61vWEdraHd3OE41YUk/view?usp=sharing) including DyCLINK and all required software.
 
-We set up the credential, user name as “dyclink” and password as “Qwerty123”, for our VM. 
+We set up the credential, “dyclink” as the username and “Qwerty123” as the password, for our VM. 
 The home directory of DyCLINK is /home/dyclink/dyclink\_fse/dyclink. 
-The credential for the database is “root” as the user name and “qwerty” as the password.
+The credential for the database is “root” as the username and “qwerty” as the password.
 
 The package of VM also contains the executable binary of DyCLINK.
 The user can use it directly on real machines.
