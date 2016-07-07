@@ -30,16 +30,8 @@
   "instDataWeight": 1.0,
   "writeDataWeight": 1.0,
   "precisionDigit": 5,
-<<<<<<< 6974efb03c41e6af9e2422394462034e63e64ec8:dyclink/config/mib_config.json
-<<<<<<< ace2d71cc6441468ab04050bd64c59fd82cec2ef:dyclink/config/mib_config.json
-  "instThreshold": 10,
   "domInstDiff": 20,
-=======
-  "instThreshold": 0,
->>>>>>> Progress, but still some bugs on computing global stack:MIB/config/mib_config.json
-=======
   "instThreshold": 2,
->>>>>>> Fix all bugs for avro:MIB/config/mib_config.json
   "instLimit": 3000,
   "callThreshold": 5,
   "initRef": false,
@@ -55,21 +47,8 @@
   "threadInit": 0,
   "threadMethodIdxRecord": {},
   "annotGuard": false,
-<<<<<<< d32a8b2585e1feac6987ccd9b69d03fe8aced7cd:dyclink/config/mib_config.json
-<<<<<<< a36347b987a656e3467321dc9b403bd44572910c:dyclink/config/mib_config.json
-<<<<<<< 0971fb78d235a192fa0dc0679b386dff65505eff:dyclink/config/mib_config.json
-  "fieldTrack": false,
   "debug": false,
-=======
   "fieldTrack": true,
-=======
-  "fieldTrack": false,
->>>>>>> Insert an abstract layer for graph objs. Have not tested. Try to solve recursion:MIB/config/mib_config.json
-=======
-  "fieldTrack": true,
->>>>>>> Backup before changin to a single pool:MIB/config/mib_config.json
-  "debug": true,
->>>>>>> Static field works:MIB/config/mib_config.json
   "exclSpec": true,
   "exclPkg": true,
   "reduceGraph": true,

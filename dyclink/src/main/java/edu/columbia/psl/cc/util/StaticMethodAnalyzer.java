@@ -125,7 +125,7 @@ public class StaticMethodAnalyzer {
 						}
 						
 						String fullKey = StringUtil.genKey(this.owner, name, desc);
-						String shortKey = GlobalRecorder.registerGlobalName(this.owner, name, fullKey);
+						String shortKey = GlobalGraphRecorder.registerGlobalName(this.owner, name, fullKey);
 						MethodCounter.potentialMethods.add(shortKey);
 						
 						DynamicMethodMiner dmm =  new DynamicMethodMiner(mv, 
@@ -157,9 +157,9 @@ public class StaticMethodAnalyzer {
 		System.out.println("# abstract method: " + MethodCounter.absMethod);
 		System.out.println("# synthethic method: " + MethodCounter.syntheticMethod);
 		System.out.println("# construct method: " + MethodCounter.constructMethod);
-		System.out.println("# under-sized method: " + GlobalRecorder.getUndersizedMethods().size());
+		System.out.println("# under-sized method: " + GlobalGraphRecorder.getUndersizedMethods().size());
 		
-		for (String under: GlobalRecorder.getUndersizedMethods()) {
+		for (String under: GlobalGraphRecorder.getUndersizedMethods()) {
 			MethodCounter.potentialMethods.remove(under);
 		}
 		
