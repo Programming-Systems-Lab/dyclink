@@ -108,21 +108,52 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 		}
 	}
 	
-	public static AbstractGraph getCumuGraph() {		
+	public static List<AbstractGraph> getCumuGraph() {		
 		synchronized(POOL_LOCK) {
-			GraphTemplate all = new GraphTemplate();
-			int edge = 0;
-			for (InstNode inst: POOL) {
-				edge += inst.getChildFreqMap().size();
-			}
-			all.setMethodKey(DUMP_FULL_NAME);
-			all.setShortMethodKey(DUMP_GLOBAL_NAME);
-			all.setThreadId(DUMP_THREAD_ID);
-			all.setInstPool(POOL);
-			all.setVertexNum(POOL.size());
-			all.setEdgeNum(edge);
+			ShutdownLogger.appendMessage("Total graph size: " + POOL.size());
+			List<AbstractGraph> ret = new ArrayList<AbstractGraph>();
 			
-			return all;
+			int counter = 0;
+			int edgeNum = 0;
+			GraphTemplate sepAll = new GraphTemplate();
+			InstPool sepPool = new InstPool();
+			
+			for (InstNode inst: POOL) {
+				if (counter == 10000) {
+					//Finalize sep graph info
+					sepAll.setMethodKey(DUMP_FULL_NAME);
+					sepAll.setShortMethodKey(DUMP_GLOBAL_NAME);
+					sepAll.setThreadId(DUMP_THREAD_ID);
+					sepAll.setInstPool(sepPool);
+					sepAll.setVertexNum(sepPool.size());
+					sepAll.setEdgeNum(edgeNum);
+					ret.add(sepAll);
+					
+					//Reinitialize sep graph
+					sepAll = new GraphTemplate();
+					sepPool = new InstPool();
+					counter = 0;
+					edgeNum = 0;
+				}
+				
+				sepPool.add(inst);
+				edgeNum += inst.getChildFreqMap().size();
+				counter++;
+			}
+			
+			//Residual
+			if (counter > 0) {
+				sepAll.setMethodKey(DUMP_FULL_NAME);
+				sepAll.setShortMethodKey(DUMP_GLOBAL_NAME);
+				sepAll.setThreadId(DUMP_THREAD_ID);
+				sepAll.setInstPool(sepPool);
+				sepAll.setVertexNum(sepPool.size());
+				sepAll.setEdgeNum(edgeNum);
+				ret.add(sepAll);
+			}
+			
+			ShutdownLogger.appendMessage("Separate graphs into: " + ret.size());
+			return ret;
 		}
 	}
 	

@@ -93,7 +93,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		
 		synchronized(COUNT_LOCK) {
 			METHOD_COUNT++;
-			if (METHOD_COUNT % 10000 == 0) {
+			if (METHOD_COUNT % 50000 == 0) {
 				logger.info("# of method calls: " + METHOD_COUNT);
 			}
 		}

@@ -152,11 +152,14 @@ public class HorizontalMerger {
 		zipGraphsHelper(appName, graphs, graphToken);
 	}
 	
-	public static void startExtractionFast(String appName, AbstractGraph graph, TypeToken graphToken) {
-		ShutdownLogger.appendMessage("Graph size: " + graph.getInstPool().size());
-		String fileName = appName.replace("/", "-");
+	public static void startSeparation(String appName, List<AbstractGraph> graphs, TypeToken graphToken) {
+		//ShutdownLogger.appendMessage("Graph size: " + graph.getInstPool().size());
 		try {
-			GsonManager.writeJsonGeneric(graph, fileName, graphToken, MIBConfiguration.GRAPH_DIR);
+			for (int i = 0; i < graphs.size(); i++) {
+				String fileName = appName.replace("/", "-") + "-" + i;
+				AbstractGraph g = graphs.get(i);
+				GsonManager.writeJsonGeneric(g, fileName, graphToken, MIBConfiguration.GRAPH_DIR);
+			}
 		} catch (Exception ex) {
 			ShutdownLogger.appendException(ex);
 		}
