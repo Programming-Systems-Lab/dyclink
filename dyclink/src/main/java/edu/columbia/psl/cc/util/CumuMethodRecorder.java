@@ -1,9 +1,11 @@
 package edu.columbia.psl.cc.util;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Stack;
+import java.util.Vector;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,12 +21,15 @@ import edu.columbia.psl.cc.pojo.ClassMethodInfo;
 import edu.columbia.psl.cc.pojo.InstNode;
 import edu.columbia.psl.cc.pojo.MethodNode;
 import edu.columbia.psl.cc.pojo.OpcodeObj;
+import edu.columbia.psl.cc.premain.PreMain;
 
 public class CumuMethodRecorder extends AbstractRecorder {
 	
 	private static Logger logger = LogManager.getLogger(CumuMethodRecorder.class);
 	
 	private static long METHOD_COUNT = 0;
+	
+	private static boolean IGOBJ = true;
 	
 	private static Object COUNT_LOCK = new Object();
 			
@@ -103,7 +108,14 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		this.methodDesc = methodDesc;
 				
 		this.methodKey = StringUtil.genKey(className, methodName, methodDesc);
-		//System.out.println("Current method: " + this.methodKey);
+		if (className.equals("org/python/core/PyObject") && methodName.equals("__call__")) {				
+				if (methodDesc.equals("(Lorg/python/core/PyObject;Lorg/python/core/PyObject;Lorg/python/core/PyObject;)Lorg/python/core/PyObject;")) {
+					System.out.println("Target desc: " + methodDesc);
+				}
+		}
+		if (this.methodKey.equals("org.python.core.PyObject:__call__:(Lorg.python.core.PyObject+Lorg.python.core.PyObject+Lorg.python.core.PyObject):Lorg.python.core.PyObject")) {
+			System.out.println("Target method: " + this.methodKey);
+		}
 		this.shortMethodKey = CumuGraphRecorder.getGlobalName(this.methodKey);		
 		Type methodType = Type.getMethodType(this.methodDesc);
 		this.methodArgSize = methodType.getArgumentTypes().length;
@@ -129,7 +141,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			this.shouldRecordReadLocalVars.add(idx);
 		}
 		
-		if (this.methodName.equals("<init>")) {			
+		if (this.methodName.equals("<init>") && !IGOBJ) {			
 			//For instance method, don't register, since the obj id is not ready
 			this.registered = false;
 			this.genMethodInfo();
@@ -139,7 +151,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			CumuGraphRecorder.registerStaticRecord(this.methodKey, methodInfo);
 		} else {
 			int[] probe = null;
-			if (this.isStatic) {
+			if (this.isStatic || IGOBJ) {
 				probe = CumuGraphRecorder.queryStaticRecord(this.methodKey);
 			} else {
 				probe = CumuGraphRecorder.queryObjRecord(this.objId, this.methodKey);
@@ -148,7 +160,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			if (probe == null) {
 				this.genMethodInfo();
 				int[] methodInfo = {this.threadId, this.threadMethodId};
-				if (this.isStatic) {
+				if (this.isStatic || IGOBJ) {
 					CumuGraphRecorder.registerStaticRecord(this.methodKey, methodInfo);
 				} else {
 					CumuGraphRecorder.registerObjRecord(this.objId, this.methodKey, methodInfo);
@@ -236,6 +248,14 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		int idx = this.stackSimulator.size() - 1 - traceBack;
 		InstNode latestInst = this.stackSimulator.get(idx);		
 		latestInst.setRelatedObj(obj);
+		
+		if (obj == null) {
+			long jvmThreadId = Thread.currentThread().getId();
+			latestInst.nullObj = true;
+			latestInst.nullThread = jvmThreadId;
+		} else {
+			latestInst.nullObj = false;
+		}
 		//System.out.println("Update obj: " + latestInst);
 	}
 	
@@ -310,18 +330,20 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			}
 			
 			String recordFieldKey = fieldKey;
-			if (objId > 0) {
-				recordFieldKey += (":" + objId);
-			} else if (opcode == Opcodes.GETFIELD){
-				logger.error("Uinitialized obj: " + opcode + " " + fieldKey + " " + objId);
-				logger.error("Obj on stack: " + objOnStack);
-				logger.error("Releveant inst: " + tmp);
-				logger.error("Current method: " + this.methodKey);
-				System.exit(-1);
-			} else if (opcode == Opcodes.PUTFIELD) {
-				if (tmp.getOp().getOpcode() == Opcodes.ALOAD 
-						&& tmp.getAddInfo().equals("0")) {
-					objId = tmp.getRelatedObjId();
+			if (!IGOBJ) {
+				if (objId > 0) {
+					recordFieldKey += (":" + objId);
+				} else if (opcode == Opcodes.GETFIELD){
+					logger.error("Uinitialized obj: " + opcode + " " + fieldKey + " " + objId);
+					logger.error("Obj on stack: " + objOnStack);
+					logger.error("Releveant inst: " + tmp);
+					logger.error("Current method: " + this.methodKey);
+					System.exit(-1);
+				} else if (opcode == Opcodes.PUTFIELD) {
+					if (tmp.getOp().getOpcode() == Opcodes.ALOAD 
+							&& tmp.getAddInfo().equals("0")) {
+						objId = tmp.getRelatedObjId();
+					}
 				}
 			}
 			
@@ -617,7 +639,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		Type rType = cmi.returnType;
 		int[] idxArray = cmi.idxArray;
 					
-		Class correctClass;
+		Class correctClass = null;
 		if (opcode == Opcodes.INVOKESTATIC) {
 			correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
 		} else {
@@ -635,12 +657,41 @@ public class CumuMethodRecorder extends AbstractRecorder {
 				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
 			} else {
 				//logger.info("Retrieve method by class name: " + name + objOnStack.getClass().getName());
-				String internalName = Type.getInternalName(objOnStack.getClass());
-				correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(internalName, name, desc, false);
+				//logger.info("Loader: " + internalName + " " + correctClass.getClassLoader());
+				if (objOnStack == null) {
+					logger.warn("Null object on stack: " + opcode + " " + owner + " " + name + " " + desc);
+					logger.warn("Retrieved arg size: " + argSize);
+					logger.warn("Related inst: " + relatedInst + " " + relatedInst.nullObj);
+					logger.warn("Null thread: " + relatedInst.nullThread);
+					logger.warn("Current thread: " + Thread.currentThread().getId());
+					
+					if (relatedInst.nullObj) {
+						//can only guess, but this method should throw null pointer execption through...
+						correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
+					}
+				} else {
+					String internalName = Type.getInternalName(objOnStack.getClass());
+					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(internalName, name, desc, false);
+					if (owner.equals("org/python/core/PyObject") && name.equals("__call__") && desc.equals("(Lorg/python/core/PyObject;Lorg/python/core/PyObject;Lorg/python/core/PyObject;)Lorg/python/core/PyObject;")) {
+						System.out.println("Current caller: " + this.methodKey);
+						System.out.println("Owner: " + owner);
+						System.out.println("Internal name: " + internalName);
+						System.out.println("Correc class: " + correctClass.getName());
+						System.out.println("Method name: " + name);
+						System.out.println("Desc: " + desc);
+						System.out.println("Class loader: " + correctClass.getClassLoader());
+						System.out.println("Current loader: " + this.getClass().getClassLoader());
+						PreMain.searchLoadedClasses(correctClass.getName());
+						PreMain.analyzeClassLoaders(correctClass.getName());
+					}
+				}
 			}
 		}
 		
 		String realMethodKey = StringUtil.genKey(correctClass.getName(), name, desc);
+		if (this.methodKey.equals("site$py:f$0:(Lorg.python.core.PyFrame):Lorg.python.core.PyObject")) {
+			System.out.println("Calling: " + realMethodKey);
+		}
 		
 		boolean sysCall = false;
 		HashMap<Integer, InstNode> idxMap = new HashMap<Integer, InstNode>();
@@ -751,7 +802,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		
 		//this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 		//this.showStackSimulator();
-		//System.out.println("Ready to pop: " + this.methodKey + "->" + realMethodKey + " " + sysCall);
+		//logger.info("Ready to pop: " + this.methodKey + "->" + realMethodKey + " " + sysCall);
 	}
 	
 	public void handleMethodAfter(int totalPop, int retSort) {
@@ -764,7 +815,19 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		
 		if (calleeLast == null) {
 			logger.error("ERROR! empty inst(callee, method name): " + this.currentCallee + " " + this.methodKey);
-			CumuGraphRecorder.showCalleeLasts();
+			CumuGraphRecorder.showCalleeLasts(this.currentCallee);
+			/*try {
+				Field f = ClassLoader.class.getDeclaredField("classes");
+				f.setAccessible(true);
+
+				ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+				Vector<Class> classes =  (Vector<Class>) f.get(classLoader);
+				for (Class clazz: classes) {
+					System.out.println(clazz.getName());
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}*/
 			System.exit(-1);
 		}
 		
@@ -958,6 +1021,20 @@ public class CumuMethodRecorder extends AbstractRecorder {
 				" " + this.methodKey + 
 				" " + this.threadId + 
 				" " + this.threadMethodId);*/
+	}
+	
+	public void handleAthrow() {
+		System.out.println("Handle athrow for: " + this.methodKey);
+		//System.exit(-1);
+	}
+	
+	public static void main(String[] args) {
+		Stack<Integer> stack = new Stack<Integer>();
+		stack.push(1);
+		stack.push(2);
+		stack.push(3);
+		System.out.println(stack);
+		System.out.println(stack.get(0));
 	}
 }
 

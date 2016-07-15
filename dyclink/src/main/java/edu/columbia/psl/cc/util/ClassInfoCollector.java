@@ -17,12 +17,11 @@ import edu.columbia.psl.cc.config.MIBConfiguration;
 import edu.columbia.psl.cc.datastruct.BytecodeCategory;
 import edu.columbia.psl.cc.pojo.ClassMethodInfo;
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.premain.PreMain;
 
 public class ClassInfoCollector {
 	
 	private static Logger logger = LogManager.getLogger(ClassInfoCollector.class);
-	
-	private static boolean INIT_REF = MIBConfiguration.getInstance().isInitRef();
 		
 	private static HashMap<String, ClassMethodInfo> classMethodInfoMap = new HashMap<String, ClassMethodInfo>();
 	
@@ -46,7 +45,23 @@ public class ClassInfoCollector {
 		
 		int argSize = 0;
 		int[] idxArray;
-		if (INIT_REF && !isStatic) {
+		idxArray = new int[args.length];
+		int realIdx = 1;
+		if (isStatic) {
+			realIdx = 0;
+		}
+		
+		for (int i = 0; i < args.length; i++) {
+			idxArray[i] = realIdx;
+			if (args[i].getSort() == Type.DOUBLE || args[i].getSort() == Type.LONG) {
+				argSize += 2;
+				realIdx += 2;
+			} else {
+				argSize++;
+				realIdx++;
+			}
+		}
+		/*if (INIT_REF && !isStatic) {
 			idxArray = new int[args.length + 1];
 			idxArray[0] = 0;
 			
@@ -79,7 +94,7 @@ public class ClassInfoCollector {
 					realIdx++;
 				}
 			}
-		}
+		}*/
 				
 		cmi.args = args;
 		cmi.returnType = returnType;
@@ -134,7 +149,20 @@ public class ClassInfoCollector {
 		
 		try { 
 			className = className.replace("/", ".");
-			Class<?> calledClass = Class.forName(className);
+			Class<?>calledClass = null;
+			
+			try {
+				calledClass = Class.forName(className);
+			} catch (Exception ex) {
+				logger.warn("Fail to find class " + className +  "in current loader: " + ClassInfoCollector.class.getClassLoader());
+				
+				calledClass = PreMain.searchLoadedClasses(className);
+				if (calledClass != null) {
+					logger.info("Target loader: " + calledClass.getClassLoader());
+				} else {
+					throw new ClassNotFoundException(className);
+				}
+			}
 			
 			if (direct) {
 				//direct is for <init> and private method of INVOKESPECIAL
@@ -193,7 +221,21 @@ public class ClassInfoCollector {
 		
 		try {
 			className = className.replace("/", ".");
-			Class<?> calledClass = Class.forName(className);
+			Class<?> calledClass = null;
+			
+			try {
+				calledClass = Class.forName(className);
+			} catch (Exception ex) {
+				logger.warn("Fail to find class " + className +  "in current loader: " + ClassInfoCollector.class.getClassLoader());
+				
+				calledClass = PreMain.searchLoadedClasses(className);
+				if (calledClass != null) {
+					logger.info("Target loader: " + calledClass.getClassLoader());
+				} else {
+					throw new ClassNotFoundException(className);
+				}
+			}
+			
 			Class<?>[] interfaces = calledClass.getInterfaces();
 			while (calledClass != null) {
 				for (Field f: calledClass.getDeclaredFields()) {
@@ -237,42 +279,9 @@ public class ClassInfoCollector {
 	}
 	
 	public static void main(String[] args) throws ClassNotFoundException {
-		/*Class<?> testClass = retrieveCorrectClassByMethod("org/apache/xerces/parsers/AbstractSAXParser", 
-				"parse", 
-				"(Lorg/apache/xerces/xni/parser/XMLInputSource;)V", false);
-		System.out.println(testClass);*/
-		//Type targetMethodType = Type.getMethodType("(Lorg/apache/xerces/xniparser/XMLInputSource;)V");
-		//System.out.println(targetMethodType.getReturnType());
-		//System.out.println(targetMethodType.getArgumentTypes().length);
-		
-		/*Class<?> theClazz = Class.forName("org.apache.xerces.parsers.AbstractSAXParser");
-		for (Method m: theClazz.getDeclaredMethods()) {
-			System.out.println(m.getName());
-			System.out.println("Args: ");
-			for (Class aClazz: m.getParameterTypes()) {
-				System.out.println(aClazz);
-			}
-			System.out.println("Return type: " + m.getReturnType());
-		}*/
-		
-		/*String className = "org.ujmp.core.doublematrix.calculation.general.decomposition.Solve$1";
-		String fieldName = "MATRIXSQUARELARGEMULTITHREADED";
-		System.out.println("Class name: " + retrieveCorrectClassByField(className, fieldName).getName());
-		try {
-			Class innerClass = Class.forName(className);
-			System.out.println("Check inner class: " + innerClass);
-			System.out.println("Outer class: " + innerClass.getEnclosingClass());
-			int[] ar = new int[5];
-			int[][] multiAr = new int[3][4];
-			Object[] objSingleDim = new Object[5];
-			Object[][] obj = new Object[4][5];
-			Object o = new Object();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}*/
-		initiateClassMethodInfo("a", "b", "(D[LR5P1Y11.aditsu.Cakes$P;I)D", false);
+		/*initiateClassMethodInfo("a", "b", "(D[LR5P1Y11.aditsu.Cakes$P;I)D", false);
 		String classMethodCacheKey = StringUtil.concateKey("a", "b", "(D[LR5P1Y11.aditsu.Cakes$P;I)D");
-		System.out.println(Arrays.toString(classMethodInfoMap.get(classMethodCacheKey).idxArray));
+		System.out.println(Arrays.toString(classMethodInfoMap.get(classMethodCacheKey).idxArray));*/
 	}
 
 }

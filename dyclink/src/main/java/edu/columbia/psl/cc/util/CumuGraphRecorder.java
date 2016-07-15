@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
+import java.util.TreeMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,7 +36,7 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 	private static InstNode CALLER_CONTROL = null;
 	
 	//private static Stack<InstNode> CALLEE_LASTS = new Stack<InstNode>();
-	private static HashMap<String, Stack<InstNode>> CALLEE_LASTS = new HashMap<String, Stack<InstNode>>();
+	private static Map<String, Stack<InstNode>> CALLEE_LASTS = new TreeMap<String, Stack<InstNode>>();
 	
 	private static final InstPool POOL = new InstPool();
 	
@@ -211,7 +213,12 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 			insts.push(inst);
 			CALLEE_LASTS.put(caller, insts);
 		}		
-		//System.out.println("Push result: " + CALLEE_LAST);
+		
+		if (caller.equals("org.python.core.PyObject:__call__:(Lorg.python.core.PyObject+Lorg.python.core.PyObject+Lorg.python.core.PyObject):Lorg.python.core.PyObject")) {
+			System.out.println("Push result: " + caller);
+			CumuGraphRecorder.showCalleeLasts(caller);
+		}
+		
 	}
 	
 	public static InstNode popCalleeLast(String caller) {
@@ -229,8 +236,15 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 		return toReturn;
 	}
 	
-	public static void showCalleeLasts() {
+	public static void showCalleeLasts(String target) {
 		//System.out.println(CALLEE_LASTS);
-		logger.info(CALLEE_LASTS);
+		//logger.info(CALLEE_LASTS);
+		Stack<InstNode> lasts = CALLEE_LASTS.get(target);
+		if (lasts == null) {
+			System.out.println("Find no inst for target: " + target);
+		} else {
+			System.out.println("Insts for " + target);
+			System.out.println(lasts);
+		}
 	}
 }

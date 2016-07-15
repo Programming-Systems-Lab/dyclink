@@ -42,6 +42,10 @@ public class InstNode {
 	
 	private transient Object relatedObj = null;
 	
+	public transient boolean nullObj = false;
+	
+	public transient long nullThread = -1L;
+	
 	private transient int relatedObjId = -1;
 	
 	public transient int callerLine;

@@ -7,7 +7,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+				<version>3.5.1</version>
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
@@ -18,7 +18,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.3</version>
+				<version>2.4.3</version>
 				<configuration>
     				<filters>
         				<filter>
@@ -73,6 +73,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
+				<version>2.4</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -85,6 +86,7 @@
 	  		<plugin>
         		<groupId>org.apache.maven.plugins</groupId>
         		<artifactId>maven-jar-plugin</artifactId>
+        		<version>2.6</version>
         		<configuration>
           			<archive>
             			<manifest>
@@ -93,6 +95,8 @@
             			</manifest>
             			<manifestEntries>
             				<Premain-Class>edu.columbia.psl.cc.premain.PreMain</Premain-Class>
+            				<Can-Redefine-Classes>true</Can-Redefine-Classes>
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
             			</manifestEntries>
           			</archive>
         		</configuration>

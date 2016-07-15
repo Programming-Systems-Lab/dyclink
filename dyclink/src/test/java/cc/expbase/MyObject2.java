@@ -18,6 +18,10 @@ public class MyObject2 {
 	
 	private int myJ;
 	
+	public static Object throwException() throws Exception{
+		throw new Exception();
+	}
+	
 	public int add(int i, int j) {
 		int ret = 0;
 		if (i > 5) {
@@ -112,9 +116,14 @@ public class MyObject2 {
 			System.out.println(i);
 			System.out.println(i.getChildFreqMap());
 		}*/
-		System.out.println(getMax(new int[]{1, 2, 3, 4, 5}));
-		System.out.println(getMin(new int[]{5, 4, 3, 2, 1}));
-		System.out.println(getMinError(new int[]{5, 4, 3, 2, 1}));
+		//System.out.println(getMax(new int[]{1, 2, 3, 4, 5}));
+		//System.out.println(getMin(new int[]{5, 4, 3, 2, 1}));
+		//System.out.println(getMinError(new int[]{5, 4, 3, 2, 1}));
+		try {
+			System.out.println(throwException());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
 }

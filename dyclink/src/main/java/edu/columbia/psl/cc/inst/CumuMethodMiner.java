@@ -475,7 +475,11 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 	public void visitInsn(int opcode) {
 		if (this.shouldInstrument()) {
 			int instIdx = -1;
-			if (!isReturn(opcode)) {
+			if (opcode == Opcodes.ATHROW) {
+				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+				this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, cumuMethodRecorder, "handleAthrow", "()V", false);
+				this.mv.visitInsn(opcode);
+			} else if (!isReturn(opcode)) {
 				instIdx = this.handleOpcode(opcode);
 				this.mv.visitInsn(opcode);
 			} else {
@@ -779,6 +783,16 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 	@Override
 	public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int indes) {
 		this.mv.visitLocalVariable(name, desc, signature, start, end, indes);
+	}
+	
+	@Override
+	public void visitFrame(int type,
+            int nLocal,
+            Object[] local,
+            int nStack,
+            Object[] stack) {
+		System.out.println("Visit frame: " + type + " " + nLocal + " " + nStack);
+		this.mv.visitFrame(type, nLocal, local, nStack, stack);
 	}
 		
 	@Override

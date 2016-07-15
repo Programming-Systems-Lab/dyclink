@@ -24,6 +24,7 @@ import edu.columbia.psl.cc.annot.analyzeClass;
 import edu.columbia.psl.cc.annot.extractTemplate;
 import edu.columbia.psl.cc.annot.testTemplate;
 import edu.columbia.psl.cc.config.MIBConfiguration;
+import edu.columbia.psl.cc.premain.PreMain;
 import edu.columbia.psl.cc.util.GlobalGraphRecorder;
 import edu.columbia.psl.cc.util.StringUtil;
 
@@ -43,16 +44,24 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 			Class<?> classBeingRedefined, 
 			ProtectionDomain protectionDomain,
 			byte[] classfileBuffer) throws IllegalClassFormatException {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub	
 		String name = className.replace("/", ".");
+		
+		if (name.contains("site$py")) {
+			System.out.println("Target class: " + name);
+			
+			if (protectionDomain != null) {
+				String codeLocation = protectionDomain.getCodeSource().getLocation().getPath();
+				System.out.println("Code location: " + codeLocation);
+			}
+		}
 		
 		//Check protection domain
 		if (protectionDomain != null) {			
 			String codeLocation = protectionDomain.getCodeSource().getLocation().getPath();
-			/*System.out.println("Class name: " + className);
-			System.out.println("Code location: " + codeLocation);
-			System.out.println("Is test class: " + StringUtil.isTestClass(codeLocation));*/
+			//System.out.println("Class name: " + className);
+			//System.out.println("Code location: " + codeLocation);
+			//System.out.println("Is test class: " + StringUtil.isTestClass(codeLocation));
 			if (StringUtil.isTestClass(codeLocation)) {
 				MIBConfiguration.getInstance().getExcludeClass().add(name);
 				return classfileBuffer;
