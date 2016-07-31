@@ -214,13 +214,12 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 			CALLEE_LASTS.put(caller, insts);
 		}		
 		
-		if (caller.equals("org.python.core.PyObject:__call__:(Lorg.python.core.PyObject+Lorg.python.core.PyObject+Lorg.python.core.PyObject):Lorg.python.core.PyObject")) {
+		/*if (caller.equals("org.python.core.PyObject:__call__:(Lorg.python.core.PyObject+Lorg.python.core.PyObject+Lorg.python.core.PyObject):Lorg.python.core.PyObject")) {
 			System.out.println("Push result: " + caller);
 			CumuGraphRecorder.showCalleeLasts(caller);
-		}
-		
+		}*/	
 	}
-	
+		
 	public static InstNode popCalleeLast(String caller) {
 		/*if (CALLEE_LASTS.size() > 1) {
 			logger.error("Errornous callee results: " + CALLEE_LASTS);
@@ -241,10 +240,18 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 		//logger.info(CALLEE_LASTS);
 		Stack<InstNode> lasts = CALLEE_LASTS.get(target);
 		if (lasts == null) {
-			System.out.println("Find no inst for target: " + target);
+			logger.error("Find no inst for target: " + target);
 		} else {
-			System.out.println("Insts for " + target);
-			System.out.println(lasts);
+			logger.info("Insts for " + target);
+			logger.info(lasts);
+		}
+	}
+	
+	public static void showCalleeLastsContains(String contain) {
+		for (String k: CALLEE_LASTS.keySet()) {
+			if (k.contains(contain)) {
+				logger.info(k + ": " + CALLEE_LASTS.get(k));
+			}
 		}
 	}
 }

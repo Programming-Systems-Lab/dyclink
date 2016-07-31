@@ -154,11 +154,11 @@ public class ClassInfoCollector {
 			try {
 				calledClass = Class.forName(className);
 			} catch (Exception ex) {
-				logger.warn("Fail to find class " + className +  "in current loader: " + ClassInfoCollector.class.getClassLoader());
+				//logger.warn("Fail to find class " + className +  "in current loader: " + ClassInfoCollector.class.getClassLoader());
 				
 				calledClass = PreMain.searchLoadedClasses(className);
 				if (calledClass != null) {
-					logger.info("Target loader: " + calledClass.getClassLoader());
+					//logger.info("Target loader: " + calledClass.getClassLoader());
 				} else {
 					throw new ClassNotFoundException(className);
 				}
@@ -226,11 +226,11 @@ public class ClassInfoCollector {
 			try {
 				calledClass = Class.forName(className);
 			} catch (Exception ex) {
-				logger.warn("Fail to find class " + className +  "in current loader: " + ClassInfoCollector.class.getClassLoader());
+				//logger.warn("Fail to find class " + className +  "in current loader: " + ClassInfoCollector.class.getClassLoader());
 				
 				calledClass = PreMain.searchLoadedClasses(className);
 				if (calledClass != null) {
-					logger.info("Target loader: " + calledClass.getClassLoader());
+					//logger.info("Target loader: " + calledClass.getClassLoader());
 				} else {
 					throw new ClassNotFoundException(className);
 				}

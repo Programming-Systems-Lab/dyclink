@@ -24,7 +24,7 @@ public class TimeController {
 	}
 	
 	public static boolean isOverTime() {
-		if (enable == false)
+		if (!enable)
 			return false;
 		
 		if (testMethodExecutionTime() > testMethodThresh) {

@@ -3,6 +3,7 @@ package edu.columbia.psl.cc.premain;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +13,8 @@ import edu.columbia.psl.cc.inst.NaiveTransformer;
 public class PreMain {
 	
 	public static Instrumentation inst;
+	
+	public static HashMap<String, Class> loaderCache = new HashMap<String, Class>();
 
 	public static void premain(String args, Instrumentation inst) {
 		PreMain.inst = inst;
@@ -60,6 +63,11 @@ public class PreMain {
 	
 	public static Class searchLoadedClasses(String targetName) {
 		//System.out.println("All loaded classes: " + inst.getAllLoadedClasses().length);
+		
+		if (loaderCache.containsKey(targetName)) {
+			return loaderCache.get(targetName);
+		}
+		
 		Class ret = null;
 		int counter = 0;
 		for (Class clazz: inst.getAllLoadedClasses()) {
@@ -70,6 +78,8 @@ public class PreMain {
 				System.out.println("Class loader: " + clazz.getClassLoader());
 			}
 		}
+		
+		loaderCache.put(targetName, ret);
 		//System.out.println("Non-bootstrapping classes: " + records.size());
 		//System.out.println();
 		return ret;

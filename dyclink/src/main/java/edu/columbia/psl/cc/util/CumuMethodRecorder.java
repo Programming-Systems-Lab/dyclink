@@ -1,11 +1,9 @@
 package edu.columbia.psl.cc.util;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Stack;
-import java.util.Vector;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,6 +28,8 @@ public class CumuMethodRecorder extends AbstractRecorder {
 	private static long METHOD_COUNT = 0;
 	
 	private static boolean IGOBJ = true;
+	
+	public boolean show = false;
 	
 	private static Object COUNT_LOCK = new Object();
 			
@@ -81,9 +81,19 @@ public class CumuMethodRecorder extends AbstractRecorder {
 	
 	public boolean initConstructor = true;
 	
-	private HashMap<Integer, InstNode> callerIdxMap = null;
+	private HashMap<Integer, InstNode> callerIdxMap = new HashMap<Integer, InstNode>();
 	
-	String currentCallee = null;
+	private Stack<String> currentCallee = new Stack<String>();
+	
+	private Stack<String> debugStack = new Stack<String>();
+	
+	private Stack<Boolean> debugBoolean = new Stack<Boolean>();
+	
+	private HashMap<InstNode, Stack<Object>> instObjs = new HashMap<InstNode, Stack<Object>>();
+	
+	private InstNode latestLoader = null;
+	
+	private Object latestObject = null;
 	
 	public CumuMethodRecorder(String className, 
 			String methodName, 
@@ -108,14 +118,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		this.methodDesc = methodDesc;
 				
 		this.methodKey = StringUtil.genKey(className, methodName, methodDesc);
-		if (className.equals("org/python/core/PyObject") && methodName.equals("__call__")) {				
-				if (methodDesc.equals("(Lorg/python/core/PyObject;Lorg/python/core/PyObject;Lorg/python/core/PyObject;)Lorg/python/core/PyObject;")) {
-					System.out.println("Target desc: " + methodDesc);
-				}
-		}
-		if (this.methodKey.equals("org.python.core.PyObject:__call__:(Lorg.python.core.PyObject+Lorg.python.core.PyObject+Lorg.python.core.PyObject):Lorg.python.core.PyObject")) {
-			System.out.println("Target method: " + this.methodKey);
-		}
+		
 		this.shortMethodKey = CumuGraphRecorder.getGlobalName(this.methodKey);		
 		Type methodType = Type.getMethodType(this.methodDesc);
 		this.methodArgSize = methodType.getArgumentTypes().length;
@@ -216,10 +219,6 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		}
 	}
 	
-	private void showStackSimulator() {
-		System.out.println(this.stackSimulator);
-	}
-	
 	public void updateCurLabel(String curLabel) {
 		if (this.overTime)
 			return ;
@@ -242,29 +241,65 @@ public class CumuMethodRecorder extends AbstractRecorder {
 	}
 	
 	public void updateObjOnStack(Object obj, int traceBack) {
-		if (this.overTime)
-			return ;
-		
+		/*if (this.overTime)
+			return ;*/
+				
 		int idx = this.stackSimulator.size() - 1 - traceBack;
 		InstNode latestInst = this.stackSimulator.get(idx);		
-		latestInst.setRelatedObj(obj);
+		//latestInst.setRelatedObj(obj);
 		
-		if (obj == null) {
-			long jvmThreadId = Thread.currentThread().getId();
-			latestInst.nullObj = true;
-			latestInst.nullThread = jvmThreadId;
+		/*boolean show = false;
+		if (latestInst.getOp().getOpcode() == 178 && latestInst.getAddInfo().equals("org.python.core.Py.Zero.Lorg/python/core/PyInteger;")) {
+			show = true;
+		}*/
+		
+		if (this.instObjs.containsKey(latestInst)) {
+			this.instObjs.get(latestInst).push(obj);
 		} else {
-			latestInst.nullObj = false;
+			Stack<Object> objs = new Stack<Object>();
+			objs.push(obj);
+			this.instObjs.put(latestInst, objs);
 		}
-		//System.out.println("Update obj: " + latestInst);
+		
+		this.latestLoader = latestInst;
+		this.latestObject = obj;
+		
+		if (this.show) {
+			logger.warn("Attach inst: " + this.methodKey + " " + latestInst);
+			logger.warn("Obj stack: " + this.instObjs.get(latestInst));
+		}
+	}
+	
+	public Object getLatestObj(String reason, InstNode inst) {		
+		if (this.show) {
+			logger.warn("Reason: " + reason);
+			logger.warn("Detach inst: " + this.methodKey + " " + inst);
+			logger.warn("Obj stack: " + this.instObjs.get(inst));
+		}
+		
+		if (!this.instObjs.containsKey(inst)) {
+			inst.nullObj = false;
+			return null;
+		}
+		
+		if (this.instObjs.get(inst).size() == 0) {
+			inst.nullObj = false;
+			return null;
+		}
+		
+		Object ret = this.instObjs.get(inst).pop();
+		if (ret == null) {
+			inst.nullObj = true;
+		} else {
+			inst.nullObj = false;
+		}
+		return ret;
 	}
 	
 	public void updateObjIdOnStack(int objId, int traceBack) {
 		int idx = this.stackSimulator.size() - 1 - traceBack;
 		InstNode latestInst = this.stackSimulator.get(idx);
 		latestInst.setRelatedObjId(objId);
-		//System.out.println("Update obj id: " + latestInst + " " + objId);
-		//System.exit(-1);
 	}
 	
 	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {		
@@ -312,19 +347,23 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			int objId = 0;
 			Object objOnStack = null;
 			InstNode tmp = null;
+			//System.out.println("Field calling: " + fullInst);
 			if (opcode == Opcodes.GETFIELD) {
 				tmp = this.stackSimulator.peek();
-				objOnStack = this.stackSimulator.peek().getRelatedObj();
+				//objOnStack = this.stackSimulator.peek().getRelatedObj();
+				objOnStack = this.getLatestObj(fullInst.toString(), this.stackSimulator.peek());
 				objId = parseObjId(objOnStack);
 				//this.stackSimulator.peek().removeRelatedObj();
 			} else if (opcode == Opcodes.PUTFIELD) {
 				if (typeSort == Type.LONG || typeSort == Type.DOUBLE) {
 					tmp = this.stackSimulator.get(this.stackSimulator.size() - 3);
-					objOnStack = this.stackSimulator.get(this.stackSimulator.size() - 3).getRelatedObj();
+					//objOnStack = this.stackSimulator.get(this.stackSimulator.size() - 3).getRelatedObj();
+					objOnStack = this.getLatestObj(fullInst.toString(), this.stackSimulator.get(this.stackSimulator.size() - 3));
 					objId = parseObjId(objOnStack);
 				} else {
 					tmp = this.stackSimulator.get(this.stackSimulator.size() - 2);
-					objOnStack = this.stackSimulator.get(this.stackSimulator.size() - 2).getRelatedObj();
+					//objOnStack = this.stackSimulator.get(this.stackSimulator.size() - 2).getRelatedObj();
+					objOnStack = this.getLatestObj(fullInst.toString(), this.stackSimulator.get(this.stackSimulator.size() - 2));
 					objId = parseObjId(objOnStack);
 				}
 			}
@@ -349,7 +388,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			
 			Class realOwner = ClassInfoCollector.retrieveCorrectClassByField(owner, name);
 			//System.out.println("Real owner: " + realOwner.getName());
-			if (Type.getType(owner).getSort() != Type.ARRAY 
+			if (!realOwner.isArray()
 					&& StringUtil.shouldIncludeClass(realOwner.getName())) {
 				if (opcode == Opcodes.PUTSTATIC || opcode == Opcodes.PUTFIELD) {
 					//System.out.println("Write field: " + recordFieldKey + " " + fullInst);
@@ -416,7 +455,6 @@ public class CumuMethodRecorder extends AbstractRecorder {
 					logger.error("Error pop: " + fullInst);
 					logger.error("Input size: " + oo.getInList().size());
 					logger.error("Current line: " + this.linenumber);
-					//System.out.println("Tmp records: " + this.tmpRecords);
 					System.exit(-1);
 				}
 				
@@ -640,11 +678,24 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		int[] idxArray = cmi.idxArray;
 					
 		Class correctClass = null;
+		boolean shouldDebug = false;
 		if (opcode == Opcodes.INVOKESTATIC) {
 			correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
 		} else {
-			InstNode relatedInst = this.stackSimulator.get(stackSimulator.size() - argSize - 1);
-			Object objOnStack = relatedInst.getRelatedObj();
+			//InstNode relatedInst = this.stackSimulator.get(this.stackSimulator.size() - argSize - 1);
+			String reason = owner + " " + name + " " + desc;
+			Stack<InstNode> tmpRecorder = new Stack<InstNode>();
+			for (int i = 0; i < argSize; i++) {
+				InstNode tmp = this.stackSimulator.pop();
+				String msg = reason + " " + argSize + " in loop";
+				this.getLatestObj(msg, tmp);
+				tmpRecorder.push(tmp);
+			}
+			InstNode relatedInst = this.stackSimulator.peek();
+			
+			while (!tmpRecorder.isEmpty()) {
+				this.stackSimulator.push(tmpRecorder.pop());
+			}
 			
 			if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
 				//constructor
@@ -658,47 +709,85 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			} else {
 				//logger.info("Retrieve method by class name: " + name + objOnStack.getClass().getName());
 				//logger.info("Loader: " + internalName + " " + correctClass.getClassLoader());
+				//System.out.println("Method calling: " + owner + " " + name + " " + desc);
+								
+				String msg = reason + " " + instIdx + " " + this.linenumber;
+				Object objOnStack = this.getLatestObj(msg, relatedInst);
 				if (objOnStack == null) {
-					logger.warn("Null object on stack: " + opcode + " " + owner + " " + name + " " + desc);
-					logger.warn("Retrieved arg size: " + argSize);
-					logger.warn("Related inst: " + relatedInst + " " + relatedInst.nullObj);
-					logger.warn("Null thread: " + relatedInst.nullThread);
-					logger.warn("Current thread: " + Thread.currentThread().getId());
+					//logger.warn("Null object on stack: " + opcode + " " + owner + " " + name + " " + desc);
+					//logger.warn("Retrieved arg size: " + argSize);
+					//logger.warn("Related inst: " + relatedInst);
+					//logger.warn("Stack: " + this.stackSimulator);
 					
-					if (relatedInst.nullObj) {
-						//can only guess, but this method should throw null pointer execption through...
-						correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
+					if (!relatedInst.nullObj) {
+						logger.error("Inst does not load null: " + relatedInst.nullObj);
+						logger.error("Latest inst: " + this.latestLoader);
+						logger.error("Latest obj: "+ this.latestObject.getClass());
+						logger.error("Current method: " + this.methodKey);
+						
+						int ptr = this.stackSimulator.size() - 1;
+						int end = 0;
+						StringBuilder sb = new StringBuilder();
+						for (int i = ptr; i >= end; i--) {
+							InstNode inst = this.stackSimulator.get(i);
+							sb.append(i + " Inst: " + inst + "\n");
+							//sb.append("Obj: " + inst.getRelatedObj() + "\n");
+							/*Object relatedObj = this.getLatestObj(inst);
+							if (relatedObj == null) {
+								sb.append("Class: " + null + "\n");
+							} else {
+								sb.append("Class: " + relatedObj.getClass() + "\n");
+							}*/
+						}
+						logger.error("Insts on stack: " + sb.toString());
+						
+						System.exit(-1);
 					}
+					
+					//can only guess, but this method should throw null pointer exception through...
+					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(owner, name, desc, false);
 				} else {
 					String internalName = Type.getInternalName(objOnStack.getClass());
 					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(internalName, name, desc, false);
-					if (owner.equals("org/python/core/PyObject") && name.equals("__call__") && desc.equals("(Lorg/python/core/PyObject;Lorg/python/core/PyObject;Lorg/python/core/PyObject;)Lorg/python/core/PyObject;")) {
-						System.out.println("Current caller: " + this.methodKey);
-						System.out.println("Owner: " + owner);
-						System.out.println("Internal name: " + internalName);
-						System.out.println("Correc class: " + correctClass.getName());
-						System.out.println("Method name: " + name);
-						System.out.println("Desc: " + desc);
-						System.out.println("Class loader: " + correctClass.getClassLoader());
-						System.out.println("Current loader: " + this.getClass().getClassLoader());
-						PreMain.searchLoadedClasses(correctClass.getName());
-						PreMain.analyzeClassLoaders(correctClass.getName());
+					
+					StringBuilder sb = new StringBuilder();
+					sb.append("Current caller: " + this.methodKey + "\n");
+					sb.append("Owner: " + owner + "\n");
+					sb.append("Internal name: " + internalName + "\n");
+					sb.append("Correct class: " + correctClass.getName() + "\n");
+					sb.append("Mehtod name: " + name + "\n");
+					sb.append("Desc: " + desc + "\n");
+					sb.append("Class loader: " + correctClass.getClassLoader() + "\n");
+					sb.append("Current loader: " + this.getClass().getClassLoader() + "\n");
+					
+					int ptr = this.stackSimulator.size() - 1;
+					int end = 0;
+					for (int i = ptr; i >= end; i--) {
+						InstNode inst = this.stackSimulator.get(i);
+						sb.append(i + " Inst: " + inst + "\n");
+						//sb.append("Obj: " + inst.getRelatedObj() + "\n");
+						/*Object relatedObj = this.getLatestObj(inst);
+						if (relatedObj == null) {
+							sb.append("Class: " + null + "\n");
+						} else {
+							sb.append("Class: " + relatedObj.getClass() + "\n");
+						}*/
 					}
+					this.debugStack.push(sb.toString());
+					shouldDebug = true;
 				}
 			}
 		}
+		this.debugBoolean.push(shouldDebug);
 		
 		String realMethodKey = StringUtil.genKey(correctClass.getName(), name, desc);
-		if (this.methodKey.equals("site$py:f$0:(Lorg.python.core.PyFrame):Lorg.python.core.PyObject")) {
-			System.out.println("Calling: " + realMethodKey);
-		}
 		
 		boolean sysCall = false;
 		HashMap<Integer, InstNode> idxMap = new HashMap<Integer, InstNode>();
 		InstNode controlToGlobal = null;
 		MethodNode fullInst = null;
-				
-		if (Type.getType(owner).getSort() == Type.ARRAY 
+						
+		if (correctClass.isArray() 
 				|| !StringUtil.shouldIncludeClass(correctClass.getName()) 
 				|| !StringUtil.shouldIncludeMethod(name, desc)
 				|| CumuGraphRecorder.checkUndersizedMethod(GlobalGraphRecorder.getGlobalName(realMethodKey)) 
@@ -793,11 +882,12 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		if (!sysCall) {
 			CumuGraphRecorder.registerIdxMap(idxMap);
 			CumuGraphRecorder.registerCallerControl(controlToGlobal);
-			this.currentCallee = realMethodKey;
+			this.currentCallee.push(realMethodKey);
 		} else {
 			//Take the method instruction as its last instruction, since it got no graph
 			CumuGraphRecorder.pushCalleeLast(this.methodKey, fullInst);
-			this.currentCallee = this.methodKey;
+			//this.currentCallee = this.methodKey;
+			this.currentCallee.push(this.methodKey);
 		}
 		
 		//this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
@@ -811,23 +901,26 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		}
 			
 		//System.out.println("Pull callee: " + this.methodKey + " " + this.linenumber);
-		InstNode calleeLast = CumuGraphRecorder.popCalleeLast(this.currentCallee);
+		String pushedCallee = this.currentCallee.pop();
+		InstNode calleeLast = CumuGraphRecorder.popCalleeLast(pushedCallee);
+		boolean shouldDebug = this.debugBoolean.pop();
+		String debug = null;
+		if (shouldDebug) {
+			debug = this.debugStack.pop();
+		}
 		
 		if (calleeLast == null) {
-			logger.error("ERROR! empty inst(callee, method name): " + this.currentCallee + " " + this.methodKey);
-			CumuGraphRecorder.showCalleeLasts(this.currentCallee);
-			/*try {
-				Field f = ClassLoader.class.getDeclaredField("classes");
-				f.setAccessible(true);
-
-				ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-				Vector<Class> classes =  (Vector<Class>) f.get(classLoader);
-				for (Class clazz: classes) {
-					System.out.println(clazz.getName());
-				}
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}*/
+			logger.error("ERROR! empty inst(callee, method name): " + pushedCallee + " " + this.methodKey);
+			logger.error("Linenumber: " + this.linenumber);
+			logger.error("Debug info: " + debug);
+			
+			int idx = pushedCallee.indexOf(":");
+			String sub = pushedCallee.substring(idx + 1, pushedCallee.length());
+			logger.error("Pushed callee: " + pushedCallee);
+			logger.error("To check: " + sub);
+			//CumuGraphRecorder.showCalleeLasts(this.currentCallee);
+			CumuGraphRecorder.showCalleeLastsContains(sub);
+			//CumuGraphRecorder.showCalleeLastsContains("__setitem__:(Lorg.python.core.PyObject+Lorg.python.core.PyObject):V");
 			System.exit(-1);
 		}
 		
@@ -862,6 +955,13 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			case 89:
 				dupInst = this.stackSimulator.peek();
 				this.stackSimulator.push(dupInst);
+				
+				if (dupInst.equals(this.latestLoader)) {
+					Stack<Object> objs = this.instObjs.get(this.latestLoader);
+					Object attach = objs.peek();
+					objs.push(attach);
+				}
+				
 				break ;
 			case 90:
 				dupInst = this.stackSimulator.peek();
@@ -874,6 +974,13 @@ public class CumuMethodRecorder extends AbstractRecorder {
 				while(!stackBuf.isEmpty()) {
 					this.stackSimulator.push(stackBuf.pop());
 				}
+				
+				if (dupInst.equals(this.latestLoader)) {
+					Stack<Object> objs = this.instObjs.get(this.latestLoader);
+					Object attach = objs.peek();
+					objs.push(attach);
+				}
+				
 				break ;
 			case 91:
 				dupInst = this.stackSimulator.peek();
@@ -887,6 +994,13 @@ public class CumuMethodRecorder extends AbstractRecorder {
 				while (!stackBuf.isEmpty()) {
 					this.stackSimulator.push(stackBuf.pop());
 				}
+				
+				if (dupInst.equals(this.latestLoader)) {
+					Stack<Object> objs = this.instObjs.get(this.latestLoader);
+					Object attach = objs.peek();
+					objs.push(attach);
+				}
+				
 				break ;
 			case 92:
 				dupInst = this.stackSimulator.get(this.stackSimulator.size() - 1);
@@ -894,6 +1008,13 @@ public class CumuMethodRecorder extends AbstractRecorder {
 	 			
 	 			this.stackSimulator.push(dupInst2);
 	 			this.stackSimulator.push(dupInst);
+	 			
+	 			if (dupInst.equals(this.latestLoader)) {
+					Stack<Object> objs = this.instObjs.get(this.latestLoader);
+					Object attach = objs.peek();
+					objs.push(attach);
+				}
+	 			
 	 			break ;
 			case 93:
 				dupInst = this.stackSimulator.get(this.stackSimulator.size() - 1);
@@ -908,6 +1029,13 @@ public class CumuMethodRecorder extends AbstractRecorder {
 	 			while (!stackBuf.isEmpty()) {
 	 				this.stackSimulator.push(stackBuf.pop());
 	 			}
+	 			
+	 			if (dupInst.equals(this.latestLoader)) {
+					Stack<Object> objs = this.instObjs.get(this.latestLoader);
+					Object attach = objs.peek();
+					objs.push(attach);
+				}
+	 			
 	 			break ;
 			case 94:
 				dupInst = this.stackSimulator.get(this.stackSimulator.size() - 1);
@@ -922,12 +1050,20 @@ public class CumuMethodRecorder extends AbstractRecorder {
 	 			while (!stackBuf.isEmpty()) {
 	 				this.stackSimulator.push(stackBuf.pop());
 	 			}
+	 			
+	 			if (dupInst.equals(this.latestLoader)) {
+					Stack<Object> objs = this.instObjs.get(this.latestLoader);
+					Object attach = objs.peek();
+					objs.push(attach);
+				}
+	 			
 	 			break ;
 			case 95:
 				dupInst = this.stackSimulator.get(this.stackSimulator.size() - 1);
 				dupInst2 = this.stackSimulator.get(this.stackSimulator.size() - 2);
 				this.stackSimulator.push(dupInst);
 				this.stackSimulator.push(dupInst2);
+								
 				break ;
 		}
 		//this.showStackSimulator();
@@ -1023,18 +1159,47 @@ public class CumuMethodRecorder extends AbstractRecorder {
 				" " + this.threadMethodId);*/
 	}
 	
-	public void handleAthrow() {
-		System.out.println("Handle athrow for: " + this.methodKey);
+	public void handleAthrow(Exception ex, int instIdx) {
+		//System.out.println("Handle athrow for: " + this.methodKey + " " + ex);
+		
+		InstNode fullInst = CumuGraphRecorder.queryInst(this.methodKey, 
+				this.threadId, 
+				this.threadMethodId, 
+				instIdx, 
+				Opcodes.ATHROW, 
+				"", 
+				InstPool.REGULAR);
+		fullInst.setLinenumber(this.linenumber);
+		//this.updateTime(fullInst);
+		
+		this.updateControlRelation(fullInst);
+		this.updateStackSimulator(1, fullInst);
+		
+		InstNode tmpInst = this.safePop();
+		this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
+		
+		CumuGraphRecorder.pushCalleeLast(this.methodKey, fullInst);
 		//System.exit(-1);
 	}
 	
+	/*public static void get(String desc) {
+		if (SHOW)
+			System.out.println(desc);
+	}
+	
+	public static void showClass(Object o, String msg) {
+		if (SHOW) {
+			if (o == null) {
+				System.out.println(msg + " " + null);
+			} else {
+				Class c = o.getClass();
+				System.out.println(msg + " " + c.getName());
+			}
+		}
+	}*/
+	
 	public static void main(String[] args) {
-		Stack<Integer> stack = new Stack<Integer>();
-		stack.push(1);
-		stack.push(2);
-		stack.push(3);
-		System.out.println(stack);
-		System.out.println(stack.get(0));
+		
 	}
 }
 

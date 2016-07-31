@@ -2,7 +2,9 @@ package edu.columbia.psl.cc.inst;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.LogManager;
@@ -62,6 +64,8 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 	private String testAnnot;
 	
 	private List<Label> allLabels = new ArrayList<Label>();
+	
+	private Set<Label> errorHandles = new HashSet<Label>();
 		
 	private AtomicInteger indexer = new AtomicInteger();
 	
@@ -389,6 +393,12 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 	@Override
 	public void visitCode() {
 		this.mv.visitCode();
+		
+		if (this.myName.equals("__call__")) {
+			this.mv.visitLdcInsn(this.fullKey);
+			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, cumuMethodRecorder, "get", "(Ljava/lang/String;)V", false);
+		}
+		
 		int objTmp = -1;
 		if (this.constructor && this.objIdOwner) {
 			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -476,8 +486,13 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 		if (this.shouldInstrument()) {
 			int instIdx = -1;
 			if (opcode == Opcodes.ATHROW) {
+				this.mv.visitInsn(Opcodes.DUP);
 				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
-				this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, cumuMethodRecorder, "handleAthrow", "()V", false);
+				this.mv.visitInsn(Opcodes.SWAP);
+				int idx = this.getIndex();
+				this.convertConst(idx);
+				this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, cumuMethodRecorder, "handleAthrow", "(Ljava/lang/Exception;I)V", false);
+				
 				this.mv.visitInsn(opcode);
 			} else if (!isReturn(opcode)) {
 				instIdx = this.handleOpcode(opcode);
@@ -628,7 +643,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 						objOnStackDesc, 
 						false);
 			}
-			
+						
 			int returnSort = Type.getMethodType(desc).getReturnType().getSort();
 						
 			if (opcode != Opcodes.INVOKESTATIC)
@@ -778,6 +793,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 	public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
 		//Temporarily ignore. Error handling should not affect program similarity?
 		this.mv.visitTryCatchBlock(start, end, handler, type);
+		this.errorHandles.add(handler);
 	}
 	
 	@Override
@@ -791,7 +807,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
             Object[] local,
             int nStack,
             Object[] stack) {
-		System.out.println("Visit frame: " + type + " " + nLocal + " " + nStack);
+		//System.out.println("Visit frame: " + type + " " + nLocal + " " + nStack);
 		this.mv.visitFrame(type, nLocal, local, nStack, stack);
 	}
 		

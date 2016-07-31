@@ -138,6 +138,10 @@ public class MethodStackRecorder extends AbstractRecorder{
 		for (Integer idx: methodProfile.idxArray) {
 			this.shouldRecordReadLocalVars.add(idx);
 		}
+		
+		if (!this.isStatic && MIBConfiguration.getInstance().isInitRef()) {
+			this.shouldRecordReadLocalVars.add(0);
+		}
 				
 		if (!methodName.equals("<clinit>") && GlobalGraphRecorder.shouldStopMe(this.shortMethodKey)) {
 			this.stopRecord = true;
@@ -645,7 +649,7 @@ public class MethodStackRecorder extends AbstractRecorder{
 				}
 				
 				String realMethodKey = StringUtil.genKey(correctClass.getName(), name, desc);
-				if (Type.getType(owner).getSort() == Type.ARRAY 
+				if (correctClass.isArray()
 						|| !StringUtil.shouldIncludeClass(correctClass.getName()) 
 						|| !StringUtil.shouldIncludeMethod(name, desc)
 						|| GlobalGraphRecorder.checkUndersizedMethod(GlobalGraphRecorder.getGlobalName(realMethodKey)) 

@@ -155,8 +155,10 @@ public class HorizontalMerger {
 	public static void startSeparation(String appName, List<AbstractGraph> graphs, TypeToken graphToken) {
 		//ShutdownLogger.appendMessage("Graph size: " + graph.getInstPool().size());
 		try {
+			int init = MIBConfiguration.getInstance().getThreadInit();
 			for (int i = 0; i < graphs.size(); i++) {
-				String fileName = appName.replace("/", "-") + "-" + i;
+				int idx = init + i;
+				String fileName = appName.replace("/", "-") + "-" + idx;
 				AbstractGraph g = graphs.get(i);
 				GsonManager.writeJsonGeneric(g, fileName, graphToken, MIBConfiguration.GRAPH_DIR);
 			}
