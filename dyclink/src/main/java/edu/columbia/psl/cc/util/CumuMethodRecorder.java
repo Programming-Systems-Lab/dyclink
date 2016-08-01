@@ -133,6 +133,11 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			
 		this.isStatic = ((access & Opcodes.ACC_STATIC) != 0);
 		this.isSynthetic = ((access & Opcodes.ACC_SYNTHETIC) != 0);
+		
+		if (objId < 0) {
+			logger.error("Suspicious object: " + this.methodKey);
+			System.exit(-1);
+		}
 		this.objId = objId;
 				
 		ClassMethodInfo methodProfile = ClassInfoCollector.initiateClassMethodInfo(className, 
@@ -296,11 +301,11 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		return ret;
 	}
 	
-	public void updateObjIdOnStack(int objId, int traceBack) {
+	/*public void updateObjIdOnStack(int objId, int traceBack) {
 		int idx = this.stackSimulator.size() - 1 - traceBack;
 		InstNode latestInst = this.stackSimulator.get(idx);
 		latestInst.setRelatedObjId(objId);
-	}
+	}*/
 	
 	public void handleLdc(int opcode, int instIdx, int times, String addInfo) {		
 		if (this.overTime)
@@ -369,21 +374,29 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			}
 			
 			String recordFieldKey = fieldKey;
-			if (!IGOBJ) {
-				if (objId > 0) {
-					recordFieldKey += (":" + objId);
-				} else if (opcode == Opcodes.GETFIELD){
-					logger.error("Uinitialized obj: " + opcode + " " + fieldKey + " " + objId);
-					logger.error("Obj on stack: " + objOnStack);
-					logger.error("Releveant inst: " + tmp);
-					logger.error("Current method: " + this.methodKey);
-					System.exit(-1);
-				} else if (opcode == Opcodes.PUTFIELD) {
-					if (tmp.getOp().getOpcode() == Opcodes.ALOAD 
-							&& tmp.getAddInfo().equals("0")) {
-						objId = tmp.getRelatedObjId();
-					}
+			boolean error = false;
+			if (objId > 0) {
+				recordFieldKey += (":" + objId);
+			} else if (opcode == Opcodes.GETFIELD && objId == AbstractRecorder.SIG_INVALID){
+				error = true;
+			} else if (opcode == Opcodes.PUTFIELD) {
+				//Handling inner class set pointer to outter class
+				if (tmp.getOp().getOpcode() == Opcodes.ALOAD 
+						&& tmp.getAddInfo().equals("0")) {
+					//objId = tmp.getRelatedObjId();
+					recordFieldKey += (":" + this.objId);
+				} else if (objId == AbstractRecorder.SIG_INVALID){
+					error = true;
 				}
+			}
+			
+			if (error) {
+				logger.error("Opcodes: " + opcode);
+				logger.error("Uinitialized obj: " + opcode + " " + fieldKey + " " + objId);
+				logger.error("Obj on stack: " + objOnStack);
+				logger.error("Releveant inst: " + tmp);
+				logger.error("Current method: " + this.methodKey);
+				System.exit(-1);
 			}
 			
 			Class realOwner = ClassInfoCollector.retrieveCorrectClassByField(owner, name);

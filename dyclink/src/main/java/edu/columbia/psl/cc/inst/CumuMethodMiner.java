@@ -160,7 +160,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 				false);
 	}
 	
-	private void updateObjIdOnVStack() {
+	/*private void updateObjIdOnVStack() {
 		this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 		this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 		this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, __mib_id, "I");
@@ -170,7 +170,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 				objIdOnStack, 
 				objIdOnStackDesc, 
 				false);
-	}
+	}*/
 	
 	public void convertConst(int cons) {
 		if (cons >= 0) {
@@ -393,9 +393,25 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 	@Override
 	public void visitCode() {
 		this.mv.visitCode();
-				
-		int objTmp = -1;
-		if (this.constructor && this.objIdOwner) {
+		
+		Label initLabel = new Label();
+		if (this.constructor) {
+			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+			this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, __mib_id, "I");
+			this.mv.visitJumpInsn(Opcodes.IFNE, initLabel);
+			
+			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
+					Type.getInternalName(ObjectIdAllocater.class), 
+					"getIndex", 
+					"()I", 
+					false);
+			this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, __mib_id, "I");
+			
+			this.mv.visitLabel(initLabel);
+		}
+		
+		/*if (this.constructor && this.objIdOwner) {
 			this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, 
 					Type.getInternalName(ObjectIdAllocater.class), 
@@ -406,8 +422,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 			this.mv.visitVarInsn(Opcodes.ISTORE, objTmp);
 			this.mv.visitVarInsn(Opcodes.ILOAD, objTmp);
 			this.mv.visitFieldInsn(Opcodes.PUTFIELD, this.className, __mib_id, "I");
-			//this.mv.visitLabel(originPath);
-		}
+		}*/
 		
 		if (this.shouldInstrument() && this.localMsrId < 0) {
 			//logger.info("Visit method: " + this.myName + " " + this.shouldInstrument());
@@ -426,11 +441,13 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 				//this.mv.visitInsn(Opcodes.ICONST_1);
 				this.mv.visitInsn(Opcodes.ICONST_0);
 			} else if (this.constructor) {
-				if (this.objIdOwner) {
+				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
+				this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, __mib_id, "I");
+				/*if (this.objIdOwner) {
 					this.mv.visitVarInsn(Opcodes.ILOAD, objTmp);
 				} else {
 					this.mv.visitInsn(Opcodes.ICONST_0);
-				}
+				}*/
 			} else {
 				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 				this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, __mib_id, "I");
@@ -547,11 +564,11 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 				this.updateObjOnVStack();
 			} else if (!this.aload0Lock) {
 				this.updateObjOnVStack();
-			} else {
+			} /*else {
 				//Inner class set up a pointer to outer class
-				//THis happens before Object.<init>
+				//This happens before Object.<init>
 				this.updateObjIdOnVStack();
-			}
+			}*/
 			
 			/*if (opcode == Opcodes.ALOAD) {
 				if (var != 0 || !this.aload0Lock) {
@@ -653,10 +670,10 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 				this.aload0Lock = false;
 				this.constructor = false;
 				
-				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+				/*this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
 				this.mv.visitVarInsn(Opcodes.ALOAD, 0);
 				this.mv.visitFieldInsn(Opcodes.GETFIELD, this.className, __mib_id, "I");
-				this.mv.visitFieldInsn(Opcodes.PUTFIELD, cumuMethodRecorder, "objId", "I");
+				this.mv.visitFieldInsn(Opcodes.PUTFIELD, cumuMethodRecorder, "objId", "I");*/
 			}
 			
 			//Handle method after

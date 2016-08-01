@@ -36,7 +36,7 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 	private static InstNode CALLER_CONTROL = null;
 	
 	//private static Stack<InstNode> CALLEE_LASTS = new Stack<InstNode>();
-	private static Map<String, Stack<InstNode>> CALLEE_LASTS = new TreeMap<String, Stack<InstNode>>();
+	private static Map<String, Stack<InstNode>> CALLEE_LASTS = new HashMap<String, Stack<InstNode>>();
 	
 	private static final InstPool POOL = new InstPool();
 	
@@ -53,7 +53,7 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 	public static String DUMP_GLOBAL_NAME;
 	
 	public static int DUMP_THREAD_ID;
-	
+		
 	public static void registerStaticRecord(String methodKey, int[] methodInfo) {
 		synchronized(STATIC_LOCK) {
 			STATIC_RECORD.put(methodKey, methodInfo);
@@ -213,19 +213,9 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 			insts.push(inst);
 			CALLEE_LASTS.put(caller, insts);
 		}		
-		
-		/*if (caller.equals("org.python.core.PyObject:__call__:(Lorg.python.core.PyObject+Lorg.python.core.PyObject+Lorg.python.core.PyObject):Lorg.python.core.PyObject")) {
-			System.out.println("Push result: " + caller);
-			CumuGraphRecorder.showCalleeLasts(caller);
-		}*/	
 	}
 		
-	public static InstNode popCalleeLast(String caller) {
-		/*if (CALLEE_LASTS.size() > 1) {
-			logger.error("Errornous callee results: " + CALLEE_LASTS);
-			System.exit(-1);
-		}*/
-		
+	public static InstNode popCalleeLast(String caller) {		
 		Stack<InstNode> insts = CALLEE_LASTS.get(caller);
 		if (insts == null || insts.size() == 0) {
 			return null;

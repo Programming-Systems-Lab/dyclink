@@ -14,6 +14,7 @@ public class Child extends Parent {
 	
 	public void printObjString() {
 		System.out.println(this.pString);
+		System.out.println(this.cFloat);
 	}
 	
 	public static void printStaticString() {
@@ -44,13 +45,13 @@ public class Child extends Parent {
 		
 		//Case 2
 		Child c = new Child(5.2f);
-		c.printObjString();
+		//c.printObjString();
 		
 		//Case 3
-		/*System.out.println(c.parentMethod());
+		System.out.println(c.parentMethod());
 		c.setPDouble(6.8);
 		c.setPInt(5);
-		System.out.println(c.parentMethod());*/
+		System.out.println(c.parentMethod());
 		
 		//Case 4
 		//System.out.println(c.factorial(5));

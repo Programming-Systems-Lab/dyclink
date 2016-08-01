@@ -7,10 +7,15 @@ import org.apache.logging.log4j.Logger;
 
 import edu.columbia.psl.cc.crawler.NativePackages;
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.util.StringUtil;
 
 public abstract class AbstractRecorder {
 	
 	private final static Logger logger = LogManager.getLogger(AbstractRecorder.class);
+	
+	public static final int SIG_INVALID = -10;
+	
+	public static final int SIG_JVM = -20;
 	
 	public static final int CONSTRUCTOR_DEFAULT = -5;
 	
@@ -61,8 +66,13 @@ public abstract class AbstractRecorder {
 		} catch (Exception ex) {
 			//ex.printStackTrace();
 			//System.out.println("Warning: object " + valueClass + " is not MIB-instrumented");
-			logger.warn("Warning: object " + valueClass + " is not MIB-instrumented");
-			return -1;
+			if (StringUtil.shouldIncludeClass(valueClass.getName())) {
+				logger.error("Invalid object id: " + valueClass.getName());
+				return SIG_INVALID;
+			} else {
+				logger.warn("Warning: object " + valueClass + " is not MIB-instrumented");
+				return SIG_JVM;
+			}
 		}
 	}
 

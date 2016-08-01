@@ -241,13 +241,13 @@ public class InstNode {
 		return this.relatedObj;
 	}
 	
-	public void setRelatedObjId(int objId) {
+	/*public void setRelatedObjId(int objId) {
 		this.relatedObjId = objId;
 	}
 	
 	public int getRelatedObjId() {
 		return this.relatedObjId;
-	}
+	}*/
 	
 	public void removeRelatedObj() {
 		this.relatedObj = null;
