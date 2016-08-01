@@ -393,12 +393,7 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 	@Override
 	public void visitCode() {
 		this.mv.visitCode();
-		
-		if (this.myName.equals("__call__")) {
-			this.mv.visitLdcInsn(this.fullKey);
-			this.mv.visitMethodInsn(Opcodes.INVOKESTATIC, cumuMethodRecorder, "get", "(Ljava/lang/String;)V", false);
-		}
-		
+				
 		int objTmp = -1;
 		if (this.constructor && this.objIdOwner) {
 			this.mv.visitVarInsn(Opcodes.ALOAD, 0);

@@ -47,15 +47,6 @@ public class MIBClassFileTransformer implements ClassFileTransformer {
 		// TODO Auto-generated method stub	
 		String name = className.replace("/", ".");
 		
-		if (name.contains("site$py")) {
-			System.out.println("Target class: " + name);
-			
-			if (protectionDomain != null) {
-				String codeLocation = protectionDomain.getCodeSource().getLocation().getPath();
-				System.out.println("Code location: " + codeLocation);
-			}
-		}
-		
 		//Check protection domain
 		if (protectionDomain != null) {			
 			String codeLocation = protectionDomain.getCodeSource().getLocation().getPath();

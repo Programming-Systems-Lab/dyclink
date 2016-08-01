@@ -74,8 +74,8 @@ public class PreMain {
 			if (clazz.getName().equals(targetName)) {
 				ret = clazz;
 				counter++;
-				System.out.println("Find " + counter + " " + targetName);
-				System.out.println("Class loader: " + clazz.getClassLoader());
+				//System.out.println("Find " + counter + " " + targetName);
+				//System.out.println("Class loader: " + clazz.getClassLoader());
 			}
 		}
 		
