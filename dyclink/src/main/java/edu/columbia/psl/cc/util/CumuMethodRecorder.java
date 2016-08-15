@@ -81,9 +81,15 @@ public class CumuMethodRecorder extends AbstractRecorder {
 	
 	public boolean initConstructor = true;
 	
+	private String callerKey;
+	
 	private HashMap<Integer, InstNode> callerIdxMap = new HashMap<Integer, InstNode>();
 	
 	private Stack<String> currentCallee = new Stack<String>();
+	
+	public boolean needClean = false;
+	
+	public boolean noStore = false;
 	
 	private Stack<String> debugStack = new Stack<String>();
 	
@@ -181,7 +187,13 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			}
 		}
 		
-		this.callerIdxMap = CumuGraphRecorder.retrieveIdxMap();
+		CallerInfo callerInfo = CumuGraphRecorder.retrieveCallerInfo();
+		if (callerInfo != null) {
+			//Null means the entry point
+			this.callerIdxMap = callerInfo.idxMap;
+			this.callerKey = callerInfo.callerKey;
+		}
+		
 		this.lastInst = CumuGraphRecorder.retrieveCallerControl();
 	}
 		
@@ -537,7 +549,11 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		
 		if (!BytecodeCategory.dupCategory().contains(opcat)) {
 			//Dup inst will be replaced later. No need to add any dep
-			this.updateControlRelation(fullInst);
+			if (!this.noStore) {
+				this.updateControlRelation(fullInst);
+			} else {
+				this.lastInst = fullInst;
+			}
 		}
 		
 		//The store instruction will be the sink. The inst on the stack will be source
@@ -547,9 +563,13 @@ public class CumuMethodRecorder extends AbstractRecorder {
 				this.localVarRecorder.put(localVarIdx, fullInst);
 			}
 			
-			this.updateCachedMap(lastInst, fullInst, MIBConfiguration.INST_DATA_DEP);
-			for (int i = 0; i < fullInst.getOp().getInList().size(); i++) {
-				this.safePop();
+			if (!this.noStore) {
+				this.updateCachedMap(lastInst, fullInst, MIBConfiguration.INST_DATA_DEP);
+				for (int i = 0; i < fullInst.getOp().getInList().size(); i++) {
+					this.safePop();
+				}
+			} else {
+				this.noStore = false;
 			}
 			
 			if (this.callerIdxMap != null && this.callerIdxMap.containsKey(localVarIdx)) {
@@ -763,7 +783,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 					String internalName = Type.getInternalName(objOnStack.getClass());
 					correctClass = ClassInfoCollector.retrieveCorrectClassByMethod(internalName, name, desc, false);
 					
-					StringBuilder sb = new StringBuilder();
+					/*StringBuilder sb = new StringBuilder();
 					sb.append("Current caller: " + this.methodKey + "\n");
 					sb.append("Owner: " + owner + "\n");
 					sb.append("Internal name: " + internalName + "\n");
@@ -778,20 +798,13 @@ public class CumuMethodRecorder extends AbstractRecorder {
 					for (int i = ptr; i >= end; i--) {
 						InstNode inst = this.stackSimulator.get(i);
 						sb.append(i + " Inst: " + inst + "\n");
-						//sb.append("Obj: " + inst.getRelatedObj() + "\n");
-						/*Object relatedObj = this.getLatestObj(inst);
-						if (relatedObj == null) {
-							sb.append("Class: " + null + "\n");
-						} else {
-							sb.append("Class: " + relatedObj.getClass() + "\n");
-						}*/
 					}
 					this.debugStack.push(sb.toString());
-					shouldDebug = true;
+					shouldDebug = true;*/
 				}
 			}
 		}
-		this.debugBoolean.push(shouldDebug);
+		//this.debugBoolean.push(shouldDebug);
 		
 		String realMethodKey = StringUtil.genKey(correctClass.getName(), name, desc);
 		
@@ -893,7 +906,11 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		
 		//Update globel recorder to allow callees to read
 		if (!sysCall) {
-			CumuGraphRecorder.registerIdxMap(idxMap);
+			CallerInfo info = new CallerInfo();
+			info.idxMap = idxMap;
+			info.callerKey = this.methodKey;
+			//CumuGraphRecorder.registerIdxMap(idxMap);
+			CumuGraphRecorder.registerCallerInfo(info);
 			CumuGraphRecorder.registerCallerControl(controlToGlobal);
 			this.currentCallee.push(realMethodKey);
 		} else {
@@ -902,6 +919,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 			//this.currentCallee = this.methodKey;
 			this.currentCallee.push(this.methodKey);
 		}
+		this.needClean = true;
 		
 		//this.handleRawMethod(opcode, instIdx, linenum, owner, name, desc, fullInst);
 		//this.showStackSimulator();
@@ -909,6 +927,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 	}
 	
 	public void handleMethodAfter(int totalPop, int retSort) {
+		this.needClean = false;
 		for (int i = 0; i < totalPop; i++) {
 			this.safePop();
 		}
@@ -916,16 +935,16 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		//System.out.println("Pull callee: " + this.methodKey + " " + this.linenumber);
 		String pushedCallee = this.currentCallee.pop();
 		InstNode calleeLast = CumuGraphRecorder.popCalleeLast(pushedCallee);
-		boolean shouldDebug = this.debugBoolean.pop();
+		/*boolean shouldDebug = this.debugBoolean.pop();
 		String debug = null;
 		if (shouldDebug) {
 			debug = this.debugStack.pop();
-		}
+		}*/
 		
 		if (calleeLast == null) {
 			logger.error("ERROR! empty inst(callee, method name): " + pushedCallee + " " + this.methodKey);
 			logger.error("Linenumber: " + this.linenumber);
-			logger.error("Debug info: " + debug);
+			//logger.error("Debug info: " + debug);
 			
 			int idx = pushedCallee.indexOf(":");
 			String sub = pushedCallee.substring(idx + 1, pushedCallee.length());
@@ -1186,33 +1205,29 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		//this.updateTime(fullInst);
 		
 		this.updateControlRelation(fullInst);
-		this.updateStackSimulator(1, fullInst);
-		
 		InstNode tmpInst = this.safePop();
 		this.updateCachedMap(tmpInst, fullInst, MIBConfiguration.INST_DATA_DEP);
 		
-		CumuGraphRecorder.pushCalleeLast(this.methodKey, fullInst);
-		//System.exit(-1);
-	}
-	
-	/*public static void get(String desc) {
-		if (SHOW)
-			System.out.println(desc);
-	}
-	
-	public static void showClass(Object o, String msg) {
-		if (SHOW) {
-			if (o == null) {
-				System.out.println(msg + " " + null);
-			} else {
-				Class c = o.getClass();
-				System.out.println(msg + " " + c.getName());
-			}
+		/*if (this.athrowTouched) {
+			CumuGraphRecorder.popCalleeLast(this.methodKey);
 		}
-	}*/
-	
-	public static void main(String[] args) {
 		
+		this.athrowTouched = true;
+		CumuGraphRecorder.pushCalleeLast(this.methodKey, fullInst);*/
+	}
+	
+	public void handleClean() {
+		if (this.needClean) {
+			this.needClean = false;
+			String pushedCallee = this.currentCallee.pop();
+			//System.out.println("Capture need-clean: " + pushedCallee);
+		}
+		this.noStore = true;
+	}
+	
+	public static class CallerInfo {
+		HashMap<Integer, InstNode> idxMap;
+		String callerKey;
 	}
 }
 

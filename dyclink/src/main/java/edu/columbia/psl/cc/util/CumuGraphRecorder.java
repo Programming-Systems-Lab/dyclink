@@ -17,6 +17,7 @@ import edu.columbia.psl.cc.datastruct.InstPool;
 import edu.columbia.psl.cc.pojo.CumuGraph;
 import edu.columbia.psl.cc.pojo.GraphTemplate;
 import edu.columbia.psl.cc.pojo.InstNode;
+import edu.columbia.psl.cc.util.CumuMethodRecorder.CallerInfo;
 
 public class CumuGraphRecorder extends GlobalGraphRecorder {
 	
@@ -31,12 +32,15 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 	
 	private static HashSet<String> NON_INIT_FIELDS = new HashSet<String>();
 	
-	private static HashMap<Integer, InstNode> IDX_MAP = null;
+	//private static HashMap<Integer, InstNode> IDX_MAP = null;
+	private static CallerInfo CALLER_INFO = null;
 	
 	private static InstNode CALLER_CONTROL = null;
 	
 	//private static Stack<InstNode> CALLEE_LASTS = new Stack<InstNode>();
 	private static Map<String, Stack<InstNode>> CALLEE_LASTS = new HashMap<String, Stack<InstNode>>();
+	
+	private static Map<String, Stack<InstNode>> ATHROWS = new HashMap<String, Stack<InstNode>>();
 	
 	private static final InstPool POOL = new InstPool();
 	
@@ -183,7 +187,7 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 		}
 	}
 	
-	public static void registerIdxMap(HashMap<Integer, InstNode> toRegister) {
+	/*public static void registerIdxMap(HashMap<Integer, InstNode> toRegister) {
 		IDX_MAP = toRegister;
 	}
 	
@@ -191,6 +195,14 @@ public class CumuGraphRecorder extends GlobalGraphRecorder {
 		HashMap<Integer, InstNode> ret = IDX_MAP;
 		IDX_MAP = null;
 		return ret;
+	}*/
+	
+	public static void registerCallerInfo(CallerInfo callerInfo) {
+		CALLER_INFO = callerInfo;
+	}
+	
+	public static CallerInfo retrieveCallerInfo() {
+		return CALLER_INFO;
 	}
 	
 	public static void registerCallerControl(InstNode toRegister) {

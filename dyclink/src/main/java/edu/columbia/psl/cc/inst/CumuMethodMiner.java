@@ -1,6 +1,7 @@
 package edu.columbia.psl.cc.inst;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -470,7 +471,11 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
 		
 		if (this.shouldInstrument()) {
 			this.handleLabel(label);
-			//this.bbAnalyzer.signalLabel(label);
+			
+			if (this.errorHandles.contains(label)) {
+				this.mv.visitVarInsn(Opcodes.ALOAD, this.localMsrId);
+				this.mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, cumuMethodRecorder, "handleClean", "()V", false);
+			}
 		}
 	}
 
@@ -820,6 +825,8 @@ public class CumuMethodMiner extends MethodVisitor implements IMethodMiner{
             int nStack,
             Object[] stack) {
 		//System.out.println("Visit frame: " + type + " " + nLocal + " " + nStack);
+		//System.out.println("Local: " + Arrays.toString(local));
+		//System.out.println("Stack: " + Arrays.toString(stack));
 		this.mv.visitFrame(type, nLocal, local, nStack, stack);
 	}
 		
