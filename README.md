@@ -82,6 +82,14 @@ Then you can run the following command to review the detected code relatives by 
 
 compId represents the comparison ID, which can be seen from the MySQL database. insts represents the minimum size of code relatives you care. The default value is 45. sim represents the similarity threshold. -f is an optional flag. This argument filter out some simple utility methods that do not contribute to the real business logic of the application in our experimental codebases.
 
+### Step 5 Cluster analysis
+For clustering programs, you first need the label for each program. In our FSE paper, we used the year as the label for each program, because these programs solve the same problem set.
+
+You can use the command to cluster the programs:
+./scripts/dyclink\_cluster.sh startId endId k insts sim 
+
+startId and endId represents the comparison IDs that you want to cluster. k represents the k nearest neighbors. insts represent the minimum size of code relatives you care. sim represents the similarity threshold. The default values are the same with Step 4.
+
 ### Test Run
 For testing if your system set-up is successful, you can use the command to drive a simple test case of DyCLINK:
 ./scripts/test\_run.sh
@@ -91,7 +99,7 @@ This script will execute two simple methods (which are a code relative) and cond
 Potential problems during executions
 -------
 The cache directory records meta information for constructing graphs. 
-If the user fails §A.5 and plans to rerun, she needs to clean the cache directory and set threadMethodIdxRecord to empty in the configuration file, config/mib\_config.json. 
+If the user fails the step to construct graphs and plans to rerun, she needs to clean the cache directory and set threadMethodIdxRecord to empty in the configuration file, config/mib\_config.json. 
 Also, due to nondeterminism in a running program, DyCLINK may record different graphs, causing results to vary slightly between multiple runs.
 
 Questions, concerns, comments
