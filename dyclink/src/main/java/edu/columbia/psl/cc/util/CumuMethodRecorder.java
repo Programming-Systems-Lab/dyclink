@@ -1220,7 +1220,7 @@ public class CumuMethodRecorder extends AbstractRecorder {
 		if (this.needClean) {
 			this.needClean = false;
 			String pushedCallee = this.currentCallee.pop();
-			//System.out.println("Capture need-clean: " + pushedCallee);
+			logger.info("Capture need-clean: " + pushedCallee);
 		}
 		this.noStore = true;
 	}

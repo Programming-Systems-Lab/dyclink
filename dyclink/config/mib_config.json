@@ -46,9 +46,7 @@
   "simStrategy": 1,
   "testMethodThresh": -1,
   "threadInit": 0,
-  "threadMethodIdxRecord": {
-    "0": 87
-  },
+  "threadMethodIdxRecord": {},
   "annotGuard": false,
   "fieldTrack": true,
   "debug": false,
@@ -57,6 +55,6 @@
   "reduceGraph": true,
   "nativeClass": true,
   "cumuGraph": true,
-  "dburl": "jdbc:mysql://liberty.cs.columbia.edu:3306/dyclink?useServerPrepStmts\u003dfalse\u0026rewriteBatchedStatements\u003dtrue\u0026autoReconnect\u003dtrue",
+  "dburl": "jdbc:mysql://ip:port/dyclink?useServerPrepStmts\u003dfalse\u0026rewriteBatchedStatements\u003dtrue\u0026autoReconnect\u003dtrue",
   "dbusername": "root"
 }
