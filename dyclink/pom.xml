@@ -12,7 +12,7 @@
 					<source>1.7</source>
 					<target>1.7</target>
 					<fork>true</fork>
-					<executable>/Library/Java/JavaVirtualMachines/jdk1.7.0_07.jdk/Contents/Home/bin/javac</executable>
+<!--					<executable>/Library/Java/JavaVirtualMachines/jdk1.7.0_07.jdk/Contents/Home/bin/javac</executable>-->
 				</configuration>
 			</plugin>
 			<plugin>
