@@ -181,15 +181,22 @@ public class StringUtil {
 	
 	public static String extractPkg(String className) {
 		int dotIdx = className.lastIndexOf(".");
+		if(dotIdx == -1)
+			return "";
 		String pkg = className.substring(0, dotIdx);
 		return pkg;
 	}
 	
 	public static int extractPkgId(String addInfo) {
 		try {
+			if(addInfo.contains(":"))
+			{
 			String[] infoArr = addInfo.split(":");
 			String valString = infoArr[infoArr.length - 1];
 			return Integer.valueOf(valString);
+			}
+			else
+				return 0;
 		} catch (Exception ex) {
 			return -1;
 		}

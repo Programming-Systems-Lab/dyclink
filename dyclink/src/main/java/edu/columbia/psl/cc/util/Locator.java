@@ -165,7 +165,8 @@ public class Locator {
 					
 					InstNode startNode = sortedTarget.get(startIdx);
 					InstNode endNode = sortedTarget.get(endIdx);
-										
+									
+
 					if (!equalInst(subStartNode, startNode)) {
 						//Search around little bit
 						int oriStart = startIdx;
@@ -191,18 +192,19 @@ public class Locator {
 					}
 					InstNode finalEndNode = sortedTarget.get(endIdx);
 					lineBuilder.append(finalEndNode.callerLine);
-					
+
 					seg.addAll(sortedTarget.subList(startIdx, endIdx + 1));
 					break ;
 				}
 			}
 			
 			//Temporarily set it as 0.8. Not consider the too-short assignment
-			if (seg.size() < subProfile.pgRep.length * 0.8) {
-				//System.out.println("Give up too-short assignment: " + inst + " size " + seg.size() + " " + subProfile.pgRep.length);
-				//logger.info("Give up too-short assignment: " + inst + " size " + seg.size() + " " + subProfile.pgRep.length);
-				continue ;
-			} else {				
+//			if (seg.size() < subProfile.pgRep.length * 0.8) {
+//				//System.out.println("Give up too-short assignment: " + inst + " size " + seg.size() + " " + subProfile.pgRep.length);
+//				//logger.info("Give up too-short assignment: " + inst + " size " + seg.size() + " " + subProfile.pgRep.length);
+//				continue ;
+//			} else
+			{				
 				//Ori is with same size, seg is with a little buffer
 				double[] segDist = StaticTester.genDistribution(seg);
 				
@@ -227,7 +229,7 @@ public class Locator {
 				}
 			}
 		}
-		
+
 		if (candSegs.size() <= assignmentThreshold) {
 			return candSegs;
 		} else {

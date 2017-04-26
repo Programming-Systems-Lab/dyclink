@@ -182,6 +182,7 @@ public class GsonManager {
 	public static void writeResult(String fileName, String resultString) {
 		//Date now = new Date();
 		//String name = MIBConfiguration.getInstance().getResultDir() + "/" + compareName + now.getTime() + ".csv"; 
+		System.out.println("Writing to " + fileName);
 		File result = new File(fileName);
 		
 		try {

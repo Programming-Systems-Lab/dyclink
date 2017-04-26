@@ -43,10 +43,22 @@ public class GraphLoadController {
 			String key = keyIT.next();
 			GraphTemplate graph = graphs.get(key);
 			
+			if(graph != null && graph.getVertexNum() == 0)
+			{
+				graph.setVertexNum(graph.getInstPool().size());
+			}
+			if(graph != null && graph.getEdgeNum() == 0)
+			{
+				int nEdges = 0;
+				for(InstNode n : graph.getInstPool().getInstMap().values())
+					nEdges += n.getChildFreqMap().size();
+				graph.setEdgeNum(nEdges);
+			}
 			String recordKey = graph.getShortMethodKey() + ":" + graph.getVertexNum() + ":" + graph.getEdgeNum();
 			double density = ((double)graph.getEdgeNum())/graph.getVertexNum();
 			int diff = graph.getVertexNum() - graph.getChildDominant();
 			
+			System.out.println("Vertices: " + graph.getVertexNum());
 			uniqueMethods.add(graph.getShortMethodKey());
 			if (graphHistory.contains(recordKey)) {
 				keyIT.remove();

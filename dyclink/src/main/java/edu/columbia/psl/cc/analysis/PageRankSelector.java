@@ -502,11 +502,12 @@ public class PageRankSelector {
 	}
 				
 	public static void main(String[] args) throws Exception {
-		Console console = System.console();
-		if (console == null) {
-			System.err.println("Null console");
-			System.exit(1);
-		}
+//		Console console = System.console();
+//		if (console == null) {
+//			System.err.println("Null console");
+//			System.exit(1);
+//		}
+		Console console = null;
 				
 		String url = MIBConfiguration.getInstance().getDburl();
 		String username = MIBConfiguration.getInstance().getDbusername();
@@ -531,20 +532,21 @@ public class PageRankSelector {
 		
 		String password = null;
 		
-		if (cLine.hasOption(ArgConfiguration.DB_PW)) {
-			System.out.println("Try connect to DB...");
-			password = cLine.getOptionValue(ArgConfiguration.DB_PW);
-		} else {
-			System.out.println("Store result into DB?");
-			Scanner scanner = new Scanner(System.in);
-			shouldDB = scanner.nextBoolean();
-			if (shouldDB) {
-				char[] passArray = console.readPassword("DB password: ");
-				password = new String(passArray);
-			} else {
-				password = null;
-			}
-		}
+//		if (cLine.hasOption(ArgConfiguration.DB_PW)) {
+//			System.out.println("Try connect to DB...");
+//			password = cLine.getOptionValue(ArgConfiguration.DB_PW);
+//		} else {
+//			System.out.println("Store result into DB?");
+//			Scanner scanner = new Scanner(System.in);
+//			shouldDB = scanner.nextBoolean();
+//			if (shouldDB) {
+//				char[] passArray = console.readPassword("DB password: ");
+//				password = new String(passArray);
+//			} else {
+//				password = null;
+//			}
+//		}
+		shouldDB = false;
 				
 		DBConnector.init(url, username, password);
 		if (shouldDB && !DBConnector.probeDB()) {

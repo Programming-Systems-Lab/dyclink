@@ -10,6 +10,8 @@ import java.util.TreeMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.util.Textifier;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -38,6 +40,34 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		
 	}
 	
+	static HashMap<String, Integer> opToInt = new HashMap<>();
+	static
+	{
+		opToInt.put("literal", Opcodes.ICONST_0);
+		opToInt.put("write", Opcodes.ISTORE);
+		opToInt.put("end expression", Opcodes.NOP);
+		opToInt.put("read", Opcodes.ILOAD);
+		opToInt.put("invokeFunPre", Opcodes.INVOKEVIRTUAL);
+		opToInt.put("<=", Opcodes.IF_ICMPLE);
+		opToInt.put("=>", Opcodes.IF_ICMPGE);
+		opToInt.put("==", Opcodes.IF_ICMPEQ);
+		opToInt.put("<", Opcodes.IF_ICMPLT);
+		opToInt.put(">", Opcodes.IF_ICMPGT);
+		opToInt.put("!==", Opcodes.IF_ICMPNE);
+		opToInt.put("conditional", Opcodes.IF_ICMPGT);
+		opToInt.put("%", Opcodes.IREM);
+		opToInt.put("/", Opcodes.IDIV);
+		opToInt.put("+", Opcodes.IADD);
+		opToInt.put("-", Opcodes.ISUB);
+		opToInt.put("*", Opcodes.IMUL);
+		opToInt.put("function enter", Opcodes.NOP);
+		opToInt.put("function exit", Opcodes.NOP);
+		opToInt.put("put field", Opcodes.PUTFIELD);
+
+		opToInt.put("variable declaration", Opcodes.ISTORE);
+		opToInt.put("return", Opcodes.IRETURN);
+
+	}
 	@Override
 	public InstNode deserialize(JsonElement json, Type typeOfT,
 			JsonDeserializationContext context) throws JsonParseException {
@@ -49,7 +79,15 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		int linenumber = object.get("linenumber").getAsInt();
 		long startTime = object.get("startTime").getAsLong();
 		long updateTime = object.get("updateTime").getAsLong();
-		int opcode = object.get("op").getAsInt();
+//		int opcode = object.get("op").getAsInt();
+		String op_str = object.get("op").getAsString();
+		int opcode;
+		if(opToInt.containsKey(op_str))
+			opcode = opToInt.get(op_str);
+		else
+		{
+			throw new IllegalStateException("Unknown op: " + op_str);
+		}
 		String addInfo = object.get("addInfo").getAsString();
 		
 		JsonArray instDataParentObj = object.get("instDataParentList").getAsJsonArray();
