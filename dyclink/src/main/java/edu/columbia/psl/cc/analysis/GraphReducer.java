@@ -37,6 +37,7 @@ public class GraphReducer {
 	}
 	
 	public static int parseSort(String addInfo) {
+//		System.out.println("GeTFIELD " + addInfo);
 		String[] first = addInfo.split(":");
 		//System.out.println("First: " + first[0]);
 		String[] second = first[0].split("\\.");

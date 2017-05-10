@@ -51,9 +51,12 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		opToInt.put("<=", Opcodes.IF_ICMPLE);
 		opToInt.put("=>", Opcodes.IF_ICMPGE);
 		opToInt.put("==", Opcodes.IF_ICMPEQ);
+		opToInt.put("===", Opcodes.IF_ICMPEQ);
+
 		opToInt.put("<", Opcodes.IF_ICMPLT);
 		opToInt.put(">", Opcodes.IF_ICMPGT);
 		opToInt.put("!==", Opcodes.IF_ICMPNE);
+		opToInt.put("for in", Opcodes.IF_ICMPNE);
 		opToInt.put("conditional", Opcodes.IF_ICMPGT);
 		opToInt.put("%", Opcodes.IREM);
 		opToInt.put("/", Opcodes.IDIV);
@@ -62,7 +65,8 @@ public class InstNodeAdapter implements JsonSerializer<InstNode>, JsonDeserializ
 		opToInt.put("*", Opcodes.IMUL);
 		opToInt.put("function enter", Opcodes.NOP);
 		opToInt.put("function exit", Opcodes.NOP);
-		opToInt.put("put field", Opcodes.PUTFIELD);
+		opToInt.put("put field", Opcodes.PUTFIELD); 
+		opToInt.put("get field", Opcodes.GETFIELD); 
 
 		opToInt.put("variable declaration", Opcodes.ISTORE);
 		opToInt.put("return", Opcodes.IRETURN);
