@@ -85,39 +85,41 @@ public class GraphReducer {
 			if (shouldReplace && !toRemove.contains(inst)) {
 				OpcodeObj reduceOp = null;
 				if (opcode == Opcodes.GETFIELD || opcode == Opcodes.GETSTATIC) {
-					int typeSort = parseSort(inst.getAddInfo());
-					if (typeSort == Type.ARRAY || typeSort == Type.OBJECT) {
-						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ALOAD);
-					} else if (typeSort == Type.BOOLEAN || typeSort == Type.BYTE || typeSort == Type.CHAR || typeSort == Type.INT || typeSort == Type.SHORT) {
-						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ILOAD);
-					} else if (typeSort == Type.LONG) {
-						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.LLOAD);
-					} else if (typeSort == Type.DOUBLE) {
-						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.DLOAD);
-					} else if (typeSort == Type.FLOAT) {
-						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.FLOAD);
-					} else {
-						logger.error("Uncategorized type: " + inst.getAddInfo() + " " + typeSort);
-						System.exit(-1);
-					}
+					reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ALOAD);
+//					int typeSort = parseSort(inst.getAddInfo());
+//					if (typeSort == Type.ARRAY || typeSort == Type.OBJECT) {
+//						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ALOAD);
+//					} else if (typeSort == Type.BOOLEAN || typeSort == Type.BYTE || typeSort == Type.CHAR || typeSort == Type.INT || typeSort == Type.SHORT) {
+//						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ILOAD);
+//					} else if (typeSort == Type.LONG) {
+//						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.LLOAD);
+//					} else if (typeSort == Type.DOUBLE) {
+//						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.DLOAD);
+//					} else if (typeSort == Type.FLOAT) {
+//						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.FLOAD);
+//					} else {
+//						logger.error("Uncategorized type: " + inst.getAddInfo() + " " + typeSort);
+//						System.exit(-1);
+//					}
 				} else if (opcode == Opcodes.AALOAD) {
 					reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ALOAD);
 				} else if (opcode == Opcodes.PUTFIELD || opcode == Opcodes.PUTSTATIC) {
-					int typeSort = parseSort(inst.getAddInfo());
-					if (typeSort == Type.ARRAY || typeSort == Type.OBJECT) {
-						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ASTORE);
-					} else if (typeSort == Type.BOOLEAN || typeSort == Type.BYTE || typeSort == Type.CHAR || typeSort == Type.INT || typeSort == Type.SHORT) {
-						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ISTORE);
-					} else if (typeSort == Type.LONG) {
-						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.LSTORE);
-					} else if (typeSort == Type.DOUBLE) {
-						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.DSTORE);
-					} else if (typeSort == Type.FLOAT) {
-						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.FSTORE);
-					} else {
-						logger.error("Upcategorized type: " + inst.getAddInfo() + " " + typeSort);
-						System.exit(-1);
-					}
+//					int typeSort = parseSort(inst.getAddInfo());
+//					if (typeSort == Type.ARRAY || typeSort == Type.OBJECT) {
+//						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ASTORE);
+//					} else if (typeSort == Type.BOOLEAN || typeSort == Type.BYTE || typeSort == Type.CHAR || typeSort == Type.INT || typeSort == Type.SHORT) {
+//						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ISTORE);
+//					} else if (typeSort == Type.LONG) {
+//						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.LSTORE);
+//					} else if (typeSort == Type.DOUBLE) {
+//						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.DSTORE);
+//					} else if (typeSort == Type.FLOAT) {
+//						reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.FSTORE);
+//					} else {
+//						logger.error("Upcategorized type: " + inst.getAddInfo() + " " + typeSort);
+//						System.exit(-1);
+//					}
+					reduceOp = BytecodeCategory.getOpcodeObj(Opcodes.ALOAD);
 					
 					if (opcode == Opcodes.PUTFIELD)
 						needJump = true;
