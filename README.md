@@ -104,7 +104,7 @@ Also, due to nondeterminism in a running program, DyCLINK may record different g
 
 Questions, concerns, comments
 -------
-Please email [Mike Su](mailto:mikefhsu@cs.columbia.edu) with any feedback. This project is still under heavy development, and we have several future plans. Thus we would very much welcome any feedback.
+Please email [Fang-Hsiang (Mike) Su](mailto:mikefhsu@cs.columbia.edu) with any feedback. This project is still under heavy development, and we have several future plans. Thus we would very much welcome any feedback.
 
 License
 -------
@@ -120,5 +120,5 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 Acknowledgements
 --------
-The authors of this software are [Mike Su](mailto:mikefhsu@cs.columbia.edu), [Jonathan Bell](mailto:jbell@cs.columbia.edu), [Kenneth Harvey](mailto:kh2333@caa.columbia.edu), [Simha Sethumadhavan](mailto:simha@cs.columbia.edu), [Gail Kaiser](mailto:kaiser@cs.columbia.edu) and [Tony Jebara](mailto:jebara@cs.columbia.edu). This work is funded in part by NSF CCF-1302269, CCF-1161079 and NSF CNS-0905246.
+The authors of this software are [Fang-Hsiang (Mike) Su](mailto:mikefhsu@cs.columbia.edu), [Jonathan Bell](mailto:jbell@cs.columbia.edu), [Kenneth Harvey](mailto:kh2333@caa.columbia.edu), [Simha Sethumadhavan](mailto:simha@cs.columbia.edu), [Gail Kaiser](mailto:kaiser@cs.columbia.edu) and [Tony Jebara](mailto:jebara@cs.columbia.edu). This work is funded in part by NSF CCF-1302269, CCF-1161079 and NSF CNS-0905246.
 
